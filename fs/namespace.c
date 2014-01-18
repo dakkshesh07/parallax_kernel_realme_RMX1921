@@ -2826,7 +2826,7 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	if (retval)
 		goto dput_out;
 
-	/* Normally, the last access time is recorded by default, we don't need it */
+	/* Default to noatime unless overriden */
 	if (!(flags & MS_RELATIME))
 		mnt_flags |= MNT_NOATIME;
 
