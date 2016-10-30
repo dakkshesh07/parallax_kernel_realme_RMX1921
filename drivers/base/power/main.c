@@ -141,6 +141,7 @@ void device_pm_add(struct device *dev)
 	}
 #endif /* VENDOR_EDIT */
 	list_add_tail(&dev->power.entry, &dpm_list);
+	dev->power.in_dpm_list = true;
 	mutex_unlock(&dpm_list_mtx);
 }
 
@@ -155,6 +156,7 @@ void device_pm_remove(struct device *dev)
 	complete_all(&dev->power.completion);
 	mutex_lock(&dpm_list_mtx);
 	list_del_init(&dev->power.entry);
+	dev->power.in_dpm_list = false;
 	mutex_unlock(&dpm_list_mtx);
 	device_wakeup_disable(dev);
 	pm_runtime_remove(dev);
