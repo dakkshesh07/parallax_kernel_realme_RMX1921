@@ -790,6 +790,10 @@ retry:
 
 	drm_atomic_helper_swap_state(state, true);
 
+	/* swap driver private state while still holding state_lock */
+	if (to_kms_state(state)->state)
+		priv->kms->funcs->swap_state(priv->kms, state);
+
 	/*
 	 * Provide the driver a chance to prepare for output fences. This is
 	 * done after the point of no return, but before asynchronous commits
@@ -823,4 +827,31 @@ error:
 	drm_atomic_helper_cleanup_planes(dev, state);
 	SDE_ATRACE_END("atomic_commit");
 	return ret;
+}
+
+struct drm_atomic_state *msm_atomic_state_alloc(struct drm_device *dev)
+{
+	struct msm_kms_state *state = kzalloc(sizeof(*state), GFP_KERNEL);
+
+	if (!state || drm_atomic_state_init(dev, &state->base) < 0) {
+		kfree(state);
+		return NULL;
+	}
+
+	return &state->base;
+}
+
+void msm_atomic_state_clear(struct drm_atomic_state *s)
+{
+	struct msm_kms_state *state = to_kms_state(s);
+	drm_atomic_state_default_clear(&state->base);
+	kfree(state->state);
+	state->state = NULL;
+}
+
+void msm_atomic_state_free(struct drm_atomic_state *state)
+{
+	kfree(to_kms_state(state)->state);
+	drm_atomic_state_default_release(state);
+	kfree(state);
 }
