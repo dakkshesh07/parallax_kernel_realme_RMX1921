@@ -14,7 +14,7 @@
 #include <linux/random.h>
 
 #include <asm/sections.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #include "internal.h"
 
