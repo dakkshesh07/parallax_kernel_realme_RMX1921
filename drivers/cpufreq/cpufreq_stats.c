@@ -22,9 +22,7 @@ struct cpufreq_stats {
 	unsigned int last_index;
 	atomic64_t *time_in_state;
 	unsigned int *freq_table;
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 	unsigned int *trans_table;
-#endif
 };
 
 static int cpufreq_stats_update(struct cpufreq_stats *stats)
@@ -42,9 +40,7 @@ static void cpufreq_stats_clear_table(struct cpufreq_stats *stats)
 	unsigned int count = stats->max_state;
 
 	memset(stats->time_in_state, 0, count * sizeof(u64));
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 	memset(stats->trans_table, 0, count * count * sizeof(int));
-#endif
 	stats->last_time = get_jiffies_64();
 	stats->total_trans = 0;
 }
@@ -81,7 +77,6 @@ static ssize_t store_reset(struct cpufreq_policy *policy, const char *buf,
 	return count;
 }
 
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 static ssize_t show_trans_table(struct cpufreq_policy *policy, char *buf)
 {
 	struct cpufreq_stats *stats = policy->stats;
@@ -126,7 +121,6 @@ static ssize_t show_trans_table(struct cpufreq_policy *policy, char *buf)
 	return len;
 }
 cpufreq_freq_attr_ro(trans_table);
-#endif
 
 cpufreq_freq_attr_ro(total_trans);
 cpufreq_freq_attr_ro(time_in_state);
@@ -136,9 +130,7 @@ static struct attribute *default_attrs[] = {
 	&total_trans.attr,
 	&time_in_state.attr,
 	&reset.attr,
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 	&trans_table.attr,
-#endif
 	NULL
 };
 static struct attribute_group stats_attr_group = {
@@ -197,9 +189,7 @@ void cpufreq_stats_create_table(struct cpufreq_policy *policy)
 
 	alloc_size = count * sizeof(int) + count * sizeof(atomic64_t);
 
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 	alloc_size += count * count * sizeof(int);
-#endif
 
 	/* Allocate memory for time_in_state/freq_table/trans_table in one go */
 	stats->time_in_state = kzalloc(alloc_size, GFP_KERNEL);
@@ -208,9 +198,7 @@ void cpufreq_stats_create_table(struct cpufreq_policy *policy)
 
 	stats->freq_table = (unsigned int *)(stats->time_in_state + count);
 
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 	stats->trans_table = stats->freq_table + count;
-#endif
 
 	stats->max_state = count;
 
@@ -256,8 +244,6 @@ void cpufreq_stats_record_transition(struct cpufreq_policy *policy,
 	cpufreq_stats_update(stats);
 
 	stats->last_index = new_index;
-#ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 	stats->trans_table[old_index * stats->max_state + new_index]++;
-#endif
 	stats->total_trans++;
 }
