@@ -47,6 +47,9 @@ sha512-arm64-y := sha512-glue.o sha512-core.o
 obj-$(CONFIG_CRYPTO_CHACHA20_NEON) += chacha20-neon.o
 chacha20-neon-y := chacha20-neon-core.o chacha20-neon-glue.o
 
+obj-$(CONFIG_CRYPTO_AES_ARM64_BS) += aes-neon-bs.o
+aes-neon-bs-y := aes-neonbs-core.o aes-neonbs-glue.o
+
 AFLAGS_aes-ce.o		:= -DINTERLEAVE=4
 AFLAGS_aes-neon.o	:= -DINTERLEAVE=4
 
