@@ -583,7 +583,7 @@ static void mark_lmk_victim(struct task_struct *tsk)
 	struct mm_struct *mm = tsk->mm;
 
 	if (!cmpxchg(&tsk->signal->oom_mm, NULL, mm)) {
-		atomic_inc(&tsk->signal->oom_mm->mm_count);
+		mmgrab(tsk->signal->oom_mm);
 		set_bit(MMF_OOM_VICTIM, &mm->flags);
 	}
 }
