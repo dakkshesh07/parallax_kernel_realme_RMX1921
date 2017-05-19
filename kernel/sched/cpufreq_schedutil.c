@@ -519,7 +519,6 @@ static ssize_t iowait_boost_enable_store(struct gov_attr_set *attr_set,
 
 	if (kstrtobool(buf, &enable))
 		return -EINVAL;
-
 	tunables->iowait_boost_enable = enable;
 
 	return count;
@@ -719,6 +718,8 @@ static int sugov_init(struct cpufreq_policy *policy)
 	tunables->up_rate_limit_us = 0;
 	tunables->down_rate_limit_us = 0;
 	tunables->iowait_boost_enable = true;
+
+	tunables->iowait_boost_enable = false;
 
 	policy->governor_data = sg_policy;
 	sg_policy->tunables = tunables;
