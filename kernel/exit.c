@@ -772,8 +772,6 @@ static void check_stack_usage(void)
 static inline void check_stack_usage(void) {}
 #endif
 
-//#ifdef VENDOR_EDIT
-//Haoran.Zhang@PSW.AD.Stability.Crash.1052210, 2016/05/24, Add for debug critical svc crash
 static bool is_zygote_process(struct task_struct *t)
 {
 	const struct cred *tcred = __task_cred(t);
@@ -804,24 +802,19 @@ static bool is_critial_process(struct task_struct *t) {
     }
 
 }
-//#endif /*VENDOR_EDIT*/
 
 void __noreturn do_exit(long code)
 {
 	struct task_struct *tsk = current;
 	int group_dead;
 #if defined(VENDOR_EDIT) && defined(CONFIG_ELSA_STUB)
-//zhoumingjun@Swdp.shanghai, 2017/04/19, add process_event_notifier support
 	struct process_event_data pe_data;
 #endif
 	TASKS_RCU(int tasks_rcu_i);
 
-//#ifdef VENDOR_EDIT
-//Haoran.Zhang@PSW.AD.Stability.Crash.1052210, 2016/05/24, Add for debug critical svc crash
     if (is_critial_process(tsk)) {
         printk("critical svc %d:%s exit with %ld !\n", tsk->pid, tsk->comm,code);
     }
-//#endif /*VENDOR_EDIT*/
 
 	/*
 	 * We can get here from a kernel oops, sometimes with preemption off.
@@ -940,9 +933,7 @@ void __noreturn do_exit(long code)
 	 */
 	flush_ptrace_hw_breakpoint(tsk);
 
-	TASKS_RCU(preempt_disable());
-	TASKS_RCU(tasks_rcu_i = __srcu_read_lock(&tasks_rcu_exit_srcu));
-	TASKS_RCU(preempt_enable());
+	exit_tasks_rcu_start();
 	exit_notify(tsk, group_dead);
 	proc_exit_connector(tsk);
 	mpol_put_task_policy(tsk);
@@ -971,7 +962,7 @@ void __noreturn do_exit(long code)
 	if (tsk->nr_dirtied)
 		__this_cpu_add(dirty_throttle_leaks, tsk->nr_dirtied);
 	exit_rcu();
-	TASKS_RCU(__srcu_read_unlock(&tasks_rcu_exit_srcu, tasks_rcu_i));
+	exit_tasks_rcu_finish();
 
 	do_task_dead();
 }
