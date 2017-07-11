@@ -777,20 +777,18 @@ retry:
 	 * mark our set of crtc's as busy:
 	 */
 	ret = start_atomic(dev->dev_private, c->crtc_mask, c->plane_mask);
-	if (ret) {
-		kfree(c);
-		goto error;
-	}
+	if (ret)
+		goto err_free;
+
+	BUG_ON(drm_atomic_helper_swap_state(state, false) < 0);
 
 	/*
 	 * This is the point of no return - everything below never fails except
 	 * when the hw goes bonghits. Which means we can commit the new state on
 	 * the software side now.
+	 *
+	 * swap driver private state while still holding state_lock
 	 */
-
-	drm_atomic_helper_swap_state(state, true);
-
-	/* swap driver private state while still holding state_lock */
 	if (to_kms_state(state)->state)
 		priv->kms->funcs->swap_state(priv->kms, state);
 
@@ -823,6 +821,8 @@ retry:
 	SDE_ATRACE_END("atomic_commit");
 	return 0;
 
+err_free:
+	kfree(c);
 error:
 	drm_atomic_helper_cleanup_planes(dev, state);
 	SDE_ATRACE_END("atomic_commit");
