@@ -96,7 +96,7 @@ config IOSCHED_ZEN
 
 choice
 	prompt "Default I/O scheduler"
-	default DEFAULT_BFQ
+	default DEFAULT_CFQ
 	help
 	  Select the I/O scheduler which will be used by default for all
 	  block devices.
@@ -134,7 +134,6 @@ choice
 		  as desired, independently of the disk parameters and with
 		  any workload. It also tries to guarantee low latency to
 		  interactive and soft real-time applications.
-
 endchoice
 
 config DEFAULT_IOSCHED
@@ -148,7 +147,6 @@ config DEFAULT_IOSCHED
 	default "fiops" if DEFAULT_FIOPS
 	default "tripndroid" if DEFAULT_TRIPNDROID
 	default "bfq" if DEFAULT_BFQ
-
 endmenu
 
 endif
