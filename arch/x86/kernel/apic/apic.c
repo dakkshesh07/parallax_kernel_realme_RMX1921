@@ -2141,7 +2141,7 @@ static int allocate_logical_cpuid(int apicid)
 
 	/* Allocate a new cpuid. */
 	if (nr_logical_cpuids >= nr_cpu_ids) {
-		WARN_ONCE(1, "Only %d processors supported."
+		WARN_ONCE(1, "Only %u processors supported."
 			     "Processor %d/0x%x and the rest are ignored.\n",
 			     nr_cpu_ids - 1, nr_logical_cpuids, apicid);
 		return -1;
