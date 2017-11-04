@@ -682,7 +682,7 @@ static int remap_cal_data(int32_t cal_type, struct cal_block_data *cal_block)
 {
 	int ret = 0;
 
-	if (cal_block->map_data.ion_client == NULL) {
+	if (cal_block->map_data.dma_buf == NULL) {
 		pr_err("%s: No ION allocation for cal type %d!\n",
 			__func__, cal_type);
 		ret = -EINVAL;
@@ -1003,11 +1003,9 @@ int q6asm_audio_client_buf_free(unsigned int dir,
 			if (port->buf[cnt].data) {
 				if (!rc || atomic_read(&ac->reset))
 					msm_audio_ion_free(
-						port->buf[cnt].client,
-						port->buf[cnt].handle);
+						port->buf[cnt].dma_buf);
 
-				port->buf[cnt].client = NULL;
-				port->buf[cnt].handle = NULL;
+				port->buf[cnt].dma_buf = NULL;
 				port->buf[cnt].data = NULL;
 				port->buf[cnt].phys = 0;
 				--(port->max_buf_cnt);
@@ -1054,18 +1052,14 @@ int q6asm_audio_client_buf_free_contiguous(unsigned int dir,
 	}
 
 	if (port->buf[0].data) {
-		pr_debug("%s: data[%pK]phys[%pK][%pK] , client[%pK] handle[%pK]\n",
+		pr_debug("%s: data[%pK], phys[%pK], dma_buf[%pK]\n",
 			__func__,
 			port->buf[0].data,
 			&port->buf[0].phys,
-			&port->buf[0].phys,
-			port->buf[0].client,
-			port->buf[0].handle);
+			port->buf[0].dma_buf);
 		if (!rc || atomic_read(&ac->reset))
-			msm_audio_ion_free(port->buf[0].client,
-					   port->buf[0].handle);
-		port->buf[0].client = NULL;
-		port->buf[0].handle = NULL;
+			msm_audio_ion_free(port->buf[0].dma_buf);
+		port->buf[0].dma_buf = NULL;
 	}
 
 	while (cnt >= 0) {
@@ -1482,10 +1476,10 @@ int q6asm_audio_client_buf_alloc(unsigned int dir,
 		while (cnt < bufcnt) {
 			if (bufsz > 0) {
 				if (!buf[cnt].data) {
-					rc = msm_audio_ion_alloc("asm_client",
-					&buf[cnt].client, &buf[cnt].handle,
+					rc = msm_audio_ion_alloc(
+					      &buf[cnt].dma_buf,
 					      bufsz,
-					      (ion_phys_addr_t *)&buf[cnt].phys,
+					      &buf[cnt].phys,
 					      &len,
 					      &buf[cnt].data);
 					if (rc) {
@@ -1594,9 +1588,9 @@ int q6asm_audio_client_buf_alloc_contiguous(unsigned int dir,
 	/* The size to allocate should be multiple of 4K bytes */
 	bytes_to_alloc = PAGE_ALIGN(bytes_to_alloc);
 
-	rc = msm_audio_ion_alloc("asm_client", &buf[0].client, &buf[0].handle,
+	rc = msm_audio_ion_alloc(&buf[0].dma_buf,
 		bytes_to_alloc,
-		(ion_phys_addr_t *)&buf[0].phys, &len,
+		&buf[0].phys, &len,
 		&buf[0].data);
 	if (rc) {
 		pr_err("%s: Audio ION alloc is failed, rc = %d\n",
@@ -3882,9 +3876,9 @@ int q6asm_set_shared_circ_buff(struct audio_client *ac,
 	bytes_to_alloc = bufsz * bufcnt;
 	bytes_to_alloc = PAGE_ALIGN(bytes_to_alloc);
 
-	rc = msm_audio_ion_alloc("audio_client", &buf_circ->client,
-			&buf_circ->handle, bytes_to_alloc,
-			(ion_phys_addr_t *)&buf_circ->phys,
+	rc = msm_audio_ion_alloc(&buf_circ->dma_buf,
+			bytes_to_alloc,
+			&buf_circ->phys,
 			&len, &buf_circ->data);
 
 	if (rc) {
@@ -3936,9 +3930,9 @@ int q6asm_set_shared_pos_buff(struct audio_client *ac,
 
 	bytes_to_alloc = PAGE_ALIGN(bytes_to_alloc);
 
-	rc = msm_audio_ion_alloc("audio_client", &buf_pos->client,
-			&buf_pos->handle, bytes_to_alloc,
-			(ion_phys_addr_t *)&buf_pos->phys, &len,
+	rc = msm_audio_ion_alloc(&buf_pos->dma_buf,
+			bytes_to_alloc,
+			&buf_pos->phys, &len,
 			&buf_pos->data);
 
 	if (rc) {
@@ -4175,18 +4169,15 @@ int q6asm_shared_io_free(struct audio_client *ac, int dir)
 	port = &ac->port[dir];
 	mutex_lock(&ac->cmd_lock);
 	if (port->buf && port->buf->data) {
-		msm_audio_ion_free(port->buf->client, port->buf->handle);
-		port->buf->client = NULL;
-		port->buf->handle = NULL;
+		msm_audio_ion_free(port->buf->dma_buf);
+		port->buf->dma_buf = NULL;
 		port->max_buf_cnt = 0;
 		kfree(port->buf);
 		port->buf = NULL;
 	}
 	if (ac->shared_pos_buf.data) {
-		msm_audio_ion_free(ac->shared_pos_buf.client,
-				ac->shared_pos_buf.handle);
-		ac->shared_pos_buf.client = NULL;
-		ac->shared_pos_buf.handle = NULL;
+		msm_audio_ion_free(ac->shared_pos_buf.dma_buf);
+		ac->shared_pos_buf.dma_buf = NULL;
 	}
 	mutex_unlock(&ac->cmd_lock);
 	return 0;
@@ -8634,9 +8625,8 @@ EXPORT_SYMBOL(q6asm_set_aptx_dec_bt_addr);
  */
 int q6asm_send_ion_fd(struct audio_client *ac, int fd)
 {
-	struct ion_client *client;
-	struct ion_handle *handle;
-	ion_phys_addr_t paddr;
+	struct dma_buf *dma_buf;
+	dma_addr_t paddr;
 	size_t pa_len = 0;
 	void *vaddr;
 	int ret;
@@ -8654,9 +8644,7 @@ int q6asm_send_ion_fd(struct audio_client *ac, int fd)
 		goto fail_cmd;
 	}
 
-	ret = msm_audio_ion_import("audio_mem_client",
-				   &client,
-				   &handle,
+	ret = msm_audio_ion_import(&dma_buf,
 				   fd,
 				   NULL,
 				   0,

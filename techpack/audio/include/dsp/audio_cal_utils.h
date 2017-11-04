@@ -28,8 +28,7 @@ struct mem_map_data {
 	size_t			map_size;
 	int32_t			q6map_handle;
 	int32_t			ion_map_handle;
-	struct ion_client	*ion_client;
-	struct ion_handle	*ion_handle;
+	struct dma_buf		*dma_buf;
 };
 
 struct cal_block_data {

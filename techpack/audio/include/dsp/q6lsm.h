@@ -33,8 +33,7 @@ struct lsm_sound_model {
 	void		*data;
 	size_t		size; /* size of buffer */
 	uint32_t	actual_size; /* actual number of bytes read by DSP */
-	struct ion_handle *handle;
-	struct ion_client *client;
+	struct dma_buf	*dma_buf;
 	uint32_t	mem_map_handle;
 };
 
@@ -48,8 +47,7 @@ struct lsm_lab_buffer {
 	dma_addr_t phys;
 	void *data;
 	size_t size;
-	struct ion_handle *handle;
-	struct ion_client *client;
+	struct dma_buf *dma_buf;
 	uint32_t mem_map_handle;
 };
 

@@ -170,8 +170,7 @@ struct audio_buffer {
 	uint32_t   used;
 	uint32_t   size;/* size of buffer */
 	uint32_t   actual_size; /* actual number of bytes read by DSP */
-	struct      ion_handle *handle;
-	struct      ion_client *client;
+	struct      dma_buf *dma_buf;
 };
 
 struct audio_aio_write_param {
