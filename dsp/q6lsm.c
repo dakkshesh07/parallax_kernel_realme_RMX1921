@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2019, 2021, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -31,6 +31,7 @@
 #include <dsp/q6core.h>
 #include <dsp/q6lsm.h>
 #include <dsp/q6afe-v2.h>
+#include <dsp/q6common.h>
 #include <dsp/audio_cal_utils.h>
 #include "adsp_err.h"
 
