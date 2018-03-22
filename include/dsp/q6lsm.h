@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2017, 2019, 2021, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -90,6 +90,7 @@ struct lsm_client {
 	bool		poll_enable;
 	int		perf_mode;
 	uint32_t	event_mode;
+	uint32_t	event_type;
 };
 
 struct lsm_stream_cmd_open_tx {
@@ -303,6 +304,11 @@ struct lsm_cmd_set_media_fmt {
 	struct lsm_param_media_fmt media_fmt;
 } __packed;
 
+struct lsm_param_det_event_type {
+	uint32_t minor_version;
+	uint32_t event_type;
+	uint32_t mode;
+} __packed;
 
 struct lsm_client *q6lsm_client_alloc(lsm_app_cb cb, void *priv);
 void q6lsm_client_free(struct lsm_client *client);

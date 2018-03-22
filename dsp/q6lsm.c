@@ -1791,11 +1791,14 @@ int q6lsm_set_one_param(struct lsm_client *client,
 	struct lsm_params_info *p_info, void *data,
 	uint32_t param_type)
 {
+	struct param_hdr_v3 param_info;
+
 	int rc = 0, pkt_sz;
 	struct lsm_module_param_ids ids;
 	u8 *packet;
 
 	memset(&ids, 0, sizeof(ids));
+        memset(&param_info, 0, sizeof(param_info));
 	switch (param_type) {
 	case LSM_ENDPOINT_DETECT_THRESHOLD: {
 		ids.module_id = p_info->module_id;
@@ -1965,6 +1968,32 @@ int q6lsm_set_one_param(struct lsm_client *client,
 		kfree(packet);
 		break;
 	}
+
+	case LSM_DET_EVENT_TYPE: {
+		struct lsm_param_det_event_type det_event_type;
+		struct snd_lsm_det_event_type *det_event_data =
+					(struct snd_lsm_det_event_type *)data;
+
+		param_info.module_id = p_info->module_id;
+		param_info.instance_id = INSTANCE_ID_0;
+		param_info.param_id = p_info->param_id;
+		param_info.param_size = sizeof(det_event_type);
+
+		memset(&det_event_type, 0, sizeof(det_event_type));
+
+		det_event_type.minor_version = QLSM_PARAM_ID_MINOR_VERSION;
+		det_event_type.event_type = det_event_data->event_type;
+		det_event_type.mode = det_event_data->mode;
+
+		rc = q6lsm_pack_and_set_params(client, &param_info,
+					       (uint8_t *)&det_event_type,
+					       LSM_SESSION_CMD_SET_PARAMS_V2);
+		if (rc)
+			pr_err("%s: DET_EVENT_TYPE cmd failed, rc %d\n",
+				 __func__, rc);
+		break;
+	}
+
 	default:
 		pr_err("%s: wrong param_type 0x%x\n",
 			__func__, p_info->param_type);
