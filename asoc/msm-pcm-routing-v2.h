@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2018, 2021, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -487,6 +487,7 @@ struct msm_pcm_routing_app_type_data {
 	int app_type;
 	u32 sample_rate;
 	int bit_width;
+	u32 num_out_channels;
 };
 
 struct msm_pcm_stream_app_type_cfg {
