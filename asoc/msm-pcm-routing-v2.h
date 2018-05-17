@@ -534,4 +534,5 @@ int msm_pcm_routing_send_chmix_cfg(int fe_id, int ip_channel_cnt,
 				int op_channel_cnt, int *ch_wght_coeff,
 				int session_type, bool use_default_chmap,
 				char *channel_map);
+int msm_pcm_routing_get_pp_ch_cnt(int fe_id, int session_type);
 #endif /*_MSM_PCM_H*/
