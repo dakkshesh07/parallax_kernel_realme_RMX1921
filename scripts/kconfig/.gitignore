@@ -3,9 +3,6 @@
 #
 config*
 *.moc
-gconf.glade.h
-*.pot
-*.mo
 
 #
 # configuration programs
@@ -15,4 +12,3 @@ mconf
 nconf
 qconf
 gconf
-kxgettext
