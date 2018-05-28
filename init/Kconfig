@@ -11,6 +11,14 @@ config DEFCONFIG_LIST
 config TOOLS_SUPPORT_RELR
 	bool "Declare tool support for RELR"
 
+config CC_IS_GCC
+	def_bool $(success,$(CC) --version | head -n 1 | grep -q gcc)
+
+config GCC_VERSION
+	int
+	default $(shell,$(srctree)/scripts/gcc-version.sh -p $(CC) | sed 's/^0*//') if CC_IS_GCC
+	default 0
+
 config CONSTRUCTORS
 	bool
 	depends on !UML
