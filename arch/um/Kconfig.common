@@ -58,7 +58,3 @@ config GENERIC_BUG
 config HZ
 	int
 	default 100
-
-config SUBARCH
-	string
-	option env="SUBARCH"
