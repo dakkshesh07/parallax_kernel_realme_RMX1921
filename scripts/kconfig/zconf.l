@@ -1,12 +1,13 @@
 %option nostdinit noyywrap never-interactive full ecs
 %option 8bit nodefault perf-report perf-report
-%x COMMAND HELP STRING PARAM
+%x COMMAND HELP STRING PARAM ASSIGN_VAL
 %{
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
  */
 
+#include <assert.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,14 +113,26 @@ n	[A-Za-z0-9_-]
 		}
 		alloc_string(yytext, yyleng);
 		yylval.string = text;
-		return T_WORD;
+		return T_VARIABLE;
 	}
+	"="	{ BEGIN(ASSIGN_VAL); return T_ASSIGN; }
+	[[:blank:]]+
 	.	warn_ignored_character(*yytext);
 	\n	{
 		BEGIN(INITIAL);
 		current_file->lineno++;
 		return T_EOL;
 	}
+}
+
+<ASSIGN_VAL>{
+	[^[:blank:]\n]+.*	{
+		alloc_string(yytext, yyleng);
+		yylval.string = text;
+		return T_ASSIGN_VAL;
+	}
+	\n	{ BEGIN(INITIAL); return T_EOL; }
+	.
 }
 
 <PARAM>{
