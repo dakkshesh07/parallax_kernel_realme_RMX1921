@@ -180,6 +180,7 @@ endif
 KBUILD_DTBS	:= dtbs
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+KBUILD_DTBO_IMG := dtbo.img
 export DTC_FLAGS := -@
 endif
 
