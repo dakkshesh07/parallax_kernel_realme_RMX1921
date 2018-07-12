@@ -217,4 +217,6 @@ source "drivers/tee/Kconfig"
 source "drivers/nfc/pn553-i2c/Kconfig"
 source "drivers/nfc/p73-spi/Kconfig"
 #endif /*OPLUS_NFC_BRINGUP*/
+
+source "drivers/energy_model/Kconfig"
 endmenu
