@@ -206,12 +206,18 @@ static void sugov_get_util(unsigned long *util, unsigned long *max, int cpu)
 	unsigned long cfs_max;
 	struct sugov_cpu *loadcpu = &per_cpu(sugov_cpu, cpu);
 
-	cfs_max = arch_scale_cpu_capacity(NULL, cpu);
+	struct sugov_cpu *loadcpu = &per_cpu(sugov_cpu, cpu);
+
+	max_cap = arch_scale_cpu_capacity(NULL, cpu);
 
 	*util = min(rq->cfs.avg.util_avg, cfs_max);
 	*max = cfs_max;
 
 	*util = boosted_cpu_util(cpu, &loadcpu->walt_load);
+	if (likely(use_pelt()))
+		*util = min((*util + rt), max_cap);
+
+	*max = max_cap;
 }
 
 static void sugov_set_iowait_boost(struct sugov_cpu *sg_cpu, u64 time,
