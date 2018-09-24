@@ -2724,6 +2724,8 @@ static int qpnp_haptics_probe(struct platform_device *pdev)
 		}
 	}
 
+	gchip = chip;
+
 	return 0;
 
 sysfs_fail:
@@ -2755,8 +2757,6 @@ static int qpnp_haptics_remove(struct platform_device *pdev)
 	if (chip->pwm_data.pwm_dev)
 		pwm_put(chip->pwm_data.pwm_dev);
 	dev_set_drvdata(&pdev->dev, NULL);
-
-	gchip = chip;
 
 	return 0;
 }
