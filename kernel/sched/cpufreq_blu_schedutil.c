@@ -33,6 +33,9 @@ struct sugov_tunables {
 	struct gov_attr_set attr_set;
 	unsigned int up_rate_limit_us;
 	unsigned int down_rate_limit_us;
+	unsigned int hispeed_load;
+	unsigned int hispeed_freq;
+	bool pl;
 	bool iowait_boost_enable;
 };
 
@@ -206,18 +209,12 @@ static void sugov_get_util(unsigned long *util, unsigned long *max, int cpu)
 	unsigned long cfs_max;
 	struct sugov_cpu *loadcpu = &per_cpu(sugov_cpu, cpu);
 
-	struct sugov_cpu *loadcpu = &per_cpu(sugov_cpu, cpu);
-
-	max_cap = arch_scale_cpu_capacity(NULL, cpu);
+	cfs_max = arch_scale_cpu_capacity(NULL, cpu);
 
 	*util = min(rq->cfs.avg.util_avg, cfs_max);
 	*max = cfs_max;
 
 	*util = boosted_cpu_util(cpu, &loadcpu->walt_load);
-	if (likely(use_pelt()))
-		*util = min((*util + rt), max_cap);
-
-	*max = max_cap;
 }
 
 static void sugov_set_iowait_boost(struct sugov_cpu *sg_cpu, u64 time,
@@ -617,6 +614,75 @@ static ssize_t down_rate_limit_us_store(struct gov_attr_set *attr_set,
 	return count;
 }
 
+static ssize_t hispeed_load_show(struct gov_attr_set *attr_set, char *buf)
+{
+	struct sugov_tunables *tunables = to_sugov_tunables(attr_set);
+
+	return scnprintf(buf, PAGE_SIZE, "%u\n", tunables->hispeed_load);
+}
+
+static ssize_t hispeed_load_store(struct gov_attr_set *attr_set,
+				  const char *buf, size_t count)
+{
+	struct sugov_tunables *tunables = to_sugov_tunables(attr_set);
+
+	if (kstrtouint(buf, 10, &tunables->hispeed_load))
+		return -EINVAL;
+
+	tunables->hispeed_load = min(100U, tunables->hispeed_load);
+
+	return count;
+}
+
+static ssize_t hispeed_freq_show(struct gov_attr_set *attr_set, char *buf)
+{
+	struct sugov_tunables *tunables = to_sugov_tunables(attr_set);
+
+	return scnprintf(buf, PAGE_SIZE, "%u\n", tunables->hispeed_freq);
+}
+
+static ssize_t hispeed_freq_store(struct gov_attr_set *attr_set,
+					const char *buf, size_t count)
+{
+	struct sugov_tunables *tunables = to_sugov_tunables(attr_set);
+	unsigned int val;
+	struct sugov_policy *sg_policy;
+	unsigned long hs_util;
+	unsigned long flags;
+
+	if (kstrtouint(buf, 10, &val))
+		return -EINVAL;
+
+	tunables->hispeed_freq = val;
+	list_for_each_entry(sg_policy, &attr_set->policy_list, tunables_hook) {
+		raw_spin_lock_irqsave(&sg_policy->update_lock, flags);
+		hs_util = freq_to_util(sg_policy,
+					sg_policy->tunables->hispeed_freq);
+		hs_util = mult_frac(hs_util, TARGET_LOAD, 100);
+		sg_policy->hispeed_util = hs_util;
+		raw_spin_unlock_irqrestore(&sg_policy->update_lock, flags);
+	}
+
+	return count;
+}
+
+static ssize_t pl_show(struct gov_attr_set *attr_set, char *buf)
+{
+	struct sugov_tunables *tunables = to_sugov_tunables(attr_set);
+
+	return scnprintf(buf, PAGE_SIZE, "%u\n", tunables->pl);
+}
+
+static ssize_t pl_store(struct gov_attr_set *attr_set, const char *buf,
+				   size_t count)
+{
+	struct sugov_tunables *tunables = to_sugov_tunables(attr_set);
+
+	if (kstrtobool(buf, &tunables->pl))
+		return -EINVAL;
+	return count;
+}
+
 static ssize_t iowait_boost_enable_show(struct gov_attr_set *attr_set,
 					char *buf)
 {
@@ -641,11 +707,17 @@ static ssize_t iowait_boost_enable_store(struct gov_attr_set *attr_set,
 
 static struct governor_attr up_rate_limit_us = __ATTR_RW(up_rate_limit_us);
 static struct governor_attr down_rate_limit_us = __ATTR_RW(down_rate_limit_us);
+static struct governor_attr hispeed_load = __ATTR_RW(hispeed_load);
+static struct governor_attr hispeed_freq = __ATTR_RW(hispeed_freq);
+static struct governor_attr pl = __ATTR_RW(pl);
 static struct governor_attr iowait_boost_enable = __ATTR_RW(iowait_boost_enable);
 
 static struct attribute *sugov_attributes[] = {
 	&up_rate_limit_us.attr,
 	&down_rate_limit_us.attr,
+	&hispeed_load.attr,
+	&hispeed_freq.attr,
+	&pl.attr,
 	&iowait_boost_enable.attr,
 	NULL
 };
@@ -763,7 +835,6 @@ static void sugov_tunables_save(struct cpufreq_policy *policy,
 	cached->hispeed_freq = tunables->hispeed_freq;
 	cached->up_rate_limit_us = tunables->up_rate_limit_us;
 	cached->down_rate_limit_us = tunables->down_rate_limit_us;
-	cached->iowait_boost_enable = tunables->iowait_boost_enable;	
 }
 
 static void sugov_tunables_free(struct sugov_tunables *tunables)
@@ -788,7 +859,6 @@ static void sugov_tunables_restore(struct cpufreq_policy *policy)
 	tunables->hispeed_freq = cached->hispeed_freq;
 	tunables->up_rate_limit_us = cached->up_rate_limit_us;
 	tunables->down_rate_limit_us = cached->down_rate_limit_us;
-	tunables->iowait_boost_enable = cached->iowait_boost_enable;
 	sg_policy->up_rate_delay_ns = cached->up_rate_limit_us;
 	sg_policy->down_rate_delay_ns = cached->down_rate_limit_us;
 	update_min_rate_limit_us(sg_policy);
@@ -847,7 +917,7 @@ static int sugov_init(struct cpufreq_policy *policy)
 		tunables->down_rate_limit_us *= lat;
 	}
 
-	tunables->iowait_boost_enable = 0;
+	tunables->iowait_boost_enable = false;
 
 	policy->governor_data = sg_policy;
 	sg_policy->tunables = tunables;
