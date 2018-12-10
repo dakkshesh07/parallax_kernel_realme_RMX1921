@@ -430,6 +430,11 @@ struct fg_saved_data {
 	unsigned long last_req_expires;
 };
 
+struct fg_saved_data {
+	union power_supply_propval val;
+	unsigned long last_req_expires;
+};
+
 struct fg_chip {
 	struct thermal_zone_device	*tz_dev;
 	struct device		*dev;
