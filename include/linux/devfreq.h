@@ -182,6 +182,8 @@ struct devfreq {
 
 	unsigned long min_freq;
 	unsigned long max_freq;
+	bool is_boost_device;
+	bool max_boost;
 	bool stop_polling;
 
 	/* information for device frequency transition */
@@ -320,6 +322,9 @@ struct devfreq_passive_data {
 };
 #endif
 
+/* Caution: devfreq->lock must be locked before calling update_devfreq */
+extern int update_devfreq(struct devfreq *devfreq);
+
 #else /* !CONFIG_PM_DEVFREQ */
 static inline struct devfreq *devfreq_add_device(struct device *dev,
 					  struct devfreq_dev_profile *profile,
@@ -426,19 +431,10 @@ static inline int devfreq_update_stats(struct devfreq *df)
 	return -EINVAL;
 }
 
-#ifdef VENDOR_EDIT
-//cuixiaogang@SRC.hypnus.2018-04-05. add support to set devfreq limit
-static inline int devfreq_set_limit(struct devfreq *df, unsigned long min, unsigned long max)
+static inline int update_devfreq(struct devfreq *devfreq)
 {
-        return -EINVAL;
+	return -EINVAL;
 }
-
-static inline int devfreq_get_limit(struct devfreq *df, unsigned long *min, unsigned long *max)
-{
-        return -EINVAL;
-}
-#endif /* VENDOR_EDIT */
-
 #endif /* CONFIG_PM_DEVFREQ */
 
 #endif /* __LINUX_DEVFREQ_H__ */
