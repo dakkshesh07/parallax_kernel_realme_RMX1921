@@ -3076,7 +3076,7 @@ static int may_open(struct path *path, int acc_mode, int flag)
 	case S_IFCHR:
 		if (!may_open_dev(path))
 			return -EACCES;
-		/*FALLTHRU*/
+		fallthrough;
 	case S_IFIFO:
 	case S_IFSOCK:
 		flag &= ~O_TRUNC;

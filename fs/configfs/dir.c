@@ -1744,9 +1744,11 @@ static loff_t configfs_dir_lseek(struct file *file, loff_t offset, int whence)
 	switch (whence) {
 		case 1:
 			offset += file->f_pos;
+			fallthrough;
 		case 0:
 			if (offset >= 0)
 				break;
+			fallthrough;
 		default:
 			return -EINVAL;
 	}

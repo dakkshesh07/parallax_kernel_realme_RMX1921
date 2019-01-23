@@ -159,6 +159,7 @@ static ssize_t signalfd_dequeue(struct signalfd_ctx *ctx, siginfo_t *info,
 		if (!nonblock)
 			break;
 		ret = -EAGAIN;
+		fallthrough;
 	default:
 		spin_unlock_irq(&current->sighand->siglock);
 		return ret;

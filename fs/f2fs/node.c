@@ -620,8 +620,10 @@ pgoff_t f2fs_get_next_page_offset(struct dnode_of_data *dn, pgoff_t pgofs)
 	switch (dn->max_level) {
 	case 3:
 		base += 2 * indirect_blks;
+		fallthrough;
 	case 2:
 		base += 2 * direct_blks;
+		fallthrough;
 	case 1:
 		base += direct_index;
 		break;
