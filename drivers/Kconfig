@@ -216,4 +216,6 @@ source "drivers/nfc/pn553-i2c/Kconfig"
 
 source "drivers/nfc/p73-spi/Kconfig"
 
+source "drivers/dts_eagle/Kconfig"
+
 endmenu
