@@ -908,13 +908,13 @@ KBUILD_CFLAGS	+= -fomit-frame-pointer
 endif
 endif
 
-KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
+DEBUG_CFLAGS	:= $(call cc-option, -fno-var-tracking-assignments)
 
 ifdef CONFIG_DEBUG_INFO
 ifdef CONFIG_DEBUG_INFO_SPLIT
-KBUILD_CFLAGS   += $(call cc-option, -gsplit-dwarf, -g)
+DEBUG_CFLAGS	+= $(call cc-option, -gsplit-dwarf, -g)
 else
-KBUILD_CFLAGS	+= -g
+DEBUG_CFLAGS	+= -g
 endif
 ifneq ($(LLVM_IAS),1)
 KBUILD_AFLAGS	+= -Wa,-gdwarf-2
@@ -922,13 +922,16 @@ endif
 endif
 
 ifdef CONFIG_DEBUG_INFO_DWARF4
-KBUILD_CFLAGS	+= $(call cc-option, -gdwarf-4,)
+DEBUG_CFLAGS	+= $(call cc-option, -gdwarf-4,)
 endif
 
 ifdef CONFIG_DEBUG_INFO_REDUCED
-KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly) \
+DEBUG_CFLAGS	+= $(call cc-option, -femit-struct-debug-baseonly) \
 		   $(call cc-option,-fno-var-tracking)
 endif
+
+KBUILD_CFLAGS += $(DEBUG_CFLAGS)
+export DEBUG_CFLAGS
 
 ifdef CONFIG_FUNCTION_TRACER
 ifndef CC_FLAGS_FTRACE
