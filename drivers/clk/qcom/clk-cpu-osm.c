@@ -852,10 +852,8 @@ static int osm_cpufreq_cpu_init(struct cpufreq_policy *policy)
 					&& prev_cc == core_count) {
 			struct cpufreq_frequency_table *prev = &table[i - 1];
 
-			if (prev->frequency == CPUFREQ_ENTRY_INVALID) {
-				prev->flags = CPUFREQ_BOOST_FREQ;
+			if (prev->frequency == CPUFREQ_ENTRY_INVALID)
 				prev->frequency = prev->driver_data;
-			}
 
 			break;
 		}
@@ -891,7 +889,6 @@ static int osm_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 
 static struct freq_attr *osm_cpufreq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
-	&cpufreq_freq_attr_scaling_boost_freqs,
 	NULL
 };
 
@@ -906,7 +903,6 @@ static struct cpufreq_driver qcom_osm_cpufreq_driver = {
 	.fast_switch	= osm_cpufreq_fast_switch,
 	.name		= "osm-cpufreq",
 	.attr		= osm_cpufreq_attr,
-	.boost_enabled	= true,
 };
 
 static u32 find_voltage(struct clk_osm *c, unsigned long rate)
