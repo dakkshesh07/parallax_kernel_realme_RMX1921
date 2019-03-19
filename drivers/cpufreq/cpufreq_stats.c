@@ -39,9 +39,9 @@ static void cpufreq_stats_clear_table(struct cpufreq_stats *stats)
 {
 	unsigned int count = stats->max_state;
 
-	memset(stats->time_in_state, 0, count * sizeof(u64));
+	memset(stats->time_in_state, 0, count * sizeof(atomic64_t));
 	memset(stats->trans_table, 0, count * count * sizeof(int));
-	stats->last_time = get_jiffies_64();
+	atomic64_set(&stats->last_time, get_jiffies_64());
 	stats->total_trans = 0;
 }
 
