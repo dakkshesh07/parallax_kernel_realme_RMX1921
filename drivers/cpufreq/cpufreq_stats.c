@@ -32,7 +32,6 @@ static int cpufreq_stats_update(struct cpufreq_stats *stats)
 
 	time = atomic64_xchg(&stats->last_time, time);
 	atomic64_add(cur_time - time, &stats->time_in_state[stats->last_index]);
-	return 0;
 }
 
 static void cpufreq_stats_clear_table(struct cpufreq_stats *stats)
