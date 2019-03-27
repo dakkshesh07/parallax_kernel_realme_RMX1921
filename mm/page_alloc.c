@@ -67,6 +67,7 @@
 #include <linux/show_mem_notifier.h>
 #include <linux/khugepaged.h>
 #include <linux/psi.h>
+#include <linux/cpu_input_boost.h>
 
 #include <asm/sections.h>
 #include <asm/tlbflush.h>
@@ -3865,7 +3866,10 @@ retry:
 			jiffies_to_msecs(jiffies-alloc_start), order);
 		stall_timeout += 10 * HZ;
 	}
-	
+
+	/* Boost when memory is low so allocation latency doesn't get too bad */
+	cpu_input_boost_kick_max(100);
+
 	if (should_reclaim_retry(gfp_mask, order, ac, alloc_flags,
 				 did_some_progress > 0, &no_progress_loops))
 		goto retry;
