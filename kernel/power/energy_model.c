@@ -161,7 +161,7 @@ static struct em_perf_domain *em_create_pd(cpumask_t *span, int nr_states,
 		 */
 		opp_eff = freq / power;
 		if (opp_eff >= prev_opp_eff)
-			pr_warn("pd%d: hertz/watts ratio non-monotonically decreasing: em_cap_state %d >= em_cap_state%d\n",
+			pr_debug("pd%d: hertz/watts ratio non-monotonically decreasing: em_cap_state %d >= em_cap_state%d\n",
 					cpu, i, i - 1);
 		prev_opp_eff = opp_eff;
 	}
@@ -173,7 +173,10 @@ static struct em_perf_domain *em_create_pd(cpumask_t *span, int nr_states,
 
 		table[i].cost = div64_u64(fmax * power_res,
 					  table[i].frequency);
-
+		if (i > 0 && (table[i].cost < table[i - 1].cost) &&
+				(table[i].power > table[i - 1].power)) {
+			table[i].cost = table[i - 1].cost;
+		}
 		pr_info("pd%d (%*pbl): <freq=%ld, power=%ld, cost=%ld>\n",
 				cpu, cpumask_pr_args(span), table[i].frequency,
 				table[i].power, table[i].cost);
