@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0
 # Simple script to update the version of DTC carried by the Linux kernel
 #
 # This script assumes that the dtc and the linux git trees are in the
@@ -38,12 +39,18 @@ LIBFDT_SOURCE="Makefile.libfdt fdt.c fdt.h fdt_addresses.c fdt_empty_tree.c \
 		fdt_overlay.c fdt_ro.c fdt_rw.c fdt_strerror.c fdt_sw.c \
 		fdt_wip.c libfdt.h libfdt_env.h libfdt_internal.h"
 
+get_last_dtc_version() {
+	git log --oneline scripts/dtc/ | grep 'upstream' | head -1 | sed -e 's/^.* \(.*\)/\1/'
+}
+
+last_dtc_ver=$(get_last_dtc_version)
+
 # Build DTC
 cd $DTC_UPSTREAM_PATH
 make clean
 make check
 dtc_version=$(git describe HEAD)
-dtc_log=$(git log --oneline scripts/dtc/ | grep 'upstream' | head -1 | sed -e 's/^.* \(.*\)/\1/')
+dtc_log=$(git log --oneline ${last_dtc_ver}..)
 
 # Copy the files into the Linux tree
 cd $DTC_LINUX_PATH
