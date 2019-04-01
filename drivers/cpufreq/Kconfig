@@ -408,6 +408,7 @@ config MAX_BOOST_FREQ_PERF
 	default "0"
 	help
 	  Max-boost frequency for the performance CPU cluster.
+
 endif
 
 comment "CPU frequency scaling drivers"
