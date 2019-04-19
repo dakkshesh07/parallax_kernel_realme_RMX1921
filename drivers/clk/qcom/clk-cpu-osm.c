@@ -685,8 +685,9 @@ osm_set_index(struct clk_osm *c, unsigned int index)
 
 	/* The old rate needs time to settle before it can be changed again */
 	delta_us = ktime_us_delta(ktime_get_boottime(), parent->last_update);
-	if (delta_us < 10000)
-		usleep_range(10000 - delta_us, 11000 - delta_us);
+	if (delta_us < MIN_RATE_LIMIT_US)
+		usleep_range(MIN_RATE_LIMIT_US - delta_us,
+			     MAX_RATE_LIMIT_US - delta_us);
 	parent->last_update = ktime_get_boottime();
 
 	clk_set_rate(c->hw.clk, clk_round_rate(c->hw.clk, rate));
