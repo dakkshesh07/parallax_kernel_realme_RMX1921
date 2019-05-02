@@ -38,7 +38,7 @@ extern unsigned int sysctl_sched_min_task_util_for_boost_colocation;
 extern unsigned int sysctl_sched_little_cluster_coloc_fmin_khz;
 
 extern int
-walt_proc_update_handler(struct ctl_table *table, int write,
+walt_proc_group_thresholds_handler(struct ctl_table *table, int write,
 			 void __user *buffer, size_t *lenp,
 			 loff_t *ppos);
 
