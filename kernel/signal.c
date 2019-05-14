@@ -811,6 +811,7 @@ static int check_kill_permission(int sig, struct siginfo *info,
 			 */
 			if (!sid || sid == task_session(current))
 				break;
+			fallthrough;
 		default:
 			return -EPERM;
 		}
