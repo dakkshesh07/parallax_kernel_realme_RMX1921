@@ -348,7 +348,6 @@ cmd_cat = (cat $(filter-out FORCE,$^) > $@) || (rm -f $@; false)
 # Bzip2 and LZMA do not include size in file... so we have to fake that;
 # append the size as a 32-bit littleendian number as gzip does.
 size_append = printf ""
-
 # Lzma
 # ---------------------------------------------------------------------------
 
