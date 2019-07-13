@@ -12,3 +12,5 @@ sdcardfs-y += dev.o
 sdcardfs-y += xattr.o
 sdcardfs-y += dellog.o
 #endif /* VENDOR_EDIT */
+
+CFLAGS_lookup.o += -Wframe-larger-than=8192
