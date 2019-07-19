@@ -821,7 +821,7 @@ static void rebuild_sched_domains_unlocked(void)
 	cpumask_var_t *doms;
 	int ndoms;
 
-	cpu_hotplug_mutex_held();
+	lockdep_assert_cpus_held();
 	percpu_rwsem_assert_held(&cpuset_rwsem);
 
 	/*
@@ -2109,6 +2109,7 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
 	if (!parent)
 		return 0;
 
+	get_online_cpus();
 	percpu_down_write(&cpuset_rwsem);
 
 	set_bit(CS_ONLINE, &cs->flags);
@@ -2160,6 +2161,7 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
 	spin_unlock_irq(&callback_lock);
 out_unlock:
 	percpu_up_write(&cpuset_rwsem);
+	put_online_cpus();
 	return 0;
 }
 
@@ -2198,6 +2200,7 @@ static void cpuset_css_free(struct cgroup_subsys_state *css)
 
 static void cpuset_bind(struct cgroup_subsys_state *root_css)
 {
+	get_online_cpus();
 	percpu_down_write(&cpuset_rwsem);
 	spin_lock_irq(&callback_lock);
 
@@ -2212,6 +2215,7 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
 
 	spin_unlock_irq(&callback_lock);
 	percpu_up_write(&cpuset_rwsem);
+	put_online_cpus();
 }
 
 /*
