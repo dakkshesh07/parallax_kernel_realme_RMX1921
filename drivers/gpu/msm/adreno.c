@@ -1315,6 +1315,7 @@ static int adreno_probe(struct platform_device *pdev)
 			PTR_ERR(adreno_dev->gpuhtw_llc_slice));
 		adreno_dev->gpuhtw_llc_slice = NULL;
 	}
+
 out:
 	if (status) {
 		adreno_ringbuffer_close(adreno_dev);
