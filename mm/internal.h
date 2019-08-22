@@ -532,6 +532,7 @@ static inline void flush_tlb_batched_pending(struct mm_struct *mm)
 }
 #endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
 
+#ifdef CONFIG_DEBUG_KERNEL
 extern const struct trace_print_flags pageflag_names[];
 extern const struct trace_print_flags vmaflag_names[];
 extern const struct trace_print_flags gfpflag_names[];
@@ -543,4 +544,9 @@ extern const struct trace_print_flags gfpflag_names[];
 #define TOTALRAM_4GB (4*SZ_1G_PAGES)
 #define TOTALRAM_6GB (6*SZ_1G_PAGES)
 #endif /*VENDOR_EDIT*/
+#else
+static const struct trace_print_flags pageflag_names[] = {{0, NULL}};
+static const struct trace_print_flags vmaflag_names[] = {{0, NULL}};
+static const struct trace_print_flags gfpflag_names[] = {{0, NULL}};
+#endif
 #endif	/* __MM_INTERNAL_H */
