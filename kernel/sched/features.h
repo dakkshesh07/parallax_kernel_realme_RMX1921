@@ -42,6 +42,12 @@ SCHED_FEAT(CACHE_HOT_BUDDY, true)
  */
 SCHED_FEAT(WAKEUP_PREEMPTION, true)
 
+/*
+ * Use arch dependent cpu capacity functions
+ */
+SCHED_FEAT(ARCH_CAPACITY, false)
+SCHED_FEAT(ARCH_POWER, false)
+
 SCHED_FEAT(HRTICK, false)
 SCHED_FEAT(DOUBLE_TICK, false)
 SCHED_FEAT(LB_BIAS, true)
@@ -89,6 +95,14 @@ SCHED_FEAT(ENERGY_AWARE, true)
 #else
 SCHED_FEAT(ENERGY_AWARE, false)
 #endif
+
+/*
+ * Minimum capacity capping. Keep track of minimum capacity factor when
+ * minimum frequency available to a policy is modified.
+ * If enabled, this can be used to inform the scheduler about capacity
+ * restrictions.
+ */
+SCHED_FEAT(MIN_CAPACITY_CAPPING, true)
 
 /*
  * Enforce the priority of candidates selected by find_best_target()
