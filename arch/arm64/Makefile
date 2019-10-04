@@ -58,7 +58,11 @@ $(warning LSE atomics not supported by binutils)
   endif
 endif
 
+ifeq ($(cc-name),clang)
+COMPATCC ?= $(CC) --target=$(notdir $(CROSS_COMPILE_COMPAT:%-=%))
+else
 COMPATCC ?= $(CROSS_COMPILE_COMPAT)gcc
+endif
 export COMPATCC
 
 ifeq ($(CONFIG_GENERIC_COMPAT_VDSO), y)
