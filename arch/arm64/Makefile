@@ -58,11 +58,6 @@ $(warning LSE atomics not supported by binutils)
   endif
 endif
 
-ifeq ($(CONFIG_GENERIC_COMPAT_VDSO), y)
-  export CONFIG_COMPAT_VDSO := y
-  compat_vdso := -DCONFIG_COMPAT_VDSO=1
-endif
-
 KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(compat_vdso)
 KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
 ifeq ($(CONFIG_ARM64_ERRATUM_843419),y)
