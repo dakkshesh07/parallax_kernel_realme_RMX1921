@@ -466,16 +466,9 @@
 					compatible = "android,vendor";
 					dev = "/dev/block/platform/soc/1d84000.ufshc/by-name/vendor";
 					type = "ext4";
-/*#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)*/
-/*yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot*/
 					mnt_flags = "ro,barrier=1,async_discard";
-/*#else*/
-					/*mnt_flags = "ro,barrier=1,discard";*/
-/*#endif*/
-					// #ifdef VENDOR_EDIT
-					// #Wanghao@BSP.Bootloader.Bootflow, 2018/04/26, add to disable A/B partition
-					fsmgr_flags = "wait,avb";
-					// #endif
+					fsmgr_flags = "wait";
+					status = "ok";
 				};
 			};
 #endif
