@@ -138,9 +138,6 @@ static bool bfq_update_next_in_service(struct bfq_sched_data *sd,
 			     "update_next_in_service: chosen this queue");
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 	else {
-		struct bfq_group *bfqg =
-			container_of(next_in_service,
-				     struct bfq_group, entity);
 
 		bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 			     "update_next_in_service: chosen this entity");
@@ -311,8 +308,6 @@ static void bfq_calc_finish(struct bfq_entity *entity, unsigned long service)
 			start, finish, delta);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 	} else {
-		struct bfq_group *bfqg =
-			container_of(entity, struct bfq_group, entity);
 
 		bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 			"calc_finish group: serv %lu, w %d",
@@ -461,8 +456,6 @@ static void bfq_update_active_node(struct rb_node *node)
 			     ((entity->min_start>>10)*1000)>>12);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 	} else {
-		struct bfq_group *bfqg =
-			container_of(entity, struct bfq_group, entity);
 
 		bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 			     "update_active_node: new min_start %llu",
@@ -785,6 +778,7 @@ __bfq_entity_update_weight_prio(struct bfq_service_tree *old_st,
 			bfqd = bfqq->bfqd;
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		else {
+
 			sd = entity->my_sched_data;
 			bfqg = container_of(sd, struct bfq_group, sched_data);
 			BUG_ON(!bfqg);
@@ -1014,8 +1008,6 @@ static void bfq_update_fin_time_enqueue(struct bfq_entity *entity,
 				     ((entity->finish>>10)*1000)>>12);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		} else {
-			struct bfq_group *bfqg =
-				container_of(entity, struct bfq_group, entity);
 
 			bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 				     "__activate_entity: new group finish %llu",
@@ -1032,8 +1024,6 @@ static void bfq_update_fin_time_enqueue(struct bfq_entity *entity,
 			     entity->start <= st->vtime ? "" : "non ", st);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 	} else {
-		struct bfq_group *bfqg =
-			container_of(entity, struct bfq_group, entity);
 
 		bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 			"__activate_entity: group %seligible in st %p",
@@ -1105,9 +1095,6 @@ static void __bfq_activate_entity(struct bfq_entity *entity,
 
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		if (entity->on_st && !bfqq) {
-			struct bfq_group *bfqg =
-				container_of(entity, struct bfq_group,
-					     entity);
 
 			bfq_log_bfqg((struct bfq_data *)bfqg->bfqd,
 				     bfqg,
@@ -1413,9 +1400,6 @@ static void bfq_deactivate_entity(struct bfq_entity *entity,
 				     "invoking udpdate_next for this queue");
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		else {
-			struct bfq_group *bfqg =
-				container_of(entity,
-					     struct bfq_group, entity);
 
 			bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 				     "invoking udpdate_next for this entity");
@@ -1453,9 +1437,6 @@ static u64 bfq_calc_vtime_jump(struct bfq_service_tree *st)
 				     root_entity->min_start);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		else {
-			struct bfq_group *bfqg =
-				container_of(root_entity, struct bfq_group,
-					     entity);
 
 			bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 				     "calc_vtime_jump: new value %llu",
@@ -1589,8 +1570,6 @@ __bfq_lookup_next_entity(struct bfq_service_tree *st, bool in_service
 			     ((new_vtime>>10)*1000)>>12, st);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 	else {
-		struct bfq_group *bfqg =
-			container_of(entity, struct bfq_group, entity);
 
 		bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 			     "__lookup_next: start %llu vtime %llu st %p",
@@ -1663,8 +1642,6 @@ static struct bfq_entity *bfq_lookup_next_entity(struct bfq_sched_data *sd)
 			     st + class_idx, class_idx);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 	else {
-		struct bfq_group *bfqg =
-			container_of(entity, struct bfq_group, entity);
 
 		bfq_log_bfqg((struct bfq_data *)bfqg->bfqd, bfqg,
 			     "chosen from st %p %d",
@@ -1705,8 +1682,6 @@ static struct bfq_queue *bfq_get_next_queue(struct bfq_data *bfqd)
 	for (; sd ; sd = entity->my_sched_data) {
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		if (entity) {
-			struct bfq_group *bfqg =
-				container_of(entity, struct bfq_group, entity);
 
 			bfq_log_bfqg(bfqd, bfqg,
 				     "get_next_queue: lookup in this group");
@@ -1807,8 +1782,6 @@ static struct bfq_queue *bfq_get_next_queue(struct bfq_data *bfqd)
 				(((entity->finish>>10)*1000)>>10)>>2);
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		else {
-			struct bfq_group *bfqg =
-				container_of(entity, struct bfq_group, entity);
 
 			bfq_log_bfqg(bfqd, bfqg,
 			     "get_next_queue: this entity, finish %llu",
