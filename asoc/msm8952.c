@@ -35,6 +35,7 @@
 
 #define MSM_INT_DIGITAL_CODEC "msm-dig-codec"
 #define PMIC_INT_ANALOG_CODEC "analog-codec"
+#define EXT_SMART_PA "ext-smart-pa"
 
 enum btsco_rates {
 	RATE_8KHZ_ID,
@@ -2474,21 +2475,6 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.ignore_suspend = 1,
 	},
 	{
-		.name = LPASS_BE_QUAT_MI2S_RX,
-		.stream_name = "Quaternary MI2S Playback",
-		.cpu_dai_name = "msm-dai-q6-mi2s.3",
-		.platform_name = "msm-pcm-routing",
-		.codec_dai_name = "snd-soc-dummy-dai",
-		.codec_name = "snd-soc-dummy",
-		.no_pcm = 1,
-		.dpcm_playback = 1,
-		.id = MSM_BACKEND_DAI_QUATERNARY_MI2S_RX,
-		.be_hw_params_fixup = msm_mi2s_rx_be_hw_params_fixup,
-		.ops = &msm8952_quat_mi2s_be_ops,
-		.ignore_pmdown_time = 1, /* dai link has playback support */
-		.ignore_suspend = 1,
-	},
-	{
 		.name = LPASS_BE_QUAT_MI2S_TX,
 		.stream_name = "Quaternary MI2S Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.3",
@@ -2775,6 +2761,21 @@ static struct snd_soc_dai_link msm_int_be_dai[] = {
 		.ops = &msm8952_mi2s_be_ops,
 		.ignore_suspend = 1,
 	},
+	{
+		.name = LPASS_BE_QUAT_MI2S_RX,
+		.stream_name = "Quaternary MI2S Playback",
+		.cpu_dai_name = "msm-dai-q6-mi2s.3",
+		.platform_name = "msm-pcm-routing",
+		.codec_dai_name = "snd-soc-dummy-dai",
+		.codec_name = "snd-soc-dummy",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.id = MSM_BACKEND_DAI_QUATERNARY_MI2S_RX,
+		.be_hw_params_fixup = msm_mi2s_rx_be_hw_params_fixup,
+		.ops = &msm8952_quat_mi2s_be_ops,
+		.ignore_pmdown_time = 1, /* dai link has playback support */
+		.ignore_suspend = 1,
+	},
 };
 
 static struct snd_soc_dai_link msm_int_dig_be_dai[] = {
@@ -2812,12 +2813,31 @@ static struct snd_soc_dai_link msm_int_dig_be_dai[] = {
 	},
 };
 
+static struct snd_soc_dai_link msm_tfa98xx_dig_be_dai_link[] = {
+	{
+		.name = LPASS_BE_QUAT_MI2S_RX,
+		.stream_name = "Quaternary MI2S Playback",
+		.cpu_dai_name = "msm-dai-q6-mi2s.3",
+		.platform_name = "msm-pcm-routing",
+		.codec_dai_name = "tfa98xx-aif-2-34",
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+		SND_SOC_DAIFMT_CBS_CFS,
+		.dpcm_playback = 1,
+		.no_pcm = 1,
+		.id = MSM_BACKEND_DAI_QUATERNARY_MI2S_RX,
+		.be_hw_params_fixup = msm_mi2s_rx_be_hw_params_fixup,
+		.ops = &msm8952_quat_mi2s_be_ops,
+		.ignore_pmdown_time = 1, /* dai link has playback support */
+		.ignore_suspend = 1,
+	},
+};
 
 static struct snd_soc_dai_link msm8952_dai_links[
 ARRAY_SIZE(msm8952_dai) +
 ARRAY_SIZE(msm_int_be_dai) +
 ARRAY_SIZE(msm8952_hdmi_dba_dai_link) +
-ARRAY_SIZE(msm8952_split_a2dp_dai_link)];
+ARRAY_SIZE(msm8952_split_a2dp_dai_link) +
+ARRAY_SIZE(msm_tfa98xx_dig_be_dai_link)];
 
 static int msm8952_wsa881x_init(struct snd_soc_component *component)
 {
@@ -3016,6 +3036,19 @@ codec_dai:
 				dai_link[i].codec_of_node = phandle;
 			}
 		}
+		if ((dai_link[i].id == MSM_BACKEND_DAI_QUATERNARY_MI2S_RX) &&
+			(of_property_read_bool(
+			cdev->of_node, "ext_pa_tfa98xx"))) {
+			index = of_property_match_string(
+					cdev->of_node,
+					"asoc-codec-names",
+					EXT_SMART_PA);
+
+			phandle = of_parse_phandle(
+					cdev->of_node,
+					"asoc-codec", index);
+			dai_link[i].codec_of_node = phandle;
+		}
 	}
 err:
 	return ret;
@@ -3131,6 +3164,14 @@ static struct snd_soc_card *msm8952_populate_sndcard_dailinks(
 				sizeof(msm8952_split_a2dp_dai_link));
 		len1 += ARRAY_SIZE(msm8952_split_a2dp_dai_link);
 	}
+
+	if (of_property_read_bool(dev->of_node,
+				"ext_pa_tfa98xx")) {
+		memcpy(dailink + len1, msm_tfa98xx_dig_be_dai_link,
+			sizeof(msm_tfa98xx_dig_be_dai_link));
+		len1 += ARRAY_SIZE(msm_tfa98xx_dig_be_dai_link);
+	}
+
 	card->dai_link = dailink;
 	card->num_links = len1;
 	return card;
