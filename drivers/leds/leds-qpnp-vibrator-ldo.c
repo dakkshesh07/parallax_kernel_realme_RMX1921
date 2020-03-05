@@ -1,14 +1,5 @@
-/* Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 and
- * only version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2017-2020, The Linux Foundation. All rights reserved. */
 
 #define pr_fmt(fmt)	"%s: " fmt, __func__
 
@@ -252,7 +243,7 @@ static ssize_t qpnp_vib_show_state(struct device *dev,
 	struct vib_ldo_chip *chip = container_of(cdev, struct vib_ldo_chip,
 						cdev);
 
-	return snprintf(buf, PAGE_SIZE, "%d\n", chip->vib_enabled);
+	return scnprintf(buf, PAGE_SIZE, "%d\n", chip->vib_enabled);
 }
 
 static ssize_t qpnp_vib_store_state(struct device *dev,
@@ -276,7 +267,7 @@ static ssize_t qpnp_vib_show_duration(struct device *dev,
 		time_ms = ktime_to_ms(time_rem);
 	}
 
-	return snprintf(buf, PAGE_SIZE, "%lld\n", time_ms);
+	return scnprintf(buf, PAGE_SIZE, "%lld\n", time_ms);
 }
 
 static ssize_t qpnp_vib_store_duration(struct device *dev,
@@ -313,7 +304,7 @@ static ssize_t qpnp_vib_show_activate(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	/* For now nothing to show */
-	return snprintf(buf, PAGE_SIZE, "%d\n", 0);
+	return scnprintf(buf, PAGE_SIZE, "%d\n", 0);
 }
 
 static ssize_t qpnp_vib_store_activate(struct device *dev,
@@ -349,7 +340,7 @@ static ssize_t qpnp_vib_show_vmax(struct device *dev,
 	struct vib_ldo_chip *chip = container_of(cdev, struct vib_ldo_chip,
 						cdev);
 
-	return snprintf(buf, PAGE_SIZE, "%d\n", chip->vmax_uV / 1000);
+	return scnprintf(buf, PAGE_SIZE, "%d\n", chip->vmax_uV / 1000);
 }
 
 static ssize_t qpnp_vib_store_vmax(struct device *dev,
@@ -558,5 +549,5 @@ static struct platform_driver qpnp_vibrator_ldo_driver = {
 };
 module_platform_driver(qpnp_vibrator_ldo_driver);
 
-MODULE_DESCRIPTION("QCOM QPNP Vibrator-LDO driver");
+MODULE_DESCRIPTION("QPNP Vibrator-LDO driver");
 MODULE_LICENSE("GPL v2");
