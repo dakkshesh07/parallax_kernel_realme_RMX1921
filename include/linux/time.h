@@ -287,4 +287,7 @@ static __always_inline void timespec_add_ns(struct timespec *a, u64 ns)
  * Equivalent to !(time_before32(@t, @l) || time_after32(@t, @h)).
  */
 #define time_between32(t, l, h) ((u32)(h) - (u32)(l) >= (u32)(t) - (u32)(l))
+
+# include <vdso/time.h>
+
 #endif
