@@ -3105,7 +3105,7 @@
 				};
 			};
 		};
-//#endif /* VENDOR_EDIT */
+/* #endif VENDOR_EDIT */
 	};
 };
 
@@ -3149,7 +3149,7 @@
 	/* #endif VENDOR_EDIT */
 };
 /*ifdef VENDOR_EDIT wanghaoran camera at 20190107
-/* &pm660l_gpios {
+  &pm660l_gpios {
 	camera_rear_dvdd_en {
 		camera_rear_dvdd_en_default: camera_rear_dvdd_en_default {
 			pins = "gpio4";

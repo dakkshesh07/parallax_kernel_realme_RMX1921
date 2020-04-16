@@ -933,7 +933,7 @@
 /*ifndef VENDOR_EDIT*/
 /*Yun.Chen@PSW.NW.RF, 2018/05/18, Remove for following QC advice in 03486301.*/
 //			qcom,allocate-boot-time;
-/*endif /* VENDOR_EDIT */
+/* #endif VENDOR_EDIT */
 			label = "modem";
 		};
 	};
