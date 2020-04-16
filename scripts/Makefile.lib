@@ -290,7 +290,8 @@ DTC_FLAGS += -Wno-unit_address_vs_reg \
 	-Wno-interrupts_property \
 	-Wno-reg_format \
 	-Wno-gpios_property \
-        -Wno-graph_port
+        -Wno-graph_port \
+        -Wno-graph_child_address
 endif
 
 ifeq ($(KBUILD_ENABLE_EXTRA_GCC_CHECKS),2)
