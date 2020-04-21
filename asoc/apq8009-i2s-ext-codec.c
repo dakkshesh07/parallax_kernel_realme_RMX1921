@@ -173,6 +173,7 @@ static atomic_t pri_mi2s_clk_ref;
 static atomic_t quat_mi2s_clk_ref;
 static atomic_t auxpcm_mi2s_clk_ref;
 static int tdm_i2s_switch_enable = -EINVAL;
+static int pdm_i2s_switch_enable = -EINVAL;
 
 static int apq8009_enable_extcodec_ext_clk(struct snd_soc_codec *codec,
 					   int enable, bool dapm);
@@ -1418,6 +1419,11 @@ static int msm_quat_mi2s_snd_startup(struct snd_pcm_substream *substream)
 		if (ret < 0)
 			pr_err("%s: set fmt cpu dai failed\n", __func__);
 	}
+
+	/* enables HW routing of i2s signal between codec and SOC */
+	if (pdm_i2s_switch_enable >= 0)
+		gpio_direction_output(pdm_i2s_switch_enable, 1);
+
 	return ret;
 err:
 	ret = ext_mi2s_clk_ctl(substream, false);
@@ -1453,6 +1459,10 @@ static void msm_quat_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 					__func__, "quat_i2s");
 		}
 	}
+
+	/* disables HW routing of i2s signal between codec and SOC */
+	if (pdm_i2s_switch_enable >= 0)
+		gpio_direction_output(pdm_i2s_switch_enable, 0);
 
 }
 
@@ -2965,7 +2975,7 @@ static int apq8009_asoc_machine_probe(struct platform_device *pdev)
 	}
 	atomic_set(&pdata->quat_ref_count, 0);
 	tdm_i2s_switch_enable = of_get_named_gpio(pdev->dev.of_node,
-				"qcom,tdm-i2s-switch-enable", 0);
+			    "qcom,tdm-i2s-switch-enable", 0);
 	if (tdm_i2s_switch_enable >= 0) {
 		dev_dbg(&pdev->dev, "%s: tdm switch gpio %d", __func__,
 			tdm_i2s_switch_enable);
@@ -2975,8 +2985,22 @@ static int apq8009_asoc_machine_probe(struct platform_device *pdev)
 			goto err;
 		}
 	} else
-		dev_err(&pdev->dev, "Looking up %s property in node %s failed\n",
+		dev_warn(&pdev->dev, "Looking up %s property in node %s failed\n",
 			"qcom,tdm-i2s-switch-enable",
+			pdev->dev.of_node->full_name);
+	pdm_i2s_switch_enable = of_get_named_gpio(pdev->dev.of_node,
+			    "qcom,pdm-i2s-switch-enable", 0);
+	if (pdm_i2s_switch_enable >= 0) {
+		dev_dbg(&pdev->dev, "%s: pdm switch gpio %d", __func__,
+			pdm_i2s_switch_enable);
+		ret = gpio_request(pdm_i2s_switch_enable, "TDM_RESET");
+		if (ret) {
+			pr_err("%s: Failed to request gpio\n", __func__);
+			goto err;
+		}
+	} else
+		dev_warn(&pdev->dev, "Looking up %s property in node %s failed\n",
+			"qcom,pdm-i2s-switch-enable",
 			pdev->dev.of_node->full_name);
 
 	return 0;
