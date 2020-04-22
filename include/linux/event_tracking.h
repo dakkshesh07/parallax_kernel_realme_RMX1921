@@ -2,4 +2,5 @@
 #define _EVENT_TRACKING_H_
 //last input boost time
 extern unsigned long last_input_time;
+extern unsigned long last_mb_time;
 #endif
