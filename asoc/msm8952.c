@@ -1702,6 +1702,8 @@ static int msm_dig_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(dig_cdc);
 	struct snd_card *card = NULL;
 
+	snd_soc_add_codec_controls(dig_cdc, msm_snd_controls,
+			ARRAY_SIZE(msm_snd_controls));
 	snd_soc_dapm_new_controls(dapm, msm8952_dig_dapm_widgets,
 			ARRAY_SIZE(msm8952_dig_dapm_widgets));
 
@@ -2204,8 +2206,8 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.id = MSM_FRONTEND_DAI_MULTIMEDIA7,
 	},
 	{ /* hw:x,25 */
-		.name = "QUAT_MI2S Hostless",
-		.stream_name = "QUAT_MI2S Hostless",
+		.name = "Quaternary MI2S_RX Hostless",
+		.stream_name = "Quaternary MI2S_RX Hostless",
 		.cpu_dai_name = "QUAT_MI2S_RX_HOSTLESS",
 		.platform_name = "msm-pcm-hostless",
 		.dynamic = 1,
@@ -2224,7 +2226,8 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Senary_mi2s Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.6",
 		.platform_name = "msm-pcm-hostless",
-		.codec_dai_name = "msm_dig_cdc_dai_vifeed",
+		.codecs = dlc_vifeed,
+		.num_codecs = CODECS_MAX,
 		.id = MSM_BACKEND_DAI_SENARY_MI2S_TX,
 		.be_hw_params_fixup = msm_senary_tx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
@@ -3025,6 +3028,19 @@ codec_dai:
 				dai_link[i].codecs[ANA_CDC].of_node = phandle;
 			}
 			if (pdata->snd_card_val == INT_DIG_SND_CARD) {
+			/*
+			 * When only digital codec is enabled it results in
+			 * crash due to NULL ptr exception as senary DAI has
+			 * both analog and digital DAI info. Update
+			 * codec_dai_name for digital codec to avoid the crash
+			 */
+				if (dai_link[i].id ==
+					MSM_BACKEND_DAI_SENARY_MI2S_TX) {
+					dai_link[i].codecs = NULL;
+					dai_link[i].num_codecs = 1;
+					dai_link[i].codec_dai_name =
+						"msm_dig_cdc_dai_vifeed";
+				}
 				index = of_property_match_string(
 						cdev->of_node,
 						"asoc-codec-names",

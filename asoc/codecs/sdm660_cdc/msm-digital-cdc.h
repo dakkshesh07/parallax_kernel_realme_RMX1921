@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016-2018, 2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -82,6 +82,7 @@ struct msm_dig_priv {
 	char __iomem *dig_base;
 	struct regmap *regmap;
 	struct notifier_block nblock;
+	struct notifier_block service_nb;
 	u32 mute_mask;
 	int dapm_bias_off;
 	void *handle;
