@@ -61,6 +61,8 @@ static void *dummy_q6_mvm;
 static void *dummy_q6_cvs;
 dev_t device_num;
 
+struct mutex session_lock;
+static bool is_released = 1;
 static int voice_svc_dummy_reg(void);
 static int32_t qdsp_dummy_apr_callback(struct apr_client_data *data,
 					void *priv);
@@ -577,14 +579,23 @@ err:
 static int voice_svc_open(struct inode *inode, struct file *file)
 {
 	struct voice_svc_prvt *prtd = NULL;
+	int ret = 0;
 
 	pr_debug("%s\n", __func__);
+
+	mutex_lock(&session_lock);
+	if (is_released == 0) {
+		pr_err("%s: Access denied to device\n", __func__);
+		ret = -EBUSY;
+		goto done;
+	}
 
 	prtd = kmalloc(sizeof(struct voice_svc_prvt), GFP_KERNEL);
 
 	if (prtd == NULL) {
 		pr_err("%s: kmalloc failed\n", __func__);
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto done;
 	}
 
 	memset(prtd, 0, sizeof(struct voice_svc_prvt));
@@ -596,6 +607,7 @@ static int voice_svc_open(struct inode *inode, struct file *file)
 	spin_lock_init(&prtd->response_lock);
 	file->private_data = (void *)prtd;
 
+	is_released = 0;
 	/* Current APR implementation doesn't support session based
 	 * multiple service registrations. The apr_deregister()
 	 * function sets the destination and client IDs to zero, if
@@ -606,7 +618,9 @@ static int voice_svc_open(struct inode *inode, struct file *file)
 		voice_svc_dummy_reg();
 		reg_dummy_sess = 1;
 	}
-	return 0;
+done:
+	mutex_unlock(&session_lock);
+	return ret;
 }
 
 static int voice_svc_release(struct inode *inode, struct file *file)
@@ -660,6 +674,7 @@ static int voice_svc_release(struct inode *inode, struct file *file)
 
 	kfree(file->private_data);
 	file->private_data = NULL;
+	is_released = 1;
 
 done:
 	return ret;
@@ -729,6 +744,7 @@ static int voice_svc_probe(struct platform_device *pdev)
 		goto add_err;
 	}
 	pr_debug("%s: Device created\n", __func__);
+	mutex_init(&session_lock);
 	goto done;
 
 add_err:
@@ -751,6 +767,7 @@ static int voice_svc_remove(struct platform_device *pdev)
 	kfree(voice_svc_dev->cdev);
 	device_destroy(voice_svc_class, device_num);
 	class_destroy(voice_svc_class);
+	mutex_destroy(&session_lock);
 	unregister_chrdev_region(0, MINOR_NUMBER);
 
 	return 0;
