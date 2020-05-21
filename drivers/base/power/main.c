@@ -130,7 +130,7 @@ void device_pm_add(struct device *dev)
 #ifndef VENDOR_EDIT
 	//Nanwei.Deng@BSP.CHG.Basic 2018/05/03 modify for power debug
 	if (dev->parent && dev->parent->power.is_prepared)
-		dev_warn(dev, "parent %s should not be sleeping\n",
+		dev_dbg(dev, "parent %s should not be sleeping\n",
 			dev_name(dev->parent));
 #else
 	if (dev->parent && dev->parent->power.is_prepared) {
