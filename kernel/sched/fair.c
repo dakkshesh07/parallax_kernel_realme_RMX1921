@@ -135,7 +135,7 @@ unsigned int sysctl_sched_child_runs_first __read_mostly = 1;
 unsigned int sysctl_sched_wakeup_granularity = 1000000UL;
 static unsigned int normalized_sysctl_sched_wakeup_granularity = 1000000UL;
 
-unsigned int __read_mostly sysctl_sched_migration_cost = 500000UL;
+unsigned int __read_mostly sysctl_sched_migration_cost = 1000000UL;
 
 #ifdef CONFIG_SMP
 /*
