@@ -10,15 +10,18 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __SMB2_CHARGER_H
-#define __SMB2_CHARGER_H
+#ifndef _OPPO_BATTERY_QCOM_SDM670_H_
+#define _OPPO_BATTERY_QCOM_SDM670_H_
 #include <linux/types.h>
 #include <linux/interrupt.h>
 #include <linux/irqreturn.h>
 #include <linux/regulator/driver.h>
 #include <linux/regulator/consumer.h>
 #include <linux/extcon.h>
-#include "storm-watch.h"
+#include "../../../../kernel/msm-4.9/drivers/power/supply/qcom/storm-watch.h"
+#include "../../../../kernel/msm-4.9/drivers/power/supply/qcom/smb-reg.h"
+#include "../../../../kernel/msm-4.9/drivers/power/supply/qcom/battery.h"
+#include "../../../../kernel/msm-4.9/drivers/power/supply/qcom/step-chg-jeita.h"
 
 enum print_reason {
 	PR_INTERRUPT	= BIT(0),
@@ -78,11 +81,13 @@ enum print_reason {
 #ifdef VENDOR_EDIT
 /* Jianchao.Shi@BSP.CHG.Basic, 2018/01/30, sjc Add for using gpio as CC detect */
 #define CCDETECT_VOTER			"CCDETECT_VOTER"
+#define DIVIDER_SET_VOTER			"DIVIDER_SET_VOTER"
 #endif
-#define FG_ESR_VOTER			"FG_ESR_VOTER"
+#ifdef VENDOR_EDIT
+/* Jianchao.Shi@BSP.CHG.Basic, 2018/02/13, sjc Add for charging */
+#define PD_DIS_VOTER			"PD_DIS_VOTER"
+#endif
 #define FCC_STEPPER_VOTER		"FCC_STEPPER_VOTER"
-#define PD_NOT_SUPPORTED_VOTER		"PD_NOT_SUPPORTED_VOTER"
-
 #define VCONN_MAX_ATTEMPTS	3
 #define OTG_MAX_ATTEMPTS	3
 #define BOOST_BACK_STORM_COUNT	3
@@ -377,8 +382,7 @@ struct smb_charger {
 	bool			otg_present;
 	bool			is_audio_adapter;
 	bool			disable_stat_sw_override;
-	bool			in_chg_lock;
-	bool			fcc_stepper_enable;
+    bool			fcc_stepper_enable;
 
 	/* workaround flag */
 	u32			wa_flags;
@@ -394,8 +398,6 @@ struct smb_charger {
 /* Jianchao.Shi@BSP.CHG.Basic, 2018/07/13, sjc Add for fake typec */
 	bool			fake_typec_insertion;
 #endif
-	bool			reddragon_ipc_wa;
-
 	/* extcon for VBUS / ID notification to USB for uUSB */
 	struct extcon_dev	*extcon;
 
@@ -411,7 +413,8 @@ struct smb_charger {
 #ifdef VENDOR_EDIT
 /* Jianchao.Shi@BSP.CHG.Basic, 2017/08/10, sjc Add for charging */
 	int			pre_current_ma;
-    bool		is_dpdm_on_usb;
+	bool		is_dpdm_on_usb;
+	struct delayed_work	divider_set_work;
 	struct work_struct	dpdm_set_work;
 #endif
 #ifdef VENDOR_EDIT
@@ -422,7 +425,6 @@ struct smb_charger {
 	struct pinctrl_state	*ccdetect_active;
 	struct pinctrl_state	*ccdetect_sleep;
 	struct delayed_work	ccdetect_work;
-    struct delayed_work	divider_set_work;
 #endif
 #ifdef VENDOR_EDIT
 /* Qiao.Hu@BSP.CHG.basic, 2018/11/02, add for chargerid */
@@ -454,7 +456,6 @@ struct smb_dt_props {
 	bool	hvdcp_disable;
 	bool	auto_recharge_soc;
 	int	wd_bark_time;
-	bool	no_pd;
 };
 
 struct smb2 {
@@ -468,6 +469,7 @@ struct qcom_pmic {
 	struct smb2 *smb2_chip;
 	struct qpnp_vadc_chip	*pm660_vadc_dev;
 	struct qpnp_vadc_chip	*pm660_usbtemp_vadc_dev;
+	struct iio_channel	*usb_temp_v_chan;
 
 	/* for complie*/
 	bool			otg_pulse_skip_dis;
@@ -652,11 +654,7 @@ int smblib_set_prop_pr_swap_in_progress(struct smb_charger *chg,
 int smblib_stat_sw_override_cfg(struct smb_charger *chg, bool override);
 void smblib_usb_typec_change(struct smb_charger *chg);
 int smblib_toggle_stat(struct smb_charger *chg, int reset);
-#ifdef VENDOR_EDIT
-/* tongfeng.huang@BSP.CHG.Basic, 2018/04/23,  Add for using gpio as CC  detect */
-const struct apsd_result *smblib_update_usb_type(struct smb_charger *chg);
-irqreturn_t oppo_ccdetect_change_handler(int irq, void *data);
-#endif
+
 
 int smblib_init(struct smb_charger *chg);
 int smblib_deinit(struct smb_charger *chg);
