@@ -1,5 +1,3 @@
-#ifndef VENDOR_EDIT
-#PengNan@BSP.CHG.Basic 2019/03/15 modify for 18097
 #dts-dirs += al
 #dts-dirs += altera
 #dts-dirs += amd
@@ -14,7 +12,7 @@
 #dts-dirs += marvell
 #dts-dirs += mediatek
 #dts-dirs += nvidia
-#dts-dirs += qcom
+dts-dirs += qcom
 #dts-dirs += renesas
 #dts-dirs += rockchip
 #dts-dirs += socionext
@@ -22,13 +20,6 @@
 #dts-dirs += xilinx
 #dts-dirs += lg
 #dts-dirs += zte
-#else
-#dts-dirs += 18097
-dts-dirs += 18621
-dts-dirs += 19651
-dts-dirs += 19691
-dts-dirs += 18041
-#endif
 subdir-y	:= $(dts-dirs)
 
 dtstree		:= $(srctree)/$(src)

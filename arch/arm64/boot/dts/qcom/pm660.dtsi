@@ -45,6 +45,7 @@
 			qcom,kpdpwr-sw-debounce;
 			qcom,system-reset;
 			qcom,store-hard-reset-reason;
+			oppo,pmicwd;
 
 			qcom,pon_1 {
 				qcom,pon-type = <0>;
@@ -242,6 +243,44 @@
 				qcom,fast-avg-setup = <0>;
 				qcom,cal-val = <0>;
 			};
+			//#ifdef VENDOR_EDIT /* tongfeng.Huang@BSP.CHG.Basic, 2018/05/08,  Add for charging ID*/
+			chan@12 {
+				label = "gpio2_adc";
+				reg = <0x12>; //channel for GPIO2
+				qcom,decimation = <2>;
+				qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+				qcom,calibration-type = "absolute";
+				qcom,scale-function = <0>;
+				qcom,hw-settle-time = <2>;
+				qcom,fast-avg-setup = <0>;
+                qcom,cal-val = <0>;
+			};
+			//#endif
+			//#ifdef VENDOR_EDIT /* tongfeng.Huang@BSP.CHG.Basic, 2018/05/08,  Add for charging USB BTB TEMP*/
+			chan@13 {
+				label = "gpio3_adc";
+				reg = <0x13>; //channel for GPIO3
+				qcom,decimation = <2>;
+				qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+				qcom,calibration-type = "absolute";
+				qcom,scale-function = <0>;
+				qcom,hw-settle-time = <2>;
+				qcom,fast-avg-setup = <0>;
+                qcom,cal-val = <0>;
+			};
+
+			chan@19 {
+				label = "gpio12_adc";
+				reg = <0x19>; //channel for GPIO_12
+				qcom,decimation = <2>;
+				qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+				qcom,calibration-type = "absolute";
+				qcom,scale-function = <0>;
+				qcom,hw-settle-time = <2>;
+				qcom,fast-avg-setup = <0>;
+             qcom,cal-val = <0>;
+			};
+			//#endif
 		};
 
 		pm660_pdphy: qcom,usb-pdphy@1700 {
@@ -266,8 +305,8 @@
 					  "msg-tx-discarded",
 					  "msg-rx-discarded";
 
-			qcom,default-sink-caps = <5000 3000>, /* 5V @ 3A */
-						 <9000 3000>; /* 9V @ 3A */
+			qcom,default-sink-caps = <5000 3000>; /* 5V @ 3A */
+						 //<9000 3000>; /* 9V @ 3A */
 		};
 
 		pm660_adc_tm: vadc@3400 {
