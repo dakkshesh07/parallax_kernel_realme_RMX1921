@@ -13,11 +13,13 @@
 
 /dts-v1/;
 
-#include "msm8953.dtsi"
-#include "msm8953-mtp.dtsi"
+#include "sdm429-spyro.dtsi"
+#include "sdm429w-bg-pm660.dtsi"
 
 / {
-	model = "Qualcomm Technologies, Inc. msm8953 + NO PMI SOC";
-	compatible = "qcom,msm8953";
-	qcom,pmic-id = <0x010016 0x0 0x0 0x0>;
+	model = "Qualcomm Technologies, Inc. SDM429 QRD DVT Spyro";
+	compatible = "qcom,sdm429w-qrd", "qcom,sdm429w", "qcom,qrd";
+	qcom,msm-id = <437 0x0>;
+	qcom,board-id = <0x00010b 8>;
+	qcom,pmic-id = <0x0002001b 0x0 0x0 0x0>;
 };
