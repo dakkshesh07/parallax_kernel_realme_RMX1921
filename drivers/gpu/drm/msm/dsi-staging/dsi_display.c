@@ -34,8 +34,15 @@
 
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018-09-26,add for drm notifier for display connect*/
+#include <linux/oppo_checks.h>
 #include <linux/msm_drm_notify.h>
 #include <linux/notifier.h>
+
+/* Ambient screen check */
+bool device_is_dozing(void){
+	return on_ambient_screen;
+}
+
 extern int oppo_dsi_update_seed_mode(void);
 extern int msm_drm_notifier_call_chain(unsigned long val, void *v);
 
@@ -1123,6 +1130,9 @@ int dsi_display_set_power(struct drm_connector *connector,
 		pr_err("invalid display/panel\n");
 		return -EINVAL;
 	}
+
+	/* Values refrenced from include/uapi/drm/sde_drm.h#L460 */
+	on_ambient_screen = (power_mode == 1 || power_mode == 2) ? true : false;
 
 	switch (power_mode) {
 	case SDE_MODE_DPMS_LP1:
