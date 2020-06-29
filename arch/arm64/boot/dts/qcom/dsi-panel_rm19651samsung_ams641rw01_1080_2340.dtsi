@@ -38,8 +38,8 @@
 		qcom,mdss-dsi-reset-sequence = <1 5>, <0 5>, <1 10>;
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
 		qcom,mdss-dsi-mdp-trigger = "none";
-		qcom,mdss-dsi-t-clk-post = <0x0e>;
-		qcom,mdss-dsi-t-clk-pre = <0x35>;
+		qcom,mdss-dsi-t-clk-post = <0x0f>;
+		qcom,mdss-dsi-t-clk-pre = <0x37>;
 		qcom,mdss-dsi-wr-mem-start = <0x2c>;
 		qcom,mdss-dsi-wr-mem-continue = <0x3c>;
 		qcom,mdss-dsi-te-pin-select = <1>;
@@ -48,8 +48,8 @@
 		qcom,mdss-dsi-te-using-te-pin;
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
 		qcom,mdss-dsi-bl-min-level = <1>;
-		qcom,mdss-dsi-bl-max-level = <1023>;
-		qcom,mdss-brightness-max-level = <1023>;
+		qcom,mdss-dsi-bl-max-level = <2047>;
+		qcom,mdss-brightness-max-level = <2047>;
 		qcom,mdss-dsi-panel-jitter = <0x4 0x1>;
 
 		qcom,esd-check-enabled;
@@ -58,11 +58,12 @@
 		qcom,mdss-dsi-panel-status-command = [06 01 00 01 05 00 02 0A 08];
 		qcom,mdss-dsi-panel-status-command-state = "dsi_hs_mode";
 		qcom,mdss-dsi-panel-status-value = <0x9F>;
+		qcom,mdss-dsi-panel-on-check-value = <0x9F>;
+		/* HDR Setting */
 		qcom,mdss-dsi-panel-hdr-enabled;
-		qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
-		17000 15500 30000 8000 3000>;
+		qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000 17000 15500 30000 8000 3000>;
 		qcom,mdss-dsi-panel-peak-brightness = <4200000>;
-		qcom,mdss-dsi-panel-blackness-level = <3230>;
+		qcom,mdss-dsi-panel-blackness-level = <2000>;
 		qcom,mdss-dsi-display-timings {
 			timing@0{
 				qcom,mdss-dsi-panel-width = <1080>;
@@ -133,18 +134,18 @@
 					15 01 00 00 00 00 02 53 28
 					/* ACL off */
 					15 01 00 00 00 00 02 55 00
-					/* CRC mode enable */
+					/* CRC mode off */
 					39 01 00 00 00 00 02 81 00
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 02 B0 02
 					39 01 00 00 00 00 16 B1 E0 00 08 10 FF 00 00 00 FF 15 FD F0 F0 00 F0 EC F0 00 FF FF FA  /* CRC LUT */
 					39 01 00 00 00 00 03 B1 00 00
 					39 01 00 00 00 00 03 F0 A5 A5
-					/* Seed Tcs On */
+					/* Seed Tcs Off */
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 02 B0 23
 					39 01 00 00 00 00 02 B3 91
-					39 01 00 00 00 00 02 83 80
+					39 01 00 00 00 00 02 83 00
 					39 01 00 00 00 00 03 B3 00 C0
 					39 01 00 00 00 00 03 F0 A5 A5];
 				qcom,mdss-dsi-post-on-backlight = [
@@ -184,18 +185,18 @@
 					15 01 00 00 00 00 02 B0 A5
 					15 01 00 00 73 00 02 C7 00
 					39 01 00 00 00 00 03 F0 A5 A5
-					/* Seed CRC mode enable */
+					/* Seed CRC mode off */
 					15 01 00 00 00 00 02 81 00
 					39 01 00 00 00 00 03 F0 5A 5A
 					15 01 00 00 00 00 02 B0 02
 					39 01 00 00 00 00 16 B1 E0 00 08 1C F8 00 04 0F FF 24 FD DC FD 00 F6 F1 F0 00 FF FF FF  /* CRC LUT */
 					39 01 00 00 00 00 03 B1 00 00
 					39 01 00 00 00 00 03 F0 A5 A5
-					/* Seed Tcs On */
+					/* Seed Tcs Off */
 					39 01 00 00 00 00 03 F0 5A 5A
 					15 01 00 00 00 00 02 B0 23
 					15 01 00 00 00 00 02 B3 91
-					15 01 00 00 00 00 02 83 80
+					15 01 00 00 00 00 02 83 00
 					39 01 00 00 00 00 03 B3 00 C0
 					39 01 00 00 00 00 03 F0 A5 A5
                                         ];
@@ -313,11 +314,24 @@
 					39 01 00 00 00 00 03 B1 00 01  /* SEED CRC OFF */
 					39 01 00 00 00 00 03 B3 00 C1  /* TCS OFF */
 					39 01 00 00 00 00 03 F0 A5 A5];
-				qcom,mdss-dsi-seed-srgb-command = [
-					39 01 00 00 00 00 02 81 00  /* CRC mode enable */
+				qcom,mdss-dsi-seed-0-command = [       /* Native Gamut */
+					39 01 00 00 00 00 02 81 00  /* CRC mode off */
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 02 B0 02
 					39 01 00 00 00 00 16 B1 E0 00 08 10 FF 00 00 00 FF 15 FD F0 F0 00 F0 EC F0 00 FF FF FA  /* CRC LUT */
+					39 01 00 00 00 00 03 B1 00 00
+					39 01 00 00 00 00 03 F0 A5 A5
+					39 01 00 00 00 00 03 F0 5A 5A  /* Seed Tcs off */
+					39 01 00 00 00 00 02 B0 23
+					39 01 00 00 00 00 02 B3 91
+					39 01 00 00 00 00 02 83 00
+					39 01 00 00 00 00 03 B3 00 C0
+					39 01 00 00 00 00 03 F0 A5 A5];
+				qcom,mdss-dsi-seed-1-command = [      /* P3 Gamut */
+					39 01 00 00 00 00 02 81 90  /* CRC mode enable */
+					39 01 00 00 00 00 03 F0 5A 5A
+					39 01 00 00 00 00 02 B0 02
+					39 01 00 00 00 00 16 B1 C6 00 00 21 ED 02 08 06 C1 27 FC DC E4 00 D9 E6 E7 00 FE F9 D8  /* CRC LUT */
 					39 01 00 00 00 00 03 B1 00 00
 					39 01 00 00 00 00 03 F0 A5 A5
 					39 01 00 00 00 00 03 F0 5A 5A  /* Seed Tcs On */
@@ -326,11 +340,11 @@
 					39 01 00 00 00 00 02 83 80
 					39 01 00 00 00 00 03 B3 00 C0
 					39 01 00 00 00 00 03 F0 A5 A5];
-				qcom,mdss-dsi-seed-dcip3-command = [
-					39 01 00 00 00 00 02 81 00  /* CRC mode enable */
+				qcom,mdss-dsi-seed-2-command = [      /* sRGB Gamut */
+					39 01 00 00 00 00 02 81 90  /* CRC mode enable */
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 02 B0 02
-					39 01 00 00 00 00 16 B1 E0 00 08 10 FF 00 00 00 FF 15 FD F0 F0 00 F0 EC F0 00 FF FF FA  /* CRC LUT */
+					39 01 00 00 00 00 16 B1 A6 04 04 47 DF 10 05 05 C3 4C EF D4 BB 0B BF F1 EB 18 FE F9 D8  /* CRC LUT */
 					39 01 00 00 00 00 03 B1 00 00
 					39 01 00 00 00 00 03 F0 A5 A5
 					39 01 00 00 00 00 03 F0 5A 5A  /* Seed Tcs On */
@@ -344,6 +358,10 @@
 				qcom,mdss-dsi-post-on-backlight-state = "dsi_hs_mode";
 				qcom,mdss-dsi-on-command-state = "dsi_hs_mode";
 				qcom,mdss-dsi-off-command-state = "dsi_hs_mode";
+				qcom,mdss-dsi-seed-off-command-state = "dsi_lp_mode";
+				qcom,mdss-dsi-seed-0-command-state = "dsi_lp_mode";
+				qcom,mdss-dsi-seed-1-command-state = "dsi_lp_mode";
+				qcom,mdss-dsi-seed-2-command-state = "dsi_lp_mode";
 			};
 		};
 	};
