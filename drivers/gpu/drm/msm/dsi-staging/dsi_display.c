@@ -1137,12 +1137,12 @@ int dsi_display_set_power(struct drm_connector *connector,
 		return -EINVAL;
 	}
 
-	/* Values refrenced from include/uapi/drm/sde_drm.h#L460 */
-	on_ambient_screen = (power_mode == 1 || power_mode == 2) ? true : false;
+	on_ambient_screen = false;
 
 	switch (power_mode) {
 	case SDE_MODE_DPMS_LP1:
 	case SDE_MODE_DPMS_LP2:
+		on_ambient_screen = true;
 		switch(get_oppo_display_scene()) {
 		case OPPO_DISPLAY_NORMAL_SCENE:
 		case OPPO_DISPLAY_NORMAL_HBM_SCENE:
