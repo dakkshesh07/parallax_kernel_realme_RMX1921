@@ -1831,14 +1831,13 @@ static const struct file_operations proc_glove_control_fops = {
 
 static ssize_t proc_is_dozing_rn(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
 {
-    int ret = 0;
-    char page[PAGESIZE] = {0};
-    if (ambient_display_status())
-        snprintf(page, PAGESIZE-1, "%s", "1\n");
-    else
-        snprintf(page, PAGESIZE-1, "%s", "0\n");
-    ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
-    return ret;
+	int ret = 0;
+	char page[PAGESIZE] = {0};
+
+	snprintf(page, PAGESIZE-1, "%d", "ambient_display_status()");
+
+	ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
+	return ret;
 }
 
 static const struct file_operations proc_is_dozing_rn_fops = {
