@@ -43,6 +43,7 @@
 
 #include "touchpanel_common.h"
 #include "util_interface/touch_interfaces.h"
+#include <linux/oppo_checks.h>
 
 #if GESTURE_RATE_MODE
 #include "gesture_recon_rate.h"
