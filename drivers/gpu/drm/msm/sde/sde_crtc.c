@@ -2705,7 +2705,7 @@ void sde_crtc_complete_commit(struct drm_crtc *crtc,
 			blank = cstate->fingerprint_pressed;
 			notifier_data.data = &blank;
 			if (cstate->fingerprint_defer_sync)
-				usleep_range(25 * 1000, 25 * 1000 + 50);
+				usleep_range(67 * 1000, 67 * 1000);
 			pr_err("fingerprint status: %s",
 			       blank ? "pressed" : "up");
 			msm_drm_notifier_call_chain(MSM_DRM_ONSCREENFINGERPRINT_EVENT,

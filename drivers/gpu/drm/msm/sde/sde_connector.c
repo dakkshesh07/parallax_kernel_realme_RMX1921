@@ -634,7 +634,6 @@ static int _sde_connector_update_hbm(struct sde_connector *c_conn)
 	fingerprint_mode = sde_crtc_get_fingerprint_mode(c_conn->encoder->crtc->state);
 	if (OPPO_DISPLAY_AOD_SCENE == get_oppo_display_scene()) {
 		if (sde_crtc_get_fingerprint_pressed(c_conn->encoder->crtc->state)) {
-			fingerprint_mode = true;
 			sde_crtc_set_onscreenfinger_defer_sync(c_conn->encoder->crtc->state, true);
 		} else {
 			sde_crtc_set_onscreenfinger_defer_sync(c_conn->encoder->crtc->state, false);
@@ -689,14 +688,13 @@ static int _sde_connector_update_hbm(struct sde_connector *c_conn)
 			} else if (oppo_display_get_hbm_mode()) {
 				sde_crtc_set_onscreenfinger_defer_sync(c_conn->encoder->crtc->state, true);
 				rc = dsi_panel_tx_cmd_set(dsi_display->panel, DSI_CMD_AOD_HBM_ON);
-				set_oppo_display_scene(OPPO_DISPLAY_AOD_HBM_SCENE);
 			    fingerprint_mode = true;
 			} else if(OPPO_DISPLAY_AOD_SCENE == get_oppo_display_scene()) {
 				rc = dsi_panel_tx_cmd_set(dsi_display->panel, DSI_CMD_AOD_HBM_OFF);
 			} else {
 				rc = dsi_panel_tx_cmd_set(dsi_display->panel, DSI_CMD_HBM_OFF);
 			}
-			set_oppo_display_scene(OPPO_DISPLAY_NORMAL_SCENE);
+
 			mutex_unlock(&dsi_display->panel->panel_lock);
 			if (rc) {
 				pr_err("failed to send DSI_CMD_HBM_OFF cmds, rc=%d\n", rc);

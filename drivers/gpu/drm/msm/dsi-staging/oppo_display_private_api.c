@@ -2240,9 +2240,9 @@ static ssize_t oppo_display_notify_fp_press(struct device *dev,
 		} else {
 			ktime_t now = ktime_get();
 			ktime_t delta = ktime_sub(now, on_time);
-			int fp_speed_time = ktime_to_ns(delta);
-			if (fp_speed_time < 300000000)
-				msleep(230 - (fp_speed_time / 1000000));
+
+			if (ktime_to_ns(delta) < 300000000)
+				msleep(300 - (ktime_to_ns(delta) / 1000000));
 		}
 	}
 
