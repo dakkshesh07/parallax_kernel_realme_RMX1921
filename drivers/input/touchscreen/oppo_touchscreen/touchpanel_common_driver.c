@@ -192,6 +192,9 @@ void operate_mode_switch(struct touchpanel_data *ts)
         } else
             ts->ts_ops->mode_switch(ts->chip_data, MODE_SLEEP, true);
     } else {
+        if (ts->game_switch_support)
+            ts->ts_ops->mode_switch(ts->chip_data, MODE_GAME, true);
+
         if (ts->ear_sense_support) {
             ts->ts_ops->mode_switch(ts->chip_data, MODE_EARSENSE, ts->es_enable == 1);
             ts->ts_ops->mode_switch(ts->chip_data, MODE_PALM_REJECTION, ts->palm_enable);
@@ -1709,47 +1712,6 @@ static const struct file_operations proc_write_ps_status_fops = {
 //proc/touchpanel/game_switch_enable
 static ssize_t proc_game_switch_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
 {
-    int value = 0 ;
-    char buf[4] = {0};
-    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
-
-    if (count > 4) {
-        TPD_INFO("%s:count > 4\n", __func__);
-        return count;
-    }
-
-    if (!ts) {
-        TPD_INFO("%s: ts is NULL\n", __func__);
-        return count;
-    }
-
-    if (!ts->ts_ops->mode_switch) {
-        TPD_INFO("%s:not support ts_ops->mode_switch callback\n", __func__);
-        return count;
-    }
-    if (copy_from_user(buf, buffer, count)) {
-        TPD_INFO("%s: read proc input error.\n", __func__);
-        return count;
-    }
-    sscanf(buf, "%x", (uint32_t *)&value);
-    ts->noise_level = value;
-    if (ts->health_monitor_v2_support) {
-        ts->monitor_data_v2.in_game_mode = value;
-    }
-
-    TPD_INFO("%s: game_switch value=0x%x\n", __func__, value);
-    if (!ts->is_suspended) {
-        mutex_lock(&ts->mutex);
-        ts->ts_ops->mode_switch(ts->chip_data, MODE_GAME, value > 0);
-#ifdef CONFIG_TOUCHPANEL_ALGORITHM
-        switch_kalman_fun(ts, value > 0);
-#endif
-
-        mutex_unlock(&ts->mutex);
-    } else {
-        TPD_INFO("%s: game_switch_support is_suspended.\n", __func__);
-    }
-
     return count;
 }
 
@@ -6869,6 +6831,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
     ts->firmware_update_type = 0;
     ts->report_point_first_enable = 0;//reporting point first ,when baseline error
     ts->resume_finished = 1;
+    ts->noise_level = 1;
     if(ts->is_noflash_ic) {
         ts->irq = ts->s_client->irq;
     } else {
