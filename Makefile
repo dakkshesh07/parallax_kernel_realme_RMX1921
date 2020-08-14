@@ -791,6 +791,11 @@ else
 KBUILD_CFLAGS   += -O3
 endif
 
+# Wno-psabi to aviod useless, irritating warnings
+ifeq ($(cc-name),gcc)
+KBUILD_CFLAGS	+= -Wno-psabi
+endif
+
 ifeq ($(cc-name),gcc)
 KBUILD_CFLAGS	+= -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
 endif
