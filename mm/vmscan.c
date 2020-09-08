@@ -164,15 +164,7 @@ struct scan_control {
 /*
  * From 0 .. 100.  Higher means more swappy.
  */
-int vm_swappiness = 60;
-
-#ifdef VENDOR_EDIT //yixue.ge@psw.bsp.kernel 20170720 add for add direct_vm_swappiness
-/*
- * Direct reclaim swappiness, exptct 0 - 60. Higher means more swappy and slower.
- */
-int direct_vm_swappiness = 60;
-#endif
-
+int vm_swappiness = 45;
 /*
  * The total number of pages which are beyond the high watermark within all
  * zones.
