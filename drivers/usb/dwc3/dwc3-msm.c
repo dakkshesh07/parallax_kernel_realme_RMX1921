@@ -47,6 +47,7 @@
 #include <linux/extcon.h>
 #include <linux/reset.h>
 #include <linux/clk/qcom.h>
+#include <soc/qcom/boot_stats.h>
 #ifdef VENDOR_EDIT
 /* Jianchao.Shi@BSP.CHG.Basic, 2017/02/18, sjc Add for OTG sw */
 #include <soc/oppo/oppo_project.h>
@@ -3136,6 +3137,12 @@ static irqreturn_t msm_dwc3_pwr_irq(int irq, void *data)
 
 	dwc->t_pwr_evt_irq = ktime_get();
 	dev_dbg(mdwc->dev, "%s received\n", __func__);
+
+	if (mdwc->drd_state == DRD_STATE_PERIPHERAL_SUSPEND) {
+		dev_info(mdwc->dev, "USB Resume start\n");
+		place_marker("M - USB device resume started");
+	}
+
 	/*
 	 * When in Low Power Mode, can't read PWR_EVNT_IRQ_STAT_REG to acertain
 	 * which interrupts have been triggered, as the clocks are disabled.
@@ -5053,6 +5060,12 @@ static int dwc3_msm_pm_resume(struct device *dev)
 	/* flush to avoid race in read/write of pm_suspended */
 	flush_workqueue(mdwc->dwc3_wq);
 	atomic_set(&mdwc->pm_suspended, 0);
+
+	if (atomic_read(&dwc->in_lpm) &&
+			mdwc->drd_state == DRD_STATE_PERIPHERAL_SUSPEND) {
+		dev_info(mdwc->dev, "USB Resume start\n");
+		place_marker("M - USB device resume started");
+	}
 
 	/* kick in otg state machine */
 	queue_work(mdwc->dwc3_wq, &mdwc->resume_work);
