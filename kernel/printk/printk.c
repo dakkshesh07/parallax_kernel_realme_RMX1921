@@ -1468,7 +1468,7 @@ int do_syslog(int type, char __user *buf, int len, int source)
 	/* Read/clear last kernel messages */
 	case SYSLOG_ACTION_READ_CLEAR:
 		clear = true;
-		/* FALL THRU */
+		fallthrough;
 	/* Read last kernel messages */
 	case SYSLOG_ACTION_READ_ALL:
 		error = -EINVAL;
@@ -1875,7 +1875,7 @@ asmlinkage int vprintk_emit(int facility, int level,
 			case '0' ... '7':
 				if (level == LOGLEVEL_DEFAULT)
 					level = kern_level - '0';
-				/* fallthrough */
+				fallthrough;
 			case 'd':	/* KERN_DEFAULT */
 				lflags |= LOG_PREFIX;
 				break;
