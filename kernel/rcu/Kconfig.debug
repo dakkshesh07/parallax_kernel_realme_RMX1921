@@ -80,7 +80,6 @@ config RCU_PANIC_ON_STALL
 
 config RCU_TRACE
 	bool "Enable tracing for RCU"
-	depends on DEBUG_KERNEL
 	default y if TREE_RCU
 	select TRACE_CLOCK
 	help
