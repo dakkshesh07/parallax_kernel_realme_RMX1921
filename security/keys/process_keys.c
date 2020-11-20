@@ -721,6 +721,7 @@ try_again:
 		default:
 			if (perm)
 				goto invalid_key;
+			break;
 		case 0:
 			break;
 		}
