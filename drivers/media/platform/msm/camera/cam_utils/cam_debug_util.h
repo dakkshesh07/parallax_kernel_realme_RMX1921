@@ -68,6 +68,7 @@
  	return NULL;
  }
 
+#ifdef CONFIG_DEBUG_KERNEL
 /*
  * CAM_ERR
  * @brief    :  This Macro will print error logs
@@ -128,4 +129,16 @@
  #define CAM_ERR_RATE_LIMIT(__module, fmt, args...) \
  		cam_debug_log(__module, __func__, __LINE__, fmt, ##args)
 
+#else
+#define CAM_ERR(__module, fmt, args...)		do { } while(0)
+#define CAM_WARN(__module, fmt, args...)	do { } while(0)
+#define CAM_INFO(__module, fmt, args...)	do { } while(0)
+#define CAM_INFO_RATE_LIMIT(__module, fmt, args...)	do { } while(0)
+#define CAM_INFO_RATE_LIMIT_CUSTOM(__module, interval, burst, fmt, args...) \
+						do { } while(0)
+#define CAM_DBG(__module, fmt, args...)		do { } while(0)
+#define CAM_ERR_RATE_LIMIT(__module, fmt, args...)	do { } while(0)
+#define CAM_ERR_RATE_LIMIT_CUSTOM(__module, interval, burst, fmt, args...)	\
+						do { } while(0)
+#endif /* CONFIG_DEBUG_KERNEL */
 #endif /* _CAM_DEBUG_UTIL_H_ */
