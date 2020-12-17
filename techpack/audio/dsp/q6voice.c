@@ -28,7 +28,6 @@
 #include <dsp/q6voice.h>
 #include <ipc/apr_tal.h>
 #include "adsp_err.h"
-#include <linux/oppo_checks.h>
 
 #define TIMEOUT_MS 300
 
@@ -143,10 +142,6 @@ static int voice_send_get_source_tracking_cmd(struct voice_data *v,
 			struct source_tracking_param *sourceTrackingData);
 
 static void voice_vote_powerstate_to_bms(struct voice_data *v, bool state);
-
-bool q6_call_status(){
-	return call_status;
-}
 
 static void voice_itr_init(struct voice_session_itr *itr,
 			   u32 session_id)
@@ -6936,7 +6931,6 @@ int voc_end_voice_call(uint32_t session_id)
 		ret = -EINVAL;
 	}
 
-	call_status = false;
 	mutex_unlock(&v->lock);
 	return ret;
 }
@@ -7322,7 +7316,6 @@ int voc_start_voice_call(uint32_t session_id)
 		ret = -EINVAL;
 		goto fail;
 	}
-	call_status = true;
 fail:
 	mutex_unlock(&v->lock);
 	return ret;
