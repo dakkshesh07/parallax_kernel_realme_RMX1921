@@ -79,6 +79,14 @@ config IOSCHED_FIOPS
           IOPS equally among all processes in the system. It's mainly for
           Flash based storage.
 
+config IOSCHED_TRIPNDROID
+	tristate "TripNDroid IO Scheduler"
+	default n
+	---help---
+	  The TripNDroid IO Scheduler is based on noop, deadline and vr
+	  it uses deadlines to ensure some fairness. The scheduler is build
+	  to keep a minimum overhead. It is mainly build for mobile devices.
+
 choice
 	prompt "Default I/O scheduler"
 	default DEFAULT_CFQ
