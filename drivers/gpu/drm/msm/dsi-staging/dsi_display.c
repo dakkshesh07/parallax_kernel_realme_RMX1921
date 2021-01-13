@@ -4122,7 +4122,7 @@ static int _dsi_display_dyn_update_clks(struct dsi_display *display,
 			pr_err("wait4dynamic refresh failed for dsi:%d\n", i);
 			goto recover_pix_clk;
 		} else {
-			pr_info("dynamic refresh done on dsi: %s\n",
+			pr_debug("dynamic refresh done on dsi: %s\n",
 				i ? "slave" : "master");
 		}
 	}
@@ -4781,7 +4781,7 @@ static int dsi_display_force_update_dsi_clk(struct dsi_display *display)
 	rc = dsi_display_link_clk_force_update_ctrl(display->dsi_clk_handle);
 
 	if (!rc) {
-		pr_info("dsi bit clk has been configured to %d\n",
+		pr_debug("dsi bit clk has been configured to %d\n",
 			display->cached_clk_rate);
 
 		atomic_set(&display->clkrate_change_pending, 0);
@@ -4854,11 +4854,11 @@ static ssize_t sysfs_dynamic_dsi_clk_write(struct device *dev,
 	}
 
 	if (clk_rate == display->cached_clk_rate) {
-		pr_info("%s: ignore duplicated DSI clk setting\n", __func__);
+		pr_debug("%s: ignore duplicated DSI clk setting\n", __func__);
 		return count;
 	}
 
-	pr_info("%s: bitrate param value: '%d'\n", __func__, clk_rate);
+	pr_debug("%s: bitrate param value: '%d'\n", __func__, clk_rate);
 
 	mutex_lock(&display->display_lock);
 
@@ -4866,7 +4866,7 @@ static ssize_t sysfs_dynamic_dsi_clk_write(struct device *dev,
 	display->cached_clk_rate = clk_rate;
 	rc = dsi_display_update_dsi_bitrate(display, clk_rate);
 	if (!rc) {
-		pr_info("%s: bit clk is ready to be configured to '%d'\n",
+		pr_debug("%s: bit clk is ready to be configured to '%d'\n",
 			__func__, clk_rate);
 	} else {
 		pr_err("%s: Failed to prepare to configure '%d'. rc = %d\n",
@@ -5116,7 +5116,7 @@ static int dsi_display_bind(struct device *dev,
 		goto error_host_deinit;
 	}
 
-	pr_info("Successfully bind display panel '%s'\n", display->name);
+	pr_debug("Successfully bind display panel '%s'\n", display->name);
 	display->drm_dev = drm;
 
 	for (i = 0; i < display->ctrl_count; i++) {
