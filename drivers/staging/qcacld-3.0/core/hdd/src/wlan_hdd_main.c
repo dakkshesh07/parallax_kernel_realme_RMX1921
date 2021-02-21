@@ -14382,7 +14382,7 @@ void hdd_component_psoc_disable(struct wlan_objmgr_psoc *psoc)
  *
  * Return: Errno
  */
-static int hdd_driver_load(void)
+static __maybe_unused int hdd_driver_load(void)
 {
 	QDF_STATUS status;
 	int errno;
