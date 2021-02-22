@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2019, 2021, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -28,6 +28,107 @@ struct param_outband {
 	void        *kvaddr;
 	phys_addr_t  paddr;
 };
+
+/* Common structures and definitions used for instance ID support */
+/* Instance ID definitions */
+#define INSTANCE_ID_0 0x0000
+
+struct mem_mapping_hdr {
+	/*
+	 * LSW of parameter data payload address. Supported values: any.
+	 * - Must be set to zero for in-band data.
+	 */
+	u32 data_payload_addr_lsw;
+
+	/*
+	 * MSW of Parameter data payload address. Supported values: any.
+	 * - Must be set to zero for in-band data.
+	 * - In the case of 32 bit Shared memory address, MSW field must be
+	 *   set to zero.
+	 * - In the case of 36 bit shared memory address, bit 31 to bit 4 of
+	 *   MSW must be set to zero.
+	 */
+	u32 data_payload_addr_msw;
+
+	/*
+	 * Memory map handle returned by DSP through
+	 * ASM_CMD_SHARED_MEM_MAP_REGIONS command.
+	 * Supported Values: Any.
+	 * If memory map handle is NULL, the parameter data payloads are
+	 * within the message payload (in-band).
+	 * If memory map handle is non-NULL, the parameter data payloads begin
+	 * at the address specified in the address MSW and LSW (out-of-band).
+	 */
+	u32 mem_map_handle;
+
+} __packed;
+
+/*
+ * Payload format for parameter data.
+ * Immediately following these structures are param_size bytes of parameter
+ * data.
+ */
+struct param_hdr_v1 {
+	/* Valid ID of the module. */
+	uint32_t module_id;
+
+	/* Valid ID of the parameter. */
+	uint32_t param_id;
+
+	/* The size of the parameter specified by the module/param ID combo */
+	uint16_t param_size;
+
+	/* This field must be set to zero. */
+	uint16_t reserved;
+} __packed;
+
+struct param_hdr_v2 {
+	/* Valid ID of the module. */
+	uint32_t module_id;
+
+	/* Valid ID of the parameter. */
+	uint32_t param_id;
+
+	/* The size of the parameter specified by the module/param ID combo */
+	uint32_t param_size;
+} __packed;
+
+struct param_hdr_v3 {
+	/* Valid ID of the module. */
+	uint32_t module_id;
+
+	/* Instance of the module. */
+	uint16_t instance_id;
+
+	/* This field must be set to zero. */
+	uint16_t reserved;
+
+	/* Valid ID of the parameter. */
+	uint32_t param_id;
+
+	/* The size of the parameter specified by the module/param ID combo */
+	uint32_t param_size;
+} __packed;
+
+/* A union of all param_hdr versions for versitility and max size */
+union param_hdrs {
+	struct param_hdr_v1 v1;
+	struct param_hdr_v2 v2;
+	struct param_hdr_v3 v3;
+};
+
+struct module_instance_info {
+	/* Module ID. */
+	u32 module_id;
+
+	/* Instance of the module */
+	u16 instance_id;
+
+	/* Reserved. This field must be set to zero. */
+	u16 reserved;
+} __packed;
+
+/* Begin service specific definitions and structures */
 
 #define ADSP_ADM_VERSION    0x00070000
 
@@ -10064,6 +10165,7 @@ struct avcs_fwk_ver_info {
 #define LSM_SESSION_CMD_CLOSE_TX			(0x00012A88)
 #define LSM_SESSION_CMD_SET_PARAMS			(0x00012A83)
 #define LSM_SESSION_CMD_SET_PARAMS_V2			(0x00012A8F)
+#define LSM_SESSION_CMD_SET_PARAMS_V3                   (0x00012A92)
 #define LSM_SESSION_CMD_REGISTER_SOUND_MODEL		(0x00012A84)
 #define LSM_SESSION_CMD_DEREGISTER_SOUND_MODEL		(0x00012A85)
 #define LSM_SESSION_CMD_START				(0x00012A86)
@@ -10078,6 +10180,7 @@ struct avcs_fwk_ver_info {
 #define LSM_DATA_EVENT_READ_DONE			(0x00012B02)
 #define LSM_DATA_EVENT_STATUS				(0x00012B03)
 #define LSM_SESSION_EVENT_DETECTION_STATUS_V3		(0x00012B04)
+#define LSM_SESSION_DETECTION_ENGINE_GENERIC_EVENT	(0x00012B06)
 
 #define LSM_MODULE_ID_VOICE_WAKEUP			(0x00012C00)
 #define LSM_PARAM_ID_ENDPOINT_DETECT_THRESHOLD		(0x00012C01)
@@ -10096,6 +10199,8 @@ struct avcs_fwk_ver_info {
 #define LSM_PARAM_ID_POLLING_ENABLE			(0x00012C1B)
 #define LSM_PARAM_ID_MEDIA_FMT				(0x00012C1E)
 #define LSM_PARAM_ID_FWK_MODE_CONFIG			(0x00012C27)
+#define LSM_PARAM_ID_MEDIA_FMT_V2			(0x00012C32)
+#define LSM_PARAM_ID_LAB_OUTPUT_CHANNEL_CONFIG		(0x00012C2D)
 
 /* HW MAD specific */
 #define AFE_MODULE_HW_MAD				(0x00010230)
