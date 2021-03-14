@@ -42,6 +42,7 @@
 	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
 	//force-ufshc-probe;
 	//#endif
+
 	status = "ok";
 };
 
