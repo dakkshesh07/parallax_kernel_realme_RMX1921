@@ -492,6 +492,7 @@ config THIN_ARCHIVES
 	  instead of ld -r to create the built-in.o files.
 
 config LTO
+	depends on LTO_CLANG || LTO_GCC
 	def_bool n
 
 config ARCH_SUPPORTS_LTO_CLANG
