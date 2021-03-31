@@ -454,7 +454,7 @@ static void p61_get_access_state(struct pn544_dev *pn544_dev, p61_access_state_t
     }
 }
 
-static int signal_handler(p61_access_state_t state, long nfc_pid)
+static int signal_handler(unsigned long state, long nfc_pid)
 {
     struct siginfo sinfo;
     pid_t pid;
