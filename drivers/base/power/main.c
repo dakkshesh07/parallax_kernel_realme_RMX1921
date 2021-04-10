@@ -127,8 +127,7 @@ void device_pm_add(struct device *dev)
 		 dev->bus ? dev->bus->name : "No Bus", dev_name(dev));
 	device_pm_check_callbacks(dev);
 	mutex_lock(&dpm_list_mtx);
-#ifndef VENDOR_EDIT
-	//Nanwei.Deng@BSP.CHG.Basic 2018/05/03 modify for power debug
+#ifdef CONFIG_DEBUG_KERNEL
 	if (dev->parent && dev->parent->power.is_prepared)
 		dev_dbg(dev, "parent %s should not be sleeping\n",
 			dev_name(dev->parent));
@@ -136,10 +135,7 @@ void device_pm_add(struct device *dev)
 	if (dev->parent && dev->parent->power.is_prepared) {
 		dev_warn(dev, "parent %s should not be sleeping\n",
 			dev_name(dev->parent));
-		pr_info("debug Adding info for %s:%s\n",
-		 dev->bus ? dev->bus->name : "No Bus", dev_name(dev));
-	}
-#endif /* VENDOR_EDIT */
+#endif
 	list_add_tail(&dev->power.entry, &dpm_list);
 	mutex_unlock(&dpm_list_mtx);
 }
