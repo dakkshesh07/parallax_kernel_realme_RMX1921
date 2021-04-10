@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2018,2021,  The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -93,7 +93,6 @@ struct bg_cdc_priv {
 	struct device *dev;
 	struct snd_soc_codec *codec;
 	struct platform_device *pdev_child;
-	struct work_struct bg_cdc_add_child_devices_work;
 	struct delayed_work bg_cdc_pktzr_init_work;
 	struct delayed_work bg_cdc_cal_init_work;
 	unsigned long status_mask;
@@ -1189,17 +1188,14 @@ static struct snd_soc_codec_driver soc_codec_dev_bg_cdc = {
 	},
 };
 
-static void bg_cdc_add_child_devices(struct work_struct *work)
+static void bg_cdc_add_child_devices(struct bg_cdc_priv *bg_cdc)
 {
 	struct platform_device *pdev = NULL;
 	struct device_node *node;
 	char plat_dev_name[50] = "bg-cdc";
-	struct bg_cdc_priv *bg_cdc;
 	int ret;
 
 	pr_debug("%s\n", __func__);
-	bg_cdc = container_of(work, struct bg_cdc_priv,
-			     bg_cdc_add_child_devices_work);
 	if (!bg_cdc) {
 		pr_err("%s: Memory for BG codec does not exist\n",
 			__func__);
@@ -1284,13 +1280,11 @@ static int bg_cdc_probe(struct platform_device *pdev)
 		goto err_cdc_reg;
 	}
 
-	INIT_WORK(&bg_cdc->bg_cdc_add_child_devices_work,
-		  bg_cdc_add_child_devices);
 	INIT_DELAYED_WORK(&bg_cdc->bg_cdc_pktzr_init_work,
 		  bg_cdc_pktzr_init);
 	INIT_DELAYED_WORK(&bg_cdc->bg_cdc_cal_init_work,
 		  bg_cdc_cal_init);
-	schedule_work(&bg_cdc->bg_cdc_add_child_devices_work);
+        bg_cdc_add_child_devices(bg_cdc);
 	mutex_init(&bg_cdc->bg_cdc_lock);
 
 	dev_dbg(&pdev->dev, "%s: BG driver probe done\n", __func__);
