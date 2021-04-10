@@ -19,7 +19,7 @@
 int msm_vidc_debug = 0;
 EXPORT_SYMBOL(msm_vidc_debug);
 
-int msm_vidc_debug_out = VIDC_OUT_PRINTK;
+int msm_vidc_debug_out = 0;
 EXPORT_SYMBOL(msm_vidc_debug_out);
 
 int msm_vidc_fw_debug = 0x18;
