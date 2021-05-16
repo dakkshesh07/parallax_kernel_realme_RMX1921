@@ -3357,3 +3357,55 @@
 		<1843200>,
 		<2304000>;
 };
+
+&soc {
+	qcom,msm-thermal-simple {
+		compatible = "qcom,msm-thermal-simple";
+		qcom,thermal-vadc = <&pm8998_vadc>;
+		qcom,adc-channel = <0x4c>;
+		qcom,poll-ms = <3000>;
+		qcom,start-delay = <60>;
+
+		zone@0 {
+			reg = <0>;
+			qcom,silver-khz = <1708800>;
+			qcom,gold-khz = <2304000>;
+			qcom,trip-deg = <53000>;
+		};
+
+		zone@1 {
+			reg = <1>;
+			qcom,silver-khz = <1612800>;
+			qcom,gold-khz = <1843200>;
+			qcom,trip-deg = <54000>;
+		};
+
+		zone@2 {
+			reg = <2>;
+			qcom,silver-khz = <1536000>;
+			qcom,gold-khz = <1747200>;
+			qcom,trip-deg = <63000>;
+		};
+
+		zone@3 {
+			reg = <3>;
+			qcom,silver-khz = <1516800>;
+			qcom,gold-khz = <1536000>;
+			qcom,trip-deg = <75000>;
+		};
+
+		zone@4 {
+			reg = <4>;
+			qcom,silver-khz = <1209600>;
+			qcom,gold-khz = <1132800>;
+			qcom,trip-deg = <80000>;
+		};
+
+		zone@5 {
+			reg = <5>;
+			qcom,silver-khz = <748800>;
+			qcom,gold-khz = <979200>;
+			qcom,trip-deg = <90000>;
+		};
+	};
+};
