@@ -1908,12 +1908,8 @@ int drm_mode_atomic_ioctl(struct drm_device *dev,
 		
 	if (!(arg->flags & DRM_MODE_ATOMIC_TEST_ONLY)) {
 		cpu_input_boost_kick();
-		devfreq_boost_kick(DEVFREQ_MSM_CPU_LLCCBW);
-		devfreq_boost_kick(DEVFREQ_MSM_LLCCBW_DDR);
-	}
-
-	if (!(arg->flags & DRM_MODE_ATOMIC_TEST_ONLY))
 		devfreq_boost_kick(DEVFREQ_MSM_CPUBW);
+	}
 
 	drm_modeset_acquire_init(&ctx, 0);
 
