@@ -4,7 +4,6 @@ clear
 echo "**** Cleaning ****"
 rm -r out
 mkdir out
-make O=out clean
 make clean && make distclean && make mrproper
 
 # auto clang cloner/updater
