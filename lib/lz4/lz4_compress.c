@@ -956,7 +956,7 @@ int lz4_compress(const unsigned char *src, size_t src_len, unsigned char *dst,
 	else
 		return 0;
 }
-EXPORT_SYMBOL(LZ4_compress_fast_continue);
+EXPORT_SYMBOL(lz4_compress);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_DESCRIPTION("LZ4 compressor");

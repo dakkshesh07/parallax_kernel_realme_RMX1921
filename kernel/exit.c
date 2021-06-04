@@ -807,14 +807,6 @@ void __noreturn do_exit(long code)
 {
 	struct task_struct *tsk = current;
 	int group_dead;
-#if defined(VENDOR_EDIT) && defined(CONFIG_ELSA_STUB)
-	struct process_event_data pe_data;
-#endif
-	TASKS_RCU(int tasks_rcu_i);
-
-    if (is_critial_process(tsk)) {
-        printk("critical svc %d:%s exit with %ld !\n", tsk->pid, tsk->comm,code);
-    }
 
 	/*
 	 * We can get here from a kernel oops, sometimes with preemption off.
