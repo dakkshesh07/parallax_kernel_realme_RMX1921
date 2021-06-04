@@ -797,11 +797,31 @@ KBUILD_CFLAGS	+= -Wno-psabi
 endif
 
 ifeq ($(cc-name),gcc)
-KBUILD_CFLAGS	+= -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
+OPT_FLAGS := -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55 \
+             -march=armv8-a+crc+crypto
 endif
+
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS	+= -mcpu=cortex-a55 -mtune=cortex-a55
+ifdef CONFIG_LLVM_POLLY
+POLLY_FLAGS	:= -mllvm -polly \
+			   -mllvm -polly-run-dce \
+		       -mllvm -polly-run-inliner \
+		       -mllvm -polly-opt-fusion=max \
+		       -mllvm -polly-parallel -lgomp \
+		       -mllvm -polly-ast-use-context \
+		       -mllvm -polly-detect-keep-going \
+		       -mllvm -polly-vectorizer=stripmine \
+		       -mllvm -polly-invariant-load-hoisting
+else
+POLLY_FLAGS	:=
 endif
+OPT_FLAGS := -funsafe-math-optimizations -ffast-math -fopenmp \
+               -mcpu=cortex-a55 -mtune=cortex-a55 -march=armv8-a+crc+crypto \
+               $(POLLY_FLAGS)
+endif
+
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror
