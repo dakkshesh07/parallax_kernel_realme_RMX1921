@@ -1810,6 +1810,7 @@ static int do_execveat_common(int fd, struct filename *filename,
 			zygote32_pid = current->pid;
 		else if (unlikely(!strcmp(filename->name, ZYGOTE64_BIN)))
 			zygote64_pid = current->pid;
+	}
 
 	if (is_global_init(current->parent)) {
 		if (unlikely(!strncmp(filename->name,
