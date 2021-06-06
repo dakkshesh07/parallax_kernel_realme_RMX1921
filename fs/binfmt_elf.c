@@ -2391,7 +2391,7 @@ cleanup:
 	free_note_info(&info);
 	kfree(shdr4extnum);
 
-#if defined(VENDOR_EDIT)
+#if defined(VENDOR_EDIT) && defined (CONFIG_COREDUMP)
 /* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
 * Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 * will alloc failed and the coredump can't format success 2019/01/14
@@ -2402,7 +2402,7 @@ cleanup:
 		kfree(vma_filesz);
 #else
 	kfree(vma_filesz);
-#endif /* VENDOR_EDIT end */
+#endif /* VENDOR_EDIT && CONFIG_COREDUMP end */
 
 	kfree(phdr4note);
 	kfree(elf);
@@ -2415,14 +2415,14 @@ out:
 static int __init init_elf_binfmt(void)
 {
 
-#if defined(VENDOR_EDIT)
+#if defined(VENDOR_EDIT) && defined (CONFIG_COREDUMP)
 /* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
 * Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 * will alloc failed and the coredump can't format success 2019/01/14
 */
 	if (oppo_daily_build())
 		oppo_coredump_addr = kmalloc(64*1024, GFP_KERNEL);;
-#endif /* VENDOR_EDIT end */
+#endif /* VENDOR_EDIT && CONFIG_COREDUMP end */
 
 	register_binfmt(&elf_format);
 	return 0;
@@ -2431,14 +2431,14 @@ static int __init init_elf_binfmt(void)
 static void __exit exit_elf_binfmt(void)
 {
 
-#if defined(VENDOR_EDIT)
+#if defined(VENDOR_EDIT) && defined (CONFIG_COREDUMP)
 /* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
 * Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 * will alloc failed and the coredump can't format success 2019/01/14
 */
 	if(oppo_daily_build() && oppo_coredump_addr)
 		kfree(oppo_coredump_addr);
-#endif /* VENDOR_EDIT end */
+#endif /* VENDOR_EDIT && CONFIG_COREDUMP end */
 
 	/* Remove the COFF and ELF loaders. */
 	unregister_binfmt(&elf_format);
