@@ -2285,6 +2285,8 @@ struct task_struct {
 	 * Record process reclaim infor
 	 */
 	union reclaim_limit reclaim;
+#endif
+
 #ifdef CONFIG_ANDROID_SIMPLE_LMK
 	struct task_struct		*simple_lmk_next;
 #endif
