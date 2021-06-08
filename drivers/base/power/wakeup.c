@@ -43,6 +43,41 @@
 #ifdef VENDOR_EDIT
 //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
 #include <soc/oppo/oppo_project.h>
+
+//#define WAKEUP_SOURCE_MODEM 					60	//qcom,glink-smem-native-xprt-modem
+//#define WAKEUP_SOURCE_MODEM_IPA					119 //ipa
+//#define WAKEUP_SOURCE_ADSP						61  //qcom,glink-smem-native-xprt-adsp
+//#define WAKEUP_SOURCE_CDSP						62	//qcom,glink-smem-native-xprt-cdsp
+
+#define WAKEUP_SOURCE_KPDPWR 						69	//qpnp_kpdpwr_status
+#define WAKEUP_SOURCE_PMIC_ALARM					595 //qpnp_rtc_alarm
+#define WAKEUP_SOURCE_KPDPWR_710 					68	//qpnp_kpdpwr_status
+#define WAKEUP_SOURCE_PMIC_ALARM_710				593 //qpnp_rtc_alarm
+#define WAKEUP_SOURCE_KPDPWR_710P 					89	//qpnp_kpdpwr_status
+#define WAKEUP_SOURCE_PMIC_ALARM_710P				600 //qpnp_rtc_alarm
+
+
+u64 wakeup_source_count_kpdpwr = 0;
+u64 wakeup_source_count_cdsp= 0;
+u64 wakeup_source_count_adsp= 0;
+u64 alarm_count = 0;
+u64	wakeup_source_count_rtc = 0;
+u64	wakeup_source_count_pmic_rtc= 0;
+u64 wakeup_source_count_wifi = 0;
+
+
+#define MODEM_WAKEUP_SRC_NUM 3
+#define MODEM_DIAG_WS_INDEX 0
+#define MODEM_IPA_WS_INDEX 1
+#define MODEM_QMI_WS_INDEX 2
+
+u64	wakeup_source_count_modem= 0;
+
+int modem_wakeup_src_count[MODEM_WAKEUP_SRC_NUM] = { 0 };
+char modem_wakeup_src_string[MODEM_WAKEUP_SRC_NUM][10] =
+		{"DIAG_WS",
+		"IPA_WS",
+		"QMI_WS"};
 #endif /* VENDOR_EDIT */
 
 #ifdef VENDOR_EDIT
@@ -1072,9 +1107,47 @@ void pm_system_irq_wakeup(unsigned int irq_number)
 			else if (desc->action && desc->action->name)
 				name = desc->action->name;
 
-			log_base_wakeup_reason(irq_number);
 			pr_warn("%s: %d triggered %s\n", __func__,
 					irq_number, name);
+            #ifdef VENDOR_EDIT
+            //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
+            if (is_project(OPPO_18081) || is_project(OPPO_18085)) //QCM670
+			{
+				if(irq_number == WAKEUP_SOURCE_KPDPWR) {
+                	wakeup_source_count_kpdpwr++;
+	            }
+				if(irq_number == WAKEUP_SOURCE_PMIC_ALARM) {
+	                wakeup_source_count_pmic_rtc++;
+	            }
+			}
+			else if(is_project(OPPO_18181))  //QCM710
+			{
+				if(irq_number == WAKEUP_SOURCE_KPDPWR_710) {
+	                wakeup_source_count_kpdpwr++;
+	            }
+				if(irq_number == WAKEUP_SOURCE_PMIC_ALARM_710) {
+	                wakeup_source_count_pmic_rtc++;
+	            }
+			}
+            else
+            {
+				if (qpnp_rtc_sirq == 0 && (name != NULL) && strncmp(name, QPNP_RTC_IRQ_NAME, strlen(QPNP_RTC_IRQ_NAME)) == 0) {
+                      qpnp_rtc_sirq = irq_number;
+                }
+                if (qpnp_kpdpwr_sirq == 0 && (name != NULL) && strncmp(name, QPNP_KPDPWR_IRQ_NAME, strlen(QPNP_KPDPWR_IRQ_NAME)) == 0) {
+                      qpnp_kpdpwr_sirq = irq_number;
+                }
+            }
+			#endif
+			#ifdef VENDOR_EDIT
+			//PengNan@BSP.Power.Basic, add for modifing the irq info, 2019/09/26
+			if (irq_number == qpnp_rtc_sirq) {
+				wakeup_source_count_pmic_rtc++;
+			}
+			if (irq_number == qpnp_kpdpwr_sirq) {
+				wakeup_source_count_kpdpwr++;
+			}
+			#endif /*VENDOR_EDIT*/
 		}
 		pm_wakeup_irq = irq_number;
 		pm_system_wakeup();
