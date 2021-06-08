@@ -20,5 +20,7 @@ HOSTCFLAGS_dtc-parser.tab.o := -I$(src)
 # dependencies on generated files need to be listed explicitly
 $(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h
 
-# generated files need to be cleaned explicitly
-clean-files	:= dtc-lexer.lex.c dtc-parser.tab.c dtc-parser.tab.h
+# generated files need to include *.cmd and be cleaned explicitly
+generated-files	:= dtc-lexer.lex.c dtc-parser.tab.c dtc-parser.tab.h
+targets		:= $(generated-files)
+clean-files	:= $(generated-files)
