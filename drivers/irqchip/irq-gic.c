@@ -41,7 +41,6 @@
 #include <linux/irqchip.h>
 #include <linux/irqchip/chained_irq.h>
 #include <linux/irqchip/arm-gic.h>
-#include <linux/wakeup_reason.h>
 #include <linux/msm_rtb.h>
 
 #include <asm/cputype.h>
@@ -385,13 +384,12 @@ static void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
 	} while (1);
 }
 
-static bool gic_handle_cascade_irq(struct irq_desc *desc)
+static void gic_handle_cascade_irq(struct irq_desc *desc)
 {
 	struct gic_chip_data *chip_data = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
 	unsigned int cascade_irq, gic_irq;
 	unsigned long status;
-	int handled = false;
 
 	chained_irq_enter(chip, desc);
 
@@ -405,11 +403,10 @@ static bool gic_handle_cascade_irq(struct irq_desc *desc)
 	if (unlikely(gic_irq < 32 || gic_irq > 1020))
 		handle_bad_irq(desc);
 	else
-		handled = generic_handle_irq(cascade_irq);
+		generic_handle_irq(cascade_irq);
 
  out:
 	chained_irq_exit(chip, desc);
-	return handled;
 }
 
 static struct irq_chip gic_chip = {
