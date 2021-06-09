@@ -39,19 +39,12 @@ LIBFDT_SOURCE="Makefile.libfdt fdt.c fdt.h fdt_addresses.c fdt_empty_tree.c \
 		fdt_wip.c libfdt.h libfdt_env.h libfdt_internal.h"
 FDTOVERLAY_SOURCE=fdtoverlay.c
 
-get_last_dtc_version() {
-	git log --oneline scripts/dtc/ | grep 'upstream' | head -1 | sed -e 's/^.* \(.*\)/\1/'
-}
-
-last_dtc_ver=$(get_last_dtc_version)
-
 # Build DTC
 cd $DTC_UPSTREAM_PATH
 make clean
 make check
 dtc_version=$(git describe HEAD)
-dtc_log=$(git log --oneline ${last_dtc_ver}..)
-
+dtc_log=$(git log --oneline scripts/dtc/ | grep 'upstream' | head -1 | sed -e 's/^.* \(.*\)/\1/')
 
 # Copy the files into the Linux tree
 cd $DTC_LINUX_PATH
