@@ -15,12 +15,14 @@
 *.a
 *.s
 *.ko
+*.lex.c
 *.so
 *.so.dbg
 *.mod.c
 *.i
 *.lst
 *.symtypes
+*.tab.[ch]
 *.order
 *.elf
 *.bin
