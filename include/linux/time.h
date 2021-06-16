@@ -261,6 +261,17 @@ extern struct timespec ns_to_timespec(const s64 nsec);
  */
 extern struct timeval ns_to_timeval(const s64 nsec);
 
+static inline struct __kernel_old_timeval ns_to_kernel_old_timeval(const s64 nsec)
+{
+	struct timespec64 ts = ns_to_timespec64(nsec);
+	struct __kernel_old_timeval tv;
+
+	tv.tv_sec = ts.tv_sec;
+	tv.tv_usec = (suseconds_t)ts.tv_nsec / 1000;
+
+	return tv;
+}
+
 /**
  * timespec_add_ns - Adds nanoseconds to a timespec
  * @a:		pointer to timespec to be incremented
