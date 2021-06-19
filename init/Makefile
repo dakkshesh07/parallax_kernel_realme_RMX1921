@@ -31,7 +31,7 @@ quiet_cmd_compile.h = CHK     $@
       cmd_compile.h = \
 	$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@	\
 	"$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CONFIG_PREEMPT)"  \
-	"$(CC) $(KBUILD_CFLAGS)" "$(LD)"
+	"$(CC)" "$(LD)"
 
 include/generated/compile.h: FORCE
 	$(call cmd,compile.h)
