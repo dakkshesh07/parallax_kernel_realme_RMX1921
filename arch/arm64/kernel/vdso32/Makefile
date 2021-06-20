@@ -115,7 +115,6 @@ c-obj-vdso := $(addprefix $(obj)/, $(c-obj-vdso))
 asm-obj-vdso := $(addprefix $(obj)/, $(asm-obj-vdso))
 obj-vdso := $(c-obj-vdso) $(asm-obj-vdso)
 
-obj-y += vdso.o
 extra-y += vdso.lds
 CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
 
