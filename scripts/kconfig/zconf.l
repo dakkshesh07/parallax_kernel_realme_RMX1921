@@ -1,5 +1,5 @@
 %option nostdinit noyywrap never-interactive full ecs
-%option 8bit nodefault perf-report perf-report
+%option 8bit nodefault yylineno
 %x COMMAND HELP STRING PARAM ASSIGN_VAL
 %{
 /*
@@ -85,7 +85,6 @@ n	[A-Za-z0-9_-]
 
 [ \t]*#.*\n	|
 [ \t]*\n	{
-	current_file->lineno++;
 	return T_EOL;
 }
 [ \t]*#.*
@@ -105,7 +104,7 @@ n	[A-Za-z0-9_-]
 	{n}+	{
 		const struct kconf_id *id = kconf_id_lookup(yytext, yyleng);
 		current_pos.file = current_file;
-		current_pos.lineno = current_file->lineno;
+		current_pos.lineno = yylineno;
 		if (id && id->flags & TF_COMMAND) {
 			BEGIN(PARAM);
 			yylval.id = id;
@@ -129,7 +128,6 @@ n	[A-Za-z0-9_-]
 	.	warn_ignored_character(*yytext);
 	\n	{
 		BEGIN(INITIAL);
-		current_file->lineno++;
 		return T_EOL;
 	}
 }
@@ -161,7 +159,7 @@ n	[A-Za-z0-9_-]
 		new_string();
 		BEGIN(STRING);
 	}
-	\n	BEGIN(INITIAL); current_file->lineno++; return T_EOL;
+	\n	BEGIN(INITIAL); return T_EOL;
 	({n}|[/.])+	{
 		const struct kconf_id *id = kconf_id_lookup(yytext, yyleng);
 		if (id && id->flags & TF_PARAM) {
@@ -180,7 +178,7 @@ n	[A-Za-z0-9_-]
 		free(yylval.string);
 	}
 	#.*	/* comment */
-	\\\n	current_file->lineno++;
+	\\\n	;
 	[[:blank:]]+
 	.	warn_ignored_character(*yytext);
 	<<EOF>> {
@@ -218,7 +216,6 @@ n	[A-Za-z0-9_-]
 		fprintf(stderr,
 			"%s:%d:warning: multi-line strings not supported\n",
 			zconf_curname(), zconf_lineno());
-		current_file->lineno++;
 		BEGIN(INITIAL);
 		return T_EOL;
 	}
@@ -253,12 +250,10 @@ n	[A-Za-z0-9_-]
 		}
 	}
 	[ \t]*\n/[^ \t\n] {
-		current_file->lineno++;
 		zconf_endhelp();
 		return T_HELPTEXT;
 	}
 	[ \t]*\n	{
-		current_file->lineno++;
 		append_string("\n", 1);
 	}
 	[^ \t\n].* {
@@ -389,7 +384,7 @@ void zconf_initscan(const char *name)
 	memset(current_buf, 0, sizeof(*current_buf));
 
 	current_file = file_lookup(name);
-	current_file->lineno = 1;
+	yylineno = 1;
 }
 
 void zconf_nextfile(const char *name)
@@ -430,7 +425,8 @@ void zconf_nextfile(const char *name)
 			exit(1);
 		}
 	}
-	file->lineno = 1;
+	yylineno = 1;
+	current_file->lineno = yylineno;
 	file->parent = current_file;
 	current_file = file;
 }
@@ -440,6 +436,8 @@ static void zconf_endfile(void)
 	struct buffer *parent;
 
 	current_file = current_file->parent;
+	if (current_file)
+		yylineno = current_file->lineno;
 
 	parent = current_buf->parent;
 	if (parent) {
