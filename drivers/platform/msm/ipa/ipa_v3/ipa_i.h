@@ -1149,6 +1149,7 @@ struct ipa3_active_clients {
 	int bus_vote_idx;
 };
 
+#ifdef IPA_WAKELOCKS
 struct ipa3_wakelock_ref_cnt {
 	spinlock_t spinlock;
 	int cnt;
@@ -1601,6 +1602,7 @@ struct ipa3_context {
 	bool gsi_ch20_wa;
 	bool s1_bypass_arr[IPA_SMMU_CB_MAX];
 	u32 wdi_map_cnt;
+#ifdef IPA_WAKELOCKS
 	struct wakeup_source w_lock;
 	struct ipa3_wakelock_ref_cnt wakelock_ref_cnt;
 	/* RMNET_IOCTL_INGRESS_FORMAT_AGG_DATA */
