@@ -1204,73 +1204,6 @@ static const struct file_operations tfa98xx_dbgfs_r_Impedance_fops = {
 	.llseek = default_llseek,
 };
 #endif /* VENDOR_EDIT */
-
-static void tfa98xx_debug_init(struct tfa98xx *tfa98xx, struct i2c_client *i2c)
-{
-    char name[50];
-    struct dentry *dbg_reg_dir;
-
-    scnprintf(name, MAX_CONTROL_NAME, "%s-%x", i2c->name, i2c->addr);
-    tfa98xx->dbg_dir = debugfs_create_dir(name, NULL);
-    debugfs_create_file("OTC", S_IRUGO|S_IWUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_calib_otc_fops);
-    debugfs_create_file("MTPEX", S_IRUGO|S_IWUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_calib_mtpex_fops);
-    debugfs_create_file("TEMP", S_IRUGO|S_IWUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_calib_temp_fops);
-    debugfs_create_file("calibrate", S_IRUGO|S_IWUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_calib_start_fops);
-    debugfs_create_file("R", S_IRUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_r_fops);
-    debugfs_create_file("version", S_IRUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_version_fops);
-    debugfs_create_file("dsp-state", S_IRUGO|S_IWUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_dsp_state_fops);
-    debugfs_create_file("accounting", S_IRUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_accounting_fops);
-#ifdef VENDOR_EDIT
-/*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/07/20, Add for read Impedance*/
-    debugfs_create_file("R_Impedance", S_IRUGO, tfa98xx->dbg_dir,
-                        i2c, &tfa98xx_dbgfs_r_Impedance_fops);
-#endif /* VENDOR_EDIT */
-
-    /* Direct registers access */
-    if (tfa98xx->flags & TFA98XX_FLAG_TFA9890_FAM_DEV) {
-        dbg_reg_dir = debugfs_create_dir("regs", tfa98xx->dbg_dir);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(00, STATUS);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(01, BATTERYVOLTAGE);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(02, TEMPERATURE);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(03, REVISIONNUMBER);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(04, I2SREG);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(05, BAT_PROT);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(06, AUDIO_CTR);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(07, DCDCBOOST);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(08, SPKR_CALIBRATION);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(09, SYS_CTRL);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(0A, I2S_SEL_REG);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(0B, HIDDEN_MTP_KEY2);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(0F, INTERRUPT_REG);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(10, PDM_CTRL);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(11, PDM_OUT_CTRL);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(12, PDM_DS4_R);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(13, PDM_DS4_L);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(22, CTRL_SAAM_PGA);
-        TFA98XX_DEBUGFS_REG_CREATE_FILE(25, MISC_CTRL);
-    }
-
-    if (tfa98xx->flags & TFA98XX_FLAG_SAAM_AVAILABLE) {
-        dev_dbg(tfa98xx->dev, "Adding pga_gain debug interface\n");
-        debugfs_create_file("pga_gain", S_IRUGO, tfa98xx->dbg_dir,
-                        tfa98xx->i2c,
-                        &tfa98xx_dbgfs_pga_gain_fops);
-    }
-}
-
-static void tfa98xx_debug_remove(struct tfa98xx *tfa98xx)
-{
-    if (tfa98xx->dbg_dir)
-        debugfs_remove_recursive(tfa98xx->dbg_dir);
-}
 #endif
 
 #ifdef VENDOR_EDIT
@@ -3776,9 +3709,6 @@ static int tfa98xx_i2c_probe(struct i2c_client *i2c,
         tfa98xx->flags |= TFA98XX_FLAG_SKIP_INTERRUPTS;
     }
 
-#ifdef CONFIG_DEBUG_FS
-    tfa98xx_debug_init(tfa98xx, i2c);
-#endif
 #ifdef VENDOR_EDIT
 /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
     // create debug file
@@ -3826,9 +3756,6 @@ static int tfa98xx_i2c_remove(struct i2c_client *i2c)
 
     device_remove_bin_file(&i2c->dev, &dev_attr_reg);
     device_remove_bin_file(&i2c->dev, &dev_attr_rw);
-#ifdef CONFIG_DEBUG_FS
-    tfa98xx_debug_remove(tfa98xx);
-#endif
 
     tfa98xx_unregister_dsp(tfa98xx);
 
