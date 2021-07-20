@@ -1933,11 +1933,6 @@ static __latent_entropy struct task_struct *copy_process(
 	p->sequential_io_avg	= 0;
 #endif
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-// Liujie.Xie@TECH.Kernel.Sched, 2019/08/29, add for stuck monitor
-    p->stuck_trace = 0;
-    memset(&p->oppo_stuck_info, 0, sizeof(struct oppo_uifirst_monitor_info));
-#endif
 #ifdef VENDOR_EDIT
 // Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
     init_task_ux_info(p);

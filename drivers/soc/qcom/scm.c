@@ -641,13 +641,6 @@ static int allocate_extra_arg_buffer(struct scm_desc *desc, gfp_t flags)
 	return 0;
 }
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-//Jiheng.Xie@TECH.BSP.Performance,2019-07-22,add for TZ time statistics
-extern void ohm_schedstats_record(int sched_type, int fg, u64 delta);
-extern void ohm_action_trig(int type);
-static int scm_call_trig_ms = 100;
-#endif /*VENDOR_EDIT*/
-
 static int __scm_call2(u32 fn_id, struct scm_desc *desc, bool retry)
 {
 	int arglen = desc->arginfo & 0xf;
@@ -707,12 +700,6 @@ static int __scm_call2(u32 fn_id, struct scm_desc *desc, bool retry)
 			pr_warn("scm: secure world has been busy for 1 second!\n");
 	} while (ret == SCM_V2_EBUSY && (retry_count++ < SCM_EBUSY_MAX_RETRY));
 out:
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-//Jiheng.Xie@TECH.BSP.Performance,2019-07-22,add for TZ time statistics
-	 	ohm_schedstats_record(OHM_SCHED_SCM, current_is_fg(), jiffies_to_msecs(jiffies - oppo_scm_start));
-		if (jiffies_to_msecs(jiffies - oppo_scm_start) > scm_call_trig_ms && __ratelimit(&ratelimit))
-			ohm_action_trig(OHM_SCHED_SCM);
-#endif /*VENDOR_EDIT*/
 	if (ret < 0)
 		pr_err("scm_call failed: func id %#llx, ret: %d, syscall returns: %#llx, %#llx, %#llx\n",
 			x0, ret, desc->ret[0], desc->ret[1], desc->ret[2]);

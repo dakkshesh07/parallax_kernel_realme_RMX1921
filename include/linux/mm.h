@@ -23,23 +23,6 @@
 #include <linux/page_ext.h>
 #include <linux/err.h>
 #include <linux/page_ref.h>
-#ifdef VENDOR_EDIT
-/*Peifeng.Li@PSW.BSP.Kernel.MM 2019-09-28 account vma alloc failed*/
-#include <soc/oppo/oppo_healthinfo.h>
-extern int vma_alloc_order;
-extern unsigned long vma_alloc_err_counts;
-extern unsigned long vma_alloc_counts;
-extern unsigned long vma_alloc_err[10];
-static void account_vma_alloc_err(unsigned long len)
-{
-    int index = len >> 12;
-    
-    index = index > vma_alloc_order ? vma_alloc_order : index;
-    vma_alloc_err[index] += 1;
-
-    vma_alloc_err_counts += 1;
-}
-#endif
 
 struct mempolicy;
 struct anon_vma;
@@ -2294,32 +2277,10 @@ extern unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info);
 static inline unsigned long
 vm_unmapped_area(struct vm_unmapped_area_info *info)
 {
-#ifdef VENDOR_EDIT
-/*Peifeng.Li@PSW.BSP.Kernel.MM 2019-09-28 account vma alloc failed*/
-    unsigned long addr = 0;
-    
-    if (info->flags & VM_UNMAPPED_AREA_TOPDOWN)
-		addr = unmapped_area_topdown(info);
-	else
-		addr = unmapped_area(info);
-
-    if (info->length > 0x1000) {
-        vma_alloc_counts += 1;
-
-        if (unlikely(IS_ERR_VALUE(addr))) {
-            account_vma_alloc_err(info->length);
-            if (ohm_mem_vma_alloc_err)
-                ohm_action_trig(OHM_MEM_VMA_ALLOC_ERR);
-        }
-    }
-
-    return addr;
-#else
 	if (info->flags & VM_UNMAPPED_AREA_TOPDOWN)
 		return unmapped_area_topdown(info);
 	else
 		return unmapped_area(info);
-#endif
 }
 
 /* truncate.c */

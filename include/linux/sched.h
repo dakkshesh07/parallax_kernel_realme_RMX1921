@@ -326,34 +326,6 @@ extern char ___assert_task_state[1 - 2*!!(
 
 #endif
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-// Liujie.Xie@TECH.Kernel.Sched, 2019/08/29, add for stuck monitor
-struct uifirst_d_state {
-    u64 iowait_ns;
-    u64 downread_ns;
-    u64 downwrite_ns;
-    u64 mutex_ns;
-    u64 other_ns;
-    int cnt;
-};
-
-struct uifirst_s_state{
-    u64 binder_ns;
-    u64 epoll_ns;
-    u64 futex_ns;
-    u64 other_ns;
-    int cnt;
-};
-
-struct oppo_uifirst_monitor_info {
-    u64 runnable_state;
-    u64 ltt_running_state[3]; /* ns */
-    u64 big_running_state[3]; /* ns */
-    struct uifirst_d_state d_state;
-    struct uifirst_s_state s_state;
-};
-#endif
-
 #ifdef VENDOR_EDIT
 // Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
 enum DYNAMIC_UX_TYPE
@@ -2259,17 +2231,6 @@ struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/* A live task holds one reference. */
 	atomic_t stack_refcount;
-#endif
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-// Liujie.Xie@TECH.Kernel.Sched, 2019/08/29, add for stuck monitor
-    int stuck_trace;
-    struct oppo_uifirst_monitor_info oppo_stuck_info;
-    unsigned in_mutex:1;
-    unsigned in_downread:1;
-    unsigned in_downwrite:1;
-    unsigned in_futex:1;
-    unsigned in_binder:1;
-    unsigned in_epoll:1;
 #endif
 #ifdef VENDOR_EDIT
 // Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first

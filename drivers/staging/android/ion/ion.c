@@ -1942,38 +1942,6 @@ static void ion_heap_print_debug(struct seq_file *s, struct ion_heap *heap)
 	}
 }
 
-#ifdef VENDOR_EDIT
-/* yanghao@PSW.Kernel.Stability, 2019/04/26, Add for Process memory statistics */
-size_t get_ion_heap_by_pid(pid_t pid)
-{
-	struct ion_heap*  ionsystemheap = NULL;
-	struct ion_device *dev = NULL;
-	struct rb_node *n;
-	size_t total_size = 0;
-
-	ionsystemheap = get_system_ion_heap(ION_HEAP_TYPE_SYSTEM);
-	if (!ionsystemheap || !ionsystemheap->dev)
-		return 0;
-
-	dev = ionsystemheap->dev;
-
-	down_read(&dev->lock);
-	for (n = rb_first(&dev->clients); n; n = rb_next(n)) {
-		struct ion_client *client = rb_entry(n, struct ion_client,
-				node);
-		size_t size = ion_debug_heap_total(client, ionsystemheap->id);
-
-		if (client->pid == pid) {
-			total_size += size;
-		}
-	}
-	up_read(&dev->lock);
-
-	return total_size;
-}
-EXPORT_SYMBOL(get_ion_heap_by_pid);
-#endif
-
 static int ion_debug_heap_show(struct seq_file *s, void *unused)
 {
 	struct ion_heap *heap = s->private;
