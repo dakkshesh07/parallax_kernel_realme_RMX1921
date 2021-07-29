@@ -1,0 +1,25 @@
+#------------------------------#
+# Realme configuration options #
+#------------------------------#
+
+menu "Realme board selection"
+
+config MACH_REALME
+	bool "Support for Realme device"
+	depends on ARCH_QCOM
+	help
+	  Support for Realme Products.
+
+config MACH_REALME_RMX1921
+        bool "Support for Realme XT RMX1921"
+        depends on MACH_REALME
+        help
+          Support for Realme XT RMX1921.
+
+config MACH_REALME_RMX1971
+        bool "Support for Realme 5 Pro RMX1971"
+        depends on MACH_REALME
+        help
+          Support for Realme 5 Pro RMX1971.
+ 
+endmenu
