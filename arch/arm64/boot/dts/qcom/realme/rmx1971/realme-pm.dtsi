@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2021, Divyanshu-Modi <divyan.m05@gmail.com>
+// Copyright (c) 2021, Dakkshesh07 <dakkshesh5@gmail.com>
+// Copyright (c) 2021, The Linux Foundation. All rights reserved.
+
+/* RMX 1921 specific changes */
+
+&spmi_bus {
+	&pm660_pon {
+		oppo,pmicwd;
+	};
+
+	&pm660_gpios {
+		interrupts = <0x0 0xc1 0 IRQ_TYPE_NONE>,
+					<0x0 0xc2 0 IRQ_TYPE_NONE>,
+					<0x0 0xc3 0 IRQ_TYPE_NONE>,
+					<0x0 0xc5 0 IRQ_TYPE_NONE>,
+					<0x0 0xc8 0 IRQ_TYPE_NONE>,
+					<0x0 0xca 0 IRQ_TYPE_NONE>,
+					<0x0 0xcb 0 IRQ_TYPE_NONE>,
+					<0x0 0xcc 0 IRQ_TYPE_NONE>;
+		interrupt-names = "pm660_gpio2", "pm660_gpio3",
+				"pm660_gpio4", "pm660_gpio6", "pm660_gpio9",
+				"pm660_gpio11", "pm660_gpio12",
+				"pm660_gpio13";
+		qcom,gpios-disallowed = <1 5 7 8 10>;
+	};
+};
+
+&pm660_vadc {
+	chan@12 {
+		label = "gpio2_adc";
+		reg = <0x12>; //channel for GPIO2
+		qcom,decimation = <2>;
+		qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+		qcom,calibration-type = "absolute";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+        qcom,cal-val = <0>;
+	};
+
+	chan@13 {
+		label = "gpio3_adc";
+		reg = <0x13>; //channel for GPIO3
+		qcom,decimation = <2>;
+		qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+		qcom,calibration-type = "absolute";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+        qcom,cal-val = <0>;
+	};
+
+	chan@14 {
+		label = "gpio4_adc";
+		reg = <0x14>; //channel for GPIO4
+		qcom,decimation = <2>;
+		qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+		qcom,calibration-type = "absolute";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+	};
+};
