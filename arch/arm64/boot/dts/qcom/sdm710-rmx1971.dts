@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2021, The Linux Foundation. All rights reserved.
+// Copyright (c) 2021, Divyanshu-Modi <divyan.m05@gmail.com>
+// Copyright (c) 2021, Dakkshesh07 <dakkshesh5@gmail.com>
+// Copyright (c) 2019, OPPO Mobile Comm Corp, Ltd, All rights reserved.
+
+/dts-v1/;
+
+#include "sdm710.dtsi"
+
+/ {
+        model = "Qualcomm Technologies, Inc. SDM710 SoC, RMX1971";
+        compatible = "qcom,sdm670";
+        qcom,board-id = <0 0>;
+	oppo,prjversion = <1 19691>;
+};
+
+#include "realme/rmx1971/base.dtsi"
