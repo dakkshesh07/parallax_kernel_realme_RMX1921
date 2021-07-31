@@ -1,0 +1,107 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2021, Divyanshu-Modi <divyan.m05@gmail.com>
+// Copyright (c) 2021, Dakkshesh07 <dakkshesh5@gmail.com>
+// Copyright (c) 2021, The Linux Foundation. All rights reserved.
+
+#include "realme-audio.dtsi"
+#include "realme-camera.dtsi"
+#include "realme-pm.dtsi"
+
+/* RMX 1921 specific changes */
+
+&soc {
+	qcom,ion {
+		qcom,ion-heap@14 {
+			reg = <14>;
+			qcom,ion-heap-type = "SECURE_CARVEOUT";
+			node1 {
+				memory-region = <&secure_dsp_mem>;
+				token = <0x20000000>; /* ION_FLAG_CP_CDSP */
+			};
+		};
+};
+
+&qupv3_se4_i2c {
+	status = "ok";
+	nq@28 {
+		compatible = "nxp,pn544";
+		reg = <0x28>;
+		nxp,pn544-irq = <&pm660l_gpios 4 0x00>;
+		nxp,pn544-ven = <&pm660l_gpios 5 0x00>;
+		nxp,pn544-fw-dwnld = <&pm660l_gpios 3 0x00>;
+		nxp,pn544-ese-pwr = <&pm660l_gpios 8 0x00>;
+		qcom,nq-clkreq = <&pm660_gpios 4 0x00>;
+		interrupt-parent = <&pm660l_gpios>;
+		qcom,clk-src = "BBCLK3";
+		interrupts = <4 0>;
+		interrupt-names = "nfc_irq";
+		pinctrl-names = "nfc_default";
+		pinctrl-0 = <&nfc_clk_default>;
+		clocks = <&clock_rpmh RPMH_LN_BB_CLK3>;
+		clock-names = "ref_clk";
+	};
+};
+
+&qupv3_se0_spi {
+    status = "ok";
+
+    ese@0 {
+        compatible = "nxp,p61";
+        reg = <0>;
+        spi-max-frequency = <8000000>;
+    };
+};
+
+&sdhc_2 {
+	cd-gpios = <&tlmm 96 0x0>;
+};
+
+&qupv3_se9_i2c  {
+	status = "okay";
+	synaptics17081@20 {
+		compatible = "synaptics-s3706";
+		reg = <0x20>;
+		chip-name = "S3706";
+
+		/* Interrupt && Irq-gpio */
+		interrupt-parent = <&tlmm>;
+		interrupts = <125 0x00>;
+
+		/* Power Config */
+		enable2v8_gpio = <&pm660_gpios 13 0x1>;
+		//vdd_2v8-supply = <&pm660l_l2>;
+		vcc_1v8-supply = <&pm660_l8>;
+		//vdd_2v8_volt = <2960000>;
+
+		/* Other HW Resource */
+		irq-gpio = <&tlmm 125 0x2008>;
+		reset-gpio = <&tlmm 99 0x1>; //use gpio 99 for evt
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+
+		touchpanel,max-num-support = <10>;
+		touchpanel,tx-rx-num = <16 33>;
+		touchpanel,panel-coords = <1080 2340>;
+		touchpanel,display-coords = <1080 2340>;
+		touchpanel,touchmajor-limit = <0 54>;
+
+		/* SW Support Feature Control */
+		black_gesture_support;
+		fw_edge_limit_support;
+		fw_corner_limit_support;
+		//spurious_fingerprint_support;
+		charger_pump_support;
+		game_switch_support;
+		face_detect_support;
+		smart_gesture_support;
+		pressure_report_support;
+		fw_update_app_support;
+		fingerprint_underscreen_support;
+		ic_is_synaptics;
+		report_120hz_support;
+		touchpanel,button-type = <4>;
+		touchpanel.button-TRx = <0 0>;
+	};
+};
+
+

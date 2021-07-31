@@ -1,0 +1,302 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2021, Divyanshu-Modi <divyan.m05@gmail.com>
+// Copyright (c) 2021, Dakkshesh07 <dakkshesh5@gmail.com>
+// Copyright (c) 2021, The Linux Foundation. All rights reserved.
+
+/* RMX 1921 specific changes */
+&soc {
+	qcom,msm-adsp-loader {
+		adsp-firmware = "adsp_v3";
+	};
+
+	&qupv3_se4_i2c {
+		status = "ok";
+	};
+
+	&qupv3_se3_i2c {
+		status = "disabled";
+	};
+
+        &qupv3_se2_i2c {
+                status = "ok";
+        };
+
+	dbmdx {
+		compatible = "dspg,dbmdx-codec";
+		reset-gpio = <&tlmm 98 0>;
+		sv-gpio = <&tlmm 97 0>;
+		wakeup-gpio = <&tlmm 96 0>;
+		auto_buffering = <1>;
+		multi-interface-support = <1>;
+		cd-interfaces = <&dbmd4_spi>;
+		va-interfaces = <0 0 0 0>;
+		feature-va; /* enable VA */
+		va-firmware-name = "dbmd4_va_fw.bin";
+		va-config = <0x800C2400
+			     0x80290020
+			     0x802210A0
+			     0x80330056
+			     0x80091400
+			     0x80158E8E
+			     0x8018000A
+			     0x801b0020
+			     0x80230000
+			     0x801A0012
+			     0x80108000
+			     0x8aab0040
+			     0x805004B0
+			     0x805104B0
+			     0x8016000C
+			     0x80410001
+			     0x8060b34f
+			     0x8061f822
+			     0x8062fb6e
+			     0x8063fbcc
+			     0x80643e20
+			     0x8065fac3
+			     0x80660006>;
+		va-speeds = <0x0000 460800  0 960000
+			     0x0000 2000000 0 4800000
+			     0x0000 3000000 0 4800000>;
+		va-mic-config = <0x5012 0x1044 0x0008>;
+		va-mic-mode = <0>;
+		master-clk-rate = <32768>;
+		/* constant-clk-rate = <32768>; */
+		firmware_id = <0xdbd4>;
+		use_gpio_for_wakeup = <1>; /* Use wakeup gpio */
+		wakeup_set_value = <0>;  /* Value to write to wakeup gpio */
+		auto_detection = <1>;
+		detection_buffer_channels = <0>;
+		min_samples_chunk_size = <128>;
+		pcm_streaming_mode = <1>;
+		boot_options = <0x200>; /* Verify chip id */
+		amodel_options = <0x24>;
+		send_uevent_on_detection = <1>;
+		send_uevent_after_buffering = <0>;
+		detection_after_buffering = <0>;
+		va_backlog_length = <0x780>;
+		va_advanced_options = <0x1D>; /* Split Passphrase/Buf, Send det and buf events, Send event after passphrase */
+		va_passphrase_margins = <0x00320640>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk_out_default>;
+	};
+
+	dbmdx-snd-soc-platform {
+		compatible = "dspg,dbmdx-snd-soc-platform";
+	};
+
+	snd-dbmdx-mach-drv {
+		compatible = "dspg,snd-dbmdx-mach-drv";
+	};
+
+	&lpi_tlmm {
+                sec_mi2s_bclk {
+                        sec_mi2s_bclk_sleep: sec_mi2s_bclk_sleep {
+                                mux {
+                                        pins = "gpio8";
+                                        function = "func3";
+                                };
+
+                                config {
+                                        pins = "gpio8";
+                                        drive-strength = <2>;   /* 2 mA */
+                                };
+                        };
+
+                        sec_mi2s_bclk_active: sec_mi2s_bclk_active {
+                                mux {
+                                        pins = "gpio8";
+                                        function = "func3";
+                                };
+                                config {
+                                        pins = "gpio8";
+                                        drive-strength = <8>;   /* 8 mA */
+                                };
+                        };
+                };
+
+                sec_mi2s_ws {
+                        sec_mi2s_ws_sleep: sec_mi2s_ws_sleep {
+                                mux {
+                                        pins = "gpio9";
+                                        function = "func3";
+                                };
+
+                                config {
+                                        pins = "gpio9";
+                                        drive-strength = <2>;   /* 2 mA */
+                                };
+                        };
+
+                        sec_mi2s_ws_active: sec_mi2s_ws_active {
+                                mux {
+                                        pins = "gpio9";
+                                        function = "func3";
+                                };
+                                config {
+                                        pins = "gpio9";
+                                        drive-strength = <8>;   /* 8 mA */
+                                };
+                        };
+                };
+
+                sec_mi2s_sd0 {
+                        sec_mi2s_sd0_sleep: sec_mi2s_sd0_sleep {
+                                mux {
+                                        pins = "gpio10";
+                                        function = "func4";
+                                };
+
+                                config {
+                                        pins = "gpio10";
+                                        drive-strength = <2>;   /* 2 mA */
+                                };
+                        };
+
+                        sec_mi2s_sd0_active: sec_mi2s_sd0_active {
+                                mux {
+                                        pins = "gpio10";
+                                        function = "func4";
+                                };
+                                config {
+                                        pins = "gpio10";
+                                        drive-strength = <8>;   /* 8 mA */
+                                };
+                        };
+                };
+        };
+
+	&wcd_usbc_analog_en1_gpio {
+                /delete-property/ pinctrl-names;
+                /delete-property/ pinctrl-0;
+                /delete-property/ pinctrl-1;
+	};
+
+	sec_mi2s_gpios: sec_pinctrl {
+		compatible = "qcom,msm-cdc-pinctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&sec_mi2s_bclk_active &sec_mi2s_ws_active &sec_mi2s_sd0_active>;
+		pinctrl-1 = <&sec_mi2s_bclk_sleep &sec_mi2s_ws_sleep &sec_mi2s_sd0_sleep>;
+		qcom,lpi-gpios;
+	};
+
+        &cdc_sdw_gpios {
+                status = "disabled";
+        };
+
+        &wsa_spkr_en1 {
+                status = "disabled";
+        };
+
+        &wsa_spkr_en2 {
+                status = "disabled";
+        };
+
+        &msm_sdw_codec {
+                status = "disabled";
+        };
+
+        &wdsp_mgr {
+                status = "disabled";
+        };
+
+        &wdsp_glink {
+                status = "disabled";
+        };
+};
+
+&qupv3_se2_spi {
+	status = "okay";
+	dbmd4_spi:dbmd4_interface@0x0  {
+		compatible = "dspg,dbmd4-spi";
+		reg = <0>;
+		spi-max-frequency = <10000000>;
+		read-chunk-size  = <0x2000> ;
+		write-chunk-size = <0x20000> ;
+		dma_min_buffer_size = <0>;
+	};
+};
+
+&tavil_snd {
+	status = "disabled";
+};
+
+&tasha_snd {
+	status = "disabled";
+};
+	
+&cdc_dmic12_gpios_sleep {
+	mux {
+		function = "gpio";
+	};
+
+	config {
+		/delete-property/ output-low;
+		input-enable;
+	};
+};
+
+&cdc_dmic34_gpios_sleep {
+        mux {
+                function = "gpio";
+        };
+
+        config {
+                /delete-property/ pull-down;
+		bias-disable;
+        };
+};
+
+&int_codec {
+	qcom,msm-mi2s-master = <1>, <0>, <1>, <0>, <0>;
+	qcom,msm-mi2s-ext-mclk = <0>, <1>, <0>, <0>, <0>;
+	qcom,msm-mbhc-gnd-swh = <0>;
+	qcom,msm-micbias1-ext-cap;
+	qcom,msm-micbias2-ext-cap;
+        /delete-property/ qcom,wsa-devs;
+        /delete-property/ qcom,wsa-aux-dev-prefix;
+	qcom,wsa-disable;
+	qcom,wsa-max-devs = <0>;
+	qcom,sec-mi2s-gpios = <&sec_mi2s_gpios>;
+	oppo,headphone-pa = "akm";
+	oppo,speaker-pa = "nxp";
+};
+
+&dai_mi2s1 {
+	compatible = "qcom,msm-dai-q6-mi2s";
+	qcom,msm-dai-q6-mi2s-dev-id = <1>;
+	qcom,msm-mi2s-rx-lines = <1>;
+	qcom,msm-mi2s-tx-lines = <0>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&sec_mi2s_mclk_active>;
+	pinctrl-1 = <&sec_mi2s_mclk_sleep>;
+};
+
+&dai_mi2s2 {
+	compatible = "qcom,msm-dai-q6-mi2s";
+	qcom,msm-dai-q6-mi2s-dev-id = <2>;
+	qcom,msm-mi2s-rx-lines = <1>;
+	qcom,msm-mi2s-tx-lines = <2>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&ter_mi2s_active &ter_mi2s_sd0_active &ter_mi2s_sd1_active>;
+	pinctrl-1 = <&ter_mi2s_sleep &ter_mi2s_sd0_sleep &ter_mi2s_sd1_sleep>;
+};
+
+&qupv3_se4_i2c {
+	status = "okay";
+	tfa98xx@35 {
+		compatible = "nxp,tfa98xx";
+		reg = <0x35>;
+		//nxp,rst-ctrl-gpio = <&tlmm 80 0x00>;
+		tfa9890_vdd-supply = <&pm660_l13>;
+		status = "okay";
+	};
+
+	ak4376@10 {
+		compatible = "akm,ak4376";
+		reg = <0x10>;
+		ak4376,reset-gpio = <&tlmm 50 0x00>;
+		//audio-vdd-enable-gpio = <&tlmm 60 0x00>;
+		status = "okay";
+	};
+};

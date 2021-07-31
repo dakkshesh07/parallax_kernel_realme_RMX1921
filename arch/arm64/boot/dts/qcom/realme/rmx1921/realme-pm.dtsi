@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2021, Divyanshu-Modi <divyan.m05@gmail.com>
+// Copyright (c) 2021, Dakkshesh07 <dakkshesh5@gmail.com>
+// Copyright (c) 2021, The Linux Foundation. All rights reserved.
+
+/* RMX 1921 specific changes */
+&pm660_pon {
+	oppo,pmicwd;
+};
+
+&pm660_vadc {
+	chan@12 {
+		label = "gpio2_adc";
+		reg = <0x12>; //channel for GPIO2
+		qcom,decimation = <2>;
+		qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+		qcom,calibration-type = "absolute";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+                qcom,cal-val = <0>;
+	};
+
+	chan@13 {
+		label = "gpio3_adc";
+		reg = <0x13>; //channel for GPIO3
+		qcom,decimation = <2>;
+		qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+		qcom,calibration-type = "absolute";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+                qcom,cal-val = <0>;
+	};
+
+	chan@19 {
+		label = "gpio12_adc";
+		reg = <0x19>; //channel for GPIO_12
+		qcom,decimation = <2>;
+		qcom,pre-div-channel-scaling = <0>; //1:1 scaling
+		qcom,calibration-type = "absolute";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+		qcom,cal-val = <0>;
+	};
+};
+
+&pm660_pdphy {
+	qcom,default-sink-caps = <5000 3000>; /* 5V @ 3A */
+};
