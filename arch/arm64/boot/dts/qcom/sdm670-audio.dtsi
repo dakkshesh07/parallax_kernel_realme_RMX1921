@@ -247,7 +247,103 @@
 		compatible = "qcom,msm-cpe-lsm";
 		qcom,msm-cpe-lsm-id = <3>;
 	};
+
+//#ifdef VENDOR_EDIT
+//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Add for dbmdx
+	dbmdx {
+		//status = "disabled";
+		compatible = "dspg,dbmdx-codec";
+
+		reset-gpio = <&tlmm 98 0>;
+		sv-gpio = <&tlmm 97 0>;
+		wakeup-gpio = <&tlmm 96 0>;
+
+		auto_buffering = <1>;
+		multi-interface-support = <1>;
+		cd-interfaces = <&dbmd4_spi>;
+		va-interfaces = <0 0 0 0>;
+		feature-va; /* enable VA */
+		va-firmware-name = "dbmd4_va_fw.bin";
+		va-config = <0x800C2400
+			     0x80290020
+			     0x802210A0
+			     0x80330056
+			     0x80091400
+			     0x80158E8E
+			     0x8018000A
+			     0x801b0020
+			     0x80230000
+			     0x801A0012
+			     0x80108000
+			     0x8aab0040
+			     0x805004B0
+			     0x805104B0
+			     0x8016000C
+			     0x80410001
+			     0x8060b34f
+			     0x8061f822
+			     0x8062fb6e
+			     0x8063fbcc
+			     0x80643e20
+			     0x8065fac3
+			     0x80660006>;
+		va-speeds = <0x0000 460800  0 960000
+			     0x0000 2000000 0 4800000
+			     0x0000 3000000 0 4800000>;
+		va-mic-config = <0x5012 0x1044 0x0008>;
+		va-mic-mode = <0>;
+
+//		digital_mic_digital_gain = <0x14>;
+//		analog_mic_analog_gain = <0x3>;
+//		analog_mic_digital_gain = <0x14>;
+
+		master-clk-rate = <32768>;
+		/* constant-clk-rate = <32768>; */
+		firmware_id = <0xdbd4>;
+		use_gpio_for_wakeup = <1>; /* Use wakeup gpio */
+		wakeup_set_value = <0>;  /* Value to write to wakeup gpio */
+		auto_detection = <1>;
+		detection_buffer_channels = <0>;
+		min_samples_chunk_size = <128>;
+		pcm_streaming_mode = <1>;
+		boot_options = <0x200>; /* Verify chip id */
+		amodel_options = <0x24>;
+		send_uevent_on_detection = <1>;
+		send_uevent_after_buffering = <0>;
+		detection_after_buffering = <0>;
+		va_backlog_length = <0x780>;
+		va_advanced_options = <0x1D>; /* Split Passphrase/Buf, Send det and buf events, Send event after passphrase */
+		va_passphrase_margins = <0x00320640>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&clk_out_default>;
+	};
+
+	dbmdx-snd-soc-platform {
+		compatible = "dspg,dbmdx-snd-soc-platform";
+	};
+
+	snd-dbmdx-mach-drv {
+		compatible = "dspg,snd-dbmdx-mach-drv";
+	};
+//#endif /* VENDOR_EDIT */
 };
+
+//#ifdef VENDOR_EDIT
+//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Add for dbmdx
+&qupv3_se2_spi {
+	status = "okay";
+
+		dbmd4_spi:dbmd4_interface@0x0  {
+			//status = "disabled";
+			compatible = "dspg,dbmd4-spi";
+			reg = <0>;
+			spi-max-frequency = <10000000>;
+			read-chunk-size  = <0x2000> ;
+			write-chunk-size = <0x20000> ;
+			dma_min_buffer_size = <0>;
+		};
+};
+//#endif /* VENDOR_EDIT */
 
 &slim_aud {
 	status = "disabled";
