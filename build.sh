@@ -34,13 +34,12 @@ fi
 
 
 KERNEL_DEFCONFIG=RMX1921_defconfig
-Device="MI 9SE (GRUS)"
+Device="Realme XT (RMX1921)"
 ANYKERNEL3_DIR=$PWD/AnyKernel3/
 KERNELDIR=$PWD/
-FINAL_KERNEL_ZIP=parallax_v1.zip
 export PATH="${PWD}/clang/bin:${PATH}"
 export ARCH=arm64
-export SUBARCH=arm64
+export SUBARCH=arm32
 export KBUILD_COMPILER_STRING="$(${PWD}/clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
 # Speed up build process
 MAKE="./makeparallel"
@@ -76,9 +75,9 @@ make -j$(nproc --all) O=out \
 echo "**** Verify Image.gz-dtb ****"
 if [ -f out/arch/arm64/boot/Image.gz-dtb ]; then
   echo "**** Removing leftovers ****"
-  rm -rf $ANYKERNEL3_DIR/Image.gz-dtb
-  rm -rf $ANYKERNEL3_DIR/dtbo.img
-  rm -rf $ANYKERNEL3_DIR/$FINAL_KERNEL_ZIP
+  cd $ANYKERNEL3_DIR/
+  make clean
+  cd ..
 
   echo "**** Copying Image.gz-dtb ****"
   cp $PWD/out/arch/arm64/boot/Image.gz-dtb $ANYKERNEL3_DIR/
@@ -86,8 +85,8 @@ if [ -f out/arch/arm64/boot/Image.gz-dtb ]; then
 
   echo "**** Time to zip up! ****"
   cd $ANYKERNEL3_DIR/
-  zip -r9 $FINAL_KERNEL_ZIP * -x README $FINAL_KERNEL_ZIP
-  cp $ANYKERNEL3_DIR/$FINAL_KERNEL_ZIP $KERNELDIR/$FINAL_KERNEL_ZIP
+  make zip
+  cd ..
   echo "**** Done, here is your build info ****"
 
   BUILD_END=$(date +"%s")
