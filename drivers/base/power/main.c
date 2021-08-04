@@ -129,10 +129,6 @@ void device_pm_add(struct device *dev)
 	mutex_lock(&dpm_list_mtx);
 #ifdef CONFIG_DEBUG_KERNEL
 	if (dev->parent && dev->parent->power.is_prepared)
-		dev_dbg(dev, "parent %s should not be sleeping\n",
-			dev_name(dev->parent));
-#else
-	if (dev->parent && dev->parent->power.is_prepared) {
 		dev_warn(dev, "parent %s should not be sleeping\n",
 			dev_name(dev->parent));
 #endif
