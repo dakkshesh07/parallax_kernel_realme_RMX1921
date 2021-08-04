@@ -126,7 +126,7 @@ Android.bp
 
 # My Custom untrcked files
 AnyKernel3/Image.gz-dtb
-AnyKernel3/parallax_v1.zip
+AnyKernel3/*.zip*
 builds.sh
 clang/
 dtc/
@@ -137,6 +137,7 @@ gcc64/
 gcc64_2/
 import.sh
 out/
+any/
 parallax_test_v1.zip
 parallax_v1.zip
 test.sh
