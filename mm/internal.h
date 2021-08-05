@@ -508,10 +508,6 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 #define ALLOC_HIGH		0x20 /* __GFP_HIGH set */
 #define ALLOC_CPUSET		0x40 /* check for correct cpuset */
 #define ALLOC_CMA		0x80 /* allow allocations from CMA areas */
-#ifdef VENDOR_EDIT
-/* Huacai.Zhou@PSW.BSP.Kernel.MM, 2018-01-12, add for unmovable allocation */
-#define ALLOC_UNMOVABLE 0x200 /* migratetype is MIGRATE_UNMOVABLE */
-#endif
 
 enum ttu_flags;
 struct tlbflush_unmap_batch;
@@ -541,12 +537,4 @@ static const struct trace_print_flags pageflag_names[] = {{0, NULL}};
 static const struct trace_print_flags vmaflag_names[] = {{0, NULL}};
 static const struct trace_print_flags gfpflag_names[] = {{0, NULL}};
 #endif
-#ifdef VENDOR_EDIT
-/*Huacai.Zhou@PSW.kernel.mm, 2018-08-30, lowmem optimize*/
-#define SZ_1G_PAGES (SZ_1G >> PAGE_SHIFT)
-#define TOTALRAM_2GB (2*SZ_1G_PAGES)
-#define TOTALRAM_3GB (3*SZ_1G_PAGES)
-#define TOTALRAM_4GB (4*SZ_1G_PAGES)
-#define TOTALRAM_6GB (6*SZ_1G_PAGES)
-#endif /*VENDOR_EDIT*/
 #endif	/* __MM_INTERNAL_H */
