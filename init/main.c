@@ -852,25 +852,12 @@ static void __init do_initcall_level(int level)
 		do_one_initcall(*fn);
 }
 
-#ifdef VENDOR_EDIT
-//cuixiaogang@SRC.hypnus.2019-1-3. add for hypnusd
-#ifdef CONFIG_OPPO_HYPNUS
-extern int __init hypnus_init(void);
-#endif
-#endif /* VENDOR_EDIT */
 static void __init do_initcalls(void)
 {
 	int level;
 
 	for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++)
 		do_initcall_level(level);
-
-#ifdef VENDOR_EDIT
-//cuixiaogang@SRC.hypnus.2019-1-3. add for hypnusd
-#ifdef CONFIG_OPPO_HYPNUS
-	hypnus_init();
-#endif
-#endif /* VENDOR_EDIT */
 }
 
 /*
