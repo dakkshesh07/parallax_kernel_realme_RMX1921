@@ -232,6 +232,7 @@
 		fingerprint_underscreen_support;
 		ic_is_synaptics;
 		report_120hz_support;
+        glove_mode_support;
 
 		/*
 		 *Virtual Key Config:

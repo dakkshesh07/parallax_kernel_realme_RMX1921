@@ -71,4 +71,3 @@ obj-y 					+= mako_hotplug.o
 obj-m					+= $(arm64-obj-m)
 head-y					:= head.o
 extra-y					+= $(head-y) vmlinux.lds
-
