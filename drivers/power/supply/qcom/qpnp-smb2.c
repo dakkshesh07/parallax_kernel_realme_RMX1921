@@ -3243,24 +3243,37 @@ static int smb2_post_init(struct smb2 *chip)
             //oppo_ccdetect_enable();
             otg_enable_pmic_id_value();
         }
-    } else {
-	rc = smblib_masked_write(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
-				 TYPEC_POWER_ROLE_CMD_MASK, 0);
-	if (rc < 0) {
-		dev_err(chg->dev,
-			"Couldn't configure power role for DRP rc=%d\n", rc);
-		return rc;
-	}
-    }
-#else
-    rc = smblib_masked_write(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
-                 TYPEC_POWER_ROLE_CMD_MASK, 0);
-    if (rc < 0) {
-        dev_err(chg->dev,
-            "Couldn't configure power role for DRP rc=%d\n", rc);
-        return rc;
-    }
-#endif
+	/* Force charger in Sink Only mode */
+     } else if (chg->ufp_only_mode) {
+		rc = smblib_read(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+				&stat);
+		if (rc < 0) {
+			dev_err(chg->dev,
+				"Couldn't read SOFTWARE_CTRL_REG rc=%d\n", rc);
+			return rc;
+		}
+
+		if (!(stat & UFP_EN_CMD_BIT)) {
+			/* configure charger in UFP only mode */
+			rc  = smblib_force_ufp(chg);
+			if (rc < 0) {
+				dev_err(chg->dev,
+					"Couldn't force UFP mode rc=%d\n", rc);
+				return rc;
+			}
+		}
+	} else {
+		/* configure power role for dual-role */
+		rc = smblib_masked_write(chg,
+					TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+					TYPEC_POWER_ROLE_CMD_MASK, 0);
+		if (rc < 0) {
+			dev_err(chg->dev,
+				"Couldn't configure power role for DRP rc=%d\n",
+				rc);
+			return rc;
+		}
+	#endif
 
 	rerun_election(chg->usb_irq_enable_votable);
 
@@ -4385,37 +4398,6 @@ static int smbchg_read_full(void)
 	if (rc < 0) {
 		chg_err("Couldn't read BATTERY_CHARGER_STATUS_1 rc=%d\n", rc);
 		return 0;
-
-	/* Force charger in Sink Only mode */
-	if (chg->ufp_only_mode) {
-		rc = smblib_read(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
-				&stat);
-		if (rc < 0) {
-			dev_err(chg->dev,
-				"Couldn't read SOFTWARE_CTRL_REG rc=%d\n", rc);
-			return rc;
-		}
-
-		if (!(stat & UFP_EN_CMD_BIT)) {
-			/* configure charger in UFP only mode */
-			rc  = smblib_force_ufp(chg);
-			if (rc < 0) {
-				dev_err(chg->dev,
-					"Couldn't force UFP mode rc=%d\n", rc);
-				return rc;
-			}
-		}
-	} else {
-		/* configure power role for dual-role */
-		rc = smblib_masked_write(chg,
-					TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
-					TYPEC_POWER_ROLE_CMD_MASK, 0);
-		if (rc < 0) {
-			dev_err(chg->dev,
-				"Couldn't configure power role for DRP rc=%d\n",
-				rc);
-			return rc;
-		}
 	}
 	stat = stat & BATTERY_CHARGER_STATUS_MASK;
 
@@ -4496,7 +4478,6 @@ int opchg_get_charger_type(void)
 
 	return chg->real_charger_type;
 }
-
 
 int qpnp_get_prop_charger_voltage_now(void)
 {

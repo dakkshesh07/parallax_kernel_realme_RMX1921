@@ -10,27 +10,6 @@ config OPPO_SDM670Q_CHARGER
 	help
 	  Enables support for the oppo charging framework
 
-config OPPO_SHORT_C_BATT_CHECK
-	tristate "OPPO_SHORT_C_BATT CHECK SUPPORT"
-	default n
-	depends on MFD_SPMI_PMIC
-	help
-	  Say Y to include support
-
-config OPPO_SHORT_HW_CHECK
-	tristate "OPPO_SHORT_HW CHECK SUPPORT"
-	default n
-	depends on MFD_SPMI_PMIC
-	help
-	  Say Y to include support
-
-config OPPO_SHORT_IC_CHECK
-	tristate "OPPO_SHORT_IC CHECK SUPPORT"
-	default n
-	depends on MFD_SPMI_PMIC
-	help
-	  Say Y to include support
-
 config OPPO_RTC_DET_SUPPORT
 	tristate "OPPO RTC DET SUPPORT"
 	default n
