@@ -49,11 +49,6 @@
 #include "ufs-debugfs.h"
 #include "ufs-qcom.h"
 
-#ifdef VENDOR_EDIT
-//zhenjian Jiang@PSW.BSP.Storage.UFS, 2018-05-04 add for ufs device in /proc/devinfo 
-#include <soc/oppo/device_info.h>
-unsigned long ufs_outstanding;
-#endif
 #define CREATE_TRACE_POINTS
 #include <trace/events/ufs.h>
 
@@ -3246,11 +3241,6 @@ static int ufshcd_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd)
 	spin_lock_irqsave(hba->host->host_lock, flags);
 
 	err = ufshcd_send_command(hba, tag);
-#ifdef  VENDOR_EDIT
-    //hank.liu@TECH.BSP.Storage.UFS, 2019-04-26, Add for monitor ufs driver io time
-	ufs_outstanding=hba->outstanding_reqs;
-	cmd->request->ufs_io_start = ktime_get();
-#endif
 	if (err) {
 		spin_unlock_irqrestore(hba->host->host_lock, flags);
 		scsi_dma_unmap(lrbp->cmd);
@@ -3456,10 +3446,7 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
 {
 	struct ufshcd_lrb *lrbp;
 	int err;
-#ifdef VENDOR_EDIT
-//Tong.Han@Bsp.Group.Tp,2018-6-4,Added for Dealth_healer
-	int tag = 0;
-#endif
+	int tag;
 	struct completion wait;
 	unsigned long flags;
 
@@ -3926,12 +3913,6 @@ int ufshcd_map_desc_id_to_length(struct ufs_hba *hba,
 	case QUERY_DESC_IDN_RFU_1:
 		*desc_len = 0;
 		break;
-#ifdef VENDOR_EDIT
-	//xiaofan.yang@PSW.TECH.Stability, 2019/03/15,Add for check storage endurance
-	case QUERY_DESC_IDN_HEALTH:
-		*desc_len = hba->desc_size.hlth_desc;
-		break;
-#endif
 	default:
 		*desc_len = 0;
 		return -EINVAL;
@@ -5894,9 +5875,6 @@ static void __ufshcd_transfer_req_compl(struct ufs_hba *hba,
 
 			req = cmd->request;
 			if (req) {
-#ifdef VENDOR_EDIT
-				req->flash_io_latency = ktime_us_delta(ktime_get(), req->ufs_io_start);
-#endif
 				/* Update IO svc time latency histogram */
 				if (req->lat_hist_enabled) {
 					ktime_t completion;
@@ -5909,16 +5887,6 @@ static void __ufshcd_transfer_req_compl(struct ufs_hba *hba,
 						(rq_data_dir(req) == READ) ?
 						&hba->io_lat_read :
 						&hba->io_lat_write, delta_us);
-#ifdef VENDOR_EDIT
-//yh@BSP.Storage.UFS, 2019-02-19 add for ufs io latency info calculate
-					if (bio_has_data(req->bio) && (delta_us > 5000))
-					{
-						trace_printk("ufs_io_latency:%06lld us, io_type:%s, LBA:%08x, size:%d\n",
-								delta_us, (rq_data_dir(req) == READ) ? "R" : "W",
-								(unsigned int)req->bio->bi_iter.bi_sector,
-								cpu_to_be32(cmd->sdb.length));
-					}
-#endif
 				}
 			}
 			/* Do not touch lrbp after scsi done */
@@ -6965,10 +6933,7 @@ static int ufshcd_issue_tm_cmd(struct ufs_hba *hba, int lun_id, int task_id,
 	struct utp_upiu_task_req *task_req_upiup;
 	struct Scsi_Host *host;
 	unsigned long flags;
-#ifdef VENDOR_EDIT
-//Tong.Han@Bsp.Group.Tp,2018-6-4,Added for Dealth_healer
-	int free_slot = 0;
-#endif
+	int free_slot;
 	int err;
 	int task_tag;
 
@@ -7623,12 +7588,7 @@ static int ufshcd_scsi_add_wlus(struct ufs_hba *hba)
 	struct scsi_device *sdev_boot = NULL;
 	bool is_bootable_dev = false;
 	bool is_embedded_dev = false;
-#ifdef VENDOR_EDIT
-//yh@PSW.BSP.Storage.UFS, 2018-05-31 add for ufs device in /proc/devinfo
-	static char temp_version[5] = {0};
-	static char vendor[9] = {0};
-	static char model[17] = {0};
-#endif
+
 	if ((hba->dev_info.b_device_sub_class == UFS_DEV_EMBEDDED_BOOTABLE) ||
 	    (hba->dev_info.b_device_sub_class == UFS_DEV_REMOVABLE_BOOTABLE))
 		is_bootable_dev = true;
@@ -7647,14 +7607,6 @@ static int ufshcd_scsi_add_wlus(struct ufs_hba *hba)
 		goto out;
 	}
 	scsi_device_put(hba->sdev_ufs_device);
-#ifdef VENDOR_EDIT
-//yh@PSW.BSP.Storage.UFS, 2018-05-31 add for ufs device in /proc/devinfo
-	strncpy(temp_version, hba->sdev_ufs_device->rev, 4);
-	strncpy(vendor, hba->sdev_ufs_device->vendor, 8);
-	strncpy(model, hba->sdev_ufs_device->model, 16);
-	register_device_proc("ufs_version", temp_version, vendor);
-	register_device_proc("ufs", model, vendor);
-#endif
 
 	if (is_bootable_dev) {
 		sdev_boot = __scsi_add_device(hba->host, 0, 0,
@@ -8047,13 +7999,6 @@ static void ufshcd_init_desc_sizes(struct ufs_hba *hba)
 		&hba->desc_size.geom_desc);
 	if (err)
 		hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
-#ifdef VENDOR_EDIT
-	//xiaofan.yang@PSW.TECH.Stability, 2019/03/15,Add for check storage endurance
-	err = ufshcd_read_desc_length(hba, QUERY_DESC_IDN_HEALTH, 0,
-	    &hba->desc_size.hlth_desc);
-	if (err)
-        hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
-#endif
 }
 
 static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
@@ -8064,10 +8009,6 @@ static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
 	hba->desc_size.conf_desc = QUERY_DESC_CONFIGURATION_DEF_SIZE;
 	hba->desc_size.unit_desc = QUERY_DESC_UNIT_DEF_SIZE;
 	hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
-#ifdef VENDOR_EDIT
-	//xiaofan.yang@PSW.TECH.Stability, 2019/03/15,Add for check storage endurance
-	hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
-#endif
 }
 
 /**
@@ -8225,13 +8166,8 @@ out:
 	 * emmc to vote for the shared regulator.
 	 */
 	if (ret && !ufshcd_eh_in_progress(hba) && !hba->pm_op_in_progress) {
-	//#ifndef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	//	pm_runtime_put_noidle(hba->dev);
-	//	pm_schedule_suspend(hba->dev, MSEC_PER_SEC * 10);
-	//#else
-		pm_runtime_put_sync(hba->dev);
-	//#endif
+		pm_runtime_put_noidle(hba->dev);
+		pm_schedule_suspend(hba->dev, MSEC_PER_SEC * 10);
 	}
 
 	trace_ufshcd_init(dev_name(hba->dev), ret,
@@ -10189,103 +10125,6 @@ out_error:
 	return err;
 }
 EXPORT_SYMBOL(ufshcd_alloc_host);
-
-#ifdef VENDOR_EDIT
-//xiaofan.yang@PSW.TECH.Stability, 2019/03/15,Add for check storage endurance
-#include <asm/unaligned.h>
-static ssize_t ufs_sysfs_read_desc_param(struct ufs_hba *hba,
-				  enum desc_idn desc_id,
-				  u8 desc_index,
-				  u8 param_offset,
-				  u8 *sysfs_buf,
-				  u8 param_size)
-{
-	u8 desc_buf[8] = {0};
-	int ret;
-
-	if (param_size > 8)
-		return -EINVAL;
-
-	ret = ufshcd_read_desc_param(hba, desc_id, desc_index,
-				param_offset, desc_buf, param_size);
-	if (ret)
-		return -EINVAL;
-	switch (param_size) {
-	case 1:
-		ret = sprintf(sysfs_buf, "0x%02X\n", *desc_buf);
-		break;
-	case 2:
-		ret = sprintf(sysfs_buf, "0x%04X\n",
-			get_unaligned_be16(desc_buf));
-		break;
-	case 4:
-		ret = sprintf(sysfs_buf, "0x%08X\n",
-			get_unaligned_be32(desc_buf));
-		break;
-	case 8:
-		ret = sprintf(sysfs_buf, "0x%016llX\n",
-			get_unaligned_be64(desc_buf));
-		break;
-	}
-
-	return ret;
-}
-
-#define UFS_DESC_PARAM(_name, _puname, _duname, _size)			\
-	static ssize_t _name##_show(struct device *dev, 			\
-		struct device_attribute *attr, char *buf)			\
-	{									\
-		struct ufs_hba *hba = dev_get_drvdata(dev); 		\
-		return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_##_duname, \
-			0, _duname##_DESC_PARAM##_puname, buf, _size);		\
-	}									\
-	static DEVICE_ATTR_RO(_name)
-
-#define UFS_HEALTH_DESC_PARAM(_name, _uname, _size)			\
-	UFS_DESC_PARAM(_name, _uname, HEALTH, _size)
-
-UFS_HEALTH_DESC_PARAM(len, _LEN, 1);
-UFS_HEALTH_DESC_PARAM(eol_info, _EOL_INFO, 1);
-UFS_HEALTH_DESC_PARAM(life_time_estimation_a, _LIFE_TIME_EST_A, 1);
-UFS_HEALTH_DESC_PARAM(life_time_estimation_b, _LIFE_TIME_EST_B, 1);
-
-static struct attribute *ufs_sysfs_health_descriptor[] = {
-	&dev_attr_len.attr,
-	&dev_attr_eol_info.attr,
-	&dev_attr_life_time_estimation_a.attr,
-	&dev_attr_life_time_estimation_b.attr,
-	NULL,
-};
-
-static const struct attribute_group ufs_sysfs_health_descriptor_group = {
-	.name = "health_descriptor",
-	.attrs = ufs_sysfs_health_descriptor,
-};
-
-#define UFS_POWER_DESC_PARAM(_name, _uname, _index)			\
-static ssize_t _name##_index##_show(struct device *dev,			\
-	struct device_attribute *attr, char *buf)			\
-{									\
-	struct ufs_hba *hba = dev_get_drvdata(dev);			\
-	return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_POWER, 0,	\
-		PWR_DESC##_uname##_0 + _index * 2, buf, 2);		\
-}									\
-static DEVICE_ATTR_RO(_name##_index)
-
-static const struct attribute_group *ufs_sysfs_groups[] = {
-	&ufs_sysfs_health_descriptor_group,
-	NULL,
-};
-
-void ufs_sysfs_add_nodes(struct device *dev)
-{
-	int ret;
-
-	ret = sysfs_create_groups(&dev->kobj, ufs_sysfs_groups);
-	if (ret)
-		dev_err(dev,"%s: sysfs groups creation failed (err = %d)\n", __func__, ret);
-}
-#endif
 
 /**
  * ufshcd_is_devfreq_scaling_required - check if scaling is required or not
