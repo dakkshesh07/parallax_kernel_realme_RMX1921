@@ -171,7 +171,6 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DANI_OS_TYPE_ANDROID=6 \
 		-DPTT_SOCK_SVC_ENABLE \
 		-Wall\
-		-Wno-enum-conversion\
 		-D__linux__
 
 KBUILD_CPPFLAGS += $(CDEFINES)
@@ -200,6 +199,7 @@ ifeq ($(KERNEL_BUILD), 1)
 	obj-y	+= wcd934x/
         obj-y   += tfa98xx/
 	obj-y	+= sdm660_cdc/
+	obj-y	+= tfa98xx/
 	obj-y	+= msm_sdw/
 endif
 # Module information used by KBuild framework
