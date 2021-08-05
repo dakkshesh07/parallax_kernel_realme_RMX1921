@@ -257,12 +257,6 @@ extern void devm_devfreq_unregister_notifier(struct device *dev,
 extern struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
 						int index);
 
-#ifdef VENDOR_EDIT
-//cuixiaogang@SRC.hypnus.2018-04-05. add support to set devfreq limit
-extern int devfreq_set_limit(struct devfreq *df, unsigned long min, unsigned long max);
-extern int devfreq_get_limit(struct devfreq *df, unsigned long *min, unsigned long *max);
-#endif
-
 /**
  * devfreq_update_stats() - update the last_status pointer in struct devfreq
  * @df:		the devfreq instance whose status needs updating
