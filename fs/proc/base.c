@@ -97,12 +97,6 @@
 
 #include "../../lib/kstrtox.h"
 
-#ifdef VENDOR_EDIT
-// Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
-#define GLOBAL_SYSTEM_UID KUIDT_INIT(1000)
-#define GLOBAL_SYSTEM_GID KGIDT_INIT(1000)
-#endif
-
 struct task_kill_info {
 	struct task_struct *task;
 	struct work_struct work;
@@ -964,83 +958,6 @@ static const struct file_operations proc_mem_operations = {
 	.open		= mem_open,
 	.release	= mem_release,
 };
-
-#ifdef VENDOR_EDIT
-// Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
-static int proc_static_ux_show(struct seq_file *m, void *v)
-{
-    struct inode *inode = m->private;
-    struct task_struct *p;
-    p = get_proc_task(inode);
-    if (!p) {
-        return -ESRCH;
-    }
-    task_lock(p);
-    seq_printf(m, "%d\n", p->static_ux);
-    task_unlock(p);
-    put_task_struct(p);
-    return 0;
-}
-
-static int proc_static_ux_open(struct inode* inode, struct file *filp)
-{
-    return single_open(filp, proc_static_ux_show, inode);
-}
-
-static ssize_t proc_static_ux_write(struct file *file, const char __user *buf,
-                size_t count, loff_t *ppos)
-{
-    struct task_struct *task;
-    char buffer[PROC_NUMBUF];
-    int err, static_ux;
-
-    memset(buffer, 0, sizeof(buffer));
-    if (count > sizeof(buffer) - 1)
-        count = sizeof(buffer) - 1;
-    if (copy_from_user(buffer, buf, count)) {
-        return -EFAULT;
-    }
-
-    err = kstrtoint(strstrip(buffer), 0, &static_ux);
-    if(err) {
-        return err;
-    }
-    task = get_proc_task(file_inode(file));
-    if (!task) {
-        return -ESRCH;
-    }
-
-    task->static_ux = static_ux != 0 ? 1 : 0;
-
-    put_task_struct(task);
-    return count;
-}
-
-static ssize_t proc_static_ux_read(struct file* file, char __user *buf,
-							    size_t count, loff_t *ppos)
-{
-	char buffer[PROC_NUMBUF];
-	struct task_struct *task = NULL;
-	int static_ux = -1;
-	size_t len = 0;
-	task = get_proc_task(file_inode(file));
-	if (!task) {
-		return -ESRCH;
-	}
-	static_ux = task->static_ux;
-	put_task_struct(task);
-	len = snprintf(buffer, sizeof(buffer), "%d\n", static_ux);
-	return simple_read_from_buffer(buf, count, ppos, buffer, len);
-}
-
-static const struct file_operations proc_static_ux_operations = {
-	.open       = proc_static_ux_open,
-	.write      = proc_static_ux_write,
-	.read       = proc_static_ux_read,
-	.llseek     = seq_lseek,
-	.release    = single_release,
-};
-#endif
 
 static int environ_open(struct inode *inode, struct file *file)
 {
@@ -2067,22 +1984,6 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 	return 0;
 }
 
-#ifdef VENDOR_EDIT
-// Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
-bool is_special_entry(struct dentry *dentry, const char* special_proc)
-{
-    const unsigned char *name;
-    if (NULL == dentry || NULL == special_proc)
-        return false;
-
-    name = dentry->d_name.name;
-    if (NULL != name && !strncmp(special_proc, name, 32))
-        return true;
-    else
-        return false;
-}
-#endif
-
 /* dentry stuff */
 
 /*
@@ -2124,15 +2025,6 @@ int pid_revalidate(struct dentry *dentry, unsigned int flags)
 			inode->i_uid = GLOBAL_ROOT_UID;
 			inode->i_gid = GLOBAL_ROOT_GID;
 		}
-
-#ifdef VENDOR_EDIT
-// Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
-        if (is_special_entry(dentry, "static_ux")) {
-            inode->i_uid = GLOBAL_SYSTEM_UID;
-            inode->i_gid = GLOBAL_SYSTEM_GID;
-        }
-#endif
-
 		inode->i_mode &= ~(S_ISUID | S_ISGID);
 		security_task_to_inode(task, inode);
 		put_task_struct(task);
@@ -3314,13 +3206,6 @@ static const struct pid_entry tgid_base_stuff[] = {
 	ONE("stat",       S_IRUGO, proc_tgid_stat),
 	ONE("statm",      S_IRUGO, proc_pid_statm),
 	REG("maps",       S_IRUGO, proc_pid_maps_operations),
-#if defined(VENDOR_EDIT) && defined(CONFIG_VIRTUAL_RESERVE_MEMORY)
-	/* Kui.Zhang@PSW.TEC.KERNEL.Performance, 2019/03/18,
-	 * read the reserved mmaps
-	 */
-	REG("reserve_maps", S_IRUSR, proc_pid_rmaps_operations),
-	ONE("reserve_area", S_IRUSR, proc_pid_reserve_area),
-#endif
 #ifdef CONFIG_NUMA
 	REG("numa_maps",  S_IRUGO, proc_pid_numa_maps_operations),
 #endif
@@ -3796,10 +3681,6 @@ static const struct pid_entry tid_base_stuff[] = {
 #endif
 #ifdef CONFIG_CPU_FREQ_TIMES
 	ONE("time_in_state", 0444, proc_time_in_state_show),
-#endif
-#ifdef VENDOR_EDIT
-// Liujie.Xie@TECH.Kernel.Sched, 2019/05/22, add for ui first
-    REG("static_ux", S_IRUGO | S_IWUSR, proc_static_ux_operations),
 #endif
 };
 

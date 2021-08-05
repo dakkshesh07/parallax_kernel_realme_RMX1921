@@ -40,10 +40,6 @@
 #include <asm/param.h>
 #include <asm/page.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
-#include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
-
 #ifndef user_long_t
 #define user_long_t long
 #endif
@@ -2173,13 +2169,6 @@ static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
 	shdr4extnum->sh_info = segs;
 }
 
-#if defined(VENDOR_EDIT)
-/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
- * will alloc failed and the coredump can't format success 2019/01/14
- */
-static elf_addr_t *oppo_coredump_addr = NULL;
-#endif /* VENDOR_EDIT end */
-
 /*
  * Actual dumper
  *
@@ -2269,20 +2258,7 @@ static int elf_core_dump(struct coredump_params *cprm)
 
 	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
 
-
-#if defined(VENDOR_EDIT)
-	/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
-	 * Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
-	 * will alloc failed and the coredump can't format success 2019/01/14
-	 */
-	if(oppo_daily_build() && oppo_coredump_addr && (((segs - 1) * sizeof(*vma_filesz)) <= 64*1024))
-		vma_filesz = oppo_coredump_addr;
-	else
-		vma_filesz = kmalloc_array(segs - 1, sizeof(*vma_filesz), GFP_KERNEL);
-#else
 	vma_filesz = kmalloc_array(segs - 1, sizeof(*vma_filesz), GFP_KERNEL);
-#endif /* VENDOR_EDIT end */
-
 	if (!vma_filesz)
 		goto end_coredump;
 
@@ -2390,20 +2366,7 @@ end_coredump:
 cleanup:
 	free_note_info(&info);
 	kfree(shdr4extnum);
-
-#if defined(VENDOR_EDIT) && defined (CONFIG_COREDUMP)
-/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
-* Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
-* will alloc failed and the coredump can't format success 2019/01/14
-*/
-	if (oppo_daily_build() && (oppo_coredump_addr != NULL) && (vma_filesz == oppo_coredump_addr))
-		memset(oppo_coredump_addr, 0, 64*1024);
-	else
-		kfree(vma_filesz);
-#else
 	kfree(vma_filesz);
-#endif /* VENDOR_EDIT && CONFIG_COREDUMP end */
-
 	kfree(phdr4note);
 	kfree(elf);
 out:
@@ -2414,32 +2377,12 @@ out:
 
 static int __init init_elf_binfmt(void)
 {
-
-#if defined(VENDOR_EDIT) && defined (CONFIG_COREDUMP)
-/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
-* Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
-* will alloc failed and the coredump can't format success 2019/01/14
-*/
-	if (oppo_daily_build())
-		oppo_coredump_addr = kmalloc(64*1024, GFP_KERNEL);;
-#endif /* VENDOR_EDIT && CONFIG_COREDUMP end */
-
 	register_binfmt(&elf_format);
 	return 0;
 }
 
 static void __exit exit_elf_binfmt(void)
 {
-
-#if defined(VENDOR_EDIT) && defined (CONFIG_COREDUMP)
-/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
-* Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
-* will alloc failed and the coredump can't format success 2019/01/14
-*/
-	if(oppo_daily_build() && oppo_coredump_addr)
-		kfree(oppo_coredump_addr);
-#endif /* VENDOR_EDIT && CONFIG_COREDUMP end */
-
 	/* Remove the COFF and ELF loaders. */
 	unregister_binfmt(&elf_format);
 }
