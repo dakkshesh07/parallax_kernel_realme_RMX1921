@@ -31,15 +31,9 @@
 struct qcom_cc {
 	struct qcom_reset_controller reset;
 	struct clk_regmap **rclks;
-	//#ifdef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	//struct clk_hw **hwclks;
-	//#endif
+	struct clk_hw **hwclks;
 	size_t num_rclks;
-	//#ifdef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	//size_t num_hwclks;
-	//#endif
+	size_t num_hwclks;
 };
 
 const
@@ -193,20 +187,14 @@ static struct clk_hw *qcom_cc_clk_hw_get(struct of_phandle_args *clkspec,
 {
 	struct qcom_cc *cc = data;
 	unsigned int idx = clkspec->args[0];
-	//#ifndef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	//if (idx >= cc->num_rclks + cc->num_hwclks) {
-	//#else
-	if (idx >= cc->num_rclks) {
-	//#endif
+
+	if (idx >= cc->num_rclks + cc->num_hwclks) {
 		pr_err("invalid index %u\n", idx);
 		return ERR_PTR(-EINVAL);
 	}
-	//#ifdef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	//if (idx < cc->num_hwclks && cc->hwclks[idx])
-	//	return cc->hwclks[idx];
-	//#endif
+
+	if (idx < cc->num_hwclks && cc->hwclks[idx])
+		return cc->hwclks[idx];
 
 	return cc->rclks[idx] ? &cc->rclks[idx]->hw : ERR_PTR(-ENOENT);
 }
@@ -219,13 +207,10 @@ int qcom_cc_really_probe(struct platform_device *pdev,
 	struct qcom_reset_controller *reset;
 	struct qcom_cc *cc;
 	struct gdsc_desc *scd;
-	size_t num_clks = desc->num_clks;	
+	size_t num_clks = desc->num_clks;
+	size_t num_hwclks = desc->num_hwclks;
 	struct clk_regmap **rclks = desc->clks;
-	//#ifdef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	//size_t num_hwclks = desc->num_hwclks;
-	//struct clk_hw **hwclks = desc->hwclks;
-	//#endif
+	struct clk_hw **hwclks = desc->hwclks;
 
 	cc = devm_kzalloc(dev, sizeof(*cc), GFP_KERNEL);
 	if (!cc)
@@ -233,9 +218,6 @@ int qcom_cc_really_probe(struct platform_device *pdev,
 
 	cc->rclks = rclks;
 	cc->num_rclks = num_clks;
-	//#ifdef VENDOR_EDIT
-	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
-	/*
 	cc->hwclks = hwclks;
 	cc->num_hwclks = num_hwclks;
 
@@ -247,8 +229,7 @@ int qcom_cc_really_probe(struct platform_device *pdev,
 		if (ret)
 			return ret;
 	}
-	*/
-	//#endif
+
 	for (i = 0; i < num_clks; i++) {
 		if (!rclks[i])
 			continue;
