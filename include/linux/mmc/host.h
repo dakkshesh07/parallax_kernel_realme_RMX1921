@@ -556,10 +556,10 @@ struct mmc_host {
 
 	struct delayed_work	detect;
 	int			detect_change;	/* card detect flag */
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Lycan.Wang@Prd.BasicDrv, 2014-07-10 Add for retry 5 times when new sdcard init error
     int detect_change_retry;
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 	struct mmc_slot		slot;
 
 	const struct mmc_bus_ops *bus_ops;	/* current bus driver */
@@ -575,10 +575,10 @@ struct mmc_host {
 	bool			sdio_irq_pending;
 	atomic_t		sdio_irq_thread_abort;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //yh@bsp, 2015-10-21 Add for special card compatible
         bool                    card_stuck_in_programing_status;
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	mmc_pm_flag_t		pm_flags;	/* requested pm features */
 

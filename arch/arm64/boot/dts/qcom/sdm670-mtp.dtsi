@@ -64,7 +64,7 @@
 	status = "disabled";
 };
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //wenjie.Liu@CN.NFC.Basic.Hardware, 2018/06/16,
 // Add for :NFC chip, extern XO ,dont need clk
 //qcom,nq-clkreq = <&pm660_gpios 4 0x00>;
@@ -125,7 +125,7 @@
 	};
 };
 */
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 &qupv3_se10_i2c {
 	status = "ok";
 };
@@ -166,12 +166,12 @@
 	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
 
 	cd-gpios = <&tlmm 96 0x0>;
-	/* #ifndef VENDOR_EDIT */
+	/* #ifndef CONFIG_REALME_RETARD */
 	/* Nan.Zhong@PSW.MM.AudioDriver.Machine, 2019/08/14, Modify for dbmdx */
 	status = "ok";
-	/* #else  VENDOR_EDIT */
+	/* #else  CONFIG_REALME_RETARD */
 	//status = "disable";
-	/* #endif VENDOR_EDIT */
+	/* #endif CONFIG_REALME_RETARD */
 };
 
 &vendor {
@@ -187,7 +187,7 @@
 	qcom,battery-data = <&mtp_batterydata>;
 };
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 &qupv3_se9_i2c  {
 	//Wanghao@BSP.group 2018-04-15 add for enable i2c_9
 	status = "okay";
@@ -255,7 +255,7 @@
 	qcom,battery-data = <&mtp_batterydata>;
 };
 
-/* #ifdef VENDOR_EDIT */
+/* #ifdef CONFIG_REALME_RETARD */
 /* Huiqun.Han@PSW.MM.AudioDriver.Machine, 2018/06/28, Add for audio driver*/
 &qupv3_se4_i2c {
 	status = "okay";
@@ -275,7 +275,7 @@
 		status = "okay";
 	};
 };
-/* #endif VENDOR_EDIT */
+/* #endif CONFIG_REALME_RETARD */
 
 &tlmm {
 	smb_int_default: smb_int_default {
@@ -328,7 +328,7 @@
 		label = "gpio-keys";
 
 		pinctrl-names = "default";
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		//Wanghao@BSP.group 2018-04-18 Modify for vol key
 		/*
 		pinctrl-0 = <&key_cam_snapshot_default
@@ -389,7 +389,7 @@
 	        };
 	        //#endif
 	};
-    // #ifdef VENDOR_EDIT
+    // #ifdef CONFIG_REALME_RETARD
     /* ziqing.guo@BSP.Fingerprint.Basic 2019-07-16 add for fingerprint */
     oppo_fp_common {
         compatible = "oppo,fp_common"; //Manufacture, and Model
@@ -409,14 +409,14 @@
             chip-name = "S_OPTICAL_70"; /* /proc/fp_id, will be displayed in engineer menu  */
         };
     };
-    // #endif VENDOR_EDIT
-    // #ifdef VENDOR_EDIT
+    // #endif CONFIG_REALME_RETARD
+    // #ifdef CONFIG_REALME_RETARD
     /* Ping.Liu@Bsp.Fingerprint.Secure 2018-12-13 add for secure proc */
     oppo_secure_common {
         compatible = "oppo,secure_common";
     };
-    //#endif //VENDOR_EDIT
-    // #ifdef VENDOR_EDIT
+    //#endif //CONFIG_REALME_RETARD
+    // #ifdef CONFIG_REALME_RETARD
     /* Shengwang.Luo@RM.Bsp.Fingerprint.Basic 2019-10-01 add for fingerprint */
     goodix_fp {
         compatible = "goodix,goodix_fp";
@@ -430,9 +430,9 @@
         pinctrl-names = "default";
         pinctrl-0 = <&gpio_goodix_irq_default>;
     };
-   // #endif VENDOR_EDIT
+   // #endif CONFIG_REALME_RETARD
 
-   // #ifdef VENDOR_EDIT
+   // #ifdef CONFIG_REALME_RETARD
    /* luhongyu@Bsp.Fingerprint.Basic 2018-10-30 add for fingerprint */
     silead_fp {
         compatible = "sil,silead_fp";
@@ -448,9 +448,9 @@
         rst-gpios = <&tlmm 80 0x0>;
         irq-gpios = <&tlmm 121 0x1>;
     };
-    //#endif VENDOR_EDIT
+    //#endif CONFIG_REALME_RETARD
 
-	/*ifdef VENDOR_EDIT*/
+	/*ifdef CONFIG_REALME_RETARD*/
 	//Added by Tong.han@Bsp.Group.Tp for device-info,2015-4-13
 	devinfo {
 		compatible = "oppo-devinfo";
@@ -614,14 +614,14 @@
 		status = "disabled";
 	};
 };
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2016/12/20, sjc Add for charging */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2016/12/20, sjc Add for charging */
 &qupv3_se10_i2c {
 	status = "okay";
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@PSW.BSP.CHG.Basic, 2018/04/05, sjc Add for charging */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@PSW.BSP.CHG.Basic, 2018/04/05, sjc Add for charging */
 	pinctrl-names = "default", "sleep", "pulldown", "pullup";
 	pinctrl-2 = <&qupv3_se10_i2c_pulldown>;
 	pinctrl-3 = <&qupv3_se10_i2c_pullup>;
-//#endif //VENDOR_EDIT
+//#endif //CONFIG_REALME_RETARD
 
 	tps6128xd-rf@75 {
 		status = "okay";
@@ -759,7 +759,7 @@
 	};
 };
 //#endif
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //Fei.Mo@PSW.BSP.Sensor 2018-01-11 add for dhall device and motor control
 &qupv3_se4_i2c {
 	status = "okay";

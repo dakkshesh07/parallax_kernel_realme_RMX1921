@@ -72,7 +72,7 @@ int32_t camera_io_dev_read_seq(struct camera_io_master *io_master_info,
 	enum camera_sensor_i2c_type addr_type, int32_t num_bytes)
 {
 	if (io_master_info->master_type == CCI_MASTER) {
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Huanyun.Tang@Camera.Driver, 20190514, add for hi846 otp */
 		if (addr == 0xFEFE) {
 			int i;

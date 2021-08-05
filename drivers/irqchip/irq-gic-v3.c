@@ -45,15 +45,15 @@
 #include "irq-gic-common.h"
 
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //PengNan@BSP.Power.Basic,add for modifing the irq info. 2019/09/26
 static unsigned int glink_adsp_sirq = 0;
 #define GLINK_SMEM_NATIVE_ADSP_IRQ_NAME   "qcom,glink-smem-native-xprt-adsp"
 static unsigned int ipa_sirq = 0;
 #define IPA_IRQ_NAME   "ipa"
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //liuhd@PSW.CN.WiFi.Hardware.1202765,2017/12/10,add for the irq of wlan when system wakeuped by wlan
 #define WLAN_WAKEUP_IRQ_NUMBER	723
 
@@ -62,14 +62,14 @@ static unsigned int ipa_sirq = 0;
 #define WAKEUP_SOURCE_WIFI_3RD 131
 #define WAKEUP_SOURCE_WIFI_4TH 134
 extern u64 wakeup_source_count_wifi ;
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Lei.Zhang@PSW.CN.WiFi.Hardware., 2019/03/02
 //Add irq of WiFi for SDM710
 static unsigned int wlan_sirq = 0;
 #define WLAN_DATA_IRQ_NAME   "WLAN_CE_2"
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 
 #define MAX_IRQ			1020U	/* Max number of SGI+PPI+SPI */
@@ -760,15 +760,15 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 
 		pr_warn("%s: %d triggered %s\n", __func__, irq, name);
 
-                  #ifdef VENDOR_EDIT
+                  #ifdef CONFIG_REALME_RETARD
                   //Lei.Zhang@PSW.CN.WiFi.Hardware., 2019/03/02
                   //Add irq of WiFi for SDM710
                   if (wlan_sirq == 0 && (name != NULL) && strncmp(name, WLAN_DATA_IRQ_NAME, strlen(WLAN_DATA_IRQ_NAME)) == 0) {
                       wlan_sirq = irq;
                   }
-                  #endif //VENDOR_EDIT
+                  #endif //CONFIG_REALME_RETARD
 
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		//liuhd@PSW.CN.WiFi.Hardware.1202765,2017/12/10,add for the irq of wlan when system wakeuped by wlan
 		if((irq  >= WAKEUP_SOURCE_WIFI_1ST && irq  <= WAKEUP_SOURCE_WIFI_2ND) || 
 			(irq  >= WAKEUP_SOURCE_WIFI_3RD && irq  <= WAKEUP_SOURCE_WIFI_4TH)) {
@@ -779,9 +779,9 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		  // modem_wakeup_source = 0;
 		   //schedule_work(&wakeup_reason_work);
 		}
-		#endif //VENDOR_EDIT
+		#endif //CONFIG_REALME_RETARD
 		
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		//Lei.Zhang@PSW.CN.WiFi.Hardware., 2019/03/02
 		//Add irq of WiFi for SDM710
 		if (irq == wlan_sirq) {
@@ -789,7 +789,7 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		}
 		#endif
 
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		//PengNan@BSP.Power.Basic,add for modifing the irqinfo, 2019/09/26
 		if (ipa_sirq == 0 && (name != NULL) && strncmp(name, IPA_IRQ_NAME, strlen(IPA_IRQ_NAME)) == 0) {
             ipa_sirq = irq;
@@ -797,7 +797,7 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		if (glink_adsp_sirq == 0 && (name != NULL) && strncmp(name, GLINK_SMEM_NATIVE_ADSP_IRQ_NAME, strlen(GLINK_SMEM_NATIVE_ADSP_IRQ_NAME)) == 0) {
             glink_adsp_sirq = irq;
         }
-		#endif /*VENDOR_EDIT*/
+		#endif /*CONFIG_REALME_RETARD*/
 		
 
 	

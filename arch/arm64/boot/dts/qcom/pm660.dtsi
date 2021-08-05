@@ -243,7 +243,7 @@
 				qcom,fast-avg-setup = <0>;
 				qcom,cal-val = <0>;
 			};
-			//#ifdef VENDOR_EDIT /* tongfeng.Huang@BSP.CHG.Basic, 2018/05/08,  Add for charging ID*/
+			//#ifdef CONFIG_REALME_RETARD /* tongfeng.Huang@BSP.CHG.Basic, 2018/05/08,  Add for charging ID*/
 			chan@12 {
 				label = "gpio2_adc";
 				reg = <0x12>; //channel for GPIO2
@@ -256,7 +256,7 @@
                 qcom,cal-val = <0>;
 			};
 			//#endif
-			//#ifdef VENDOR_EDIT /* tongfeng.Huang@BSP.CHG.Basic, 2018/05/08,  Add for charging USB BTB TEMP*/
+			//#ifdef CONFIG_REALME_RETARD /* tongfeng.Huang@BSP.CHG.Basic, 2018/05/08,  Add for charging USB BTB TEMP*/
 			chan@13 {
 				label = "gpio3_adc";
 				reg = <0x13>; //channel for GPIO3

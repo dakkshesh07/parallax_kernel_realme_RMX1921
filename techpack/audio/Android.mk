@@ -37,17 +37,17 @@ include $(MY_LOCAL_PATH)/asoc/codecs/sdm660_cdc/Android.mk
 include $(MY_LOCAL_PATH)/asoc/codecs/msm_sdw/Android.mk
 endif
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #Kaiqin.Huang@RM.MM.AudioDriver.Codec, 2019/10/12, Add for tfa9890 codec
 include $(MY_LOCAL_PATH)/asoc/codecs/tfa98xx/Android.mk
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #Kaiqin.Huang@PSW.MM.AudioDriver.Codec, 2019/09/27, Remove ak43xx codec
 #include $(MY_LOCAL_PATH)/asoc/codecs/ak4376/Android.mk
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #Kaiqin.Huang@PSW.MM.AudioDriver.Codec, 2019/09/27, Remove dbmdx
 #include $(MY_LOCAL_PATH)/asoc/codecs/dbmdx/Android.mk
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */

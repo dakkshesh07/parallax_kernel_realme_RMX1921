@@ -64,7 +64,7 @@ struct cam_actuator_query_cap {
 	uint32_t            reserved;
 } __attribute__((packed));
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Modified by Yingpiao.Lin@Cam.Drv, 20180717, for iris flow*/
 /**
  * struct cam_actuator_query_cap - capabilities info for actuator
@@ -489,7 +489,7 @@ struct cam_flash_query_cap_info {
 	uint32_t    max_current_torch[CAM_FLASH_MAX_LED_TRIGGERS];
 } __attribute__ ((packed));
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Jindian.Guan@Camera.Drv, 20181207, add for imx471 DFCT info*/
 #define FD_DFCT_MAX_NUM 5
 #define SG_DFCT_MAX_NUM 299
@@ -503,7 +503,7 @@ struct sony_dfct_tbl_t {
 	int fd_dfct_addr[FD_DFCT_MAX_NUM];		// [ u25 ( upper-u13 = x-addr, lower-u12 = y-addr ) ]
 } __attribute__ ((packed));
 #endif
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*add by yufeng@camera, 20190115 for write eeprom*/
 #define CALIB_DATA_LENGTH         1561
 //add by yufeng@camera, 20190212 for write eeprom
@@ -520,7 +520,7 @@ struct cam_write_eeprom_t {
 } __attribute__ ((packed));
 #endif
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //add by yufeng@camera, 20190115 for read eeprom SN
 #define EEPROM_SN_SIZE 17
 struct read_eeprom_SN_t{

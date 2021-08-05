@@ -1,6 +1,6 @@
 /************************************************************************************
 ** File:  \\192.168.144.3\Linux_Share\12015\ics2\development\mediatek\custom\oppo77_12015\kernel\battery\battery
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** Copyright (C), 2008-2012, OPPO Mobile Comm Corp., Ltd
 ** 
 ** Description: 

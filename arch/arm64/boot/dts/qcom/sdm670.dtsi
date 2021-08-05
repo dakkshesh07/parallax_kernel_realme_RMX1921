@@ -39,10 +39,10 @@
 		spi0 = &qupv3_se8_spi;
 		i2c0 = &qupv3_se10_i2c;
 		i2c1 = &qupv3_se3_i2c;
-		/* #ifdef VENDOR_EDIT */
+		/* #ifdef CONFIG_REALME_RETARD */
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2018/07/05, Add for audio codec i2c */
 		i2c2 = &qupv3_se4_i2c;
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		hsuart0 = &qupv3_se6_4uart;
 	};
 
@@ -452,7 +452,7 @@
 
 			vbmeta {
 				compatible = "android,vbmeta";
-				// #ifdef VENDOR_EDIT
+				// #ifdef CONFIG_REALME_RETARD
 				// #Wanghao@BSP.Bootloader.Bootflow, 2018/04/26, add to disable A/B partition
 				//add recovery
 				parts = "vbmeta,boot,system,vendor,dtbo,recovery";
@@ -466,13 +466,13 @@
 					compatible = "android,vendor";
 					dev = "/dev/block/platform/soc/1d84000.ufshc/by-name/vendor";
 					type = "ext4";
-/*#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)*/
+/*#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)*/
 /*yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot*/
 					mnt_flags = "ro,barrier=1,async_discard";
 /*#else*/
 					/*mnt_flags = "ro,barrier=1,discard";*/
 /*#endif*/
-					// #ifdef VENDOR_EDIT
+					// #ifdef CONFIG_REALME_RETARD
 					// #Wanghao@BSP.Bootloader.Bootflow, 2018/04/26, add to disable A/B partition
 					fsmgr_flags = "wait,avb";
 					// #endif
@@ -503,16 +503,16 @@
 			compatible = "removed-dma-pool";
 			no-map;
 			//luoshengwang@BSP.FINGERPRINT.BASIC, 2019/8/15, add for enlarge tz memory to 65M start
-			//#ifndef VENDOR_EDIT
+			//#ifndef CONFIG_REALME_RETARD
 			//reg = <0 0x85fc0000 0 0x2f40000>;
 			//#else
 			//reg = <0 0x85fc0000 0 0x4940000>;
 			reg = <0 0x85fc0000 0 0x4E40000>;
-			//#endif /* VENDOR_EDIT */
+			//#endif /* CONFIG_REALME_RETARD */
 			//luoshengwang@BSP.FINGERPRINT.BASIC, 2019/8/15, add for enlarge tz memory to 65M end
 		};
 
-// #ifdef VENDOR_EDIT
+// #ifdef CONFIG_REALME_RETARD
 // #wanghao@BSP.Kernel.Driver, 2018/07/05, Add for enlarge memory of Modem to 150M
 // #luoshengwang@BSP.FINGERPRINT.BASIC, 2019/8/15, add for enlarge tz memory to 65M start
 		pil_camera_mem: camera_region@8b300000 {
@@ -598,7 +598,7 @@
 			no-map;
 			reg = <0 0x94B00000 0 0x100000>;
 		};
-// #ifdef VENDOR_EDIT
+// #ifdef CONFIG_REALME_RETARD
 // luhongyu@BSP.Fingerprint.Secure 2018/12/26, add for secure dsp
 		pil_cdsp_mem: cdsp_regions@94c00000 {
 			compatible = "removed-dma-pool";
@@ -675,14 +675,14 @@
 			reg = <0 0x97415000 0 0x2000>;
 		};
 *********/
-// #endif VENDOR_EDIT
+// #endif CONFIG_REALME_RETARD
 		qseecom_mem: qseecom_region@0x9e400000 {
 			compatible = "shared-dma-pool";
 			no-map;
 			reg = <0 0x9e400000 0 0x1400000>;
 		};
 
-// #else /* VENDOR_EDIT */
+// #else /* CONFIG_REALME_RETARD */
 /*
 		pil_camera_mem: camera_region@8ab00000 {
 			compatible = "removed-dma-pool";
@@ -750,16 +750,16 @@
 			reg = <0 0x9e400000 0 0x1400000>;
 		};
 */
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 
-		/* #ifdef VENDOR_EDIT */
+		/* #ifdef CONFIG_REALME_RETARD */
 		/* luhongyu@BSP.Fingerprint.Secure 2018/12/26, add for secure dsp */
 		secure_dsp_mem: secure_dsp_region {
 			compatible = "removed-dma-pool";
 			no-map;
 			reg = <0 0xa7800000 0 0xc00000>;
 		};
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		adsp_mem: adsp_region {
 			compatible = "shared-dma-pool";
 			alloc-ranges = <0 0x00000000 0 0xffffffff>;
@@ -990,10 +990,10 @@
 			compatible = "qcom,memshare-peripheral";
 			qcom,peripheral-size = <0x500000>;
 			qcom,client-id = <1>;
-/*ifndef VENDOR_EDIT*/
+/*ifndef CONFIG_REALME_RETARD*/
 /*Yun.Chen@PSW.NW.RF, 2018/05/18, Remove for following QC advice in 03486301.*/
 //			qcom,allocate-boot-time;
-/*endif VENDOR_EDIT */
+/*endif CONFIG_REALME_RETARD */
 			label = "modem";
 		};
 	};
@@ -1085,12 +1085,12 @@
 	qcom_seecom: qseecom@86d00000 {
 		compatible = "qcom,qseecom";
 		//luoshengwang@BSP.FINGERPRINT.BASIC, 2019/8/15, add for enlarge tz memory to 65M start
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		//reg = <0x86d00000 0x2200000>;
 		//#else
 		//reg = <0x86d00000 0x03C00000>;
 		reg = <0x86d00000 0x04100000>;
-		//#endif /* VENDOR_EDIT */
+		//#endif /* CONFIG_REALME_RETARD */
 		//luoshengwang@BSP.FINGERPRINT.BASIC, 2019/8/15, add for enlarge tz memory to 65M end
 		reg-names = "secapp-region";
 		qcom,hlos-num-ce-hw-instances = <1>;
@@ -1414,7 +1414,7 @@
 		reg = <0x17980000 0x1000>;
 		reg-names = "wdt-base";
 		interrupts = <0 0 0>, <0 1 0>;
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		//wanghao@BSP.Bootloader.Bootflow, 2018/05/05, Modify for bark time to 20s
 		//qcom,bark-time = <11000>;
 		//#else
@@ -2105,10 +2105,10 @@
 		ufs-qcom-crypto = <&ufs_ice>;
 
 		lanes-per-direction = <1>;
-	//#ifdef VENDOR_EDIT
+	//#ifdef CONFIG_REALME_RETARD
 	//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
 	//	spm-level = <5>;
-	//#endif /*VENDOR_EDIT*/
+	//#endif /*CONFIG_REALME_RETARD*/
 		dev-ref-clk-freq = <0>; /* 19.2 MHz */
 
 		clock-names =
@@ -2122,7 +2122,7 @@
 			"rx_lane0_sync_clk";
 		clocks =
 			<&clock_gcc GCC_UFS_PHY_AXI_HW_CTL_CLK>,
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
 		//	<&clock_gcc UFS_PHY_AXI_UFS_VOTE_CLK>,
 		//#else
@@ -2237,7 +2237,7 @@
 		qcom,guard-memory;
 	};
 
-    //#ifdef VENDOR_EDIT
+    //#ifdef CONFIG_REALME_RETARD
     //Zhengpeng.Tan@NW.AP.NV.892767, 2016/11/30
     //#ifdef FEATURE_OPPO_NV_BACKUP
     //add for creating a shared memory with uio for nv backup and restore
@@ -2249,7 +2249,7 @@
         qcom,guard-memory;
     };
     //#endif /* FEATURE_OPPO_NV_BACKUP */
-    //#endif /* VENDOR_EDIT */
+    //#endif /* CONFIG_REALME_RETARD */
 
 	qcom,msm_gsi {
 		compatible = "qcom,msm_gsi";
@@ -2646,7 +2646,7 @@
 		clocks = <&clock_gcc GCC_SDCC1_AHB_CLK>,
 			<&clock_gcc GCC_SDCC1_APPS_CLK>,
 			<&clock_gcc GCC_SDCC1_ICE_CORE_CLK>,
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		//PengNan@BSP.Power.Basic,remove ufs and emmc compatibility for standby current, 2019/07/30
 		//	<&clock_gcc UFS_PHY_AXI_EMMC_VOTE_CLK>;
 		//#else

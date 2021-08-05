@@ -95,7 +95,7 @@ enum cam_isp_hw_cmd_type {
 	CAM_ISP_HW_CMD_BW_CONTROL,
 	CAM_ISP_HW_CMD_STOP_BUS_ERR_IRQ,
 	CAM_ISP_HW_CMD_GET_REG_DUMP,
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 	CAM_ISP_HW_CMD_GET_IRQ_REGISTER_DUMP,
 	#endif

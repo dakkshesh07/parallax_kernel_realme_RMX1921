@@ -249,10 +249,10 @@ static int dp_parser_gpio(struct dp_parser *parser)
 
 		if (!gpio_is_valid(mp->gpio_config[i].gpio)) {
 			pr_err("%s gpio not specified\n", dp_gpios[i]);
-			#ifndef VENDOR_EDIT
+			#ifndef CONFIG_REALME_RETARD
 			/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 modify for dp support */
 			return -EINVAL;
-			#endif /* VENDOR_EDIT */
+			#endif /* CONFIG_REALME_RETARD */
 		}
 
 		strlcpy(mp->gpio_config[i].gpio_name, dp_gpios[i],

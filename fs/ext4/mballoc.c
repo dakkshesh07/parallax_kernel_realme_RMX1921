@@ -5309,7 +5309,7 @@ out:
 	return ret;
 }
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 /**
  * ext4_trim_group_partial_seq -- function to trim all free space in alloc. group

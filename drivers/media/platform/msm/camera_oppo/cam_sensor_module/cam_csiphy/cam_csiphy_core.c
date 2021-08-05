@@ -731,7 +731,7 @@ int32_t cam_csiphy_core_cfg(void *phy_dev,
 
 		if (csiphy_dev->acquire_count == 0)
 			csiphy_dev->csiphy_state = CAM_CSIPHY_INIT;
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
                 /*Xiaoyang.Huang@RM.Camera modify to fix combo mode issue,20190516*/
 		if (csiphy_dev->config_count == 0) {
 			CAM_DBG(CAM_CSIPHY, "reset csiphy_info");

@@ -74,7 +74,7 @@ static void zram_slot_unlock(struct zram *zram, u32 index)
 	bit_spin_unlock(ZRAM_LOCK, &zram->table[index].flags);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 static struct zram *zram_default = NULL;
 unsigned long zram_comp_ratio(void)
 {
@@ -1995,7 +1995,7 @@ static int zram_add(void)
 
 	zram_debugfs_register(zram);
 	pr_info("Added device: %s\n", zram->disk->disk_name);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
     zram_default = zram;
 #endif
 	return device_id;

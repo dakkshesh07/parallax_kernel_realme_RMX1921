@@ -1,5 +1,5 @@
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #Added by MingQiang.Guo@Bsp.group.Tp for himax hx833112B ic driver
 
 config TOUCHPANEL_HIMAX_HX83112B

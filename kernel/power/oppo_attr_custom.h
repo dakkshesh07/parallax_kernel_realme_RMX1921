@@ -1,6 +1,6 @@
 /******************************************************************
 ** Copyright (C), 2019-2030, OPPO Mobile Comm Corp., Ltd.
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** File: - oppo_attr_custom.h
 ** Description: header file for oppo power attr.
 ** Version: 1.0

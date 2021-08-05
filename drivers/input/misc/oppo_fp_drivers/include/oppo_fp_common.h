@@ -1,6 +1,6 @@
 /************************************************************************************
 ** File: - MSM8953_LA_1_0\android\kernel\include\soc\oppo\oppo_fp_common.h
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** Copyright (C), 2008-2020, OPPO Mobile Comm Corp., Ltd
 **
 ** Description:

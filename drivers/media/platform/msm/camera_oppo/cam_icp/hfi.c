@@ -468,7 +468,7 @@ void cam_hfi_disable_cpu(void __iomem *icp_base)
 	uint32_t data;
 	uint32_t val;
 	uint32_t try = 0;
-        #ifdef VENDOR_EDIT
+        #ifdef CONFIG_REALME_RETARD
         /*weifeng.hua@Camera 201806014 add for reduce time for destory session, qcom patch*/
         while (try < 50) {
             data = cam_io_r_mb(icp_base + HFI_REG_A5_CSR_A5_STATUS);
@@ -589,7 +589,7 @@ int cam_hfi_resume(struct hfi_mem_info *hfi_mem,
 		icp_base + HFI_REG_QDSS_IOVA);
 	cam_io_w_mb((uint32_t)hfi_mem->qdss.len,
 		icp_base + HFI_REG_QDSS_IOVA_SIZE);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 	cam_io_w_mb((uint32_t)hfi_mem->io_mem.iova,
 		icp_base + HFI_REG_IO_REGION_IOVA);
@@ -777,7 +777,7 @@ int cam_hfi_init(uint8_t event_driven_mode, struct hfi_mem_info *hfi_mem,
 		icp_base + HFI_REG_QDSS_IOVA);
 	cam_io_w_mb((uint32_t)hfi_mem->qdss.len,
 		icp_base + HFI_REG_QDSS_IOVA_SIZE);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 	cam_io_w_mb((uint32_t)hfi_mem->io_mem.iova,
 		icp_base + HFI_REG_IO_REGION_IOVA);

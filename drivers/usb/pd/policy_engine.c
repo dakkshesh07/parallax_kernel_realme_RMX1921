@@ -814,12 +814,12 @@ static int pd_select_pdo(struct usbpd *pd, int pdo_pos, int uv, int ua)
 			pd->requested_voltage > 5000000)
 		return -ENOTSUPP;
 
-#ifdef VENDOR_EDIT /* wangsen@BSP.POWER.Basic 2019/11/07 add for pd charge */
+#ifdef CONFIG_REALME_RETARD /* wangsen@BSP.POWER.Basic 2019/11/07 add for pd charge */
 	usbpd_err(&pd->dev, "type: %d, uv: %d, ua: %d, curr=%d, force 5V/3A\n",
 			type, pd->requested_voltage, pd->requested_current, curr);
 	if (pd->requested_voltage > 5000000)
 		return -ENOTSUPP;
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 	pd->requested_current = curr;
 	pd->requested_pdo = pdo_pos;
@@ -2105,7 +2105,7 @@ enable_reg:
 		usbpd_err(&pd->dev, "Unable to enable vbus (%d)\n", ret);
 	else
 		pd->vbus_enabled = true;
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 /* Qiao.Hu@BSP.BaseDrv.CHG.Basic, 2019/05/15, Add for some keyboard modefy */
 	count = 10;
 	/*
@@ -3986,7 +3986,7 @@ static ssize_t get_battery_status_show(struct device *dev,
 }
 static DEVICE_ATTR_RW(get_battery_status);
 
-#ifdef VENDOR_EDIT /* wangsen@BSP.POWER.Basic 2019/11/07 add for pd charge */
+#ifdef CONFIG_REALME_RETARD /* wangsen@BSP.POWER.Basic 2019/11/07 add for pd charge */
 struct usbpd *pd_lobal;
 
 int usbpd_select_pdo(struct usbpd *pd, int pdo, int uv, int ua)
@@ -4036,7 +4036,7 @@ out:
 	mutex_unlock(&pd->swap_lock);
 	return ret;
 }
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 static struct attribute *usbpd_attrs[] = {
 	&dev_attr_contract.attr,
@@ -4335,7 +4335,7 @@ struct usbpd *usbpd_create(struct device *parent)
 	/* force read initial power_supply values */
 	psy_changed(&pd->psy_nb, PSY_EVENT_PROP_CHANGED, pd->usb_psy);
 
-#ifdef VENDOR_EDIT /* wangsen@BSP.POWER.Basic 2019/11/07 add for pd charge */
+#ifdef CONFIG_REALME_RETARD /* wangsen@BSP.POWER.Basic 2019/11/07 add for pd charge */
 	pd_lobal = pd;
 #endif
 

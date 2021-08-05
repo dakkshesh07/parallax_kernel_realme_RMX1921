@@ -1,6 +1,6 @@
 /************************************************************************************
 ** 
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** Copyright (C), 2008-2012, OPPO Mobile Comm Corp., Ltd
 **
 ** Description:

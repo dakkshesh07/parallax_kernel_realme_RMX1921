@@ -5,7 +5,7 @@ obj-$(CONFIG_SMB135X_CHARGER)   += smb135x-charger.o pmic-voter.o
 obj-$(CONFIG_SMB1360_CHARGER_FG) += smb1360-charger-fg.o
 obj-$(CONFIG_SMB1355_SLAVE_CHARGER)   += smb1355-charger.o pmic-voter.o
 obj-$(CONFIG_SMB1351_USB_CHARGER) += smb1351-charger.o pmic-voter.o battery.o
-#ifdef VENDOR_EDIT /* tongfeng.Huang@BSP.CHG.Basic, 2018/07/11,  Modify for charging */
+#ifdef CONFIG_REALME_RETARD /* tongfeng.Huang@BSP.CHG.Basic, 2018/07/11,  Modify for charging */
 obj-$(CONFIG_QPNP_SMB2)		+= step-chg-jeita.o battery.o pmic-voter.o storm-watch.o
 #else
 #obj-$(CONFIG_QPNP_SMB2)		+= step-chg-jeita.o battery.o qpnp-smb2.o smb-lib.o pmic-voter.o storm-watch.o

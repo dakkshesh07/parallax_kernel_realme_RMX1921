@@ -1,6 +1,6 @@
 /***********************************************************
 ** Copyright (C), 2008-2018, OPPO Mobile Comm Corp., Ltd.
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** File: - discard.c
 ** Description: header file for ext4 async discard suppot.
 ** To support ext4 async discard.

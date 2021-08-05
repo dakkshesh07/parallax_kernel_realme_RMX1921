@@ -29,10 +29,10 @@
 #include "dsi_pwr.h"
 #include "msm_drv.h"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for save display panel power status at oppo display management*/
 #include <linux/dsi_oppo_support.h>
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 #define MAX_BL_LEVEL 4096
 #define MAX_BL_SCALE_LEVEL 1024
@@ -222,7 +222,7 @@ struct dsi_panel {
 	bool sync_broadcast_en;
 
 	struct dsi_panel_exd_config exd_config;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature*/
 	bool is_hbm_enabled;
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix aod flash problem */
@@ -328,7 +328,7 @@ int dsi_panel_parse_esd_reg_read_configs(struct dsi_panel *panel,
 				struct device_node *of_node);
 
 void dsi_panel_ext_bridge_put(struct dsi_panel *panel);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for oppo display new structure*/
 int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
 			   enum dsi_cmd_set_type type);

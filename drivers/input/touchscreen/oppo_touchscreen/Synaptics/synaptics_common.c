@@ -1,6 +1,6 @@
 /***************************************************
  * File:synaptics_common.c
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd.
  * Description:
  *             synaptics common driver

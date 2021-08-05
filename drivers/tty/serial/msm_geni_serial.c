@@ -29,14 +29,14 @@
 #include <linux/slab.h>
 #include <linux/tty.h>
 #include <linux/tty_flip.h>
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 #include <soc/oppo/boot_mode.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
+#ifdef CONFIG_REALME_RETARD //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 /* UART specific GENI registers */
 #define SE_UART_LOOPBACK_CFG		(0x22C)
@@ -190,7 +190,7 @@ struct msm_geni_serial_port {
 static const struct uart_ops msm_geni_serial_pops;
 static struct uart_driver msm_geni_console_driver;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 static struct uart_driver msm_geni_console_driver_no_cons;
 #endif
@@ -223,14 +223,14 @@ static atomic_t uart_line_id = ATOMIC_INIT(0);
 
 static struct msm_geni_serial_port msm_geni_console_port;
 static struct msm_geni_serial_port msm_geni_serial_ports[GENI_UART_NR_PORTS];
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Jiaochao.Shi@BSP.CHG.Basic 2018/05/01 add for console
 #define UARTDM_TXFS			0x4c
 #define UARTDM_RXFS			0x50
 static struct pinctrl *serial_pinctrl = NULL;
 static struct pinctrl_state *serial_pinctrl_state_disable = NULL;
 #endif
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01  Add for debug console reg issue 969323*/
 /*Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro*/
 bool boot_with_console(void)
@@ -256,7 +256,7 @@ bool boot_with_console(void)
 	}
 }
 EXPORT_SYMBOL(boot_with_console);
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_REALME_RETARD*/
 
 static void msm_geni_serial_config_port(struct uart_port *uport, int cfg_flags)
 {
@@ -786,7 +786,7 @@ __msm_geni_serial_console_write(struct uart_port *uport, const char *s,
 	int fifo_depth = DEF_FIFO_DEPTH_WORDS;
 	int tx_wm = DEF_TX_WM;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 	if (boot_with_console() == false) {
 		return;
@@ -2381,7 +2381,7 @@ static struct uart_driver msm_geni_console_driver = {
 	.nr =  GENI_UART_NR_PORTS,
 	.cons = &cons_ops,
 };
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 static struct uart_driver msm_geni_console_driver_no_cons = {
 	.owner = THIS_MODULE,
@@ -2574,11 +2574,11 @@ static int msm_geni_serial_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 	if (boot_with_console() == false) {
 		if (drv->cons) {
-		    #ifdef VENDOR_EDIT
+		    #ifdef CONFIG_REALME_RETARD
 			//Jiaochao.Shi@BSP.CHG.Basic 2018/05/01 add for console
 			pr_err("%s: console start get pinctrl\n", __FUNCTION__);
 			serial_pinctrl = devm_pinctrl_get(&pdev->dev);
@@ -2893,12 +2893,12 @@ static int msm_geni_serial_sys_suspend_noirq(struct device *dev)
 	struct uart_port *uport = &port->uport;
 
 	if (uart_console(uport)) {
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		//Tong.Han@BSP.Kernel.Driver 2018/6/23 add for console resume exception in release build
 		/*Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro*/
 		if ((oppo_daily_build() && (boot_with_console() == true)) ||
 			(!oppo_daily_build() && (oem_get_uartlog_status() == false || get_boot_mode() == MSM_BOOT_MODE__FACTORY)))
-		#endif/*VENDOR_EDIT*/
+		#endif/*CONFIG_REALME_RETARD*/
 		uart_suspend_port((struct uart_driver *)uport->private_data,
 					uport);
 	} else {
@@ -3000,7 +3000,7 @@ static int __init msm_geni_serial_init(void)
 		msm_geni_console_port.uport.flags = UPF_BOOT_AUTOCONF;
 		msm_geni_console_port.uport.line = i;
 	}
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 	ret = console_register(&msm_geni_console_driver);
 #else
@@ -3009,13 +3009,13 @@ static int __init msm_geni_serial_init(void)
 	} else {
 		ret = console_register(&msm_geni_console_driver_no_cons);
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 	if (ret)
 		return ret;
 
 	ret = uart_register_driver(&msm_geni_serial_hs_driver);
 	if (ret) {
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 		uart_unregister_driver(&msm_geni_console_driver);
 #else
@@ -3024,13 +3024,13 @@ static int __init msm_geni_serial_init(void)
 		} else {
 			uart_unregister_driver(&msm_geni_console_driver_no_cons);
 		}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 		return ret;
 	}
 
 	ret = platform_driver_register(&msm_geni_serial_platform_driver);
 	if (ret) {
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 		console_unregister(&msm_geni_console_driver);
 #else
@@ -3039,7 +3039,7 @@ static int __init msm_geni_serial_init(void)
 		} else {
 			console_unregister(&msm_geni_console_driver_no_cons);
 		}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 		uart_unregister_driver(&msm_geni_serial_hs_driver);
 		return ret;
 	}
@@ -3054,7 +3054,7 @@ static void __exit msm_geni_serial_exit(void)
 	platform_driver_unregister(&msm_geni_serial_platform_driver);
 	uart_unregister_driver(&msm_geni_serial_hs_driver);
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01 add for console
 	console_unregister(&msm_geni_console_driver);
 #else
@@ -3063,7 +3063,7 @@ static void __exit msm_geni_serial_exit(void)
 	} else {
 		console_unregister(&msm_geni_console_driver_no_cons);
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 }
 module_exit(msm_geni_serial_exit);
 

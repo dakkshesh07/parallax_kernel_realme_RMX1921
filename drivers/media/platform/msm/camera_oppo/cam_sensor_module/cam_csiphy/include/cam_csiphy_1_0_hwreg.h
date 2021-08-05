@@ -154,7 +154,7 @@ struct csiphy_reg_t
 		{0x0008, 0x00, 0x00, CSIPHY_SETTLE_CNT_LOWER_BYTE},
 		{0x0010, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0038, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Xiaoyang.Huang@RM.Camera modify to fix combo mode issue,20190516*/
 		{0x0060, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		#else
@@ -175,7 +175,7 @@ struct csiphy_reg_t
 		{0x070C, 0xA5, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0710, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0738, 0x1F, 0x00, CSIPHY_DEFAULT_PARAMS},
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Xiaoyang.Huang@RM.Camera modify to fix combo mode issue,20190516*/
 		{0x0760, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		#else
@@ -195,7 +195,7 @@ struct csiphy_reg_t
 		{0x0208, 0x00, 0x00, CSIPHY_SETTLE_CNT_LOWER_BYTE},
 		{0x0210, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0238, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Xiaoyang.Huang@RM.Camera modify to fix combo mode issue,20190516*/
 		{0x0260, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		#else
@@ -215,7 +215,7 @@ struct csiphy_reg_t
 		{0x0408, 0x00, 0x00, CSIPHY_SETTLE_CNT_LOWER_BYTE},
 		{0x0410, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0438, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Xiaoyang.Huang@RM.Camera modify to fix combo mode issue,20190516*/
 		{0x0460, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		#else
@@ -236,7 +236,7 @@ struct csiphy_reg_t
 		{0x060C, 0xA5, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0610, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0638, 0x1F, 0x00, CSIPHY_DEFAULT_PARAMS},
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Xiaoyang.Huang@RM.Camera modify to fix combo mode issue,20190516*/
 		{0x0660, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		#else
@@ -248,7 +248,7 @@ struct csiphy_reg_t
 
 struct csiphy_reg_t csiphy_3ph_v1_0_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 	{
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Modified by ZhengrongZhang@Cam.Drv, 2018/05/09, for [csid crc error]*/
 		{0x015C, 0x43, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0168, 0xA0, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -276,7 +276,7 @@ struct csiphy_reg_t csiphy_3ph_v1_0_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x01DC, 0x51, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 	{
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Modified by ZhengrongZhang@Cam.Drv, 2018/05/09, for [csid crc error]*/
 		{0x035C, 0x43, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0368, 0xA0, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -304,7 +304,7 @@ struct csiphy_reg_t csiphy_3ph_v1_0_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x03DC, 0x51, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 	{
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Modified by ZhengrongZhang@Cam.Drv, 2018/05/09, for [csid crc error]*/
 		{0x055C, 0x43, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0568, 0xA0, 0x00, CSIPHY_DEFAULT_PARAMS},

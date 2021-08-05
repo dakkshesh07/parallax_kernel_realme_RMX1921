@@ -30,7 +30,7 @@
 				   "usbin_i",
 				   "usbin_v";
 
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2017/01/20, sjc Delete for charging */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2017/01/20, sjc Delete for charging */
 		//qcom,wipower-max-uw = <5000000>;
 //#endif
 
@@ -39,10 +39,10 @@
 		qcom,thermal-mitigation
 				= <3000000 2500000 2000000 1500000
 					1000000 500000>;
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2017/01/20, sjc Delete for charging */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2017/01/20, sjc Delete for charging */
 		//qcom,auto-recharge-soc;
 //#endif
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2016/12/26, sjc Add for charging */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2016/12/26, sjc Add for charging */
 			//for smb2:
 			qcom,usb-icl-ua = <3000000>;
 			qcom,fcc-max-ua = <3000000>;
@@ -217,7 +217,7 @@
 			pinctrl-12 = <&usb_temp_adc_suspend_12>;              
 			//pinctrl-3 = <&ccdetect_active>;
 			//pinctrl-4 = <&ccdetect_sleep>;
-//#endif //VENDOR_EDIT
+//#endif //CONFIG_REALME_RETARD
 		qcom,chgr@1000 {
 			reg = <0x1000 0x100>;
 			interrupts =
@@ -363,7 +363,7 @@
 		qcom,hold-soc-while-full;
 		qcom,fg-auto-recharge-soc;
 		qcom,fg-recharge-soc-thr = <98>;
-//#ifndef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2018/02/05, sjc Modify for charging */
+//#ifndef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2018/02/05, sjc Modify for charging */
 		//status = "okay";
 //#else
 		status = "disabled";
@@ -431,12 +431,12 @@
 		qcom,pmic-revid = <&pm660_revid>;
 		qcom,pmic-misc = <&pm660_misc>;
 		qcom,misc-clk-trim-error-reg = <0xf3>;
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		//Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 		qcom,actuator-type = <1>;
 		//#endif
 		qcom,play-mode = "direct";
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		//Added by Fei.Mo@Bsp.Bootloader.Bootflow, 2019/03/02 ,Modify for vib vmax setting,
 		qcom,vmax-mv = <3000>;
 		//#endif
@@ -447,7 +447,7 @@
 		qcom,lra-high-z = "opt0";
 		qcom,lra-auto-res-mode = "qwd";
 		qcom,lra-res-cal-period = <4>;
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		//Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 		qcom,vib-timemin-ms = <35>;
 		//#endif
@@ -579,22 +579,22 @@
 					<&pm660_charger>, <&pm660_charger>;
 	vbus_dwc3-supply = <&smb2_vbus>;
 	qcom,no-vbus-vote-with-type-C;
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2018/02/08, sjc Add for USB */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2018/02/08, sjc Add for USB */
 	dwc3@a600000 {
 		usb-phy = <&qusb_phy0>, <&usb_nop_phy>;
 		maximum-speed = "high-speed";
 	};
-//#endif //VENDOR_EDIT
+//#endif //CONFIG_REALME_RETARD
 };
 
-//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2018/02/08, sjc Add for USB */
+//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2018/02/08, sjc Add for USB */
 &usb_qmp_dp_phy {
 	status = "disabled";
 };
 &qupv3_se3_i2c {
 	status = "disabled";
 };
-//#endif //VENDOR_EDIT
+//#endif //CONFIG_REALME_RETARD
 
 &thermal_zones {
 	xo-therm-step {

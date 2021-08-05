@@ -35,9 +35,9 @@
 #include <soc/qcom/watchdog.h>
 #include <soc/qcom/minidump.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/10/10, modified for replace daily build macro
+#ifdef CONFIG_REALME_RETARD //Cong.Dai@BSP.TP.Function, 2019/10/10, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #define EMERGENCY_DLOAD_MAGIC1    0x322A4F99
 #define EMERGENCY_DLOAD_MAGIC2    0xC67E4350
@@ -306,7 +306,7 @@ static void msm_restart_prepare(const char *cmd)
 		need_warm_reset = (get_dload_mode() ||
 				(cmd != NULL && cmd[0] != '\0'));
 	}
-#ifdef VENDOR_EDIT 
+#ifdef CONFIG_REALME_RETARD 
 //Fanhong.Kong@PSW.BSP.CHG,add 2018/3/25 panic reboot reason as kernel for hotfix 
 	if (in_panic){
 		//warm reset
@@ -321,7 +321,7 @@ static void msm_restart_prepare(const char *cmd)
 #endif
 		return;
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	if (force_warm_reboot)
 		pr_info("Forcing a warm reset of the system\n");
@@ -332,7 +332,7 @@ static void msm_restart_prepare(const char *cmd)
 	else
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 /* OPPO 2013.07.09 hewei modify begin for restart mode*/
 	if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
@@ -390,7 +390,7 @@ static void msm_restart_prepare(const char *cmd)
 			__raw_writel(0x77665501, restart_reason);
 		}
 	}
-#else //VENDOR_EDIT
+#else //CONFIG_REALME_RETARD
 	if (cmd != NULL) {
 		#ifndef DISABLE_FASTBOOT_CMDS //disable fastboot modem at release soft
 		if (!strncmp(cmd, "bootloader", 10)) {
@@ -469,7 +469,7 @@ static void msm_restart_prepare(const char *cmd)
 				PON_RESTART_REASON_NORMAL);
 	}
 /* OPPO 2013.07.09 hewei modify en for restart mode*/
-#endif //VENDOR_EDIT
+#endif //CONFIG_REALME_RETARD
 
 	flush_cache_all();
 
@@ -819,13 +819,13 @@ static struct platform_driver msm_restart_driver = {
 
 static int __init msm_restart_init(void)
 {
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/10/10, modified for replace daily build macro
+#ifdef CONFIG_REALME_RETARD //Cong.Dai@BSP.TP.Function, 2019/10/10, modified for replace daily build macro
 	if (oppo_daily_build() || (AGING == get_eng_version())) {
 		dload_type = SCM_DLOAD_FULLDUMP;
 	} else {
 		dload_type = SCM_DLOAD_MINIDUMP;
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	return platform_driver_register(&msm_restart_driver);
 }

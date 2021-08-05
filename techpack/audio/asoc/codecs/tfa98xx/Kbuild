@@ -89,12 +89,12 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 		-Wall\
 		-D__linux__
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #Huiqun.Han@PSW.MM.AudioDriver.Codec, 2018/08/17, Add for new speaker
 ifneq ($(filter MSM_18181 MSM_18385 MSM_18097 MSM_18397 MSM_18621 MSM_18637, $(OPPO_TARGET_DEVICE)),)
 CDEFINES += -DSPKR_RES_48_75_OHM
 endif
-#endif /* VENDOR_EDIT *
+#endif /* CONFIG_REALME_RETARD *
 
 KBUILD_CPPFLAGS += $(CDEFINES)
 

@@ -3276,7 +3276,7 @@ static int q6afe_send_enc_config(u16 port_id,
 		config.port.enc_blk_param.enc_cfg_blk_size =
 				sizeof(config.port.enc_blk_param.enc_blk_config)
 					- sizeof(struct afe_abr_enc_cfg_t);
-    #ifdef VENDOR_EDIT
+    #ifdef CONFIG_REALME_RETARD
     //Nan.Zhong@PSW.MM.AudioDriver.Machine, 2019/09/25, Add for CR#2500290 & CR#2345250
 	} else if (format == ASM_MEDIA_FMT_AAC_V2) {
 		config.param.payload_size = payload_size
@@ -3287,7 +3287,7 @@ static int q6afe_send_enc_config(u16 port_id,
 		config.port.enc_blk_param.enc_cfg_blk_size =
 				sizeof(config.port.enc_blk_param.enc_blk_config)
 				- sizeof(struct asm_aac_frame_size_control_t);
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_REALME_RETARD */
 	} else {
 		config.param.payload_size = payload_size
 					+ sizeof(config.port.enc_blk_param);
@@ -3306,7 +3306,7 @@ static int q6afe_send_enc_config(u16 port_id,
 		goto exit;
 	}
 
-    #ifdef VENDOR_EDIT
+    #ifdef CONFIG_REALME_RETARD
     //Nan.Zhong@PSW.MM.AudioDriver.Machine, 2019/09/25, Add for CR#2500290 & CR#2345250
 	if (format == ASM_MEDIA_FMT_AAC_V2) {
 		uint32_t frame_size_ctl_value = config.port.enc_blk_param.
@@ -3334,7 +3334,7 @@ static int q6afe_send_enc_config(u16 port_id,
 			}
 		}
 	}
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_REALME_RETARD */
 
 	if (format == ASM_MEDIA_FMT_APTX) {
 		config.param.payload_size =
@@ -6417,10 +6417,10 @@ int afe_close(int port_id)
 	} else {
 		pr_debug("%s: Not a MAD port\n", __func__);
 	}
-        #ifdef VENDOR_EDIT
+        #ifdef CONFIG_REALME_RETARD
         //Wang.kun@MM.AudioDriver.ADSP, 2019/11/20, Add for bug 2580676
 	mutex_lock(&this_afe.afe_cmd_lock);
-        #endif /* VENDOR_EDIT */
+        #endif /* CONFIG_REALME_RETARD */
 	port_index = afe_get_port_index(port_id);
 	if ((port_index >= 0) && (port_index < AFE_MAX_PORTS)) {
 		this_afe.afe_sample_rates[port_index] = 0;
@@ -6463,10 +6463,10 @@ int afe_close(int port_id)
 		pr_err("%s: AFE close failed %d\n", __func__, ret);
 
 fail_cmd:
-        #ifdef VENDOR_EDIT
+        #ifdef CONFIG_REALME_RETARD
         //Wang.kun@MM.AudioDriver.ADSP, 2019/11/20, Add for bug 2580676
 	mutex_unlock(&this_afe.afe_cmd_lock);
-        #endif /* VENDOR_EDIT */
+        #endif /* CONFIG_REALME_RETARD */
 	return ret;
 }
 EXPORT_SYMBOL(afe_close);

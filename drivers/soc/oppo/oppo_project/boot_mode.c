@@ -50,10 +50,10 @@ int get_boot_mode(void)
 {
         return ftm_mode;
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/05/12, Add for audio dlkm*/
 EXPORT_SYMBOL(get_boot_mode);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 static ssize_t ftmmode_show(struct kobject *kobj, struct kobj_attribute *attr,
                                  char *buf)
@@ -112,7 +112,7 @@ static struct attribute_group attr_group = {
         .attrs = g,
 };
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* OPPO 2013-09-03 heiwei add for add interface start reason and boot_mode begin */
 char pwron_event[MAX_CMD_LENGTH + 1];
 static int __init start_reason_init(void)
@@ -134,7 +134,7 @@ static int __init start_reason_init(void)
 
 char boot_mode[MAX_CMD_LENGTH + 1];
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Fuchun.Liao@Mobile.BSP.CHG 2016-01-14 add for charge*/
 bool qpnp_is_power_off_charging(void)
 {
@@ -147,7 +147,7 @@ bool qpnp_is_power_off_charging(void)
                 return false;
 }
 #endif
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Liang.Zhang@PSW.TECH.BOOTUP 2018-10-18 add for normal boot*/
 #ifdef HANG_OPPO_ALL
 bool op_is_monitorable_boot(void)
@@ -169,7 +169,7 @@ bool op_is_monitorable_boot(void)
 #endif  //HANG_OPPO_ALL
 #endif
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*PengNan@SW.BSP add for detect charger when reboot 2016-04-22*/
 char charger_reboot[MAX_CMD_LENGTH + 1];
 bool qpnp_is_charger_reboot(void)
@@ -196,7 +196,7 @@ static int __init oppo_charger_reboot(void)
         printk(KERN_INFO "%s: parse charger_reboot %s\n", __func__, charger_reboot);
         return 1;
 }
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 
 int __init  board_boot_mode_init(void)
@@ -222,19 +222,19 @@ static int __init boot_mode_init(void)
 
         pr_err("%s: parse boot_mode\n", __func__);
         board_boot_mode_init();
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
         /* OPPO 2013.07.09 hewei add begin for factory mode*/
         board_mfg_mode_init();
         /* OPPO 2013.07.09 hewei add end */
-#endif /*VENDOR_EDIT
+#endif /*CONFIG_REALME_RETARD
 */
 
 /* OPPO 2013-09-03 heiwei add for add interface start reason and boot_mode begin */
         start_reason_init();
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*PengNan@SW.BSP add for detect charger when reboot 2016-04-22*/
         oppo_charger_reboot();
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 /* OPPO 2013-09-03 zhanglong add for add interface start reason and boot_mode end */
         /* OPPO 2013.07.09 hewei add begin for factory mode*/
@@ -249,7 +249,7 @@ static int __init boot_mode_init(void)
 }
 /*__setup("androidboot.mode=", boot_mode_setup);*/
 /* OPPO 2013-09-03 zhanglong add for add interface start reason and boot_mode end */
-#endif /*VENDOR_EDIT
+#endif /*CONFIG_REALME_RETARD
 */
 
 /*module_init(boot_mode_init);*/

@@ -943,7 +943,7 @@ static const struct file_operations mmc_dbg_bkops_stats_fops = {
 	.read		= seq_read,
 	.write		= mmc_bkops_stats_write,
 };
-#ifdef VENDOR_EDIT 
+#ifdef CONFIG_REALME_RETARD 
 //rendong.shi@Bsp.drv,2016/02/17,porting from 8939 for emmc life&size display
 //Fanhong.Kong@ProDrv.CHG,add 2016/6/24 for kernel 3.18 
 #define SECTOR_COUNT_BUF_LEN 16
@@ -1207,7 +1207,7 @@ void mmc_add_card_debugfs(struct mmc_card *card)
 		if (!debugfs_create_file("bkops_stats", S_IRUSR, root, card,
 					 &mmc_dbg_bkops_stats_fops))
 			goto err;
-#ifdef VENDOR_EDIT 
+#ifdef CONFIG_REALME_RETARD 
 //rendong.shi@Bsp.drv,2016/02/17,porting from 8939 for emmc life&size display	
 	if (mmc_card_mmc(card))
 		if (!debugfs_create_file("sector_count", S_IRUSR, root, card,

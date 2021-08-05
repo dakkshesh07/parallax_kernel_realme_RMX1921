@@ -392,7 +392,7 @@ static int cam_vfe_top_mux_get_reg_update(
 	return -EINVAL;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 static int cam_vfe_get_irq_register_dump(
 	struct cam_vfe_top_ver2_priv *top_priv,
@@ -686,7 +686,7 @@ int cam_vfe_top_process_cmd(void *device_priv, uint32_t cmd_type,
 	case CAM_ISP_HW_CMD_BW_CONTROL:
 		rc = cam_vfe_top_bw_control(top_priv, cmd_args, arg_size);
 		break;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 	case CAM_ISP_HW_CMD_GET_IRQ_REGISTER_DUMP:
 		rc = cam_vfe_get_irq_register_dump(top_priv,

@@ -35,7 +35,7 @@
 #include <linux/qpnp/qpnp-misc.h>
 #include <linux/power_supply.h>
 
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 #include <linux/kthread.h>
 #include <linux/rtc.h>
 #include <linux/proc_fs.h>
@@ -93,13 +93,13 @@
 #define QPNP_PON_KPDPWR_RESIN_S2_CNTL2(pon)	((pon)->base + 0x4B)
 #define QPNP_PON_PS_HOLD_RST_CTL(pon)		((pon)->base + 0x5A)
 #define QPNP_PON_PS_HOLD_RST_CTL2(pon)		((pon)->base + 0x5B)
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 #define QPNP_PON_WD_RST_S1_TIMER(pon)		((pon)->base + 0x54)
 #define QPNP_PON_WD_RST_S2_TIMER(pon)		((pon)->base + 0x55)
 #endif
 #define QPNP_PON_WD_RST_S2_CTL(pon)		((pon)->base + 0x56)
 #define QPNP_PON_WD_RST_S2_CTL2(pon)		((pon)->base + 0x57)
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 #define QPNP_PON_WD_RESET_PET(pon)  ((pon)->base + 0x58)
 #endif
 #define QPNP_PON_S3_SRC(pon)			((pon)->base + 0x74)
@@ -126,7 +126,7 @@
 #define QPNP_PON_S1_TIMER_MASK			(0xF)
 #define QPNP_PON_S2_TIMER_MASK			(0x7)
 #define QPNP_PON_S2_CNTL_TYPE_MASK		(0xF)
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 #define QPNP_PON_WD_S2_TIMER_MASK		(0x7F)
 #define QPNP_PON_WD_S1_TIMER_MASK		(0x7F)
 #define QPNP_PON_WD_RESET_PET_MASK		BIT(0)
@@ -227,7 +227,7 @@ struct qpnp_pon {
 	struct delayed_work	bark_work;
 	struct dentry		*debugfs;
 	struct device_node      *pbs_dev_node;
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 	struct task_struct 	*wd_task;
 	struct mutex		wd_task_mutex;
 	unsigned int		pmicwd_state;//|reserver|rst type|timeout|enable|
@@ -829,7 +829,7 @@ int qpnp_pon_wd_config(bool enable)
 }
 EXPORT_SYMBOL(qpnp_pon_wd_config);
 
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 #define OPPO_PMIC_WD_DEFAULT_TIMEOUT 254
 #define OPPO_PMIC_WD_DEFAULT_RST_TYPE PON_POWER_OFF_HARD_RESET
 #define OPPO_PMIC_WD_DEFAULT_ENABLE 0
@@ -1206,7 +1206,7 @@ qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 		input_report_key(pon->pon_input, cfg->key_code, 1);
 		input_sync(pon->pon_input);
 	}
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
     //Fanhong.Kong@ProDrv.CHG,add 2016/7/26 for keycode
 	pr_err("keycode = %d,key_st = %d\n",cfg->key_code, key_status);
 	#endif
@@ -2364,12 +2364,12 @@ static int pon_register_twm_notifier(struct qpnp_pon *pon)
 	return rc;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 extern char pon_reason[];
 extern char poff_reason[];
 int preason_initialized;
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 static int qpnp_pon_probe(struct platform_device *pdev)
 {
@@ -2386,7 +2386,7 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	u8 s3_src_reg;
 	unsigned long flags;
 	uint temp = 0;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/* YiXue.Ge@PSW.BSP.Kernel.Stablity, 2017-12-20
 	* add some log to get pwk status..
 	*/
@@ -2512,13 +2512,13 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		dev_err(&pon->pdev->dev,
 			"Unable to read PON_RESASON1 reg rc: %d\n",
 			rc);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 		if (!preason_initialized) {
 			snprintf(pon_reason, 128, "Unable to read PON_RESASON1 reg rc: %d\n", rc);
 			preason_initialized = 1;
 		}
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 		goto err_out;
 	}
 
@@ -2526,22 +2526,22 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		boot_reason = ffs(pon_sts);
 
 	index = ffs(pon_sts) - 1;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/18, when KPDPWR_N is set it is PWK start*/
 	if (pon_sts & 0x80)
 		index = 7;
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	cold_boot = !qpnp_pon_is_warm_reset();
 	if (index >= ARRAY_SIZE(qpnp_pon_reason) || index < 0) {
 		dev_info(&pon->pdev->dev,
 			"PMIC@SID%d Power-on reason: Unknown and '%s' boot\n",
 			to_spmi_device(pon->pdev->dev.parent)->usid,
 			 cold_boot ? "cold" : "warm");
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 		if (!preason_initialized)
 			snprintf(pon_reason, 128, "Unknown[0x%02X] and '%s' boot\n", pon_sts, cold_boot ? "cold" : "warm");
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	} else {
 		pon->pon_trigger_reason = index;
 		dev_info(&pon->pdev->dev,
@@ -2549,12 +2549,12 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 			to_spmi_device(pon->pdev->dev.parent)->usid,
 			 qpnp_pon_reason[index],
 			cold_boot ? "cold" : "warm");
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 		if (!preason_initialized)
 			snprintf(pon_reason, 128, "[0x%02X]%s and '%s' boot\n", pon_sts,
 				qpnp_pon_reason[index],	cold_boot ? "cold" : "warm");
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	}
 
 	/* POFF reason */
@@ -2569,13 +2569,13 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		if (rc) {
 			dev_err(&pon->pdev->dev, "Unable to read POFF_REASON regs rc:%d\n",
 				rc);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 			if (!preason_initialized) {
 				snprintf(poff_reason, 128, "Unable to read POFF_RESASON regs rc:%d\n", rc);
 				preason_initialized = 1;
 			}
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 			goto err_out;
 		}
 		poff_sts = buf[0] | (buf[1] << 8);
@@ -2585,26 +2585,26 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		dev_info(&pon->pdev->dev,
 				"PMIC@SID%d: Unknown power-off reason\n",
 				to_spmi_device(pon->pdev->dev.parent)->usid);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 		if (!preason_initialized) {
 			snprintf(poff_reason, 128, "Unknown[0x%04X]\n", poff_sts);
 			preason_initialized = 1;
 		}
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	} else {
 		pon->pon_power_off_reason = index;
 		dev_info(&pon->pdev->dev,
 				"PMIC@SID%d: Power-off reason: %s\n",
 				to_spmi_device(pon->pdev->dev.parent)->usid,
 				qpnp_poff_reason[index]);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* fanhui@PhoneSW.BSP, 2016/05/16, interface to read PMIC reg PON_REASON and POFF_REASON */
 		if (!preason_initialized) {
 			snprintf(poff_reason, 128, "[0x%04X]%s\n", poff_sts, qpnp_poff_reason[index]);
 			preason_initialized = 1;
 		}
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	}
 
 	if (pon->pon_trigger_reason == PON_SMPL ||
@@ -2878,7 +2878,7 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	pon->legacy_hard_reset_offset = of_property_read_bool(pdev->dev.of_node,
 					"qcom,use-legacy-hard-reset-offset");
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/* YiXue.Ge@PSW.BSP.Kernel.Stablity, 2017-12-20
 	* add some log to get pwk status..
 	*/
@@ -2886,7 +2886,7 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	dev_info(&pon->pdev->dev,"probe keycode = 116,key_st = 0x%x\n", pon_rt_sts);
 	#endif
 
-	#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+	#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 	pon->pmicwd_state = of_property_read_bool(pdev->dev.of_node,"oppo,pmicwd");
 	pon->wd_task = NULL;
 	if(sys_reset && pon->pmicwd_state){
@@ -2935,7 +2935,7 @@ static int qpnp_pon_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 static int  setalarm(unsigned long time,bool enable)
 {
 	static struct rtc_device *rtc;
@@ -3057,7 +3057,7 @@ static const struct of_device_id spmi_match_table[] = {
 
 static struct platform_driver qpnp_pon_driver = {
 	.driver		= {
-		#ifdef VENDOR_EDIT //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
+		#ifdef CONFIG_REALME_RETARD //YiXue.Ge@PSW.BSP.Kernel.Stablity, 2018-10-26 add for enable pmic wd
 		.pm = &qpnp_pm_ops,
 		#endif
 		.name		= "qcom,qpnp-power-on",

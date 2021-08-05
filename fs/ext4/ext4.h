@@ -39,7 +39,7 @@
 #endif
 
 #include <linux/fscrypt.h>
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 #include "discard.h"
 #endif
@@ -1141,7 +1141,7 @@ struct ext4_inode_info {
 #define EXT4_MOUNT_DIOREAD_NOLOCK	0x400000 /* Enable support for dio read nolocking */
 #define EXT4_MOUNT_JOURNAL_CHECKSUM	0x800000 /* Journal checksums */
 #define EXT4_MOUNT_JOURNAL_ASYNC_COMMIT	0x1000000 /* Journal Async Commit */
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 #define EXT4_MOUNT_ASYNC_DISCARD	0x2000000 /* Async issue discard request */
 #endif
@@ -1354,7 +1354,7 @@ struct ext4_super_block {
 /* Number of quota types we support */
 #define EXT4_MAXQUOTAS 3
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 struct discard_policy {
 	int type;			/* type of discard */
@@ -1557,7 +1557,7 @@ struct ext4_sb_info {
 	struct percpu_rw_semaphore s_writepages_rwsem;
 
 	/* for discard command control */
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 	struct discard_cmd_control *dcc_info;
 	unsigned long last_time;	/* to store time in jiffies */
@@ -3025,7 +3025,7 @@ static inline void ext4_unlock_group(struct super_block *sb,
 	spin_unlock(ext4_group_lock_ptr(sb, group));
 }
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 static inline int ext4_utilization(struct ext4_sb_info *sbi)
 {

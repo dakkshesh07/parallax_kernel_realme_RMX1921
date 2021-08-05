@@ -120,10 +120,10 @@ static inline long firmware_loading_timeout(void)
 #define FW_OPT_NO_WARN	(1U << 3)
 #define FW_OPT_NOCACHE	(1U << 4)
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Tong.Han@Bsp.Group.Tp,2017-12-16,Add interface to get proper fw
 #define FW_OPT_COMPARE (1U << 5)
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_REALME_RETARD*/
 
 
 struct firmware_cache {
@@ -323,7 +323,7 @@ static void fw_finish_direct_load(struct device *device,
 	mutex_unlock(&fw_lock);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Wanghao@Bsp.Group.Tp,2018-02-13, Add to avoid direct pass encrypt tp firmware to driver
 static int fw_get_filesystem_firmware(struct device *device,
 				       struct firmware_buf *buf, unsigned int opt_flags)
@@ -336,13 +336,13 @@ static int fw_get_filesystem_firmware(struct device *device,
 	enum kernel_read_file_id id = READING_FIRMWARE;
 	size_t msize = INT_MAX;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 	//Wanghao@Bsp.Group.Tp,2018-02-13, Add to avoid direct pass encrypt tp firmware to driver
 	if(opt_flags & FW_OPT_COMPARE) {
 		pr_err("%s opt_flags get FW_OPT_COMPARE!\n", __func__);
 		return rc;
 	}
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_REALME_RETARD*/
 
 	/* Already populated data member means we're loading into a buffer */
 	if (buf->data) {
@@ -949,10 +949,10 @@ static int _request_firmware_load(struct firmware_priv *fw_priv,
 	int retval = 0;
 	struct device *f_dev = &fw_priv->dev;
 	struct firmware_buf *buf = fw_priv->buf;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	//Tong.Han@Bsp.Group.Tp,2017-12-16,Add interface to get proper fw
 	char *envp[2]={"FwUp=compare", NULL};
-	#endif/*VENDOR_EDIT*/
+	#endif/*CONFIG_REALME_RETARD*/
 
 	/* fall back on userspace loading */
 	if (!buf->data)
@@ -974,7 +974,7 @@ static int _request_firmware_load(struct firmware_priv *fw_priv,
 		buf->need_uevent = true;
 		dev_set_uevent_suppress(f_dev, false);
 		dev_dbg(f_dev, "firmware: requesting %s\n", buf->fw_id);
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 		//Tong.Han@Bsp.Group.Tp,2017-12-16,Add interface to get proper fw
 		if (opt_flags & FW_OPT_COMPARE) {
 			kobject_uevent_env(&fw_priv->dev.kobj, KOBJ_CHANGE,envp);
@@ -983,7 +983,7 @@ static int _request_firmware_load(struct firmware_priv *fw_priv,
 		}
 	#else
 		kobject_uevent(&fw_priv->dev.kobj, KOBJ_ADD);
-	#endif/*VENDOR_EDIT*/
+	#endif/*CONFIG_REALME_RETARD*/
 	} else {
 		timeout = MAX_JIFFY_OFFSET;
 	}
@@ -1206,7 +1206,7 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
 		}
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Wanghao@Bsp.Group.Tp,2018-02-13, Add to avoid direct pass encrypt tp firmware to driver
 	ret = fw_get_filesystem_firmware(device, fw->priv, opt_flags);
 #endif
@@ -1271,7 +1271,7 @@ request_firmware(const struct firmware **firmware_p, const char *name,
 	return ret;
 }
 EXPORT_SYMBOL(request_firmware);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Tong.Han@Bsp.Group.Tp,2017-12-16,Add interface to get proper fw
 int request_firmware_select(const struct firmware **firmware_p, const char *name,
 		 struct device *device)
@@ -1286,7 +1286,7 @@ int request_firmware_select(const struct firmware **firmware_p, const char *name
 	return ret;
 }
 EXPORT_SYMBOL(request_firmware_select);
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_REALME_RETARD*/
 
 /**
  * request_firmware_direct: - load firmware directly without usermode helper

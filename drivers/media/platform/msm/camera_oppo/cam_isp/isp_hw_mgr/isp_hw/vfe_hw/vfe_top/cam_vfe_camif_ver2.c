@@ -54,7 +54,7 @@ static int cam_vfe_camif_validate_pix_pattern(uint32_t pattern)
 	case CAM_ISP_PATTERN_YUV_YCRYCB:
 	case CAM_ISP_PATTERN_YUV_CBYCRY:
 	case CAM_ISP_PATTERN_YUV_CRYCBY:
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Kaizhu.Liang@Camera.Driver, 2018/06/07, add QCOM patch for 18081 Rear_Aux camera mono mode */
 	case CAM_ISP_PATTERN_BAYER_Y:
 #endif
@@ -205,7 +205,7 @@ static int cam_vfe_camif_resource_start(
 {
 	struct cam_vfe_mux_camif_data       *rsrc_data;
 	uint32_t                             val = 0;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
     uint32_t                             epoch0_irq_mask;
     uint32_t                             epoch1_irq_mask;
     uint32_t                             computed_epoch_line_cfg;
@@ -250,7 +250,7 @@ static int cam_vfe_camif_resource_start(
 	cam_io_w_mb(0xFFFFFFFF, rsrc_data->mem_base +
 		rsrc_data->common_reg->module_ctrl[
 		CAM_VFE_TOP_VER2_MODULE_STATS]->cgc_ovd);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
     /* get the HW version */
     rc = cam_cpas_get_cpas_hw_version(&camera_hw_version);
     if (rc) {
@@ -354,7 +354,7 @@ static int cam_vfe_camif_reg_dump(
 
 	return rc;
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 static int cam_vfe_camif_irq_reg_dump(
 	struct cam_isp_resource_node *camif_res)
@@ -444,7 +444,7 @@ static int cam_vfe_camif_process_cmd(struct cam_isp_resource_node *rsrc_node,
 	case CAM_ISP_HW_CMD_GET_REG_DUMP:
 		rc = cam_vfe_camif_reg_dump(rsrc_node);
 		break;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 	case CAM_ISP_HW_CMD_GET_IRQ_REGISTER_DUMP:
 		rc = cam_vfe_camif_irq_reg_dump(rsrc_node);

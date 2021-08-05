@@ -244,7 +244,7 @@ enum dsi_dfps_type {
  * @DSI_CMD_SET_ROI:			   Panel ROI update
  * @DSI_CMD_SET_TIMING_SWITCH:             Timing switch
  * @DSI_CMD_SET_POST_TIMING_SWITCH:        Post timing switch
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
  * @liping-m@PSW.MM.Display.LCD.Stability,2018/12/14, add for lcd notes
  * @DSI_CMD_POST_ON_BACKLIGHT:             Panel on cmd send for AOD and Fingerprint
  * @DSI_CMD_AOD_ON:                        Panel AOD on cmd
@@ -282,7 +282,7 @@ enum dsi_cmd_set_type {
 	DSI_CMD_SET_ROI,
 	DSI_CMD_SET_TIMING_SWITCH,
 	DSI_CMD_SET_POST_TIMING_SWITCH,
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* liping-m@PSW.MM.Display.LCD.Stability,2018/07/03, optimize screen on*/
 	DSI_CMD_POST_ON_BACKLIGHT,
 	DSI_CMD_AOD_ON,

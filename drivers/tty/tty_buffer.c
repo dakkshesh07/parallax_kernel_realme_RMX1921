@@ -531,7 +531,7 @@ static void flush_to_ldisc(struct work_struct *work)
 			tty_buffer_free(port, head);
 			continue;
 		}
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/* yanghao@PSW.BSP.Kernel.Statbility 2018/10/12
 		 * the tty->driver_data should use after uart_open
 		 * but current occur the workqueue run before uart_open
@@ -545,7 +545,7 @@ static void flush_to_ldisc(struct work_struct *work)
 		}
                 #else
 		count = receive_buf(disc, head, count);
-                #endif /* VENDOR_EDIT */
+                #endif /* CONFIG_REALME_RETARD */
 		if (!count)
 			break;
 		head->read += count;

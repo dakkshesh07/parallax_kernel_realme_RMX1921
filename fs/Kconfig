@@ -311,10 +311,10 @@ endif # NETWORK_FILESYSTEMS
 source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #Xinhua.Song@BSP.Driver, 2015/04/03, Add for exfat filesystem
 source "fs/exfat/Kconfig"
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 endmenu
 
 config BLOCK_UNWANTED_FILES

@@ -1,6 +1,6 @@
 /**************************************************************
 * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd
-* VENDOR_EDIT
+* CONFIG_REALME_RETARD
 * File       : synaptics_tcm_device.c
 * Description: Source file for synaptics TD4330 driver
 * Version   : 1.0

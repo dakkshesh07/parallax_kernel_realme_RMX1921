@@ -159,7 +159,7 @@ int ext4_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
 	}
 out:
 	trace_ext4_sync_file_exit(inode, ret);
-#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+#if defined(CONFIG_REALME_RETARD) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
 //yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 	ext4_update_time(EXT4_SB(inode->i_sb));
 #endif

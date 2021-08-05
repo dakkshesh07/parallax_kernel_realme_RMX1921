@@ -817,14 +817,14 @@ int adm_programable_channel_mixer(int port_id, int copp_idx, int session_id,
 	}
 	ret = adm_populate_channel_weight(&adm_pspd_params[index],
 					ch_mixer, channel_index);
-    #ifndef VENDOR_EDIT
+    #ifndef CONFIG_REALME_RETARD
     //Nan.Zhong@PSW.MM.AudioDriver.Codec, 2019/07/05, Modify for aec problem
     /*
 	if (ret) {
     */
-    #else /* VENDOR_EDIT */
+    #else /* CONFIG_REALME_RETARD */
 	if (!ret) {
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_REALME_RETARD */
 		pr_err("%s: fail to get channel weight with error %d\n",
 			__func__, ret);
 		goto fail_cmd;
@@ -2963,12 +2963,12 @@ static int adm_arrange_mch_ep2_map_v8(
  *
  * Returns 0 on success or error on failure
  */
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Jianfeng.Qiu@PSW.MM.AudioDriver.Platform.1859584, 2019/02/27,
  *Add for fix lvimfq not support sample_rate issue.
  */
 #define VOICE_TOPOLOGY_LVIMFQ_TX_DM    0x1000BFF5
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 	     int perf_mode, uint16_t bit_width, int app_type, int acdb_id,
@@ -3045,7 +3045,7 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 	    (topology == VPM_TX_DM_RFECNS_COPP_TOPOLOGY))
 		rate = 16000;
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Platform.1859584, 2019/02/27,
 	 *Add for fix lvimfq not support sample_rate issue.
 	 */
@@ -3055,7 +3055,7 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 			__func__, rate, topology);
 		rate = 48000;
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	/*
 	 * Routing driver reuses the same adm for streams with the same

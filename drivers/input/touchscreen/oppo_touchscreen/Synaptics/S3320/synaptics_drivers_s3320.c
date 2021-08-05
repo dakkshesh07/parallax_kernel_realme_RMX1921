@@ -1,6 +1,6 @@
 /**************************************************************
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * File       : synaptics_drivers_s3320.c
  * Description: Source file for synaptics S3320 driver
  * Version   : 1.0

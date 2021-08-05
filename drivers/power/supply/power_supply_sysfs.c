@@ -176,7 +176,7 @@ static ssize_t power_supply_store_property(struct device *dev,
 /* Must be in the same order as POWER_SUPPLY_PROP_* */
 static struct device_attribute power_supply_attrs[] = {
 	/* Properties of type `int' */
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Jianchao,Shi@BSP.CHG.Basic, 2016/12/20, sjc Add for charging */
 	POWER_SUPPLY_ATTR(charge_technology),
 	POWER_SUPPLY_ATTR(fastcharger),
@@ -196,7 +196,7 @@ static struct device_attribute power_supply_attrs[] = {
     POWER_SUPPLY_ATTR(usb_status),
     POWER_SUPPLY_ATTR(usbtemp_volt_l),
     POWER_SUPPLY_ATTR(usbtemp_volt_r),
-#endif  /* VENDOR_EDIT */
+#endif  /* CONFIG_REALME_RETARD */
 	POWER_SUPPLY_ATTR(status),
 	POWER_SUPPLY_ATTR(charge_type),
 	POWER_SUPPLY_ATTR(health),
@@ -346,7 +346,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(min_icl),
 	POWER_SUPPLY_ATTR(moisture_detected),
 	POWER_SUPPLY_ATTR(batt_profile_version),
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Jianchao,Shi@BSP.CHG.Basic, 2016/12/20, sjc Add for charging */
 	POWER_SUPPLY_ATTR(adapter_fw_update),
 	POWER_SUPPLY_ATTR(voocchg_ing),
@@ -360,7 +360,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(short_c_batt_in_idle),
 	POWER_SUPPLY_ATTR(short_c_batt_cv_status),
 #endif /*CONFIG_OPPO_SHORT_USERSPACE*/
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 	POWER_SUPPLY_ATTR(batt_full_current),
 	POWER_SUPPLY_ATTR(recharge_soc),
 	POWER_SUPPLY_ATTR(toggle_stat),
@@ -381,7 +381,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(real_capacity),
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_ATTR(charge_counter_ext),
-#ifdef VENDOR_EDIT//Fanhong.Kong@PSW.BSP.CHG, 2017/10/20, Add for hw battery check
+#ifdef CONFIG_REALME_RETARD//Fanhong.Kong@PSW.BSP.CHG, 2017/10/20, Add for hw battery check
 #ifdef CONFIG_OPPO_SHORT_HW_CHECK
 	POWER_SUPPLY_ATTR(short_c_hw_feature),
 	POWER_SUPPLY_ATTR(short_c_hw_status),
@@ -391,7 +391,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(short_ic_volt_thresh),
 	POWER_SUPPLY_ATTR(short_ic_otp_value),
 #endif
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	/* Properties of type `const char *' */
 	POWER_SUPPLY_ATTR(model_name),
 	POWER_SUPPLY_ATTR(manufacturer),

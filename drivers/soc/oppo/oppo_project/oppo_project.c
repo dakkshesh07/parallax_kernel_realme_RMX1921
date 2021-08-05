@@ -37,19 +37,19 @@ unsigned int get_project(void)
         return format->nproject;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nan.Zhong@PSW.MM.AudioDriver.SmartPA, 2019/06/11, Add for export get_project
 EXPORT_SYMBOL(get_project);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 unsigned int is_project(OPPO_PROJECT project)
 {
         return (get_project() == project?1:0);
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Hui.Fan@PSW.BSP.OPPOFeature.Hypnus, 2017-7-17, export is_project */
 EXPORT_SYMBOL(is_project);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 unsigned char get_PCB_Version(void)
 {
@@ -58,12 +58,12 @@ unsigned char get_PCB_Version(void)
         }
         return format->npcbversion;
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2018/07/09,
  * Add for export get_PCB_Version
  */
 EXPORT_SYMBOL(get_PCB_Version);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 unsigned char get_Modem_Version(void)
 {
@@ -90,7 +90,7 @@ unsigned char get_Oppo_Boot_Mode(void)
         return  format->noppobootmode;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Fei.Mo@BSP.Bootloader.Bootflows, 2019/03/07, Add for diff manifest*/
 #define MANIFEST_LEN 2
 static const char* manifest = "manifest";
@@ -128,7 +128,7 @@ static const char* manifest_src[MANIFEST_LEN] = {
 late_initcall(update_manifest);
 #endif
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 static int __init update_feature(void)
 {
 	mm_segment_t fs;
@@ -276,7 +276,7 @@ struct file_operations oppoBootmode_proc_fops = {
         .read = oppoBootmode_read_proc,
 };
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Ziqing.Guo@BSP.Fingerprint.Secure 2017/03/28 Add for displaying secure boot switch*/
 #define OEM_SEC_BOOT_REG 0x780350 /*sdm660
 */
@@ -306,9 +306,9 @@ static ssize_t secureType_read_proc(struct file *file, char __user *buf,
         *off += len < count ? len : count;
         return (len < count ? len : count);
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Ziqing.Guo@BSP.Fingerprint.Secure 2017/04/16 Add for distinguishing secureboot stage*/
 #define OEM_SEC_ENABLE_ANTIROLLBACK_REG 0x78019c /*sdm660
 */
@@ -338,18 +338,18 @@ static ssize_t secureStage_read_proc(struct file *file, char __user *buf,
         *off += len < count ? len : count;
         return (len < count ? len : count);
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 struct file_operations secureType_proc_fops = {
         .read = secureType_read_proc,
 };
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Ziqing.Guo@BSP.Fingerprint.Secure 2017/04/16 Add for distinguishing secureboot stage*/
 struct file_operations secureStage_proc_fops = {
         .read = secureStage_read_proc,
 };
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #define QFPROM_RAW_SERIAL_NUM 0x00786134 /*different at each platform, please ref boot_images\core\systemdrivers\hwio\scripts\xxx\hwioreg.per
 */
@@ -436,7 +436,7 @@ struct file_operations ocp_proc_fops = {
         .read = ocplog_read_proc,
 };
 
-/*#ifdef VENDOR_EDIT*/
+/*#ifdef CONFIG_REALME_RETARD*/
 /* Cong.Dai@psw.bsp.tp 2019/06/27 add for sw_ver start*/
 /*sw_version = 0x00,  release
  *sw_version = 0x01,  aging
@@ -547,7 +547,7 @@ struct file_operations confidential_proc_fops = {
         .open  = simple_open,
         .owner = THIS_MODULE,
 };
-/*#endif VENDOR_EDIT*/
+/*#endif CONFIG_REALME_RETARD*/
 
 /*RPMB_KEY_PROVISIONED 24bit 0x780178 in the Anti-rollback*/
 /*This register must get from xxx_qfprom_programming_reference_guide.xlsm*/
@@ -594,10 +594,10 @@ static int __init oppo_project_init(void)
                 g_serial_id = 0xffffffff;
         }
 
-        #ifdef VENDOR_EDIT
+        #ifdef CONFIG_REALME_RETARD
         // Cong.Dai@psw.bsp.tp, 2019.06.15, add for init engineering version
         get_eng_version();
-        #endif /* VENDOR_EDIT */
+        #endif /* CONFIG_REALME_RETARD */
 
         oppoVersion =  proc_mkdir("oppoVersion", NULL);
         if (!oppoVersion) {
@@ -635,14 +635,14 @@ static int __init oppo_project_init(void)
                 goto ERROR_INIT_VERSION;
         }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Ziqing.Guo@BSP.Fingerprint.Secure 2017/04/16 Add for distinguishing secureboot stage*/
         pentry = proc_create("secureStage", S_IRUGO, oppoVersion, &secureStage_proc_fops);
         if (!pentry) {
                 pr_err("create secureStage proc failed.\n");
                 goto ERROR_INIT_VERSION;
         }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
         pentry = proc_create("serialID", S_IRUGO, oppoVersion, &serialID_proc_fops);
         if (!pentry) {
                 pr_err("create serialID proc failed.\n");
@@ -655,7 +655,7 @@ static int __init oppo_project_init(void)
                 goto ERROR_INIT_VERSION;
         }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Cong.Dai@psw.bsp.tp, 2019.06.15, add for init engineering version file*/
         pentry = proc_create("engVersion", S_IRUGO, oppoVersion, &eng_version_proc_fops);
         if (!pentry) {
@@ -667,7 +667,7 @@ static int __init oppo_project_init(void)
                 pr_err("create isConfidential proc failed.\n");
                 goto ERROR_INIT_VERSION;
         }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
         return ret;
 ERROR_INIT_VERSION:
                 remove_proc_entry("oppoVersion", NULL);

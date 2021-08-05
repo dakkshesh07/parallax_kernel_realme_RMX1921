@@ -18,7 +18,7 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 
-		/* #ifdef VENDOR_EDIT */
+		/* #ifdef CONFIG_REALME_RETARD */
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Add for audio config */
                 sec_mi2s_bclk {
                         sec_mi2s_bclk_sleep: sec_mi2s_bclk_sleep {
@@ -106,7 +106,7 @@
                                 };
                         };
                 };
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 
 		lpi_mclk0_active: lpi_mclk0_active {
 			mux {
@@ -361,7 +361,7 @@
 		cdc_dmic12_gpios_sleep: dmic12_gpios_sleep {
 			mux {
 				pins = "gpio26", "gpio28";
-				//#ifndef VENDOR_EDIT
+				//#ifndef CONFIG_REALME_RETARD
 				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
 				//function = "func1";
 				//#else
@@ -373,7 +373,7 @@
 				pins = "gpio26", "gpio28";
 				drive-strength = <2>;
 				bias-disable;
-				//#ifndef VENDOR_EDIT
+				//#ifndef CONFIG_REALME_RETARD
 				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
 				//output-low;
 				//#else
@@ -398,7 +398,7 @@
 		cdc_dmic34_gpios_sleep: dmic34_gpios_sleep {
 			mux {
 				pins = "gpio27", "gpio29";
-				//#ifndef VENDOR_EDIT
+				//#ifndef CONFIG_REALME_RETARD
 				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
 				//function = "func1";
 				//#else
@@ -409,7 +409,7 @@
 			config {
 				pins = "gpio27", "gpio29";
 				drive-strength = <2>;
-				//#ifndef VENDOR_EDIT
+				//#ifndef CONFIG_REALME_RETARD
 				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
 				//pull-down;
 				//#else

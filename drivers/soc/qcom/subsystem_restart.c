@@ -40,9 +40,9 @@
 #include <asm/current.h>
 #include <linux/timer.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
+#ifdef CONFIG_REALME_RETARD //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #include "peripheral-loader.h"
 
@@ -1194,7 +1194,7 @@ static void device_restart_work_hdlr(struct work_struct *work)
 							dev->desc->name);
 }
 
-#ifdef VENDOR_EDIT //yixue.ge add for modem subsystem crash
+#ifdef CONFIG_REALME_RETARD //yixue.ge add for modem subsystem crash
 int subsystem_restart_dev_level(struct subsys_device *dev,int restart_level)
 {
 	int rc = 0;
@@ -1760,7 +1760,7 @@ struct subsys_device *subsys_register(struct subsys_desc *desc)
 	subsys->dev.bus = &subsys_bus_type;
 	subsys->dev.release = subsys_device_release;
 	subsys->notif_state = -1;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 	/*YiXue.Ge@PSW.BSP.Kernel.Driver,2017/05/15 ,
 	 * Add for init subsyst restart level as RESET_SUBSYS_COUPLED at mp build
 	 */

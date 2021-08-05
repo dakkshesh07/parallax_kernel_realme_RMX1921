@@ -56,7 +56,7 @@
 			qcom,ion-heap-type = "DMA";
 		};
 
-		/* #ifdef VENDOR_EDIT */
+		/* #ifdef CONFIG_REALME_RETARD */
 		/* luhongyu@BSP.Fingerprint.Secure 2018/12/26, add for secure dsp */
 		qcom,ion-heap@14 {
 			reg = <14>;

@@ -56,12 +56,12 @@ enum tfa_error tfa_load_cnt(void *cnt, int length) {
         return tfa_error_container;
 
     if ( (HDR(cntbuf->id[0],cntbuf->id[1])) != paramsHdr ) {
-        #ifndef VENDOR_EDIT
+        #ifndef CONFIG_REALME_RETARD
         /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08,Modify for code error*/
         pr_err("wrong header type: 0x%02x 0x%02x\n", cntbuf->id[0],g_cont->id[1]);
-        #else /* VENDOR_EDIT */
+        #else /* CONFIG_REALME_RETARD */
         pr_err("wrong header type: 0x%02x\n", cntbuf->id[0]);
-        #endif /* VENDOR_EDIT */
+        #endif /* CONFIG_REALME_RETARD */
         return tfa_error_container;
     }
 
@@ -654,11 +654,11 @@ int tfa_cnt_get_devid(nxpTfaContainer_t *cnt, int dev_idx) {
     patchdsc += 2; /* first the filename dsc and filesize, so skip them */
     patchfile = (nxpTfaPatch_t *)patchdsc;
 
-    #ifndef VENDOR_EDIT
+    #ifndef CONFIG_REALME_RETARD
     /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08, Remove for code warning*/
     if (patchfile==NULL)
         return 0;
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_REALME_RETARD */
 
     patchheader = patchfile->data;
 
@@ -1345,12 +1345,12 @@ enum Tfa98xx_Error tfaContWriteProfile(int dev_idx, int prof_idx, int vstep_idx)
     nxpTfaCmd_t *cmd;
     int size = 0, ready, fs_previous_profile = 8; /* default fs is 48kHz*/
 
-    #ifndef VENDOR_EDIT
+    #ifndef CONFIG_REALME_RETARD
     /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08, Modify for code error*/
     if ( !prof )
-    #else /* VENDOR_EDIT */
+    #else /* CONFIG_REALME_RETARD */
     if ( !prof || !previous_prof)
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_REALME_RETARD */
         return Tfa98xx_Error_Bad_Parameter;
 
     if ( tfa98xx_cnt_verbose ) {

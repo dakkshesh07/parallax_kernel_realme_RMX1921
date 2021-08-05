@@ -22,10 +22,10 @@
 #include "codecs/msm_sdw/msm_sdw.h"
 #include <linux/pm_qos.h>
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* xiang.fei@PSW.MM.AudioDriver.SmartPA, 2019/02/25, Add for SmartPA */
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #define __CHIPSET__ "SDM660 "
 #define MSM_DAILINK_NAME(name) (__CHIPSET__#name)
@@ -35,12 +35,12 @@
 #define WCN_CDC_SLIM_RX_CH_MAX 2
 #define WCN_CDC_SLIM_TX_CH_MAX 3
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 static unsigned long clk_on_jiffies = 0;
 static unsigned long clk_off_jiffies = 0;
 static unsigned int clk_switch_us = 52*1000; //52ms
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #define WSA8810_NAME_1 "wsa881x.20170211"
 #define WSA8810_NAME_2 "wsa881x.20170212"
@@ -1104,22 +1104,22 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 	struct msm_asoc_mach_data *pdata = NULL;
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
 	int ret = 0;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 	static bool dmic_active = false;
 	unsigned int interval_us = 0;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	pdata = snd_soc_card_get_drvdata(codec->component.card);
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2019/03/22, Modify for print log*/
 	pr_debug("%s: event = %d\n", __func__, event);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	pr_info("%s: event = %d\n", __func__, event);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 		if (is_project(OPPO_18097)) {
 			if (!dmic_active) {
@@ -1135,14 +1135,14 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 				}
 			}
 		}
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_REALME_RETARD */
 		ret = msm_cdc_pinctrl_select_active_state(pdata->dmic_gpio_p);
 		if (ret < 0) {
 			pr_err("%s: gpio set cannot be activated %sd",
 					__func__, "dmic_gpio");
 			return ret;
 		}
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 		if (is_project(OPPO_18097)) {
 			if (!dmic_active) {
@@ -1150,7 +1150,7 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 				clk_on_jiffies = jiffies;
 			}
 		}
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_REALME_RETARD */
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		ret = msm_cdc_pinctrl_select_sleep_state(pdata->dmic_gpio_p);
@@ -1159,14 +1159,14 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 					__func__, "dmic_gpio");
 			return ret;
 		}
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 		if (is_project(OPPO_18097)) {
 			if (dmic_active) {
 				dmic_active = false;
 			}
 		}
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_REALME_RETARD */
 		break;
 	default:
 		pr_err("%s: invalid DAPM event %d\n", __func__, event);
@@ -1183,12 +1183,12 @@ static int msm_int_mclk0_event(struct snd_soc_dapm_widget *w,
 	int ret = 0;
 
 	pdata = snd_soc_card_get_drvdata(codec->component.card);
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2019/03/22, Modify for print log*/
 	pr_debug("%s: event = %d\n", __func__, event);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	pr_info("%s: event = %d\n", __func__, event);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		ret = msm_cdc_pinctrl_select_active_state(pdata->pdm_gpio_p);
@@ -1228,12 +1228,12 @@ static int msm_int_dig_mclk0_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
 
 	pdata = snd_soc_card_get_drvdata(codec->component.card);
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2019/03/22, Add for print log*/
 	pr_debug("%s: event = %d\n", __func__, event);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	pr_info("%s: event = %d\n", __func__, event);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		msm_digcdc_mclk_enable(codec, 1, true);
@@ -1417,14 +1417,14 @@ static int msm_int_mi2s_snd_startup(struct snd_pcm_substream *substream)
 	struct msm_asoc_mach_data *pdata = NULL;
 
 	pdata = snd_soc_card_get_drvdata(codec->component.card);
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2019/03/22, Add for print log*/
 	pr_debug("%s(): substream = %s  stream = %d\n", __func__,
 		 substream->name, substream->stream);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	pr_info("%s(): substream = %s  stream = %d\n", __func__,
 		 substream->name, substream->stream);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	ret = int_mi2s_set_sclk(substream, true);
 	if (ret < 0) {
@@ -1467,21 +1467,21 @@ static int msm_int_dig_mi2s_snd_startup(struct snd_pcm_substream *substream)
 static void msm_int_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 {
 	int ret;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 	unsigned int interval_us = 0;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2019/03/22, Add for print log*/
 	pr_debug("%s(): substream = %s  stream = %d\n", __func__,
 			substream->name, substream->stream);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	pr_info("%s(): substream = %s  stream = %d\n", __func__,
 			substream->name, substream->stream);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 	if (is_project(OPPO_18097)) {
 		if (substream->stream == 1) {
@@ -1497,21 +1497,21 @@ static void msm_int_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 			}
 		}
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	ret = int_mi2s_set_sclk(substream, false);
 	if (ret < 0)
 		pr_err("%s:clock disable failed; ret=%d\n", __func__,
 				ret);
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
 	if (is_project(OPPO_18097)) {
 		if ((substream->stream == 1) && (ret >= 0)) {
 			clk_off_jiffies = jiffies;
 		}
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 }
 
 static void *def_msm_int_wcd_mbhc_cal(void)
@@ -1526,12 +1526,12 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 		return NULL;
 
 #define S(X, Y) ((WCD_MBHC_CAL_PLUG_TYPE_PTR(msm_int_wcd_cal)->X) = (Y))
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2017/03/06,
 	 *Modify for headset detect.
 	 */
 	S(v_hs_max, 1500);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	S(v_hs_max, 1700);
 	#endif
 #undef S
@@ -1556,7 +1556,7 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 	 * 210-290 == Button 2
 	 * 360-680 == Button 3
 	 */
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2017/03/03,
 	 *Modify for headset button threshold.
 	 */
@@ -1570,7 +1570,7 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 	btn_high[3] = 450;
 	btn_low[4] = 500;
 	btn_high[4] = 500;
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	btn_low[0] = 60;		/* Hook ,0 ~ 160 Ohm*/
 	btn_high[0] = 130;
 	btn_low[1] = 131;
@@ -1581,7 +1581,7 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 	btn_high[3] = 425;
 	btn_low[4] = 426;
 	btn_high[4] = 426;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	return msm_int_wcd_cal;
 }
@@ -1850,7 +1850,7 @@ static int msm_snd_card_late_probe(struct snd_soc_card *card)
 	return ret;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDAC 2015/06/03,
  * Add for no sound when ap suspend in call.
  */
@@ -1871,7 +1871,7 @@ static int ak4376_audrx_init(struct snd_soc_pcm_runtime *rtd)
 
 	return 0;
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 static struct snd_soc_ops msm_tdm_be_ops = {
 	.startup = msm_tdm_snd_startup,
@@ -2147,10 +2147,10 @@ static struct snd_soc_dai_link msm_int_dai[] = {
 		.cpu_dai_name = "INT3_MI2S_TX_HOSTLESS",
 		.platform_name = "msm-pcm-hostless",
 		.dynamic = 1,
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2017/02/20, Add for loopback test*/
 		.dpcm_playback = 1,
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_REALME_RETARD */
 		.dpcm_capture = 1,
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST,
 			    SND_SOC_DPCM_TRIGGER_POST},
@@ -3100,7 +3100,7 @@ static struct snd_soc_dai_link msm_int_common_be_dai[] = {
 	},
 };
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDAC, 2017/09/21, Add for ak43xx */
 static struct snd_soc_dai_link ak43xx_be_dai_links[] = {
 	{
@@ -3120,9 +3120,9 @@ static struct snd_soc_dai_link ak43xx_be_dai_links[] = {
 		.ignore_pmdown_time = 1,
 	},
 };
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* Jianfeng.Qiu@PSW.MM.AudioDriver.SmartPA, 2017/09/21, Add for tfa98xx */
 static struct snd_soc_dai_link tfa98xx_be_dai_links[] = {
 	{
@@ -3141,9 +3141,9 @@ static struct snd_soc_dai_link tfa98xx_be_dai_links[] = {
 		.ignore_pmdown_time = 1,
 	},
 };
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* xiang.fei@PSW.MM.AudioDriver.SmartPA, 2019/02/25, Add for tfa98xx */
 static struct snd_soc_dai_link tfa98xx_be_dai_links_new[] = {
 	{
@@ -3162,7 +3162,7 @@ static struct snd_soc_dai_link tfa98xx_be_dai_links_new[] = {
 		.ignore_pmdown_time = 1,
 	},
 };
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 static struct snd_soc_dai_link msm_mi2s_be_dai_links[] = {
 	{
 		.name = LPASS_BE_PRI_MI2S_RX,
@@ -3634,7 +3634,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 	int len1;
 
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2017/01/23,
 	 * Add for custom audio.
 	 */
@@ -3643,7 +3643,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 	const char *oppo_speaker_type = "oppo,speaker-pa";
 	const char *oppo_headphone_type = "oppo,headphone-pa";
 	struct snd_soc_dai_link *temp_link;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	if (snd_card_val == INT_SND_CARD)
 		card = &sdm660_card;
@@ -3680,7 +3680,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 
 	if (of_property_read_bool(dev->of_node,
 				  "qcom,mi2s-audio-intf")) {
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2017/01/23,
 		 * Add for custom audio.
 		 */
@@ -3728,7 +3728,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 				}
 			}
 		}
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_REALME_RETARD */
 
 		memcpy(dailink + len1,
 		       msm_mi2s_be_dai_links,

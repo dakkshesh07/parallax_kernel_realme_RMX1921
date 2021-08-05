@@ -72,21 +72,21 @@ EXPORT_SYMBOL(msm_drm_unregister_client);
  * @v: notifier data, inculde display id and display blank
  *     event(unblank or power down).
  */
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add for  export drm_notifier*/
 static int msm_drm_notifier_call_chain(unsigned long val, void *v)
 {
 	return blocking_notifier_call_chain(&msm_drm_notifier_list, val,
 					    v);
 }
-#else /*VENDOR_EDIT*/
+#else /*CONFIG_REALME_RETARD*/
 int msm_drm_notifier_call_chain(unsigned long val, void *v)
 {
 	return blocking_notifier_call_chain(&msm_drm_notifier_list, val,
 					    v);
 }
 EXPORT_SYMBOL(msm_drm_notifier_call_chain);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 /* block until specified crtcs are no longer pending update, and
  * atomically mark them as pending update
@@ -266,7 +266,7 @@ msm_disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 		DRM_DEBUG_ATOMIC("disabling [ENCODER:%d:%s]\n",
 				 encoder->base.id, encoder->name);
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add for  remove original drm notify*/
 		blank = MSM_DRM_BLANK_POWERDOWN;
 		notifier_data.data = &blank;
@@ -289,7 +289,7 @@ msm_disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 			funcs->dpms(encoder, DRM_MODE_DPMS_OFF);
 
 		drm_bridge_post_disable(encoder->bridge);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-mo@PSW.MM.Display.Lcd.Stability, 2018/9/26,add for  remove original drm notify*/
 		//msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK,
 		//			    &notifier_data);
@@ -496,11 +496,11 @@ static void msm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 			notifier_data.id =
 				connector->state->crtc->index;
 			DRM_DEBUG_ATOMIC("Notify early unblank\n");
-			#ifdef VENDOR_EDIT
+			#ifdef CONFIG_REALME_RETARD
 			/*Song.Gao@PSW.MM.Display.Lcd.Stability, 2019-08-02,add for remove original drm notify for bug 2191330*/
 			//msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
 			//    &notifier_data);
-			#endif /*VENDOR_EDIT*/
+			#endif /*CONFIG_REALME_RETARD*/
 		}
 		/*
 		 * Each encoder has at most one connector (since we always steal
@@ -548,11 +548,11 @@ static void msm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 		drm_bridge_enable(encoder->bridge);
 		if (connector->state->crtc->state->active_changed) {
 			DRM_DEBUG_ATOMIC("Notify unblank\n");
-			#ifdef VENDOR_EDIT
+			#ifdef CONFIG_REALME_RETARD
 			/*Song.Gao@PSW.MM.Display.Lcd.Stability, 2019-08-02,add for remove original drm notify for bug 2191330*/
 			//msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK,
 			//		    &notifier_data);
-			#endif /*VENDOR_EDIT*/
+			#endif /*CONFIG_REALME_RETARD*/
 		}
 	}
 	SDE_ATRACE_END("msm_enable");

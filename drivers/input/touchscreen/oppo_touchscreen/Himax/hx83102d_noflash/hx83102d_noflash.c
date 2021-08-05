@@ -1,6 +1,6 @@
 /**************************************************************
  * Copyright (c)  2008- 2019  Oppo Mobile communication Corp.ltd
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * File       : hx83102d_noflash.c
  * Description: Source file for hx83102d driver
  * Version   : 1.0

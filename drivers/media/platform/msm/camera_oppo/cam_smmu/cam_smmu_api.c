@@ -1298,7 +1298,7 @@ end:
 	return rc;
 }
 EXPORT_SYMBOL(cam_smmu_dealloc_qdss);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 int cam_smmu_get_io_region_info(int32_t smmu_hdl,
 	dma_addr_t *iova, size_t *len)

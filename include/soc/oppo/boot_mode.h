@@ -1,6 +1,6 @@
 /************************************************************************************
 ** File: - android\kernel\arch\arm\mach-msm\include\mach\oppo_boot.h
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** Copyright (C), 2008-2012, OPPO Mobile Comm Corp., Ltd
 ** 
 ** Description:  
@@ -27,17 +27,17 @@ enum{
 };
 
 extern int get_boot_mode(void);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Fuchun.Liao@Mobile.BSP.CHG 2016-01-14 add for charge*/
 extern bool qpnp_is_power_off_charging(void);
 #endif
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*PengNan@SW.BSP add for detect charger when reboot 2016-04-22*/
 extern bool qpnp_is_charger_reboot(void);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 #endif  /*_OPPO_BOOT_H*/
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Liang.Zhang@PSW.TECH.BOOTUP 2018/10/16,  Add for kernel monitor whole bootup*/
 #ifdef HANG_OPPO_ALL
 extern bool op_is_monitorable_boot(void);

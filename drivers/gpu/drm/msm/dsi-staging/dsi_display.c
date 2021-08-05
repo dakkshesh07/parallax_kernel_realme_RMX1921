@@ -32,7 +32,7 @@
 #include "dsi_pwr.h"
 #include "sde_dbg.h"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018-09-26,add for drm notifier for display connect*/
 #include <linux/oppo_checks.h>
 #include <linux/msm_drm_notify.h>
@@ -161,11 +161,11 @@ void dsi_rect_intersect(const struct dsi_rect *r1,
 	}
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add for ffl feature */
 extern int oppo_start_ffl_thread(void);
 extern void oppo_stop_ffl_thread(void);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 int dsi_display_set_backlight(void *display, u32 bl_lvl)
 {
@@ -186,7 +186,7 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 		goto error;
 	}
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*liping-m@PSW.MM.Display.LCD.Stable,2018-09-26 add key log for debug */
 	pr_err("backlight level change to %d\n", bl_lvl);
 
@@ -214,15 +214,15 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 	/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add for ffl feature */
 		oppo_start_ffl_thread();
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	panel->bl_config.bl_level = bl_lvl;
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add for ffl feature */
 	if (oppo_ffl_trigger_finish == false)
 		goto error;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 
 	/* scale backlight */
 	bl_scale = panel->bl_config.bl_scale;
@@ -242,7 +242,7 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 		goto error;
 	}
 
-	//#ifdef VENDOR_EDIT
+	//#ifdef CONFIG_REALME_RETARD
 	/*Mark.Yao@PSW.MM.Display.LCD.Stability,2018/4/28,add for silence reboot*/
 	if(lcd_closebl_flag) {
 		pr_err("silence reboot we should set backlight to zero\n");
@@ -250,7 +250,7 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 	} else if (bl_lvl) {
 		lcd_closebl_flag_fp = 0;
 	}
-	//#endif /*VENDOR_EDIT*/
+	//#endif /*CONFIG_REALME_RETARD*/
 
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
 	if (rc)
@@ -269,7 +269,7 @@ error:
 	return rc;
 }
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 static int dsi_display_cmd_engine_enable(struct dsi_display *display)
 #else
 int dsi_display_cmd_engine_enable(struct dsi_display *display)
@@ -317,7 +317,7 @@ done:
 	return rc;
 }
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 static int dsi_display_cmd_engine_disable(struct dsi_display *display)
 #else
 int dsi_display_cmd_engine_disable(struct dsi_display *display)
@@ -517,7 +517,7 @@ static bool dsi_display_is_te_based_esd(struct dsi_display *display)
 }
 
 /* Allocate memory for cmd dma tx buffer */
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 static int dsi_host_alloc_cmd_tx_buffer(struct dsi_display *display)
 #else
 int dsi_host_alloc_cmd_tx_buffer(struct dsi_display *display)
@@ -1057,7 +1057,7 @@ static bool dsi_display_get_cont_splash_status(struct dsi_display *display)
 	return true;
 }
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 /*liping-mo@PSW.MM.Display.Lcd.Stability, 2018-09-26,add to mark power states*/
 /**
 *For kernel space :
@@ -1073,7 +1073,7 @@ static bool dsi_display_get_cont_splash_status(struct dsi_display *display)
 *DOZE_SUSPEND, 2
 */
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 //*liping-m@PSW.MM.Display.LCD.Stability, 2018-09-26,implement our set power mode here/
 int dsi_display_set_power(struct drm_connector *connector,
 		int power_mode, void *disp)
@@ -1099,7 +1099,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 	}
 	return rc;
 }
-#else /*VENDOR_EDIT*/
+#else /*CONFIG_REALME_RETARD*/
 extern bool sde_crtc_get_fingerprint_mode(struct drm_crtc_state *crtc_state);
 extern bool sde_crtc_get_fingerprint_pressed(struct drm_crtc_state *crtc_state);
 static bool sde_connector_get_fp_mode(struct drm_connector *connector)
@@ -1198,7 +1198,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 	}
 	return rc;
 }
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 static ssize_t debugfs_dump_info_read(struct file *file,
 				      char __user *user_buf,
@@ -4971,7 +4971,7 @@ static int dsi_display_bind(struct device *dev,
 	}
 	priv = drm->dev_private;
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*liping-m@PSW.MM.Display.LCD.Stability, 2018-09-26,,add for save select panel and give different feature*/
 	if(0 != set_oppo_display_vendor(display->name)) {
 		pr_err("maybe send a null point to oppo display manager\n");
@@ -4982,7 +4982,7 @@ static int dsi_display_bind(struct device *dev,
 		lcd_closebl_flag = 1;
 		lcd_closebl_flag_fp = 1;
 	}
-	#endif /*VENDOR_EDIT*/
+	#endif /*CONFIG_REALME_RETARD*/
 
 	mutex_lock(&display->display_lock);
 
@@ -6864,7 +6864,7 @@ int dsi_display_enable(struct dsi_display *display)
 
 		display->panel->panel_initialized = true;
 		pr_debug("cont splash enabled, display enable not required\n");
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //*liping-m@PSW.MM.Display.LCD.Stability, 2018-09-26,,when continous splash enabled, we should set power mode to OPPO_DISPLAY_POWER_ON here*/
 		set_oppo_display_power_status(OPPO_DISPLAY_POWER_ON);
 #endif
@@ -6976,12 +6976,12 @@ int dsi_display_pre_disable(struct dsi_display *display)
 
 	mutex_lock(&display->display_lock);
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Mark.Yao@PSW.MM.Display.LCD.Stable,2018-11-26 fix race on backlight and power change */
 	display->panel->need_power_on_backlight = false;
 	/*Mark.Yao@PSW.MM.Display.LCD.Stable,2018-10-25 fix ffl dsi abnormal on esd scene */
 	oppo_stop_ffl_thread();
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 	/* enable the clk vote for CMD mode panels */
 	if (display->config.panel_mode == DSI_OP_CMD_MODE)
 		dsi_display_clk_ctrl(display->dsi_clk_handle,
@@ -6999,7 +6999,7 @@ int dsi_display_pre_disable(struct dsi_display *display)
 int dsi_display_disable(struct dsi_display *display)
 {
 	int rc = 0;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability, 2018-09-26, add a notify for when disable display*/
 	int blank;
 	struct msm_drm_notifier notifier_data;
@@ -7010,7 +7010,7 @@ int dsi_display_disable(struct dsi_display *display)
 		return -EINVAL;
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability, 2018-09-26, add a notify for when disable display*/
 	blank = MSM_DRM_BLANK_POWERDOWN;
 	notifier_data.data = &blank;
@@ -7048,7 +7048,7 @@ int dsi_display_disable(struct dsi_display *display)
 
 	mutex_unlock(&display->display_lock);
 	SDE_EVT32(SDE_EVTLOG_FUNC_EXIT);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26, add a notify for when disable display*/
 	set_oppo_display_scene(OPPO_DISPLAY_NORMAL_SCENE);
 	msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK,
@@ -7141,7 +7141,7 @@ int dsi_display_unprepare(struct dsi_display *display)
 	return rc;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for support aod,hbm,seed*/
 struct dsi_display *get_main_display(void) {
 		return primary_display;

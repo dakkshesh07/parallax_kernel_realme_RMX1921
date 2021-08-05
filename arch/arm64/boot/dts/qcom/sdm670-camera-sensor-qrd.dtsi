@@ -66,10 +66,10 @@
 		regulator-max-microvolt = <1200000>;
 		regulator-enable-ramp-delay = <233>;
 		enable-active-high;
-		/* #ifndef VENDOR_EDIT */
+		/* #ifndef CONFIG_REALME_RETARD */
 		/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
 		//gpio = <&pm660l_gpios 4 0>;
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		vin-supply = <&pm660_s6>;
 	};
 
@@ -105,16 +105,16 @@
 		regulator-max-microvolt = <1200000>;
 		regulator-enable-ramp-delay = <233>;
 		enable-active-high;
-		/* #ifndef VENDOR_EDIT */
+		/* #ifndef CONFIG_REALME_RETARD */
 		/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
 		//gpio = <&pm660l_gpios 3 0>;
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		vin-supply = <&pm660_s6>;
 	};
 };
 
 &tlmm {
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 	//cam_sensor_rear_active: cam_sensor_rear_active {
 	//	/* RESET */
@@ -143,7 +143,7 @@
 	//		drive-strength = <2>; /* 2 MA */
 	//	};
 	//};
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 
 	cam_sensor_rear2_active: cam_sensor_rear2_active {
 		/* RESET */
@@ -173,7 +173,7 @@
 		};
 	};
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 	//cam_sensor_front_active: cam_sensor_front_active {
 	//	/* RESET */
@@ -202,7 +202,7 @@
 	//		drive-strength = <2>; /* 2 MA */
 	//	};
 	//};
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 };
 
 &cam_cci {
@@ -266,7 +266,7 @@
 		rgltr-max-voltage = <1800000 2850000 1200000 0 2800000>;
 		rgltr-load-current = <0 80000 105000 0 0>;
 		gpio-no-mux = <0>;
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 		//pinctrl-names = "cam_default", "cam_suspend";
 		//pinctrl-0 = <&cam_sensor_mclk0_active
@@ -275,7 +275,7 @@
 		//		&cam_sensor_rear_suspend>;
 		//gpios = <&tlmm 13 0>,
 		//	<&tlmm 30 0>;
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 		gpio-reset = <1>;
 		gpio-req-tbl-num = <0 1>;
 		gpio-req-tbl-flags = <1 0>;
@@ -307,7 +307,7 @@
 		rgltr-max-voltage = <1200000 1800000 2850000 0 2800000>;
 		rgltr-load-current = <105000 0 80000 0 0>;
 		gpio-no-mux = <0>;
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 		//pinctrl-names = "cam_default", "cam_suspend";
 		//pinctrl-0 = <&cam_sensor_mclk1_active
@@ -316,7 +316,7 @@
 		//		 &cam_sensor_front_suspend>;
 		//gpios = <&tlmm 14 0>,
 		//	<&tlmm 28 0>;
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 		gpio-reset = <1>;
 		gpio-req-tbl-num = <0 1>;
 		gpio-req-tbl-flags = <1 0>;
@@ -392,7 +392,7 @@
 		rgltr-max-voltage = <1800000 2850000 1200000 0>;
 		rgltr-load-current = <0 80000 105000 0>;
 		gpio-no-mux = <0>;
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 		//pinctrl-names = "cam_default", "cam_suspend";
 		//pinctrl-0 = <&cam_sensor_mclk0_active
@@ -401,7 +401,7 @@
 		//		&cam_sensor_rear_suspend>;
 		//gpios = <&tlmm 13 0>,
 		//	<&tlmm 30 0>;
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 		gpio-reset = <1>;
 		gpio-req-tbl-num = <0 1>;
 		gpio-req-tbl-flags = <1 0>;
@@ -438,7 +438,7 @@
 		rgltr-max-voltage = <1200000 1800000 2850000 0>;
 		rgltr-load-current = <105000 0 80000 0>;
 		gpio-no-mux = <0>;
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 		//pinctrl-names = "cam_default", "cam_suspend";
 		//pinctrl-0 = <&cam_sensor_mclk1_active
@@ -447,7 +447,7 @@
 		//		&cam_sensor_front_suspend>;
 		//gpios = <&tlmm 14 0>,
 		//	<&tlmm 28 0>;
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 		gpio-reset = <1>;
 		gpio-req-tbl-num = <0 1>;
 		gpio-req-tbl-flags = <1 0>;

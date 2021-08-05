@@ -1580,7 +1580,7 @@ static void subsys_up(struct glink_transport_if *if_ptr)
 	bool ret = false;
 
 	einfo = container_of(if_ptr, struct edge_info, xprt_if);
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 	einfo->in_ssr = false;
 #endif
 	spin_lock_irqsave(&einfo->rx_lock, flags);
@@ -1592,7 +1592,7 @@ static void subsys_up(struct glink_transport_if *if_ptr)
 		}
 	}
 	spin_unlock_irqrestore(&einfo->rx_lock, flags);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 	einfo->in_ssr = false;
 #endif
 	if (ret)

@@ -51,11 +51,11 @@ int request_firmware_into_buf(const struct firmware **firmware_p,
 	const char *name, struct device *device, void *buf, size_t size);
 
 void release_firmware(const struct firmware *fw);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Tong.Han@Bsp.Group.Tp,2017-12-16,Add interface to get proper fw
 int request_firmware_select(const struct firmware **fw, const char *name,
 		     struct device *device);
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_REALME_RETARD*/
 #else
 static inline int request_firmware(const struct firmware **fw,
 				   const char *name,

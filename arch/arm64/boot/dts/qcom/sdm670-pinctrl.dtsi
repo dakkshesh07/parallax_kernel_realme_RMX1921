@@ -21,7 +21,7 @@
 		interrupt-controller;
 		#interrupt-cells = <2>;
 		interrupt-parent = <&pdc>;
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		//Wanghao@BSP.group 2018-04-18 add for vol key
 		key_vol_up {
 			key_vol_up_default: key_vol_up_default {
@@ -56,7 +56,7 @@
 		};
 		//#endif
 
-		// #ifdef VENDOR_EDIT
+		// #ifdef CONFIG_REALME_RETARD
 		/* luhongyu@BSP.Fingerprint.Basic, 2018/10/30, add for fpc fingerprint */
 		fpc_fpc1020{
 			gpio_fpc_irq_default: gpio_fpc_irq_default {
@@ -72,9 +72,9 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 
-		// #ifdef VENDOR_EDIT
+		// #ifdef CONFIG_REALME_RETARD
 		/* luhongyu@BSP.Fingerprint.Basic, 2018/10/30, add for fpc fingerprint */
 		oppo_fp_common{
 			gpio_id2_default: gpio_id2_default {
@@ -90,9 +90,9 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 
-		//ifdef VENDOR_EDIT
+		//ifdef CONFIG_REALME_RETARD
 		/* luhongyu@BSP.Fingerprint.Basic, 2017/10/30, add for goodix 3268 && 5288 */
 		goodix_fp{
 			gpio_goodix_irq_default: gpio_goodix_irq_default {
@@ -108,7 +108,7 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 
 		/* luhongyuo@BSP.Fingerprint.Basic, 2017/10/30, add for silead_fp fingerprint */
 		silead_fp{
@@ -177,7 +177,7 @@
 				            };
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 		ufs_dev_reset_assert: ufs_dev_reset_assert {
 			config {
 				pins = "ufs_reset";
@@ -375,9 +375,9 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 
-		/* #ifdef VENDOR_EDIT */
+		/* #ifdef CONFIG_REALME_RETARD */
 		/* xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx */
 		/* SE 2 pin mappings */
 		/*
@@ -409,7 +409,7 @@
 			};
 		};
 		*/
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 
 		qupv3_se2_spi_pins: qupv3_se2_spi_pins {
 			qupv3_se2_spi_active: qupv3_se2_spi_active {
@@ -442,7 +442,7 @@
 				};
 			};
 		};
-		//ifdef VENDOR_EDIT
+		//ifdef CONFIG_REALME_RETARD
 		/* wanghaoran@camera.driver. 2018/11/2, add for gpio of camera */
 		/* SE 3 pin mappings */
 		qupv3_se3_i2c_pins: qupv3_se3_i2c_pins {
@@ -472,8 +472,8 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
-		//#ifdef VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
+		//#ifdef CONFIG_REALME_RETARD
 		/* Wanghao@BSP.group 2018-04-15 add for tp int and reset pin*/
 		pmx_ts_int_active {
 			ts_int_active: ts_int_active {
@@ -505,7 +505,7 @@
 			};
 		};
 		//#endif
-		//ifdef VENDOR_EDIT
+		//ifdef CONFIG_REALME_RETARD
 		/* wanghaoran@camera.driver. 2018/11/2, add for gpio of camera */
 		qupv3_se3_spi_pins: qupv3_se3_spi_pins {
 			qupv3_se3_spi_active: qupv3_se3_spi_active {
@@ -564,7 +564,7 @@
 			};
 		};
 
-		/* #ifndef VENDOR_EDIT */
+		/* #ifndef CONFIG_REALME_RETARD */
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/10/26, Delete for audio driver*/
 		/*
 		qupv3_se4_spi_pins: qupv3_se4_spi_pins {
@@ -599,7 +599,7 @@
 			};
 		};
 		*/
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 
 		/* SE 5 pin mappings */
 		qupv3_se5_i2c_pins: qupv3_se5_i2c_pins {
@@ -793,7 +793,7 @@
 			};
 		};
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Remove for dbmdx
 		/*
 		qupv3_se7_4uart_pins: qupv3_se7_4uart_pins {
@@ -860,7 +860,7 @@
 			};
 		};
 		*/
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 
 		/* QUPv3 North instances */
 		/* SE 8 pin mappings */
@@ -1040,7 +1040,7 @@
 					bias-pull-up;
 				};
 			};
-			//#ifdef VENDOR_EDIT /* Jianchao.Shi@BSP.CHG.Basic, 2018/04/05, sjc Add for charging */
+			//#ifdef CONFIG_REALME_RETARD /* Jianchao.Shi@BSP.CHG.Basic, 2018/04/05, sjc Add for charging */
 			qupv3_se10_i2c_pulldown: qupv3_se10_i2c_pulldown {
 				mux {
 					pins = "gpio55", "gpio56";
@@ -1071,7 +1071,7 @@
 			//#endif
 		};
 
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		/* gaosong@PSW.MM.Display.LCD.Stability,2019/4/18 modify LCD_TE gpio54 status */
 		qupv3_se10_2uart_pins: qupv3_se10_2uart_pins {
 			qupv3_se10_2uart_active: qupv3_se10_2uart_active {
@@ -1132,7 +1132,7 @@
 				};
 			};
 		};
-		//#endif VENDOR_EDIT
+		//#endif CONFIG_REALME_RETARD
 
 		/* SE 11 pin mappings */
 		qupv3_se11_i2c_pins: qupv3_se11_i2c_pins {
@@ -1194,7 +1194,7 @@
 				};
 			};
 		};
-		//ifdef VENDOR_EDIT
+		//ifdef CONFIG_REALME_RETARD
 		/* wanghaoran@camera.driver. 2018/11/2, add for gpio of camera */
 		/* SE 12 pin mappings */
 		qupv3_se12_i2c_pins: qupv3_se12_i2c_pins {
@@ -1224,7 +1224,7 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 		qupv3_se12_2uart_pins: qupv3_se12_2uart_pins {
 			qupv3_se12_2uart_active: qupv3_se12_2uart_active {
 				mux {
@@ -1248,7 +1248,7 @@
 				config {
 					pins = "gpio51", "gpio52";
 					drive-strength = <2>;
-					//#ifdef VENDOR_EDIT /* tongfeng.Huang@BSP.CHG.Basic, 2018/06/26, sjc Add for charging */
+					//#ifdef CONFIG_REALME_RETARD /* tongfeng.Huang@BSP.CHG.Basic, 2018/06/26, sjc Add for charging */
 					input-enable;
 					bias-disable;
 					//#else
@@ -1289,7 +1289,7 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 
 		/* SE 13 pin mappings */
 		qupv3_se13_i2c_pins: qupv3_se13_i2c_pins {
@@ -1610,7 +1610,7 @@
 			};
 		};
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Add for dbmdx
 		dbmdx_reset_on: dbmdx_reset_on {
 			mux {
@@ -1663,9 +1663,9 @@
 				bias-disable;
 			};
 		};
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 
-		/* #ifndef VENDOR_EDIT */
+		/* #ifndef CONFIG_REALME_RETARD */
 		/* wanghaoran@camera.driver. 2018/11/2, add for gpio of camera */
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio not use TYPE-C headset */
 		/* USB C analog configuration */
@@ -1700,7 +1700,7 @@
 			};
 		};
 		
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 
 		sdw_clk_pin {
 			sdw_clk_sleep: sdw_clk_sleep {
@@ -1757,7 +1757,7 @@
 				};
 			};
 		};
-//#ifndef VENDOR_EDIT
+//#ifndef CONFIG_REALME_RETARD
 //nan.zhang@CN.NFC.Basic.Hardware, 2013/3/30
 // Add for :NFC GPIO init
 //               nfc {
@@ -1823,7 +1823,7 @@
 //                             };
 //                     };
 //             };
-/* #endif VENDOR_EDIT */
+/* #endif CONFIG_REALME_RETARD */
 		cdc_reset_ctrl {
 			cdc_reset_sleep: cdc_reset_sleep {
 				mux {
@@ -2125,11 +2125,11 @@
 				};
 			};
 		};
-		// #endif VENDOR_EDIT
+		// #endif CONFIG_REALME_RETARD
 		/* Pinctrl setting for CAMERA GPIO key */
 		key_cam_snapshot {
 			key_cam_snapshot_default: key_cam_snapshot_default {
-//#ifdef VENDOR_EDIT /* Qiao.Hu@BSP.CHG.Basic, 2018/10/30,change for charging */
+//#ifdef CONFIG_REALME_RETARD /* Qiao.Hu@BSP.CHG.Basic, 2018/10/30,change for charging */
 /* wanghaoran@camera.driver. 2018/11/2, add for gpio of camera */
 				pins = "gpio133";
 //#endif
@@ -2276,7 +2276,7 @@
 			};
 		};
 
-		/* #ifdef VENDOR_EDIT */
+		/* #ifdef CONFIG_REALME_RETARD */
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Add for audio config */
                 sec_mi2s_mclk {
                         sec_mi2s_mclk_sleep: sec_mi2s_mclk_sleep {
@@ -2393,12 +2393,12 @@
 				};
 			};
 		};
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 
 		pmx_sde: pmx_sde {
 			sde_dsi_active: sde_dsi_active {
 				mux {
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		/* liping-m@MM.Display.LCD.Feature 2018-08-30 correct dsi pinctrls */
 		//			pins = "gpio75", "gpio76";
 		//#else
@@ -2408,7 +2408,7 @@
 				};
 
 				config {
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		/* liping-m@MM.Display.LCD.Feature 2018-08-30 correct dsi pinctrls */
 		//			pins = "gpio75", "gpio76";
 		//#else
@@ -2420,7 +2420,7 @@
 			};
 			sde_dsi_suspend: sde_dsi_suspend {
 				mux {
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		/* liping-m@MM.Display.LCD.Feature 2018-08-30 correct dsi pinctrls */
 		//			pins = "gpio75", "gpio76";
 		//#else
@@ -2430,7 +2430,7 @@
 				};
 
 				config {
-		//#ifndef VENDOR_EDIT
+		//#ifndef CONFIG_REALME_RETARD
 		/* liping-m@MM.Display.LCD.Feature 2018-08-30 correct dsi pinctrls */
 		//			pins = "gpio75", "gpio76";
 		//#else
@@ -2442,7 +2442,7 @@
 			};
 		};
 
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_REALME_RETARD
 		/* gaosong@PSW.MM.Display.LCD.Stability,2019/4/18 modify LCD_TE status */
 		pmx_sde_te {
 			sde_te_active: sde_te_active {
@@ -2471,7 +2471,7 @@
 				};
 			};
 		};
-		//#endif VENDOR_EDIT
+		//#endif CONFIG_REALME_RETARD
 
 		sde_dp_aux_active: sde_dp_aux_active {
 			mux {
@@ -2703,7 +2703,7 @@
 				drive-strength = <2>; /* 2 MA */
 			};
 		};
-		//ifdef VENDOR_EDIT
+		//ifdef CONFIG_REALME_RETARD
 		/* wanghaoran@camera.driver. 2018/11/2, add for gpio of camera */
 		cam_sensor_rear_active: cam_sensor_rear_active {
 			/* RESET */
@@ -3220,7 +3220,7 @@
 				output-low;
 			};
 		};
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		cam_sensor_mclk1_active: cam_sensor_mclk1_active {
 			/* MCLK1 */
 			mux {
@@ -3321,7 +3321,7 @@
 				input-enable;
 			};
 		};
-		//ifdef VENDOR_EDIT
+		//ifdef CONFIG_REALME_RETARD
 		/* Jianchao.Shi@BSP.CHG.Basic, 2017/01/22, sjc Add for charging */
 		charger: charger {
 			charging_switch1_active: charging_switch1_active {
@@ -3523,10 +3523,10 @@
 				};
 			};
 		};
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 	};
 };
-//#ifdef VENDOR_EDIT /* tongfeng.huang@BSP.CHG.Basic, 2018/05/08,  mark for charging USB vbus short*/
+//#ifdef CONFIG_REALME_RETARD /* tongfeng.huang@BSP.CHG.Basic, 2018/05/08,  mark for charging USB vbus short*/
 &pm660l_gpios {
 	charger {
 		dischg_enable: dischg_enable{
@@ -3562,7 +3562,7 @@
 		};
 	};
 
-	/* #ifdef VENDOR_EDIT */
+	/* #ifdef CONFIG_REALME_RETARD */
 	/* xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Add for dbmdx */
 	clk_out {
 		clk_out_default: clk_out_default{
@@ -3574,9 +3574,9 @@
 			input-disable; /* prevent GPIO from being set to DIO */
 		};
 	};
-	/* #endif VENDOR_EDIT */
+	/* #endif CONFIG_REALME_RETARD */
 
-	/*#ifdef VENDOR_EDIT */
+	/*#ifdef CONFIG_REALME_RETARD */
 	/* wanghao@BSP.Kernel.Basic, 2018/05/22, add for submainboard select */
 	submainboard {
 		sub_mainboard_active: sub_mainboard_active{
@@ -3587,7 +3587,7 @@
 			bias-disable;
 		};
 	};
-	/* #endif VENDOR_EDIT */
+	/* #endif CONFIG_REALME_RETARD */
     usb_temp_adc {
 		usb_temp_adc: usb_temp_adc{
 			pins = "gpio3";
@@ -3629,10 +3629,10 @@
 &pm660l_gpios {
 	camera_rear_dvdd_en {
 		camera0_rear_dvdd_en_default: camera0_rear_dvdd_en_default {
-			/* #ifndef VENDOR_EDIT */
+			/* #ifndef CONFIG_REALME_RETARD */
 			/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
 			//pins = "gpio4";
-			/* #endif VENDOR_EDIT */
+			/* #endif CONFIG_REALME_RETARD */
 			function = "normal";
 			power-source = <0>;
 			output-low;
@@ -3641,10 +3641,10 @@
 
 	camera_dvdd_en {
 		camera2_dvdd_en_default: camera2_dvdd_en_default {
-			/* #ifndef VENDOR_EDIT */
+			/* #ifndef CONFIG_REALME_RETARD */
 			/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
 			//pins = "gpio3";
-			/* #endif VENDOR_EDIT */
+			/* #endif CONFIG_REALME_RETARD */
 			function = "normal";
 			power-source = <0>;
 			output-low;
@@ -3654,25 +3654,25 @@
 
 &pm660l_gpios {
 	camera0_dvdd_en_default: camera0_dvdd_en_default {
-		/* #ifndef VENDOR_EDIT */
+		/* #ifndef CONFIG_REALME_RETARD */
 		/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
 		//pins = "gpio3";
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		function = "normal";
 		power-source = <0>;
 		output-low;
 	};
 
 	camera1_dvdd_en_default: camera1_dvdd_en_default {
-		/* #ifndef VENDOR_EDIT */
+		/* #ifndef CONFIG_REALME_RETARD */
 		/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
 		//pins = "gpio4";
-		/* #endif VENDOR_EDIT */
+		/* #endif CONFIG_REALME_RETARD */
 		function = "normal";
 		power-source = <0>;
 		output-low;
 	};
-    //#ifdef VENDOR_EDIT
+    //#ifdef CONFIG_REALME_RETARD
     //Fei.Mo@BSP.group 2018-09-01 Delete for vol key
     /*
 	key_vol_up {
@@ -3687,7 +3687,7 @@
     //#endif
 };
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //nan.zhang@CN.NFC.Basic.Hardware, 2013/3/30,
 // Add for :NFC GPIO init
 &pm660l_gpios {
@@ -3754,7 +3754,7 @@
 		};
 	};
 };
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 
 &pm660_gpios {
 	nfc_clk {

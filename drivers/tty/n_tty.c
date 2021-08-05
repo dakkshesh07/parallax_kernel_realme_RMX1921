@@ -771,7 +771,7 @@ static size_t __process_echoes(struct tty_struct *tty)
 #if defined(CONFIG_TTY_FLUSH_LOCAL_ECHO)
         if (ldata->echo_commit != tail) {
                 if (!tty->delayed_work) {
-                        #ifndef VENDOR_EDIT
+                        #ifndef CONFIG_REALME_RETARD
 			/* yanghao@PSW.BSP.Kernel.Statbility 2018/10/12 avoid multi init work */
                         INIT_DELAYED_WORK(&tty->echo_delayed_work, continue_process_echoes);
                         #endif
@@ -1923,13 +1923,13 @@ static void n_tty_close(struct tty_struct *tty)
 	if (tty->link)
 		n_tty_packet_mode_flush(tty);
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* yanghao@PSW.BSP.Kernel.Statbility 2018/10/12 when uart stop should cancel_delay work first */
 #if defined(CONFIG_TTY_FLUSH_LOCAL_ECHO)
 	if(tty->echo_delayed_work.work.func)
 		cancel_delayed_work_sync(&tty->echo_delayed_work);
 #endif
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	vfree(ldata);
 	tty->disc_data = NULL;
@@ -1960,12 +1960,12 @@ static int n_tty_open(struct tty_struct *tty)
 
 	tty->disc_data = ldata;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* yanghao@PSW.BSP.Kernel.Statbility 2018/10/12 avoid multi init work */
 #if defined(CONFIG_TTY_FLUSH_LOCAL_ECHO)
 	INIT_DELAYED_WORK(&tty->echo_delayed_work, continue_process_echoes);
 #endif
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	tty->closing = 0;
 	/* indicate buffer work may resume */

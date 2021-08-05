@@ -1,6 +1,6 @@
 /***************************************************************
 ** Copyright (C),  2018,  OPPO Mobile Comm Corp.,  Ltd
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** File : oppo_mm_kevent_fb.h
 ** Description : MM kevent fb data
 ** Version : 1.0

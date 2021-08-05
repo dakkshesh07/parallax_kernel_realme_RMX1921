@@ -1,6 +1,6 @@
 /***************************************************************
 ** Copyright (C),  2019,  OPPO Mobile Comm Corp.,  Ltd
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** File : oppo_mm_audio_kevent.c
 ** Description : MM audio kevent data
 ** Version : 1.0

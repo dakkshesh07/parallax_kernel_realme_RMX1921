@@ -4623,12 +4623,12 @@ void mmc_stop_host(struct mmc_host *host)
 		disable_irq(host->slot.cd_irq);
 
 	host->rescan_disable = 1;
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 /*xing.xiogn@BSP.Kernel.Stabilit, 2018/03/13, Modify for system server hung*/
 	cancel_delayed_work_sync(&host->detect);
-#else /*VENDOR_EDIT*/
+#else /*CONFIG_REALME_RETARD*/
 	cancel_delayed_work(&host->detect);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	/* clear pm flags now and let card drivers set them as needed */
 	host->pm_flags = 0;
 

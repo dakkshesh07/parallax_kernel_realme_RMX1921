@@ -34,9 +34,9 @@
 
 #include <trace/events/mmc.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
+#ifdef CONFIG_REALME_RETARD //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #include "sdhci.h"
 #include "cmdq_hci.h"
@@ -84,7 +84,7 @@ static void sdhci_dump_state(struct sdhci_host *host)
 
 static void sdhci_dumpregs(struct sdhci_host *host)
 {
-#ifdef VENDOR_EDIT 
+#ifdef CONFIG_REALME_RETARD 
 //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 	if(!oppo_daily_build())
 		return;
@@ -1239,7 +1239,7 @@ void sdhci_send_command(struct sdhci_host *host, struct mmc_command *cmd)
 	    cmd->opcode == MMC_STOP_TRANSMISSION)
 		cmd->flags |= MMC_RSP_BUSY;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //yh@bsp, 2015-10-21 Add for special card compatible
 //Guohua.Zhong@BSP.Storage.Sdcard,20180630 modify for use is_fsck_process whitelist "fsck"
 	if(host->mmc->card_stuck_in_programing_status && mmc_card_is_removable(host->mmc))
@@ -1250,7 +1250,7 @@ void sdhci_send_command(struct sdhci_host *host, struct mmc_command *cmd)
 		sdhci_finish_mrq(host, cmd->mrq);
 		return;
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	/* Wait max 10 ms */
 	timeout = 10000;

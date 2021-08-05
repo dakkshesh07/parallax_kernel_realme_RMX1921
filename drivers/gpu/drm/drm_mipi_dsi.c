@@ -1055,7 +1055,7 @@ EXPORT_SYMBOL(mipi_dsi_dcs_set_tear_scanline);
 int mipi_dsi_dcs_set_display_brightness(struct mipi_dsi_device *dsi,
 					u16 brightness)
 {
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 	/* liping-m@PSW.MM.Display.LCD.Stability,2018/8/30,add for solve backlight issue */
 	u8 payload[2] = { brightness & 0xff, brightness >> 8 };
 #else

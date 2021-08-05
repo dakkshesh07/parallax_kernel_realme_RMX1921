@@ -18,10 +18,10 @@
 #include "sde_hw_pingpong.h"
 #include "sde_dbg.h"
 #include "sde_kms.h"
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for save display panel power status at oppo display management*/
 #include <linux/dsi_oppo_support.h>
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 
 #define PP_TEAR_CHECK_EN                0x000
@@ -71,7 +71,7 @@ static struct sde_pingpong_cfg *_pingpong_offset(enum sde_pingpong pp,
 	return ERR_PTR(-EINVAL);
 }
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.Lcd.Stability,2018/9/26,for solve te sync issue at doze*/
 static int sde_hw_pp_setup_te_config(struct sde_hw_pingpong *pp,
 		struct sde_hw_tear_check *te)
@@ -102,7 +102,7 @@ static int sde_hw_pp_setup_te_config(struct sde_hw_pingpong *pp,
 
 	return 0;
 }
-#else /*VENDOR_EDIT*/
+#else /*CONFIG_REALME_RETARD*/
 extern int oppo_request_power_status;
 
 static int sde_hw_pp_setup_te_config(struct sde_hw_pingpong *pp,
@@ -143,7 +143,7 @@ static int sde_hw_pp_setup_te_config(struct sde_hw_pingpong *pp,
 
 	return 0;
 }
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 static int sde_hw_pp_setup_autorefresh_config(struct sde_hw_pingpong *pp,
 		struct sde_hw_autorefresh *cfg)

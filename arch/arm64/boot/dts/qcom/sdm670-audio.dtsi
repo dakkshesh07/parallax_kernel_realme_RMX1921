@@ -248,7 +248,7 @@
 		qcom,msm-cpe-lsm-id = <3>;
 	};
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Add for dbmdx
 	dbmdx {
 		//status = "disabled";
@@ -325,10 +325,10 @@
 	snd-dbmdx-mach-drv {
 		compatible = "dspg,snd-dbmdx-mach-drv";
 	};
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 };
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Add for dbmdx
 &qupv3_se2_spi {
 	status = "okay";
@@ -343,7 +343,7 @@
 			dma_min_buffer_size = <0>;
 		};
 };
-//#endif /* VENDOR_EDIT */
+//#endif /* CONFIG_REALME_RETARD */
 
 &slim_aud {
 	status = "disabled";

@@ -1,6 +1,6 @@
 /************************************************************************************
 ** File: - drivers\input\fpc_tee\fpc_irq.c
-** VENDOR_EDIT
+** CONFIG_REALME_RETARD
 ** Copyright (C), 2008-2016, OPPO Mobile Comm Corp., Ltd
 **
 ** Description:
@@ -128,7 +128,7 @@ struct fpc1020_data {
         struct mutex lock;
         bool prepared;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
         //LiBin@BSP.Fingerprint.Basic, 2016/10/13, modify for enable/disable irq
         int irq_enabled;
 #endif
@@ -281,7 +281,7 @@ static ssize_t clk_enable_set(struct device *dev,
 
 static DEVICE_ATTR(clk_enable, S_IWUSR, NULL, clk_enable_set);
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //LiBin@BSP.Fingerprint.Basic, 2016/10/13, modify for enable/disable irq
 static DEFINE_SPINLOCK(fpc1020_lock);
 
@@ -363,7 +363,7 @@ static ssize_t regulator_enable_set(struct device *dev,
         return rc ? rc : count;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //LiBin@BSP.Fingerprint.Basic, 2016/10/13, modify for enable/disable irq
 static ssize_t irq_enable_set(struct device *dev,
                 struct device_attribute *attribute, const char *buffer, size_t count)
@@ -570,7 +570,7 @@ static int fpc1020_irq_probe(struct platform_device *pldev)
         /* Request that the interrupt should be wakeable */
         /*enable_irq_wake( gpio_to_irq( fpc1020->irq_gpio ) );*/
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
         /*LiBin@BSP.Fingerprint.Basic, 2016/10/13, modify for enable/disable irq*/
         disable_irq_nosync(gpio_to_irq(fpc1020->irq_gpio));
         fpc1020->irq_enabled = 0;

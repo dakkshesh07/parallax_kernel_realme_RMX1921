@@ -29,7 +29,7 @@
 #include <linux/nvmem-consumer.h>
 #include <linux/debugfs.h>
 #include <linux/hrtimer.h>
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* tongfeng.Huang@BSP.CHG.Basic, 2018/09/06,  Add for 18181 usb eye diagram  */
 #include <soc/oppo/oppo_project.h>
 #endif
@@ -418,7 +418,7 @@ done:
 	mutex_unlock(&qphy->lock);
 	return ret;
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /* tongfeng.Huang@BSP.CHG.Basic, 2018/09/06,  Add for 18181 usb eye diagram  */
 unsigned int dev_phy_tune1 = 0x37;
 module_param(dev_phy_tune1, uint, S_IRUGO | S_IWUSR);
@@ -699,7 +699,7 @@ static int qusb_phy_init(struct usb_phy *phy)
 		writel_relaxed(qphy->bias_ctrl2,
 				qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 	/* tongfeng.Huang@BSP.CHG.Basic, 2018/09/06,  Add for 18181 usb eye diagram	*/
 	if((get_project() == 18181) || (get_project() == 19651)){
 		if(dev_phy_bias2 != 0) {

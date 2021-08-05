@@ -1725,7 +1725,7 @@ static int compare_name_mdp(struct device *dev, void *data)
 	return (strnstr(dev_name(dev), "mdp", strlen("mdp")) != NULL);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 disable dp function for 18385 */
 #include <soc/oppo/oppo_project.h>
 #endif
@@ -1747,7 +1747,7 @@ static int add_display_components(struct device *dev,
 			if (!node)
 				break;
 
-			#ifdef VENDOR_EDIT
+			#ifdef CONFIG_REALME_RETARD
 			/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 disable dp function for 18385 */
 			if (get_Operator_Version() == OPERATOR_FOREIGN &&
 			    get_project() == OPPO_18181 &&
@@ -1755,7 +1755,7 @@ static int add_display_components(struct device *dev,
 				pr_err("Disable dp function");
 				continue;
 			}
-			#endif /* VENDOR_EDIT */
+			#endif /* CONFIG_REALME_RETARD */
 
 			component_match_add(dev, matchptr, compare_of, node);
 		}

@@ -1,6 +1,6 @@
 /**************************************************************
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * File       : hx83112b_drivers_s4322.c
  * Description: Source file for hx83112b S4322 driver
  * Version   : 1.0

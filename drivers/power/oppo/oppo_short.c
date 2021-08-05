@@ -1,6 +1,6 @@
 /**********************************************************************************
 * Copyright (c)  2017-2019  Guangdong OPPO Mobile Comm Corp., Ltd
-* VENDOR_EDIT
+* CONFIG_REALME_RETARD
 * Description: For short circuit battery check
 * Version   : 1.0
 * Date      : 2017-10-01

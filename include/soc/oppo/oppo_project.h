@@ -64,7 +64,7 @@ enum OPPO_OPERATOR {
         OPERATOR_CHINA_UNICOM               = 0x03,
         OPERATOR_CHINA_TELECOM              = 0x04,
         OPERATOR_FOREIGN                    = 0x05,
-/*#ifdef VENDOR_EDIT*/
+/*#ifdef CONFIG_REALME_RETARD*/
 /*TongJing.Shi@EXP.DataComm.Phone, 2014.04.18, Add for exp just 3G no 4G*/
         OPERATOR_FOREIGN_WCDMA              = 0x06,   /*qifeng.liu 2014.08.07 FOR MAC*/
         OPERATOR_FOREIGN_RESERVED           = 0x07,    /*shaoming 2014/10/04 add for 14085's dual sim version*/
@@ -91,7 +91,7 @@ typedef struct
         unsigned char                 npmicocp[OCPCOUNTMAX];
 } ProjectInfoCDTType;
 
-/*#ifdef VENDOR_EDIT*/
+/*#ifdef CONFIG_REALME_RETARD*/
 /*Cong.Dai@psw.bsp.tp, 2019.06.27, Add for sw_version*/
 #define OPPO_ENG_VERSION_NOT_INIT      -1
 enum OPPO_ENG_VERSION {
@@ -107,7 +107,7 @@ enum OPPO_ENG_VERSION {
     ALL_NET_CT_TEST         = 0x09,
     ALL_NET_CT_FIELD        = 0x0A,
 };
-/*#endif VENDOR_EDIT*/
+/*#endif CONFIG_REALME_RETARD*/
 
 #ifdef CONFIG_OPPO_COMMON_SOFT
 void init_project_version(void);

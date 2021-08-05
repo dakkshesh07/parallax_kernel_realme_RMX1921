@@ -1,6 +1,6 @@
 /***************************************************
  * File:synaptics_drivers_s3320.h
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * Copyright(C) 2008-2012 OPPO Mobile Comm Corp., Ltd
  * Description:
  *             synaptics s3320 driver

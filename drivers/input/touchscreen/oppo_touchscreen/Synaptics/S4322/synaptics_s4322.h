@@ -1,6 +1,6 @@
 /***************************************************
  * File:synaptics_drivers_s4322.h
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * Copyright(C) 2008-2012 OPPO Mobile Comm Corp., Ltd
  * Description:
  *             synaptics s4322 driver

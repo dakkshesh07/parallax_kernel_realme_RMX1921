@@ -262,7 +262,7 @@ static void cam_ife_hw_mgr_stop_hw_res(
 		}
 	}
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*added by houyujun@Camera 20180626 for smmu dump*/
 static void cam_hw_isp_iommu_fault_handler(struct iommu_domain *domain,
 	struct device *dev,unsigned long iova, int flags, void *tocken)
@@ -1394,7 +1394,7 @@ static int cam_ife_mgr_acquire_hw(void *hw_mgr_priv,
 		CAM_ERR(CAM_ISP, "Get ife hw context failed");
 		goto err;
 	}
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*add by hongbo.dai@Camera,20180627*/
 	ife_ctx->frame_count = 0;
 	#endif
@@ -1638,7 +1638,7 @@ static int cam_ife_mgr_config_hw(void *hw_mgr_priv,
 			cdm_cmd->cmd[i].len = cmd->len;
 		}
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 		/*Xinlan.He@Camera case 03543839 for issue config done completion timeout*/
 		if (cfg->init_packet == 1)
 	#else
@@ -1653,7 +1653,7 @@ static int cam_ife_mgr_config_hw(void *hw_mgr_priv,
 			return rc;
 		}
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 		/*Xinlan.He@Camera case 03543839 for issue config done completion timeout*/
 		if (cfg->init_packet == 1)
 	#else
@@ -2026,7 +2026,7 @@ static int cam_ife_mgr_restart_hw(void *start_hw_args)
 	}
 
 	CAM_DBG(CAM_ISP, "START CID SRC ... in ctx id:%d", ctx->ctx_index);
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 	ctx->dual_ife_irq_mismatch_cnt = 0;
 	#endif
@@ -2278,7 +2278,7 @@ static int cam_ife_mgr_release_hw(void *hw_mgr_priv,
 	memset(ctx->base, 0, sizeof(ctx->base));
 
 	/* release cdm handle */
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 	ctx->dual_ife_irq_mismatch_cnt = 0;
 	#endif
@@ -2761,7 +2761,7 @@ static int cam_ife_mgr_resume_hw(struct cam_ife_hw_mgr_ctx *ctx)
 	return cam_ife_mgr_bw_control(ctx, CAM_VFE_BW_CONTROL_INCLUDE);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 static void cam_ife_mgr_ctx_irq_dump(struct cam_ife_hw_mgr_ctx *ctx)
 {
@@ -2825,7 +2825,7 @@ static int cam_ife_mgr_cmd(void *hw_mgr_priv, void *cmd_args)
 	case CAM_ISP_HW_MGR_CMD_RESUME_HW:
 		cam_ife_mgr_resume_hw(ctx);
 		break;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*add by hongbo.dai@Camera,20180627*/
 	case CAM_ISP_HW_MGR_CMD_SET_SYNC_MODE:
 		ctx->crm_sync_mode = 1;
@@ -3427,7 +3427,7 @@ static int cam_ife_hw_mgr_check_irq_for_dual_vfe(
 		(event_cnt[core_idx1] &&
 		(event_cnt[core_idx1] - event_cnt[core_idx0] > 1))) {
 
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 		if (ife_hw_mgr_ctx->dual_ife_irq_mismatch_cnt > 10) {
 			rc = -1;
@@ -3518,7 +3518,7 @@ static int cam_ife_hw_mgr_handle_epoch_for_camif_hw_res(
 					&ife_hwr_mgr_ctx->overflow_pending))
 					break;
 
-				#ifdef VENDOR_EDIT
+				#ifdef CONFIG_REALME_RETARD
 				/*add by hongbo.dai@camera, 20180627 for hwsync*/
 				if (!epoch_status) {
 
@@ -4394,7 +4394,7 @@ int cam_ife_hw_mgr_init(struct cam_hw_mgr_intf *hw_mgr_intf)
 		g_ife_hw_mgr.ctx_pool[i].common.tasklet_info =
 			g_ife_hw_mgr.mgr_common.tasklet_pool[i];
 
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/*add by hongbo.dai@Camera,20180627 for hwsync*/
 		g_ife_hw_mgr.ctx_pool[i].crm_sync_mode = 0;
 		#endif
@@ -4423,7 +4423,7 @@ int cam_ife_hw_mgr_init(struct cam_hw_mgr_intf *hw_mgr_intf)
 	hw_mgr_intf->hw_prepare_update = cam_ife_mgr_prepare_hw_update;
 	hw_mgr_intf->hw_config = cam_ife_mgr_config_hw;
 	hw_mgr_intf->hw_cmd = cam_ife_mgr_cmd;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*added by houyujun@Camera 20180626 for smmu dump*/
 	cam_smmu_reg_client_page_fault_handler(g_ife_hw_mgr.mgr_common.img_iommu_hdl,
 		cam_hw_isp_iommu_fault_handler,&g_ife_hw_mgr);

@@ -140,10 +140,10 @@ static void sysrq_handle_crash(int key)
 	 * complaint from the kernel before the panic.
 	 */
 	rcu_read_unlock();
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Zhenjian.Jiang@PSW.BSP.Kernel.MM. 2019/03/19, modify for show dump_tasks when sysrq crash*/
 	dump_tasks(NULL, NULL);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	panic_on_oops = 1;	/* force panic */
 	wmb();
 	*killer = 1;

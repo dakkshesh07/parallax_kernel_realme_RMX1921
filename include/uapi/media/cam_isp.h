@@ -26,7 +26,7 @@
 #define CAM_ISP_PATTERN_YUV_YCRYCB              5
 #define CAM_ISP_PATTERN_YUV_CBYCRY              6
 #define CAM_ISP_PATTERN_YUV_CRYCBY              7
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_REALME_RETARD
 #define CAM_ISP_PATTERN_MAX                     8
 #else
 /* Kaizhu.Liang@Camera.Driver, 2018/06/07, add QCOM patch for 18081 Rear_Aux camera mono mode */

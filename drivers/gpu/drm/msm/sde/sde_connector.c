@@ -512,10 +512,10 @@ static int _sde_connector_update_bl_scale(struct sde_connector *c_conn)
 {
 	struct dsi_display *dsi_display;
 	struct dsi_backlight_config *bl_config;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix backlight race problem */
 	struct backlight_device *bd;
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 	int rc = 0;
 
 	if (!c_conn) {
@@ -531,7 +531,7 @@ static int _sde_connector_update_bl_scale(struct sde_connector *c_conn)
 		return -EINVAL;
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix backlight race problem */
 	bd = c_conn->bl_device;
 	if (!bd) {
@@ -540,7 +540,7 @@ static int _sde_connector_update_bl_scale(struct sde_connector *c_conn)
 	}
 
 	mutex_lock(&bd->update_lock);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	bl_config = &dsi_display->panel->bl_config;
 
@@ -569,15 +569,15 @@ static int _sde_connector_update_bl_scale(struct sde_connector *c_conn)
 	rc = c_conn->ops.set_backlight(dsi_display, bl_config->bl_level);
 	c_conn->unset_bl_level = 0;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix backlight race problem */
 	mutex_unlock(&bd->update_lock);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 	return rc;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature*/
 extern bool sde_crtc_get_fingerprint_mode(struct drm_crtc_state *crtc_state);
 extern bool sde_crtc_get_fingerprint_pressed(struct drm_crtc_state *crtc_state);
@@ -776,7 +776,7 @@ int sde_connector_pre_kickoff(struct drm_connector *connector)
 		goto end;
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*Mark.Yao@PSW.MM.Display.Service.Feature,2018/06/05,for OnScreenFingerprint feature*/
 	rc = _sde_connector_update_hbm(c_conn);
 	if (rc) {
@@ -2495,7 +2495,7 @@ struct drm_connector *sde_connector_init(struct drm_device *dev,
 	msm_property_install_range(&c_conn->property_info, "ad_bl_scale",
 		0x0, 0, MAX_AD_BL_SCALE_LEVEL, MAX_AD_BL_SCALE_LEVEL,
 		CONNECTOR_PROP_AD_BL_SCALE);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Feature,2018/9/26 support custom propertys */
 	msm_property_install_range(&c_conn->property_info,"CONNECTOR_CUST",
 		0x0, 0, INT_MAX, 0, CONNECTOR_PROP_CUSTOM);

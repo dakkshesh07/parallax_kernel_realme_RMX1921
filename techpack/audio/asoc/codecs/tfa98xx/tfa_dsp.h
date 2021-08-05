@@ -76,10 +76,10 @@ int tfa98xx_select_mode(struct tfa98xx *tfa98xx, enum Tfa98xx_Mode mode);
 int tfa98xx_write_dsp_mem(struct tfa98xx *tfa98xx, struct nxpTfaDspMem *cfmem);
 int tfa98xx_write_filter(struct tfa98xx *tfa98xx, struct nxpTfaBiquadSettings *bq);
 int tfa98xx_powerdown(struct tfa98xx *tfa98xx, int powerdown);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //John.Xu@PhoneSw.AudioDriver, 2016/02/01, Add for delay first time open speaker
 void set_first_start(int val);
 int is_first_start(void);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #endif

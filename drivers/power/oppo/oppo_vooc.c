@@ -1,6 +1,6 @@
 /**********************************************************************************
 * Copyright (c)  2008-2015  Guangdong OPPO Mobile Comm Corp., Ltd
-* VENDOR_EDIT
+* CONFIG_REALME_RETARD
 * Description: Charger IC management module for charger system framework.
 *              Manage all charger IC and define abstarct function flow.
 * Version    : 1.0
@@ -550,11 +550,11 @@ static void oppo_vooc_fastchg_func(struct work_struct *work)
 			ret_info = ret_info <= pre_ret_info ? ret_info : pre_ret_info;
 		}
 		pre_ret_info = ret_info;
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_REALME_RETARD
 		/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/20,Add for *#808# show vooc */
 		if(data== VOOC_NOTIFY_ALLOW_READING_IIC)
 			chip->fast_chg_type = CHARGER_SUBTYPE_FASTCHG_VOOC;
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_REALME_RETARD */
 		vooc_xlog_printk(CHG_LOG_CRTI, " volt:%d,temp:%d,soc:%d,current_now:%d,rm:%d, i2c_err:%d, ret_info:%d\n",
 			volt, temp, soc, current_now, remain_cap, oppo_get_fg_i2c_err_occured(), ret_info);
 	} else if (data == VOOC_NOTIFY_NORMAL_TEMP_FULL) {

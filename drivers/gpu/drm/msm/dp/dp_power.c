@@ -17,7 +17,7 @@
 #include <linux/clk.h>
 #include "dp_power.h"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Feature,2018/9/26 add for dp support */
 #include <linux/module.h>
 int max20328_enable_displayport(bool enable, bool flip);
@@ -69,7 +69,7 @@ int oppo_dp_sub_switch_status_update(void)
 
 	return 0;
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 #define DP_CLIENT_NAME_SIZE	20
 
@@ -456,17 +456,17 @@ static int dp_power_config_gpios(struct dp_power_private *power, bool flip,
 		dp_power_set_gpio(power, flip);
 	} else {
 		for (i = 0; i < mp->num_gpio; i++) {
-			#ifdef VENDOR_EDIT
+			#ifdef CONFIG_REALME_RETARD
 			/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix dp gpio free warning */
 			if (!gpio_is_valid(config[i].gpio))
 				continue;
-			#endif /* VENDOR_EDIT */
+			#endif /* CONFIG_REALME_RETARD */
 			gpio_set_value(config[i].gpio, 0);
 			gpio_free(config[i].gpio);
 		}
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Feature,2018/9/26 add for dp support */
 	if (oppo_dp_sub_switch_ready() && oppo_enable_sub_switch) {
 		oppo_enable_sub_switch(enable, flip);

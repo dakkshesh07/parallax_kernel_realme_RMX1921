@@ -2019,7 +2019,7 @@ static int cam_icp_allocate_qdss_mem(void)
 	return rc;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 static int cam_icp_get_io_mem_info(void)
 {
@@ -2094,7 +2094,7 @@ static int cam_icp_allocate_hfi_mem(void)
 		CAM_ERR(CAM_ICP, "Unable to allocate sec heap memory");
 		goto sec_heap_alloc_failed;
 	}
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 	rc = cam_icp_get_io_mem_info();
 	if (rc) {
@@ -2314,7 +2314,7 @@ static int cam_icp_mgr_hfi_resume(struct cam_icp_hw_mgr *hw_mgr)
 
 	hfi_mem.qdss.iova = icp_hw_mgr.hfi_mem.qdss_buf.iova;
 	hfi_mem.qdss.len = icp_hw_mgr.hfi_mem.qdss_buf.len;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 	hfi_mem.io_mem.iova = icp_hw_mgr.hfi_mem.io_mem.iova_start;
 	hfi_mem.io_mem.len = icp_hw_mgr.hfi_mem.io_mem.iova_len;
@@ -2696,7 +2696,7 @@ static int cam_icp_mgr_hfi_init(struct cam_icp_hw_mgr *hw_mgr)
 
 	hfi_mem.qdss.iova = icp_hw_mgr.hfi_mem.qdss_buf.iova;
 	hfi_mem.qdss.len = icp_hw_mgr.hfi_mem.qdss_buf.len;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //zemin.lai add for qcom patch caseID03917490
 	hfi_mem.io_mem.iova = icp_hw_mgr.hfi_mem.io_mem.iova_start;
 	hfi_mem.io_mem.len = icp_hw_mgr.hfi_mem.io_mem.iova_len;
@@ -3154,7 +3154,7 @@ static int cam_icp_mgr_process_io_cfg(struct cam_icp_hw_mgr *hw_mgr,
 
 	for (i = 0, j = 0, k = 0; i < packet->num_io_configs; i++) {
 		if (io_cfg_ptr[i].direction == CAM_BUF_INPUT) {
-			#ifdef VENDOR_EDIT
+			#ifdef CONFIG_REALME_RETARD
 			/*Jindian.Guan@Camera, 2018/07/05, [qcom patch] add for fix hfr drop frame*/
 			if (io_cfg_ptr[i].resource_type ==
 				CAM_ICP_IPE_INPUT_IMAGE_FULL_REF ||
@@ -3171,7 +3171,7 @@ static int cam_icp_mgr_process_io_cfg(struct cam_icp_hw_mgr *hw_mgr,
 				io_cfg_ptr[i].fence;
 			prepare_args->num_out_map_entries++;
 		}
-		#ifndef VENDOR_EDIT
+		#ifndef CONFIG_REALME_RETARD
 		/*Jindian.Guan@Camera, 2018/07/05, [qcom patch] add for fix hfr drop frame*/
 		CAM_DBG(CAM_ICP, "dir[%d]: %u, fence: %u",
 			i, io_cfg_ptr[i].direction, io_cfg_ptr[i].fence);

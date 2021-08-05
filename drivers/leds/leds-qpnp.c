@@ -28,7 +28,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/delay.h>
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Song.Gao@PSW.MM.Display.Feature,2019/08/21, add for forbid backlight led in silence & sau mode
 extern int lcd_closebl_flag;
 #endif
@@ -1798,7 +1798,7 @@ static void qpnp_led_set(struct led_classdev *led_cdev,
 		return;
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Song.Gao@PSW.MM.Display.Feature,2019/08/21, add for forbid backlight led in silence & sau mode
        if(lcd_closebl_flag){
             pr_err("%s -- MSM_BOOT_MODE__SILENCE\n",__func__);

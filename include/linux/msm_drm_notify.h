@@ -19,11 +19,11 @@
 #define MSM_DRM_EVENT_BLANK			0x01
 /* A hardware display blank early change occurred */
 #define MSM_DRM_EARLY_EVENT_BLANK		0x02
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*LiPing-m@PSW.MM.Display.LCD.Feature,2018-10-12 add for OnScreenFingerprint */
 /* event for onscreenfingerprint scene */
 #define MSM_DRM_ONSCREENFINGERPRINT_EVENT	0x10
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 enum {
 	/* panel: power on */

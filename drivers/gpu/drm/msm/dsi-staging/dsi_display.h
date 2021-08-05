@@ -27,10 +27,10 @@
 #include "dsi_ctrl.h"
 #include "dsi_phy.h"
 #include "dsi_panel.h"
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for save select panel and give different feature*/
 #include <linux/dsi_oppo_support.h>
-//#endif /*VENDOR_EDIT*/
+//#endif /*CONFIG_REALME_RETARD*/
 
 #define MAX_DSI_CTRLS_PER_DISPLAY             2
 #define DSI_CLIENT_NAME_SIZE		20
@@ -661,7 +661,7 @@ enum dsi_pixel_format dsi_display_get_dst_format(void *display);
  */
 int dsi_display_cont_splash_config(void *display);
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for support aod,hbm,seed*/
 struct dsi_display *get_main_display(void);
 

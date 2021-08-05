@@ -69,7 +69,7 @@ struct msm_rpmh_master_data {
 };
 
 //yangmingjin@BSP.POWER.Basic 2019/05/30 add for RM_TAG_POWER_DEBUG
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #define PRINT_BUF_SIZE 640
 #define RPMH_PDC_SOC_SLEEP_REG_BASE 0x0b2e0300
 char print_buf[PRINT_BUF_SIZE];
@@ -88,7 +88,7 @@ static const struct msm_rpmh_master_data rm_rpmh_masters[] = {
 	{"CDSP", CDSP, PID_CDSP},
 };
 #endif
-/*VENDOR_EDIT*/
+/*CONFIG_REALME_RETARD*/
 static const struct msm_rpmh_master_data rpmh_masters[] = {
 	{"MPSS", MPSS, PID_MPSS},
 	{"ADSP", ADSP, PID_ADSP},
@@ -114,11 +114,11 @@ struct msm_rpmh_profile_unit {
 struct rpmh_master_stats_prv_data {
 	struct kobj_attribute ka;
 	struct kobject *kobj;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.Power.Basic 2018/06/11 add for get rpm_stats
     struct kobj_attribute oppoka;
 	struct kobject *oppokobj;
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 };
 
 static struct msm_rpmh_master_stats apss_master_stats;
@@ -127,7 +127,7 @@ static uint32_t use_alt_unit;
 
 static DEFINE_MUTEX(rpmh_stats_mutex);
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.Power.Basic 2018/06/11 add for get rpm_stats
 static DEFINE_MUTEX(oppo_rpmh_stats_mutex);
 
@@ -158,7 +158,7 @@ static ssize_t oppo_rpmh_master_stats_print_data(char *prvbuf, ssize_t length,
 			name,record->counts,
 			get_time_in_msec(temp_accumulated_duration));
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_REALME_RETARD */
 
 
 static ssize_t msm_rpmh_master_stats_print_data(char *prvbuf, ssize_t length,
@@ -220,7 +220,7 @@ static ssize_t msm_rpmh_master_stats_show(struct kobject *kobj,
 	return length;
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.Power.Basic 2018/06/11 add for get rpm_stats
 static ssize_t oppo_rpmh_master_stats_show(struct kobject *kobj,
 				struct kobj_attribute *attr, char *buf)
@@ -251,7 +251,7 @@ static ssize_t oppo_rpmh_master_stats_show(struct kobject *kobj,
 
 	return length;
 }
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 
 static inline void msm_rpmh_apss_master_stats_update(
 				struct msm_rpmh_profile_unit *profile_unit)
@@ -339,7 +339,7 @@ static int msm_rpmh_master_stats_probe(struct platform_device *pdev)
 		goto fail_sysfs;
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.Power.Basic 2018/06/11 add for get rpm_stats
 	prvdata->oppokobj = rpmh_master_stats_kobj;
 
@@ -354,7 +354,7 @@ static int msm_rpmh_master_stats_probe(struct platform_device *pdev)
 		pr_err("sysfs_create_file oppo failed\n");
 		goto fail_sysfs_oppo;
 	}
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	ret = of_property_read_u32(pdev->dev.of_node,
 					"qcom,use-alt-unit",
 					&use_alt_unit);
@@ -369,20 +369,20 @@ static int msm_rpmh_master_stats_probe(struct platform_device *pdev)
 	}
 
 //yangmingjin@BSP.POWER.Basic 2019/05/30 modify for RM_TAG_POWER_DEBUG
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
     rpmh_pdc_soc_sleep_base = devm_ioremap(&pdev->dev, RPMH_PDC_SOC_SLEEP_REG_BASE, 0x20);
     if (!rpmh_pdc_soc_sleep_base) {
         pr_err("Failed to get rpmh_pdc_soc_sleep_base\n");
     }
 #endif
-/*VENDOR_EDIT*/
+/*CONFIG_REALME_RETARD*/
 	apss_master_stats.version_id = 0x1;
 	platform_set_drvdata(pdev, prvdata);
 	return ret;
 
 fail_iomap:
 	sysfs_remove_file(prvdata->kobj, &prvdata->ka.attr);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.Power.Basic 2018/05/23 add for get sys/power/oppo/rpm_stats	
 	sysfs_remove_file(prvdata->oppokobj, &prvdata->oppoka.attr);
 fail_sysfs_oppo:
@@ -405,11 +405,11 @@ static int msm_rpmh_master_stats_remove(struct platform_device *pdev)
 
 	sysfs_remove_file(prvdata->kobj, &prvdata->ka.attr);
 	kobject_put(prvdata->kobj);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 //Nanwei.Deng@BSP.Power.Basic 2018/06/11 add for get rpm_stats
     sysfs_remove_file(prvdata->oppokobj, &prvdata->oppoka.attr);
 	kobject_put(prvdata->oppokobj);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_REALME_RETARD*/
 	platform_set_drvdata(pdev, NULL);
 	iounmap(rpmh_unit_base);
 	rpmh_unit_base = NULL;
@@ -431,7 +431,7 @@ static struct platform_driver msm_rpmh_master_stats_driver = {
 	},
 };
 //yangmingjin@BSP.POWER.Basic 2019/05/30 add for RM_TAG_POWER_DEBUG
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #define COUNTTOMS 19200 //19200000hz
 static void rm_rpmh_master_stats_print(char *buf)
 {
@@ -480,7 +480,7 @@ void rpm_master_stats_print(void){
 	 rm_rpmh_master_stats_print(print_buf);
 }
 #endif
-/*VENDOR_EDIT*/
+/*CONFIG_REALME_RETARD*/
 
 module_platform_driver(msm_rpmh_master_stats_driver);
 MODULE_LICENSE("GPL v2");

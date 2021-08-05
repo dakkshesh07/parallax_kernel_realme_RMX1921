@@ -118,7 +118,7 @@ config EXT4_FS_ICE_ENCRYPTION
 	depends on EXT4_FS_ENCRYPTION
 	depends on PFK
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 #//yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 config EXT4_ASYNC_DISCARD_SUPPORT
 	bool "Ext4 async discard Support"

@@ -24,7 +24,7 @@
 #include "cam_ife_hw_mgr.h"
 #include "cam_debug_util.h"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
 /*added by houyujun@Camera 20180626 for smmu dump*/
 #define CAM_VFE_WM_MAX 20
 #define CAM_VFE_WM_BASE_ADDR 0x00002200
@@ -172,7 +172,7 @@ static int cam_vfe_irq_err_top_half(uint32_t    evt_id,
 
 	handler_priv = th_payload->handler_priv;
 	core_info =  handler_priv->core_info;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*added by houyujun@Camera 20180626 for smmu dump*/
 	CAM_ERR(CAM_ISP,"stopping WMs");
 	/* stop all the wms for this vfe */
@@ -713,7 +713,7 @@ int cam_vfe_process_cmd(void *hw_priv, uint32_t cmd_type,
 	case CAM_ISP_HW_CMD_CLOCK_UPDATE:
 	case CAM_ISP_HW_CMD_BW_UPDATE:
 	case CAM_ISP_HW_CMD_BW_CONTROL:
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_REALME_RETARD
 	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
 	case CAM_ISP_HW_CMD_GET_IRQ_REGISTER_DUMP:
 	#endif

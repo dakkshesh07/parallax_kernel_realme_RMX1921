@@ -1,6 +1,6 @@
 /************************************************************************************
  ** File: - SDM670.LA.1.0\android\kernel\msm-4.4\drivers\soc\oppo\oppo_fp_common\oppo_fp_common.c
- ** VENDOR_EDIT
+ ** CONFIG_REALME_RETARD
  ** Copyright (C), 2008-2020, OPPO Mobile Comm Corp., Ltd
  **
  ** Description:

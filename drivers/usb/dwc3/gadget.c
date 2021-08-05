@@ -1955,7 +1955,7 @@ static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on, int suspend)
 	u32			reg, reg1;
 	u32			timeout = 1500;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
     /* Yichun.Chen	PSW.BSP.CHG  2019-08-07  for detect CDP */
     ktime_t start, diff;
 #endif
@@ -1971,7 +1971,7 @@ static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on, int suspend)
 		if (dwc->revision >= DWC3_REVISION_194A)
 			reg &= ~DWC3_DCTL_KEEP_CONNECT;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_REALME_RETARD
         /* Yichun.Chen	PSW.BSP.CHG  2019-08-07  for detect CDP */
         reg1 = dwc3_readl(dwc->regs, DWC3_DCTL);
         if (reg1 & DWC3_DCTL_RUN_STOP) /*only restart core if run bit already been set*/

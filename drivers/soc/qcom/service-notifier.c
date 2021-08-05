@@ -314,14 +314,14 @@ static int send_notif_listener_msg_req(struct service_notif_info *service_notif,
 			qmi_servreg_notif_register_listener_resp_msg_v01_ei;
 
 	down_read(&data->qmi_client_handle_rwlock);
-	#ifndef VENDOR_EDIT
+	#ifndef CONFIG_REALME_RETARD
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Machine.1416166, 2018/07/20,
 	 * Modify for qmi timeout issue for audio_pd.
 	 */
 	rc = qmi_send_req_wait(data->clnt_handle, &req_desc, &req, sizeof(req),
 				&resp_desc, &resp, sizeof(resp),
 				SERVER_TIMEOUT);
-	#else /* VENDOR_EDIT */
+	#else /* CONFIG_REALME_RETARD */
 	if (service_notif && (!strcmp(service_notif->service_path, "msm/adsp/audio_pd"))) {
 		pr_info("change timeout to %d ms for %s\n",
 			(SERVER_TIMEOUT+1500), service_notif->service_path);
@@ -333,7 +333,7 @@ static int send_notif_listener_msg_req(struct service_notif_info *service_notif,
 					&resp_desc, &resp, sizeof(resp),
 					SERVER_TIMEOUT);
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_REALME_RETARD */
 	up_read(&data->qmi_client_handle_rwlock);
 	if (rc < 0) {
 		pr_err("%s: Message sending failed/server timeout, ret - %d\n",

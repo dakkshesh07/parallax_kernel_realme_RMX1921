@@ -1,6 +1,6 @@
 /**
  * Copyright 2008-2013 OPPO Mobile Comm Corp., Ltd, All rights reserved.
- * VENDOR_EDIT:
+ * CONFIG_REALME_RETARD:
  * File:device_info.c
  * ModuleName :devinfo
  * Author : wangjc
@@ -29,7 +29,7 @@
 
 #define DEVINFO_NAME "devinfo"
 #define INFO_BUF_LEN 64
-//#ifdef VENDOR_EDIT Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
+//#ifdef CONFIG_REALME_RETARD Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
 enum{
     RF_MODE_UNKNOWN,
     RF_MODE_SKY77916,
@@ -51,7 +51,7 @@ struct devinfo_data {
 	struct pinctrl_state *hw_operator_gpio_sleep;
 	struct pinctrl_state *hw_sub_gpio_sleep;
 	struct pinctrl_state *hw_wlan_gpio_sleep;
-	struct pinctrl_state *Sboard_gpio_pullup;   //#ifdef VENDOR_EDIT Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
+	struct pinctrl_state *Sboard_gpio_pullup;   //#ifdef CONFIG_REALME_RETARD Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
 	struct pinctrl_state *Sboard_gpio_pulldown;
 	struct pinctrl_state *sub_id_active;
 	struct pinctrl_state *sub_id_sleep;
@@ -65,7 +65,7 @@ struct devinfo_data {
 	int ant_select_gpio;
 	int wlan_hw_id1;
 	int wlan_hw_id2;
-	int Sboard_ver_gpio;     //#ifdef VENDOR_EDIT Wanghao@BSP.TP.Basic 2017-09-26 add for Sboard verify
+	int Sboard_ver_gpio;     //#ifdef CONFIG_REALME_RETARD Wanghao@BSP.TP.Basic 2017-09-26 add for Sboard verify
 };
 
 static struct proc_dir_entry *parent = NULL;
@@ -156,10 +156,10 @@ int register_device_proc(char *name, char *version, char *manufacture)
         return 0;
 }
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //Qicai.Gu@PSW.BSP.TP.Function, 2019/06/25, Add for oppo TP driver module
 EXPORT_SYMBOL(register_device_proc);
-//#endif /*VENDOR_EDIT*/
+//#endif /*CONFIG_REALME_RETARD*/
 
 int register_devinfo(char *name, struct manufacture_info *info)
 {
@@ -180,10 +180,10 @@ int register_devinfo(char *name, struct manufacture_info *info)
 	return 0;
 }
 
-//#ifdef VENDOR_EDIT
+//#ifdef CONFIG_REALME_RETARD
 //Qicai.Gu@PSW.BSP.TP.Function, 2019/06/25, Add for oppo TP driver module
 EXPORT_SYMBOL(register_devinfo);
-//#endif /*VENDOR_EDIT*/
+//#endif /*CONFIG_REALME_RETARD*/
 
 static void dram_type_add(void)
 {
@@ -518,7 +518,7 @@ static void mainboard_verify(struct devinfo_data *devinfo_data)
         register_device_proc("mainboard", mainboard_info.version, mainboard_info.manufacture);
 }
 
-/*#ifdef VENDOR_EDIT  Fanhong.Kong@ProDrv.CHG, modified 2014.4.13 for 14027*/
+/*#ifdef CONFIG_REALME_RETARD  Fanhong.Kong@ProDrv.CHG, modified 2014.4.13 for 14027*/
 static void pa_verify(void)
 {
         struct manufacture_info pa_info;
@@ -541,9 +541,9 @@ static void pa_verify(void)
         }
         register_device_proc("pa", pa_info.version, pa_info.manufacture);
 }
-/*#endif VENDOR_EDIT*/
+/*#endif CONFIG_REALME_RETARD*/
 
-//#ifdef VENDOR_EDIT Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
+//#ifdef CONFIG_REALME_RETARD Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
 static void RF_resource_verify(struct devinfo_data *devinfo_data)
 {
 	int ret = -1;
@@ -633,7 +633,7 @@ get_info_error:
 	return;
 }
 //#endif
-/*#ifdef VENDOR_EDIT*/
+/*#ifdef CONFIG_REALME_RETARD*/
 /*rendong.shi@BSP.boot,2016/03/24,add for mainboard resource*/
 static void wlan_resource_verify(struct devinfo_data *devinfo_data)
 {
@@ -755,7 +755,7 @@ static int devinfo_probe(struct platform_device *pdev)
                 pr_err("create prjVersion proc failed.\n");
         }
 
-        //#ifdef VENDOR_EDIT Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
+        //#ifdef CONFIG_REALME_RETARD Wanghao@BSP.TP.Basic 2017-09-26 add for verify RFmode
         RF_resource_verify(devinfo_data);
         //#endif
 
