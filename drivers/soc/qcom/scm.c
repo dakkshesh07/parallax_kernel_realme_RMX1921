@@ -27,12 +27,6 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/scm.h>
 
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-//Jiheng.Xie@TECH.BSP.Performance,2019-07-22,add for TZ time statistics
-#include <soc/oppo/oppo_healthinfo.h>
-#include <linux/cred_oppo.h>
-#endif /*VENDOR_EDIT*/
-
 #define SCM_ENOMEM		-5
 #define SCM_EOPNOTSUPP		-4
 #define SCM_EINVAL_ADDR		-3
@@ -646,13 +640,6 @@ static int __scm_call2(u32 fn_id, struct scm_desc *desc, bool retry)
 	int arglen = desc->arginfo & 0xf;
 	int ret, retry_count = 0;
 	u64 x0;
-#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HEALTHINFO)
-//Jiheng.Xie@TECH.BSP.Performance,2019-07-22,add for TZ time statistics
-	unsigned long oppo_scm_start = jiffies;
-	static DEFINE_RATELIMIT_STATE(ratelimit,
-		DEFAULT_RATELIMIT_INTERVAL,
-		DEFAULT_RATELIMIT_BURST);
-#endif /*VENDOR_EDIT*/
 
 	if (unlikely(!is_scm_armv8()))
 		return -ENODEV;

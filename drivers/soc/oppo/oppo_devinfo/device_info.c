@@ -39,9 +39,6 @@ enum{
 //#endif
 
 static int mainboard_res = 0;
-extern pid_t fork_pid_child;
-extern pid_t fork_pid_father;
-extern int happend_times;
 
 static struct of_device_id devinfo_id[] = {
         {.compatible = "oppo-devinfo", },
@@ -700,32 +697,6 @@ wlan_resource_set:
         register_device_proc("wlan_resource", mainboard_info.version, mainboard_info.manufacture);
 }
 
-static ssize_t fork_para_monitor_read_proc(struct file *file, char __user *buf,
-                size_t count, loff_t *off)
-{
-        char page[256] = {0};
-        int ret = 0;
-        ret = snprintf(page, 255, " times:%d\n father pid:%d\n child pid:%d\n", happend_times, fork_pid_father, fork_pid_child);
-
-        ret = simple_read_from_buffer(buf, count, off, page, strlen(page));
-        return ret;
-}
-
-struct file_operations fork_para_monitor_proc_fops = {
-        .read = fork_para_monitor_read_proc,
-        .write = NULL,
-};
-
-static void recursive_fork_para_monitor(void)
-{
-		struct proc_dir_entry *pentry;
-
-		pentry = proc_create("fork_monitor", S_IRUGO, parent, &fork_para_monitor_proc_fops);
-        if (!pentry) {
-                pr_err("create /devinfo/fork_monitor proc failed.\n");
-        }
-}
-
 static ssize_t mainboard_resource_read_proc(struct file *file, char __user *buf,
                 size_t count, loff_t *off)
 {
@@ -779,7 +750,6 @@ static int devinfo_probe(struct platform_device *pdev)
 
         sub_mainboard_verify(devinfo_data);
         wlan_resource_verify(devinfo_data);
-		recursive_fork_para_monitor();
         pentry = proc_create("wlan_res", S_IRUGO, NULL, &mainboard_res_proc_fops);
         if (!pentry) {
                 pr_err("create prjVersion proc failed.\n");
