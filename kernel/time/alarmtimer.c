@@ -27,7 +27,6 @@
 #include <linux/freezer.h>
 #include <linux/delay.h>
 
-
 /**
  * struct alarm_base - Alarm timer bases
  * @lock:		Lock for syncrhonized access to the base
@@ -256,6 +255,7 @@ static int alarmtimer_suspend(struct device *dev)
 	min = freezer_delta;
 	freezer_delta = 0;
 	spin_unlock_irqrestore(&freezer_delta_lock, flags);
+
 	rtc = alarmtimer_get_rtcdev();
 	/* If we have no rtcdev, just return */
 	if (!rtc)
