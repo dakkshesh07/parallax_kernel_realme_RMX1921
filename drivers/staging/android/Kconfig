@@ -52,7 +52,6 @@ config ANDROID_LMK_NOTIFY_TRIGGER
 	the number of free physical memory pages in the system falls below
 	a set threshold. The threshold is set by the new module parameter
 	"/sys/module/lowmemorykiller/parameters/notify_trigger".
-
 source "drivers/staging/android/ion/Kconfig"
 
 endif # if ANDROID

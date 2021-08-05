@@ -103,11 +103,6 @@ static struct page *ion_page_pool_remove(struct ion_page_pool *pool, bool high)
 		page = list_first_entry(&pool->low_items, struct page, lru);
 		pool->low_count--;
 	}
-#ifdef VENDOR_EDIT
-/*Huacai.Zhou@PSW.BSP.Kernel.MM, 2018-09-25, add ion cached account*/
-		zone_page_state_add(-(1L << pool->order), page_zone(page),
-				NR_IONCACHE_PAGES);
-#endif /*VENDOR_EDIT*/
 
 	clear_bit(ION_PAGE_CACHE, &page->private);
 
