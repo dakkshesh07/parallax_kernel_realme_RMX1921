@@ -220,9 +220,8 @@ struct dsi_panel {
 	enum dsi_dms_mode dms_mode;
 
 	bool sync_broadcast_en;
-	
-struct dsi_panel_exd_config exd_config;
 
+	struct dsi_panel_exd_config exd_config;
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature*/
 	bool is_hbm_enabled;
