@@ -436,6 +436,19 @@ static inline int devfreq_update_stats(struct devfreq *df)
 	return -EINVAL;
 }
 
+#ifdef VENDOR_EDIT
+//cuixiaogang@SRC.hypnus.2018-04-05. add support to set devfreq limit
+static inline int devfreq_set_limit(struct devfreq *df, unsigned long min, unsigned long max)
+{
+        return -EINVAL;
+}
+
+static inline int devfreq_get_limit(struct devfreq *df, unsigned long *min, unsigned long *max)
+{
+        return -EINVAL;
+}
+#endif /* VENDOR_EDIT */
+
 static inline int update_devfreq(struct devfreq *devfreq)
 {
 	return -EINVAL;
