@@ -782,7 +782,7 @@ static ssize_t tfa98xx_dbgfs_start_set(struct file *file,
     struct tfa98xx *tfa98xx = i2c_get_clientdata(i2c);
     struct tfa98xx_control *calib = &(handles_local[tfa98xx->handle].dev_ops.controls.calib);
     enum Tfa98xx_Error ret;
-    char buf[32];
+    char buf[32] ="";
     const char ref[] = "please calibrate now";
     int buf_size;
 

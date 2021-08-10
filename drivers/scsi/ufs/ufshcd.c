@@ -9953,7 +9953,7 @@ static void __ufshcd_shutdown_clkscaling(struct ufs_hba *hba)
 	}
 }
 
-static void ufshcd_shutdown_clkscaling(struct ufs_hba *hba)
+static __maybe_unused void ufshcd_shutdown_clkscaling(struct ufs_hba *hba)
 {
 	if (!ufshcd_is_clkscaling_supported(hba))
 		return;
