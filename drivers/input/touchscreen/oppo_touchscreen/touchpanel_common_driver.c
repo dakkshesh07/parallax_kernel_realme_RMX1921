@@ -1,6 +1,6 @@
 /**************************************************************
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd.￡?
- * VENDOR_EDIT
+ * CONFIG_REALME_RETARD
  * File       : touchpanel_common_driver.c
  * Description: Source file for Touch common driver
  * Version   : 1.0
@@ -85,20 +85,8 @@ static int pm_qos_state = 0;
 #define PM_QOS_TOUCH_WAKEUP_VALUE 400
 #endif
 
-uint8_t DouTap_enable = 0;               // double tap
-uint8_t UpVee_enable  = 0;               // V
-uint8_t DownVee_enable  = 0;             // ^
-uint8_t LeftVee_enable = 0;              // >
-uint8_t RightVee_enable = 0;             // <
-uint8_t Circle_enable = 0;               // O
-uint8_t DouSwip_enable = 0;              // ||
-uint8_t Left2RightSwip_enable = 0;       // -->
-uint8_t Right2LeftSwip_enable = 0;       // <--
-uint8_t Up2DownSwip_enable = 0;          // |v
-uint8_t Down2UpSwip_enable = 0;          // |^
-uint8_t Mgestrue_enable = 0;             // M
-uint8_t Wgestrue_enable = 0;             // W
-uint8_t Enable_gesture = 0;
+uint8_t DouTap_enable = 0;				 // double tap
+uint8_t gesture_enable = 0;
 
 /*******Part2:declear Area********************************/
 static void speedup_resume(struct work_struct *work);
@@ -135,10 +123,6 @@ bool ambient_display_status(void){
     return device_is_dozing();
 }
 
-bool is_call_session(void){
-    return q6_call_status();
-}
-
 /*******Part3:Function  Area********************************/
 /**
  * operate_mode_switch - switch work mode based on current params
@@ -160,8 +144,6 @@ void operate_mode_switch(struct touchpanel_data *ts)
                 ts->ts_ops->mode_switch(ts->chip_data, MODE_GESTURE, true);
                 if (ts->mode_switch_type == SEQUENCE)
                     ts->ts_ops->mode_switch(ts->chip_data, MODE_NORMAL, true);
-                if (ts->fp_enable == 1)
-                    ts->fingerprint_underscreen_support = 1;
                 if (ts->fingerprint_underscreen_support)
                     ts->ts_ops->enable_fingerprint(ts->chip_data, !!ts->fp_enable);
                 if ((ts->gesture_enable != 1) && ts->ts_ops->enable_gesture_mask)
@@ -375,6 +357,8 @@ static void tp_geture_info_transform(struct gesture_info *gesture, struct resolu
 static void tp_gesture_handle(struct touchpanel_data *ts)
 {
     struct gesture_info gesture_info_temp;
+    bool enabled = false;
+    int key = -1;
 
     if (!ts->ts_ops->get_gesture_info) {
         TPD_INFO("not support ts->ts_ops->get_gesture_info callback\n");
@@ -400,60 +384,62 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
              gesture_info_temp.gesture_type == Wgestrue ? "(W)" :
              gesture_info_temp.gesture_type == FingerprintDown ? "(fingerprintdown)" :
              gesture_info_temp.gesture_type == FingerprintUp ? "(fingerprintup)" : "unknown");
-        switch (gesture_info_temp.gesture_type) {
-        case DouTap:
-            enabled = DouTap_enable;
-            key = KEY_DOUBLE_TAP;
-            break;
-        case UpVee:
-            enabled = UpVee_enable;
-            key = KEY_GESTURE_UP_ARROW;
-            break;
-        case DownVee:
-            enabled = DownVee_enable;
-            key = KEY_GESTURE_DOWN_ARROW;
-            break;
-        case LeftVee:
-            enabled = LeftVee_enable;
-            key = KEY_GESTURE_LEFT_ARROW;
-            break;
-        case RightVee:
-            enabled = RightVee_enable;
-            key = KEY_GESTURE_RIGHT_ARROW;
-            break;
-        case Circle:
-            enabled = Circle_enable;
-            key = KEY_GESTURE_CIRCLE;
-            break;
-        case DouSwip:
-            enabled = DouSwip_enable;
-            key = KEY_GESTURE_TWO_SWIPE;
-            break;
-        case Left2RightSwip:
-            enabled = Left2RightSwip_enable;
-            key = KEY_GESTURE_SWIPE_LEFT;
-            break;
-        case Right2LeftSwip:
-            enabled = Right2LeftSwip_enable;
-            key = KEY_GESTURE_SWIPE_RIGHT;
-            break;
-        case Up2DownSwip:
-            enabled = Up2DownSwip_enable;
-            key = KEY_GESTURE_SWIPE_UP;
-            break;
-        case Down2UpSwip:
-            enabled = Down2UpSwip_enable;
-            key = KEY_GESTURE_SWIPE_DOWN;
-            break;
-        case Mgestrue:
-            enabled = Mgestrue_enable;
-            key = KEY_GESTURE_M;
-            break;
-        case Wgestrue:
-            enabled = Wgestrue_enable;
-            key = KEY_GESTURE_W;
-            break;
-    }
+
+	switch (gesture_info_temp.gesture_type) {
+		case DouTap:
+			enabled = DouTap_enable;
+			key = KEY_DOUBLE_TAP;
+			break;
+		case UpVee:
+		        enabled = gesture_enable;
+			key = KEY_GESTURE_UP_ARROW;
+			break;
+		case DownVee:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_DOWN_ARROW;
+			break;
+		case LeftVee:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_LEFT_ARROW;
+			break;
+		case RightVee:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_RIGHT_ARROW;
+			break;
+		case Circle:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_CIRCLE;
+			break;
+		case DouSwip:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_TWO_SWIPE;
+			break;
+		case Left2RightSwip:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_SWIPE_LEFT;
+			break;
+		case Right2LeftSwip:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_SWIPE_RIGHT;
+			break;
+		case Up2DownSwip:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_SWIPE_UP;
+			break;
+		case Down2UpSwip:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_SWIPE_DOWN;
+			break;
+		case Mgestrue:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_M;
+			break;
+		case Wgestrue:
+                        enabled = gesture_enable;
+			key = KEY_GESTURE_W;
+			break;
+	}
+
 #if GESTURE_COORD_GET
     if (ts->ts_ops->get_gesture_coord) {
         ts->ts_ops->get_gesture_coord(ts->chip_data, gesture_info_temp.gesture_type);
@@ -476,10 +462,12 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
         if(ts->geature_ignore)
             return;
 #endif
-        input_report_key(ts->input_dev, key, 1);
-        input_sync(ts->input_dev);
-        input_report_key(ts->input_dev, key, 0);
-        input_sync(ts->input_dev);
+	if (enabled) {
+            input_report_key(ts->input_dev, key, 1);
+            input_sync(ts->input_dev);
+            input_report_key(ts->input_dev, key, 0);
+            input_sync(ts->input_dev);
+        }
     } else if (gesture_info_temp.gesture_type == FingerprintDown) {
         ts->fp_info.touch_state = 1;
         opticalfp_irq_handler(&ts->fp_info);
@@ -1450,67 +1438,6 @@ void switch_headset_state(int headset_state)
 }
 EXPORT_SYMBOL(switch_headset_state);
 
-/*
- *    gesture_enable = 0 : disable gesture
- *    gesture_enable = 1 : enable gesture when ps is far away
- *    gesture_enable = 2 : disable gesture when ps is near
- */
-static ssize_t proc_gesture_control_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-{
-    int value = 0;
-    char buf[4] = {0};
-    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
-
-    if (count > 2)
-        return count;
-    if (!ts)
-        return count;
-
-    if (copy_from_user(buf, buffer, count)) {
-        TPD_INFO("%s: read proc input error.\n", __func__);
-        return count;
-    }
-    sscanf(buf, "%d", &value);
-    if (value > 2 || (ts->gesture_test_support && ts->gesture_test.flag))
-        return count;
-
-    mutex_lock(&ts->mutex);
-    if (ts->gesture_enable != value) {
-        ts->gesture_enable = value;
-        TPD_INFO("%s: gesture_enable = %d, is_suspended = %d\n", __func__, ts->gesture_enable, ts->is_suspended);
-        if (ts->is_incell_panel && (ts->suspend_state == TP_RESUME_EARLY_EVENT || ts->disable_gesture_ctrl) && (ts->tp_resume_order == LCD_TP_RESUME)) {
-            TPD_INFO("tp will resume, no need mode_switch in incell panel\n"); /*avoid i2c error or tp rst pulled down in lcd resume*/
-        } else if (ts->is_suspended) {
-            if (ts->fingerprint_underscreen_support && ts->fp_enable && ts->ts_ops->enable_gesture_mask) {
-                ts->ts_ops->enable_gesture_mask(ts->chip_data, ts->gesture_enable == 1);
-            } else {
-                operate_mode_switch(ts);
-            }
-        }
-    } else {
-        TPD_INFO("%s: do not do same operator :%d\n", __func__, value);
-    }
-    mutex_unlock(&ts->mutex);
-
-    return count;
-}
-
-static ssize_t proc_gesture_control_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
-{
-    int ret = 0;
-    char page[PAGESIZE] = {0};
-    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
-
-    if (!ts)
-        return 0;
-
-    TPD_DEBUG("double tap enable is: %d\n", ts->gesture_enable);
-    ret = snprintf(page, PAGESIZE - 1, "%d\n", ts->gesture_enable);
-    ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
-
-    return ret;
-}
-
 static ssize_t proc_coordinate_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
 {
     int ret = 0;
@@ -1530,13 +1457,6 @@ static ssize_t proc_coordinate_read(struct file *file, char __user *user_buf, si
 
     return ret;
 }
-
-static const struct file_operations proc_gesture_control_fops = {
-    .write = proc_gesture_control_write,
-    .read  = proc_gesture_control_read,
-    .open  = simple_open,
-    .owner = THIS_MODULE,
-};
 
 static const struct file_operations proc_coordinate_fops = {
     .read  = proc_coordinate_read,
@@ -1977,9 +1897,6 @@ static ssize_t prox_mask_write(struct file *file, const char __user *user_buf, s
     }
     TPD_INFO("%d was the userspace proximity value", value);
 
-    if (!is_call_session()){
-       return count;
-    }
     // Invert the userspace value
     infra_prox_far = !(!!value);
     TPD_INFO("%s was the value of infra proximity", infra_prox_far ? "Near": "Far");
@@ -2003,19 +1920,6 @@ static const struct file_operations prox_mask_control_fops = {
     .write = prox_mask_write,
     .read =  prox_mask_show,
     .open = simple_open,
-    .owner = THIS_MODULE,
-};
-
-static ssize_t incall_panel_suspend_show(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
-{
-    char page[PAGESIZE] = {0};
-    snprintf(page, PAGESIZE-1, "%d\n", is_call_session());
-    return simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
-}
-
-static const struct file_operations incall_panel_suspend_fops = {
-    .read  = incall_panel_suspend_show,
-    .open  = simple_open,
     .owner = THIS_MODULE,
 };
 
@@ -3249,55 +3153,6 @@ static const struct file_operations proc_oppo_apk_fops = {
 
 #endif //end of CONFIG_OPPO_TP_APK
 
-#define GESTURE_ATTR(name, out) \
-    static ssize_t name##_enable_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos) \
-    { \
-        int ret = 0; \
-        char page[PAGESIZE]; \
-        ret = sprintf(page, "%d\n", out); \
-        ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page)); \
-        return ret; \
-    } \
-    static ssize_t name##_enable_write_func(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos) \
-    { \
-        int enabled = 0; \
-        char page[PAGESIZE] = {0}; \
-        copy_from_user(page, user_buf, count); \
-        sscanf(page, "%d", &enabled); \
-        out = enabled > 0 ? 1 : 0; \
-        return count; \
-    } \
-    static const struct file_operations name##_enable_proc_fops = { \
-        .write = name##_enable_write_func, \
-        .read =  name##_enable_read_func, \
-        .open = simple_open, \
-        .owner = THIS_MODULE, \
-    };
-
-GESTURE_ATTR(double_tap, DouTap_enable);
-GESTURE_ATTR(up_arrow, UpVee_enable);
-GESTURE_ATTR(down_arrow, DownVee_enable);
-GESTURE_ATTR(left_arrow, LeftVee_enable);
-GESTURE_ATTR(right_arrow, RightVee_enable);
-GESTURE_ATTR(double_swipe, DouSwip_enable);
-GESTURE_ATTR(up_swipe, Up2DownSwip_enable);
-GESTURE_ATTR(down_swipe, Down2UpSwip_enable);
-GESTURE_ATTR(left_swipe, Left2RightSwip_enable);
-GESTURE_ATTR(right_swipe, Right2LeftSwip_enable);
-GESTURE_ATTR(letter_o, Circle_enable);
-GESTURE_ATTR(letter_w, Wgestrue_enable);
-GESTURE_ATTR(letter_m, Mgestrue_enable);
-
-#define CREATE_PROC_NODE(PARENT, NAME, MODE) \
-    prEntry_tmp = proc_create(#NAME, MODE, PARENT, &NAME##_proc_fops); \
-    if (prEntry_tmp == NULL) { \
-        ret = -ENOMEM; \
-        TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__); \
-    }
-
-#define CREATE_GESTURE_NODE(NAME) \
-    CREATE_PROC_NODE(prEntry_tp, NAME##_enable, 0666)
-
 /**
  * init_touchpanel_proc - Using for create proc interface
  * @ts: touchpanel_data struct using for common driver
@@ -3305,6 +3160,44 @@ GESTURE_ATTR(letter_m, Mgestrue_enable);
  * we need to set touchpanel_data struct as private_data to those file_inode
  * Returning zero(success) or negative errno(failed)
  */
+#define GESTURE_ATTR(name, out) \
+	static ssize_t name##_enable_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos) \
+	{ \
+		int ret = 0; \
+		char page[PAGESIZE]; \
+		ret = sprintf(page, "%d\n", out); \
+		ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page)); \
+		return ret; \
+	} \
+	static ssize_t name##_enable_write_func(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos) \
+	{ \
+		int enabled = 0; \
+		char page[PAGESIZE] = {0}; \
+		copy_from_user(page, user_buf, count); \
+		sscanf(page, "%d", &enabled); \
+		out = enabled > 0 ? 1 : 0; \
+		return count; \
+	} \
+	static const struct file_operations name##_enable_proc_fops = { \
+	    .write = name##_enable_write_func, \
+	    .read =  name##_enable_read_func, \
+	    .open = simple_open, \
+	    .owner = THIS_MODULE, \
+	};
+
+GESTURE_ATTR(double_tap, DouTap_enable);
+GESTURE_ATTR(gesture, gesture_enable);
+
+#define CREATE_PROC_NODE(PARENT, NAME, MODE) \
+	prEntry_tmp = proc_create(#NAME, MODE, PARENT, &NAME##_proc_fops); \
+	if (prEntry_tmp == NULL) { \
+		ret = -ENOMEM; \
+		TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__); \
+	}
+
+#define CREATE_GESTURE_NODE(NAME) \
+	CREATE_PROC_NODE(prEntry_tp, NAME##_enable, 0666)
+
 static int init_touchpanel_proc(struct touchpanel_data *ts)
 {
     int ret = 0;
@@ -3373,11 +3266,9 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
 
     //proc files-step2-4:/proc/touchpanel/double_tap_enable (black gesture related interface)
     if (ts->black_gesture_support) {
-        prEntry_tmp = proc_create_data("double_tap_enable", 0666, prEntry_tp, &proc_gesture_control_fops, ts);
-        if (prEntry_tmp == NULL) {
-            ret = -ENOMEM;
-            TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
-        }
+        CREATE_GESTURE_NODE(double_tap);
+        CREATE_GESTURE_NODE(gesture);
+
         prEntry_tmp = proc_create_data("coordinate", 0444, prEntry_tp, &proc_coordinate_fops, ts);
         if (prEntry_tmp == NULL) {
             ret = -ENOMEM;
@@ -3392,12 +3283,6 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
     }
 
     prEntry_tmp = proc_create_data("prox_mask", 0666, prEntry_tp, &prox_mask_control_fops, ts);
-    if (prEntry_tmp == NULL) {
-        ret = -ENOMEM;
-        TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
-    }
-
-    prEntry_tmp = proc_create_data("incall_status", 0444, prEntry_tp, &incall_panel_suspend_fops, ts);
     if (prEntry_tmp == NULL) {
         ret = -ENOMEM;
         TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
@@ -4817,9 +4702,11 @@ static int init_input_device(struct touchpanel_data *ts)
     set_bit(BTN_TOUCH, ts->input_dev->keybit);
     if (ts->black_gesture_support) {
         set_bit(KEY_F4, ts->input_dev->keybit);
+#ifdef CONFIG_OPPO_TP_APK
+        set_bit(KEY_POWER, ts->input_dev->keybit);
+#endif //end of CONFIG_OPPO_TP_APK
         set_bit(KEY_GESTURE_W, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_M, ts->input_dev->keybit);
-        set_bit(KEY_GESTURE_S, ts->input_dev->keybit);
         set_bit(KEY_DOUBLE_TAP, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_CIRCLE, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_TWO_SWIPE, ts->input_dev->keybit);
@@ -4832,9 +4719,6 @@ static int init_input_device(struct touchpanel_data *ts)
         set_bit(KEY_GESTURE_SWIPE_RIGHT, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_SWIPE_UP, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_SINGLE_TAP, ts->input_dev->keybit);
-#ifdef CONFIG_OPPO_TP_APK
-        set_bit(KEY_POWER, ts->input_dev->keybit);
-#endif //end of CONFIG_OPPO_TP_APK
     }
 
     ts->kpd_input_dev->name = TPD_DEVICE"_kpd";
@@ -5790,7 +5674,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
     ts->loading_fw = false;
     ts->is_suspended = 0;
     ts->suspend_state = TP_SPEEDUP_RESUME_COMPLETE;
-    ts->gesture_enable = 0;
+    ts->gesture_enable = 1;
     ts->game_mode_control = 0;
     ts->es_enable = 0;
     ts->fd_enable = 0;
