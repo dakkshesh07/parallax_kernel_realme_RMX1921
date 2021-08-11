@@ -67,7 +67,6 @@
 
 #include <trace/events/sched.h>
 
-
 int suid_dumpable = 0;
 
 static LIST_HEAD(formats);
@@ -1674,7 +1673,6 @@ static int exec_binprm(struct linux_binprm *bprm)
 	return ret;
 }
 
-
 /*
  * sys_execve() executes a new program.
  */
@@ -1728,7 +1726,6 @@ static int do_execveat_common(int fd, struct filename *filename,
 	retval = PTR_ERR(file);
 	if (IS_ERR(file))
 		goto out_unmark;
-
 
 	sched_exec();
 
