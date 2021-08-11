@@ -136,18 +136,6 @@ struct ion_client *msm_ion_client_create(const char *name);
 int ion_handle_get_flags(struct ion_client *client, struct ion_handle *handle,
 			 unsigned long *flags);
 
-#ifdef VENDOR_EDIT
-//fangpan@Swdp.shanghai, 2016/02/02, add ion memory status interface
-/**
- * get_system_ion_heap - get the corresponding ion heap from heaps
- *
- * @heap_type - heap type
- *
- * Gets the heap point for a heap.
- */
-extern struct ion_heap* get_system_ion_heap(enum ion_heap_type heap_type);
-#endif
-
 /**
  * ion_handle_get_size - get the allocated size of a given handle
  *
@@ -199,21 +187,6 @@ static inline int ion_handle_get_size(struct ion_client *client,
 {
 	return -ENODEV;
 }
-
-#ifdef VENDOR_EDIT
-//fangpan@Swdp.shanghai, 2016/02/02, add ion memory status interface
-/**
- * get_system_ion_heap - get the corresponding ion heap from heaps
- *
- * @heap_type - heap type
- *
- * Gets the heap point for a heap.
- */
-static inline struct ion_heap* get_system_ion_heap(enum ion_heap_type heap_type)
-{
-	return NULL;
-}
-#endif
 
 static inline int msm_ion_do_cache_op(
 			struct ion_client *client,
