@@ -135,6 +135,10 @@ bool ambient_display_status(void){
     return device_is_dozing();
 }
 
+bool is_call_session(void){
+    return q6_call_status();
+}
+
 /*******Part3:Function  Area********************************/
 /**
  * operate_mode_switch - switch work mode based on current params
@@ -176,7 +180,7 @@ void operate_mode_switch(struct touchpanel_data *ts)
         }
 
         if (ts->face_detect_support) {
-            if (ts->fd_enable && !infra_prox_far) {
+             if (ts->fd_enable && !infra_prox_far) {
                 input_event(ts->ps_input_dev, EV_MSC, MSC_RAW, 0);
                 input_sync(ts->ps_input_dev);
             }
@@ -371,8 +375,6 @@ static void tp_geture_info_transform(struct gesture_info *gesture, struct resolu
 static void tp_gesture_handle(struct touchpanel_data *ts)
 {
     struct gesture_info gesture_info_temp;
-    bool enabled = false;
-    int key = -1;
 
     if (!ts->ts_ops->get_gesture_info) {
         TPD_INFO("not support ts->ts_ops->get_gesture_info callback\n");
@@ -1448,6 +1450,67 @@ void switch_headset_state(int headset_state)
 }
 EXPORT_SYMBOL(switch_headset_state);
 
+/*
+ *    gesture_enable = 0 : disable gesture
+ *    gesture_enable = 1 : enable gesture when ps is far away
+ *    gesture_enable = 2 : disable gesture when ps is near
+ */
+static ssize_t proc_gesture_control_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
+{
+    int value = 0;
+    char buf[4] = {0};
+    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
+
+    if (count > 2)
+        return count;
+    if (!ts)
+        return count;
+
+    if (copy_from_user(buf, buffer, count)) {
+        TPD_INFO("%s: read proc input error.\n", __func__);
+        return count;
+    }
+    sscanf(buf, "%d", &value);
+    if (value > 2 || (ts->gesture_test_support && ts->gesture_test.flag))
+        return count;
+
+    mutex_lock(&ts->mutex);
+    if (ts->gesture_enable != value) {
+        ts->gesture_enable = value;
+        TPD_INFO("%s: gesture_enable = %d, is_suspended = %d\n", __func__, ts->gesture_enable, ts->is_suspended);
+        if (ts->is_incell_panel && (ts->suspend_state == TP_RESUME_EARLY_EVENT || ts->disable_gesture_ctrl) && (ts->tp_resume_order == LCD_TP_RESUME)) {
+            TPD_INFO("tp will resume, no need mode_switch in incell panel\n"); /*avoid i2c error or tp rst pulled down in lcd resume*/
+        } else if (ts->is_suspended) {
+            if (ts->fingerprint_underscreen_support && ts->fp_enable && ts->ts_ops->enable_gesture_mask) {
+                ts->ts_ops->enable_gesture_mask(ts->chip_data, ts->gesture_enable == 1);
+            } else {
+                operate_mode_switch(ts);
+            }
+        }
+    } else {
+        TPD_INFO("%s: do not do same operator :%d\n", __func__, value);
+    }
+    mutex_unlock(&ts->mutex);
+
+    return count;
+}
+
+static ssize_t proc_gesture_control_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
+{
+    int ret = 0;
+    char page[PAGESIZE] = {0};
+    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
+
+    if (!ts)
+        return 0;
+
+    TPD_DEBUG("double tap enable is: %d\n", ts->gesture_enable);
+    ret = snprintf(page, PAGESIZE - 1, "%d\n", ts->gesture_enable);
+    ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
+
+    return ret;
+}
+
 static ssize_t proc_coordinate_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
 {
     int ret = 0;
@@ -1467,6 +1530,13 @@ static ssize_t proc_coordinate_read(struct file *file, char __user *user_buf, si
 
     return ret;
 }
+
+static const struct file_operations proc_gesture_control_fops = {
+    .write = proc_gesture_control_write,
+    .read  = proc_gesture_control_read,
+    .open  = simple_open,
+    .owner = THIS_MODULE,
+};
 
 static const struct file_operations proc_coordinate_fops = {
     .read  = proc_coordinate_read,
@@ -1907,6 +1977,9 @@ static ssize_t prox_mask_write(struct file *file, const char __user *user_buf, s
     }
     TPD_INFO("%d was the userspace proximity value", value);
 
+    if (!is_call_session()){
+       return count;
+    }
     // Invert the userspace value
     infra_prox_far = !(!!value);
     TPD_INFO("%s was the value of infra proximity", infra_prox_far ? "Near": "Far");
@@ -1930,6 +2003,19 @@ static const struct file_operations prox_mask_control_fops = {
     .write = prox_mask_write,
     .read =  prox_mask_show,
     .open = simple_open,
+    .owner = THIS_MODULE,
+};
+
+static ssize_t incall_panel_suspend_show(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
+{
+    char page[PAGESIZE] = {0};
+    snprintf(page, PAGESIZE-1, "%d\n", is_call_session());
+    return simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
+}
+
+static const struct file_operations incall_panel_suspend_fops = {
+    .read  = incall_panel_suspend_show,
+    .open  = simple_open,
     .owner = THIS_MODULE,
 };
 
@@ -3287,19 +3373,11 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
 
     //proc files-step2-4:/proc/touchpanel/double_tap_enable (black gesture related interface)
     if (ts->black_gesture_support) {
-        CREATE_GESTURE_NODE(double_tap);
-        CREATE_GESTURE_NODE(up_arrow);
-        CREATE_GESTURE_NODE(down_arrow);
-        CREATE_GESTURE_NODE(left_arrow);
-        CREATE_GESTURE_NODE(right_arrow);
-        CREATE_GESTURE_NODE(double_swipe);
-        CREATE_GESTURE_NODE(up_swipe);
-        CREATE_GESTURE_NODE(down_swipe);
-        CREATE_GESTURE_NODE(left_swipe);
-        CREATE_GESTURE_NODE(right_swipe);
-        CREATE_GESTURE_NODE(letter_o);
-        CREATE_GESTURE_NODE(letter_w);
-        CREATE_GESTURE_NODE(letter_m);
+        prEntry_tmp = proc_create_data("double_tap_enable", 0666, prEntry_tp, &proc_gesture_control_fops, ts);
+        if (prEntry_tmp == NULL) {
+            ret = -ENOMEM;
+            TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
+        }
         prEntry_tmp = proc_create_data("coordinate", 0444, prEntry_tp, &proc_coordinate_fops, ts);
         if (prEntry_tmp == NULL) {
             ret = -ENOMEM;
@@ -3314,6 +3392,12 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
     }
 
     prEntry_tmp = proc_create_data("prox_mask", 0666, prEntry_tp, &prox_mask_control_fops, ts);
+    if (prEntry_tmp == NULL) {
+        ret = -ENOMEM;
+        TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
+    }
+
+    prEntry_tmp = proc_create_data("incall_status", 0444, prEntry_tp, &incall_panel_suspend_fops, ts);
     if (prEntry_tmp == NULL) {
         ret = -ENOMEM;
         TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
@@ -5706,7 +5790,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
     ts->loading_fw = false;
     ts->is_suspended = 0;
     ts->suspend_state = TP_SPEEDUP_RESUME_COMPLETE;
-    ts->gesture_enable = 1;
+    ts->gesture_enable = 0;
     ts->game_mode_control = 0;
     ts->es_enable = 0;
     ts->fd_enable = 0;
