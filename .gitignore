@@ -123,3 +123,20 @@ kernel/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+.get_maintainer.ignore
+.gitattributes
+
+# my crap
+any/
+builds.sh
+clang/
+dtc/
+eva-32/
+eva-64/
+gcc.sh
+gcc32/
+gcc32_2/
+gcc64/
+gcc64_2/
+test.sh
+wireguard-4.9/
