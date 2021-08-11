@@ -81,13 +81,6 @@ static const char* host_info(struct Scsi_Host *host)
 static int slave_alloc (struct scsi_device *sdev)
 {
 	struct us_data *us = host_to_us(sdev->host);
-	
-	/*
-	 * Set the INQUIRY transfer length to 36.  We don't use any of
-	 * the extra data and many devices choke if asked for more or
-	 * less than 36 bytes.
-	 */
-	sdev->inquiry_len = 36;
 #ifndef VENDOR_EDIT
 /*LIZHIJIE@BSP.BASTCI.CHG  2019/10/18 add for asking the block layer to respect the maxpacket limitation*/
 	int maxp;

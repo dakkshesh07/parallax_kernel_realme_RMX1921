@@ -47,12 +47,11 @@
 #include <linux/extcon.h>
 #include <linux/reset.h>
 #include <linux/clk/qcom.h>
-#include <soc/qcom/boot_stats.h>
 #ifdef VENDOR_EDIT
 /* Jianchao.Shi@BSP.CHG.Basic, 2017/02/18, sjc Add for OTG sw */
 #include <soc/oppo/oppo_project.h>
 #endif
-
+#include <soc/qcom/boot_stats.h>
 #include "power.h"
 #include "core.h"
 #include "gadget.h"
