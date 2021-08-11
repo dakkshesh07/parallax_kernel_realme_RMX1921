@@ -48,11 +48,11 @@ struct vreg_config {
 };
 
 #ifdef CONFIG_19081_PWR
-static const struct vreg_config const vreg_conf[] = {
+static const struct vreg_config vreg_conf[] = {
     { "ldo7", 3300000UL, 3300000UL, 150000, },
 };
 #else
-static const struct vreg_config const vreg_conf[] = {
+static const struct vreg_config vreg_conf[] = {
     { "ldo5", 2960000UL, 2960000UL, 150000, },
 };
 #endif
