@@ -1591,11 +1591,10 @@ enum Tfa98xx_Error tfa_dsp_msg_read(Tfa98xx_handle_t handle,int length, unsigned
     int offset = 0;
     unsigned short start_offset=2; /* msg starts @xmem[2] ,[1]=cmd */
 
-    if ( length > TFA2_MAX_PARAM_SIZE) {
+    if ( length > TFA2_MAX_PARAM_SIZE)
         return Tfa98xx_Error_Bad_Parameter;
 
-        TFA_SET_BF(handle, DMEM, (uint16_t)Tfa98xx_DMEM_XMEM);
-    }
+    TFA_SET_BF(handle, DMEM, (uint16_t)Tfa98xx_DMEM_XMEM);
 
     error = -TFA_WRITE_REG(handle, MADD, start_offset);
     if (error != Tfa98xx_Error_Ok)
@@ -2271,11 +2270,10 @@ enum Tfa98xx_Error tfa98xx_dsp_write_drc(Tfa98xx_handle_t handle,
 enum Tfa98xx_Error tfa98xx_powerdown(Tfa98xx_handle_t handle, int powerdown)
 {
     enum Tfa98xx_Error error = Tfa98xx_Error_Ok;
-    if (!tfa98xx_handle_is_open(handle)) {
+    if (!tfa98xx_handle_is_open(handle))
         return Tfa98xx_Error_NotOpen;
 
-        TFA_SET_BF(handle, PWDN, (uint16_t)powerdown);
-    }
+    TFA_SET_BF(handle, PWDN, (uint16_t)powerdown);
 
     return error;
 }
