@@ -95,10 +95,9 @@ enum cam_isp_hw_cmd_type {
 	CAM_ISP_HW_CMD_BW_CONTROL,
 	CAM_ISP_HW_CMD_STOP_BUS_ERR_IRQ,
 	CAM_ISP_HW_CMD_GET_REG_DUMP,
-	#ifdef VENDOR_EDIT
-	/*Xiaoyang.Huang@RM.Camera add to fix preview freeze issue,case:04181061,20191010*/
+	CAM_ISP_HW_CMD_SOF_IRQ_DEBUG,
+	CAM_ISP_HW_CMD_SET_CAMIF_DEBUG,
 	CAM_ISP_HW_CMD_GET_IRQ_REGISTER_DUMP,
-	#endif
 	CAM_ISP_HW_CMD_MAX,
 };
 
@@ -180,7 +179,7 @@ struct cam_isp_hw_cmd_buf_update {
  *
  */
 struct cam_isp_hw_get_wm_update {
-	uint64_t                       *image_buf;
+	dma_addr_t                     *image_buf;
 	uint32_t                        num_buf;
 	struct cam_buf_io_cfg          *io_cfg;
 };
