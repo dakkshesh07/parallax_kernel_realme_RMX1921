@@ -3173,7 +3173,8 @@ static const struct file_operations proc_oppo_apk_fops = {
 	{ \
 		int enabled = 0; \
 		char page[PAGESIZE] = {0}; \
-		copy_from_user(page, user_buf, count); \
+		if(copy_from_user(page, user_buf, count)) \
+			return 0; \
 		sscanf(page, "%d", &enabled); \
 		out = enabled > 0 ? 1 : 0; \
 		return count; \
