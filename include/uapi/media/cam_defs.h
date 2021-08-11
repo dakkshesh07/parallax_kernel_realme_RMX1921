@@ -222,6 +222,30 @@ struct cam_iommu_handle {
 #define CAM_PACKET_DEV_LRME                     17
 #define CAM_PACKET_DEV_MAX                      18
 
+/**
+ * struct cam_dump_req_cmd -
+ *        Dump the information of issue req id
+ *
+ * @issue_req_id   : Issue Request Id
+ * @session_handle : Session Handle
+ * @link_hdl       : link handle
+ * @dev_handle     : Device Handle
+ * @error_type     : Error Type
+ * @buf_handle     : Buffer Handle
+ * @offset         : offset for the buffer
+ * @reserved       : Reserved
+ */
+struct cam_dump_req_cmd {
+	int64_t        issue_req_id;
+	int32_t        session_handle;
+	int32_t        link_hdl;
+	int32_t        dev_handle;
+	int32_t        error_type;
+	uint32_t       buf_handle;
+	int32_t        offset;
+	uint32_t       reserved;
+};
+
 
 /* constants */
 #define CAM_PACKET_MAX_PLANES                   3

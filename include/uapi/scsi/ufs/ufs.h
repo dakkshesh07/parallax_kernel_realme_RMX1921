@@ -55,10 +55,7 @@ enum desc_idn {
 	QUERY_DESC_IDN_RFU_1		= 0x6,
 	QUERY_DESC_IDN_GEOMETRY		= 0x7,
 	QUERY_DESC_IDN_POWER		= 0x8,
-#ifdef VENDOR_EDIT	
-	//xiaofan.yang@PSW.TECH.Stability, 2019/03/15,Add for check storage endurance
-	QUERY_DESC_IDN_HEALTH		= 0x9,
-#endif
+	QUERY_DESC_IDN_RFU_2		= 0x9,
 	QUERY_DESC_IDN_MAX,
 };
 
