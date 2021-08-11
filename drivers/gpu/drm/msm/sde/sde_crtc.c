@@ -5042,6 +5042,7 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			}
 			zpos++;
 		}
+
 		if (sde_crtc_config_fingerprint_dim_layer(&cstate->base, zpos)) {
 			SDE_ERROR("Failed to config dim layer\n");
 			return -EINVAL;

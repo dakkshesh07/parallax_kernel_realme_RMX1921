@@ -1049,11 +1049,6 @@ int dsi_message_validate_tx_mode(struct dsi_ctrl *dsi_ctrl,
 	return rc;
 }
 
-#ifdef VENDOR_EDIT
-/*liping-m@PSW.MM.Display.LCD.Stable,2018-09-26 add to debug smmu page fault error */
-static struct dsi_ctrl *global_dsi_ctrl;
-#endif /* VENDOR_EDIT */
-
 static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			  const struct mipi_dsi_msg *msg,
 			  u32 flags)
@@ -1127,11 +1122,6 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			true : false;
 		cmd_mem.use_lpm = (msg->flags & MIPI_DSI_MSG_USE_LPM) ?
 			true : false;
-
-		#ifdef VENDOR_EDIT
-		/*liping-m@PSW.MM.Display.LCD.Stable,2018-09-26 add to debug smmu page fault error */
-		global_dsi_ctrl = dsi_ctrl;
-		#endif /* VENDOR_EDIT */
 
 		cmdbuf = (u8 *)(dsi_ctrl->vaddr);
 		//#ifdef VENDOR_EDIT

@@ -698,7 +698,6 @@ static int dsi_panel_1p8_on_off(struct dsi_panel *panel , int value)
 	return rc;
 }
 #endif
-
 static int dsi_panel_power_on(struct dsi_panel *panel)
 {
 	int rc = 0;
@@ -775,8 +774,7 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
 {
 	int rc = 0;
     pr_err("%s:project_name = %d\n",__func__, get_project());
-
-dsi_panel_exd_disable(panel);
+	dsi_panel_exd_disable(panel);
 
 #ifndef VENDOR_EDIT
 /* Jinzhu.Han@RM.MM.LCD.stability 2019.11.23. Add for compatibility*/
