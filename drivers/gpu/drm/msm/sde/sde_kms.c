@@ -3662,6 +3662,6 @@ void sde_kms_trigger_early_wakeup(struct sde_kms *sde_kms,
 		sde_encoder_trigger_early_wakeup(drm_enc);
 
 	if (sde_kms->first_kickoff)
-		sde_power_scale_reg_bus(&priv->phandle, VOTE_INDEX_HIGH, false);
+		sde_power_scale_reg_bus(&priv->phandle, sde_kms->core_client, VOTE_INDEX_HIGH, false);
 	SDE_ATRACE_END("sde_kms_trigger_early_wakeup");
 }
