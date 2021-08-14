@@ -49,10 +49,6 @@ extern int slst_gpio_base_id;
 __attribute__((weak)) int check_touchirq_triggered(void) {return 0;}
 #endif /* VENDOR_EDIT */
 
-#include <linux/gpio.h>
-extern int slst_gpio_base_id;
-#define PROC_AWAKE_ID 12 /* 12th bit */
-
 const char *pm_states[PM_SUSPEND_MAX] = {
 	[PM_SUSPEND_FREEZE] = "freeze",
 	[PM_SUSPEND_MEM] = "mem",
@@ -945,14 +941,21 @@ int pm_suspend(suspend_state_t state)
 		return -EINVAL;
 
 	pm_suspend_marker("entry");
-	gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 0);
+#ifdef VENDOR_EDIT
+//Fei.Mo@BSP.Sensor 2018/06/25 modify for notify sensor suspend forward
+    gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 0);
+    pr_err("notify adsp suspend in the beging of pm suspend before file system.\n");
+#endif /* VENDOR_EDIT */
 
 #ifdef CONFIG_PM_SLEEP_MONITOR
 	start_suspend_mon();
 #endif
 
 	error = enter_state(state);
-	gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 1);
+#ifdef VENDOR_EDIT
+        gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 1);
+        pr_err("notify adsp resume in the end.\n");
+#endif /* VENDOR_EDIT */
 	if (error) {
 		suspend_stats.fail++;
 		dpm_save_failed_errno(error);
