@@ -216,8 +216,6 @@ static struct notifier_block wakeup_src_fb_notif = {
 	.notifier_call = wakeup_src_fb_notifier_callback,
 };
 #endif /* VENDOR_EDIT */
-static ssize_t last_resume_reason_show(struct kobject *kobj, struct kobj_attribute *attr,
-		char *buf)
 
 static void init_wakeup_irq_node(struct wakeup_irq_node *p, int irq)
 {
