@@ -1358,11 +1358,10 @@ static int hx83112b_nf_zf_part_info(const struct firmware *fw_entry){
 	int crc = -1;
 	bool ret = false;
 
-	if (!hx_parse_bin_cfg_data(fw_entry)){
+	if (!hx_parse_bin_cfg_data(fw_entry))
 		TPD_INFO("%s, Parse cfg from bin failed\n", __func__);  
 		himax_register_write(pzf_op->addr_system_reset,  4,  pzf_op->data_system_reset,  false);
 		himax_enter_safe_mode();
-    }
 		getnstimeofday(&timeStart);
 	/* first 48K */
 	
