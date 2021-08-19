@@ -232,28 +232,9 @@ static struct pinctrl_state *serial_pinctrl_state_disable = NULL;
 #endif
 #ifdef VENDOR_EDIT
 //Nanwei.Deng@BSP.CHG.Basic 2018/05/01  Add for debug console reg issue 969323*/
-/*Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro*/
 bool boot_with_console(void)
 {
-
-	if (oppo_daily_build()) {
-		return true;
-	}
-
-	if(get_boot_mode() == MSM_BOOT_MODE__FACTORY)
-	{
-		return true;
-	}
-	else {
-		if(oem_get_uartlog_status() == true)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	return false;
 }
 EXPORT_SYMBOL(boot_with_console);
 #endif/*VENDOR_EDIT*/
