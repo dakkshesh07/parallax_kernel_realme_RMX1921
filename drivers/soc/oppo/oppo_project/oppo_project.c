@@ -497,17 +497,7 @@ EXPORT_SYMBOL(is_confidential);
 
 bool oppo_daily_build(void)
 {
-#if defined(CONFIG_OPPO_BUILD_USER)
     return false;
-#endif
-
-    get_eng_version();
-    if ((ALL_NET_CMCC_TEST == oppo_eng_version) || (ALL_NET_CMCC_FIELD == oppo_eng_version) ||
-        (ALL_NET_CU_TEST == oppo_eng_version) || (ALL_NET_CU_FIELD == oppo_eng_version) ||
-        (ALL_NET_CT_TEST == oppo_eng_version) || (ALL_NET_CT_FIELD == oppo_eng_version))
-        return false;
-
-    return true;
 }
 EXPORT_SYMBOL(oppo_daily_build);
 
