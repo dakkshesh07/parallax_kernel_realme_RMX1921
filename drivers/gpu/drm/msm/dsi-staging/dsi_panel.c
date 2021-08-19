@@ -21,10 +21,6 @@
 #include <linux/firmware.h>
 #include <soc/oppo/oppo_project.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
-#include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
-
 #include "dsi_panel.h"
 #include "dsi_ctrl_hw.h"
 
@@ -1042,10 +1038,6 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	oppo_last_backlight = bl_lvl;
 	oppo_backlight_time = ktime_get();
 
-	/* LiPing-m@PSW.MM.Display.LCD.Stability,2019/01/10,add for lcd daily build and agingTest debug */
-	/* Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro */
-	if (oppo_daily_build())
-		pr_err("backlight level %d\n", bl_lvl);
 	/*** DC backlight config ****/
 	if (oppo_dimlayer_bl_enabled != oppo_dimlayer_bl_enable_real) {
 		oppo_dimlayer_bl_enable_real = oppo_dimlayer_bl_enabled;
