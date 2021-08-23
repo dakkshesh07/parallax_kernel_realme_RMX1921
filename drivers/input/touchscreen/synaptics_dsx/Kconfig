@@ -3,7 +3,6 @@
 #
 menuconfig TOUCHSCREEN_SYNAPTICS_DSX
 	bool "Synaptics DSX touchscreen"
-	default y
 	help
 	  Say Y here if you have a Synaptics DSX touchscreen connected
 	  to your system.
@@ -29,6 +28,7 @@ endchoice
 config TOUCHSCREEN_SYNAPTICS_DSX_CORE
 	tristate "Synaptics DSX core driver module"
 	depends on I2C || SPI_MASTER
+	default y
 	help
 	  Say Y here to enable basic touch reporting functionality.
 
@@ -40,6 +40,7 @@ config TOUCHSCREEN_SYNAPTICS_DSX_CORE
 config TOUCHSCREEN_SYNAPTICS_DSX_RMI_DEV
 	tristate "Synaptics DSX RMI device module"
 	depends on TOUCHSCREEN_SYNAPTICS_DSX_CORE
+	default y
 	help
 	  Say Y here to enable support for direct RMI register access.
 
@@ -51,6 +52,7 @@ config TOUCHSCREEN_SYNAPTICS_DSX_RMI_DEV
 config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE
 	tristate "Synaptics DSX firmware update module"
 	depends on TOUCHSCREEN_SYNAPTICS_DSX_CORE
+	default y
 	help
 	  Say Y here to enable support for doing firmware update.
 
@@ -62,6 +64,7 @@ config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE
 config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE_EXTRA_SYSFS
 	bool "Synaptics DSX firmware update sysfs attributes"
 	depends on TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE
+	default y
 	help
 	  Say Y here to enable support for sysfs attributes for
 	  performing firmware update in a development environment.
@@ -72,6 +75,7 @@ config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE_EXTRA_SYSFS
 config TOUCHSCREEN_SYNAPTICS_DSX_TEST_REPORTING
 	tristate "Synaptics DSX test reporting module"
 	depends on TOUCHSCREEN_SYNAPTICS_DSX_CORE
+	default y
 	help
 	  Say Y here to enable support for retrieving production test reports.
 
