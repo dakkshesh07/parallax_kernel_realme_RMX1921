@@ -5,6 +5,5 @@ obj-$(CONFIG_OPPO_FINGERPRINT) += goodix_optical_fp/
 else
 obj-$(CONFIG_OPPO_FINGERPRINT) += fpc/
 obj-$(CONFIG_OPPO_FINGERPRINT) += goodix_optical_fp/
-#obj-$(CONFIG_OPPO_FINGERPRINT) += silead/
 endif
 
