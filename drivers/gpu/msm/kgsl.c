@@ -4795,7 +4795,7 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 		goto error_pwrctrl_close;
 	}
 
-	if (!strcmp(name, "kgsl_3d0_irq"))
+	if (!strcmp(device->name, "kgsl_3d0_irq"))
 		irqflags |= IRQF_PERF_CRITICAL;
 
 	status = devm_request_irq(device->dev, device->pwrctrl.interrupt_num,
