@@ -109,16 +109,23 @@ static void quota2_log(const struct net_device *in,
 		return;
 	}
 	pm = nlmsg_data(nlh);
-	memset(pm, 0, sizeof(*pm));
 	if (skb->tstamp.tv64 == 0)
 		__net_timestamp((struct sk_buff *)skb);
+	pm->data_len = 0;
 	pm->hook = hooknum;
 	if (prefix != NULL)
 		strlcpy(pm->prefix, prefix, sizeof(pm->prefix));
+	else
+		*(pm->prefix) = '\0';
 	if (in)
 		strlcpy(pm->indev_name, in->name, sizeof(pm->indev_name));
+	else
+		pm->indev_name[0] = '\0';
+
 	if (out)
 		strlcpy(pm->outdev_name, out->name, sizeof(pm->outdev_name));
+	else
+		pm->outdev_name[0] = '\0';
 
 	schedule_work(&q->work);
 }
