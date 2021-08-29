@@ -27,6 +27,17 @@ ramdisk_compression=auto;
 ## AnyKernel install
 dump_boot;
 
+if [ -d /data/adb/magisk ]; then
+  # parallax related installation
+  . /tmp/anykernel/tools/parallax.sh;
+else
+  ui_print ""
+  ui_print "Magisk Not detected, skipping module installation"
+fi
+cp $home/parallax-kernel/image/Image.gz-dtb $home/Image.gz-dtb;
+
+ui_print ""
+
 if mountpoint -q /data; then
   # Optimize F2FS extension list (@arter97)
   for list_path in $(find /sys/fs/f2fs* -name extension_list); do
@@ -64,4 +75,5 @@ if mountpoint -q /data; then
 fi
 
 write_boot;
+ui_print "Thank you for installing Parallax Kernel"
 ## end install

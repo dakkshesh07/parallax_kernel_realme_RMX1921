@@ -140,6 +140,6 @@ gcc64/
 gcc64_2/
 test.sh
 wireguard-4.9/
-AnyKernel3/*Image*
+AnyKernel3/parallax-kernel/image/*Image*
 AnyKernel3/*.zip*
 out/
