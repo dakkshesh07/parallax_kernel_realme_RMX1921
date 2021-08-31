@@ -803,8 +803,8 @@ struct touchpanel_data {
 #if defined(TPD_USE_EINT)
     struct hrtimer         timer;                       /*using polling instead of IRQ*/
 #endif
-#if defined(CONFIG_FB)
-    struct notifier_block fb_notif;                     /*register to control suspend/resume*/
+#if defined(CONFIG_DRM_MSM)
+    struct notifier_block msm_drm_notif;                     /*register to control suspend/resume*/
 #endif
     struct monitor_data    monitor_data;
     struct monitor_data_v2 monitor_data_v2;
