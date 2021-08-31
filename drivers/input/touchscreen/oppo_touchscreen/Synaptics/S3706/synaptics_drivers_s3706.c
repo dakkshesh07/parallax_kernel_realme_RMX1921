@@ -31,7 +31,7 @@
 #include <linux/version.h>
 
 #ifdef CONFIG_FB
-#include <linux/fb.h>
+#include <linux/msm_drm_notify.h>
 #include <linux/notifier.h>
 #endif
 
@@ -5713,7 +5713,7 @@ static struct of_device_id tp_match_table[] = {
 };
 
 static const struct dev_pm_ops tp_pm_ops = {
-#ifdef CONFIG_FB
+#ifdef CONFIG_PM
         .suspend = synaptics_i2c_suspend,
         .resume = synaptics_i2c_resume,
 #endif
