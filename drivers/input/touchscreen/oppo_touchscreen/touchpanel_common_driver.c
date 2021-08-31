@@ -50,7 +50,7 @@
 #define TPD_DEBUG(a, arg...)\
     do{\
         if (LEVEL_DEBUG == tp_debug)\
-            pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
+            pr_debug("[TP]"TPD_DEVICE ": " a, ##arg);\
     }while(0)
 
 #define TPD_DETAIL(a, arg...)\
@@ -5534,7 +5534,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
     ts->msm_drm_notif.notifier_call = msm_drm_notifier_callback;
     ret = msm_drm_register_client(&ts->msm_drm_notif);
     if (ret)
-        TPD_ERR("Unable to register msm_drm_notifier: %d\n", ret);
+        TPD_INFO("Unable to register msm_drm_notifier: %d\n", ret);
 #endif
 
     //step15 : workqueue create(speedup_resume)
