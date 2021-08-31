@@ -18,10 +18,12 @@
 
 /*********PART1:Head files**********************/
 #include <linux/i2c.h>
-#ifdef CONFIG_FB
-#include <linux/fb.h>
+
+#ifdef CONFIG_DRM_MSM
+#include <linux/msm_drm_notify.h>
 #include <linux/notifier.h>
 #endif
+
 #include <linux/version.h>
 
 #include "../synaptics_common.h"
@@ -441,8 +443,8 @@ struct synaptics_rmi4_data {
         struct mutex rmi4_irq_enable_mutex;
         struct delayed_work rb_work;
         struct workqueue_struct *rb_workqueue;
-#ifdef CONFIG_FB
-        struct notifier_block fb_notifier;
+#ifdef CONFIG_DRM_MSM
+        struct notifier_block msm_drm_notif;
         struct work_struct reset_work;
         struct workqueue_struct *reset_workqueue;
 #endif
