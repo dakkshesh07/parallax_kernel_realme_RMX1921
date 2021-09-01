@@ -24,12 +24,10 @@
 #endif
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
-#elif CONFIG_FB
-#include <linux/notifier.h>
-#include <linux/fb.h>
+#endif
 #ifdef CONFIG_DRM_MSM
 #include <linux/msm_drm_notify.h>
-#endif
+#include <linux/notifier.h>
 #endif
 
 #ifdef CONFIG_OPPO_CHARGER_MTK
@@ -584,8 +582,8 @@ struct oppo_chg_chip {
 	bool chg_ctrl_by_vooc_default;
 	bool fg_bcl_poll;
 	bool chg_powersave;
-#ifdef CONFIG_FB
-	struct notifier_block chg_fb_notify;
+#ifdef CONFIG_DRM_MSM
+	struct notifier_block chg_msm_drm_notify;
 #endif
 	struct normalchg_gpio_pinctrl normalchg_gpio;
 	int chargerid_volt;
