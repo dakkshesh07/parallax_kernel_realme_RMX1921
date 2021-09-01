@@ -105,8 +105,8 @@ static void oppo_chg_get_chargerid_voltage(struct oppo_chg_chip *chip);
 static void oppo_chg_set_input_current_limit(struct oppo_chg_chip *chip);
 static void oppo_chg_battery_update_status(struct oppo_chg_chip *chip);
 
-#ifdef  CONFIG_FB
-static int fb_notifier_callback(struct notifier_block *nb, unsigned long event, void *data);
+#if defined(CONFIG_DRM_MSM)
+static int msm_drm_notifier_callback(struct notifier_block *nb, unsigned long event, void *data);
 #endif
 /****************************************/
 static int reset_mcu_delay = 0;
@@ -1383,17 +1383,13 @@ int oppo_chg_init(struct oppo_chg_chip *chip)
 		goto power_psy_reg_failed;
 	}
 
-#ifdef CONFIG_FB
-	chip->chg_fb_notify.notifier_call = fb_notifier_callback;
-#ifdef CONFIG_DRM_MSM
-	rc = msm_drm_register_client(&chip->chg_fb_notify);
-#else
-	rc = fb_register_client(&chip->chg_fb_notify);
+#if defined(CONFIG_DRM_MSM)
+	chip->chg_msm_drm_notify.notifier_call = msm_drm_notifier_callback;
+	rc = msm_drm_register_client(&chip->chg_msm_drm_notify);
 #endif /*CONFIG_DRM_MSM*/
 	if (rc) {
-		pr_err("Unable to register chg_fb_notify: %d\n", rc);
+		pr_err("Unable to register chg_msm_drm_notify: %d\n", rc);
 	}
-#endif
 
 	init_proc_chg_log();
 	init_proc_chg_cycle();
@@ -3329,9 +3325,8 @@ static bool oppo_chg_check_time_is_good(struct oppo_chg_chip *chip)
 	}
 }
 
-#ifdef CONFIG_FB
-#ifdef CONFIG_DRM_MSM
-static int fb_notifier_callback(struct notifier_block *nb,
+#if defined(CONFIG_DRM_MSM)
+static int msm_drm_notifier_callback(struct notifier_block *nb,
 		unsigned long event, void *data)
 {
 	int blank;
@@ -3358,30 +3353,6 @@ static int fb_notifier_callback(struct notifier_block *nb,
 	}
 	return 0;
 }
-#else
-static int fb_notifier_callback(struct notifier_block *nb,
-		unsigned long event, void *data)
-{
-	int blank;
-	struct fb_event *evdata = data;
-
-	if (!g_charger_chip) {
-		return 0;
-	}
-	if (evdata && evdata->data) {
-		if (event == FB_EVENT_BLANK) {
-			blank = *(int *)evdata->data;
-			if (blank == FB_BLANK_UNBLANK) {
-				g_charger_chip->led_on = true;
-				g_charger_chip->led_on_change = true;
-			} else if (blank == FB_BLANK_POWERDOWN) {
-				g_charger_chip->led_on = false;
-				g_charger_chip->led_on_change = true;
-			}
-		}
-	}
-	return 0;
-}
 #endif /* CONFIG_DRM_MSM */
 
 void oppo_chg_set_allow_switch_to_fastchg(bool allow)
@@ -3399,19 +3370,6 @@ void oppo_chg_set_led_status(bool val)
 	/*Do nothing*/
 }
 EXPORT_SYMBOL(oppo_chg_set_led_status);
-#else
-void oppo_chg_set_led_status(bool val)
-{
-	charger_xlog_printk(CHG_LOG_CRTI, " val = %d\n", val);
-	if (!g_charger_chip) {
-		return;
-	} else {
-		g_charger_chip->led_on = val;
-		g_charger_chip->led_on_change = true;
-	}
-}
-EXPORT_SYMBOL(oppo_chg_set_led_status);
-#endif
 
 void oppo_chg_set_camera_status(bool val)
 {
