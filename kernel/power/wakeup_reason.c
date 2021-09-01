@@ -51,7 +51,6 @@ static ktime_t curr_stime; /* monotonic boottime offset after last suspend */
 #ifdef VENDOR_EDIT
 //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
 #include <linux/notifier.h>
-#include <linux/fb.h>
 #include <linux/msm_drm_notify.h>
 #endif /* VENDOR_EDIT */
 #ifdef VENDOR_EDIT
@@ -153,7 +152,7 @@ EXPORT_SYMBOL(wakeup_src_clean);
 
 
 #ifdef CONFIG_DRM_MSM
-static int wakeup_src_fb_notifier_callback(struct notifier_block *self,
+static int wakeup_src_msm_drm_notifier_callback(struct notifier_block *self,
 				 unsigned long event, void *data)
 {
 	struct msm_drm_notifier *evdata = data;
@@ -173,47 +172,16 @@ static int wakeup_src_fb_notifier_callback(struct notifier_block *self,
 				
 		if (*blank == MSM_DRM_BLANK_POWERDOWN)
 		{
-	//		wakeup_src_clean();
-	//		pr_info("[wakeup_src_fb_notifier_callback] wakeup_src_clean all wakeup\n");
+			wakeup_src_clean();
+			pr_info("[wakeup_src_msm_drm_notifier_callback] wakeup_src_clean all wakeup\n");
 		}
 	}
-	return 0;
-}
-#else
-static int wakeup_src_fb_notifier_callback(struct notifier_block *self,
-				 unsigned long event, void *data)
-{
-	struct fb_event *evdata = data;
-	int *blank;
-
-
-	pr_warn("%s:   is start event=%lu \n", __func__,event);
-
-	if (evdata && evdata->data && event == FB_EVENT_BLANK) 
-	{
-		blank = evdata->data;
-		
-		if (*blank == FB_BLANK_UNBLANK)
-        {
-			wakeup_reason_count_out();
-		}
-	}
-    else if (evdata && evdata->data && event == FB_EARLY_EVENT_BLANK) 
-	{
-			blank = evdata->data;
-			
-			if (*blank == FB_BLANK_POWERDOWN)
-			{
-	//			wakeup_src_clean();
-	//			pr_err("[wakeup_src_fb_notifier_callback] wakeup_src_clean all wakeup\n");
-			}
-    }
 	return 0;
 }
 #endif /* CONFIG_DRM_MSM */
 
-static struct notifier_block wakeup_src_fb_notif = {
-	.notifier_call = wakeup_src_fb_notifier_callback,
+static struct notifier_block wakeup_src_msm_drm_notif = {
+	.notifier_call = wakeup_src_msm_drm_notifier_callback,
 };
 #endif /* VENDOR_EDIT */
 
@@ -807,9 +775,7 @@ int __init wakeup_reason_init(void)
     #ifdef VENDOR_EDIT
     //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.  
 #ifdef CONFIG_DRM_MSM
-	msm_drm_register_client(&wakeup_src_fb_notif);
-#else
-	fb_register_client(&wakeup_src_fb_notif);
+	msm_drm_register_client(&wakeup_src_msm_drm_notif);
 #endif
     #endif /* VENDOR_EDIT */
 	return 0;

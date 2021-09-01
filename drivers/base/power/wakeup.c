@@ -32,12 +32,9 @@
 //Yunqing.Zeng@BSP.Power.Basic 2017/11/09 add for wakelock profiler
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
-#ifdef CONFIG_FB
-#include <linux/fb.h>
-#include <linux/notifier.h>
-#endif
 #ifdef CONFIG_DRM_MSM
 #include <linux/msm_drm_notify.h>
+#include <linux/notifier.h>
 #endif
 #endif /* VENDOR_EDIT */
 #ifdef VENDOR_EDIT
@@ -1569,41 +1566,27 @@ static ssize_t kernel_time_show(struct kobject *kobj, struct kobj_attribute *att
 	return buf_offset;
 }
 
-static int ws_fb_notify_callback(struct notifier_block *nb, unsigned long val, void *data)
+static int ws_msm_drm_notify_callback(struct notifier_block *nb, unsigned long val, void *data)
 {
-	struct fb_event *evdata = data;
+	struct msm_drm_notifier *evdata = data;
 	int *blank;
 	
-#ifdef CONFIG_DRM_MSM
 	if(val != MSM_DRM_EARLY_EVENT_BLANK && val != MSM_DRM_EVENT_BLANK)
-#else
-    if (val != FB_EVENT_BLANK && val != FB_EARLY_EVENT_BLANK)
-#endif
 	return 0;
 
     if(evdata && evdata->data) {
         blank = evdata->data;
-        printk(KERN_INFO  "%s, val=%ld, blank=%d\n", __func__,val,*blank);
-        #ifdef CONFIG_DRM_MSM
+        pr_debug(KERN_INFO  "%s, val=%ld, blank=%d\n", __func__,val,*blank);
         if (*blank == MSM_DRM_BLANK_POWERDOWN) { //suspend
              if (val == MSM_DRM_EARLY_EVENT_BLANK) {    //early event
-        #else
-        if (*blank == FB_BLANK_POWERDOWN) { //suspend
-            if (val == FB_EARLY_EVENT_BLANK) {    //early event
-        #endif
          //       kernel_time_reset();
 		//	    active_max_reset();
-                printk(KERN_INFO  "%s, POWERDOWN\n", __func__);
+                pr_debug(KERN_INFO  "%s, POWERDOWN\n", __func__);
              }
         }
-        #ifdef CONFIG_DRM_MSM
         else if (*blank == MSM_DRM_BLANK_UNBLANK) { //resume
              if (val == MSM_DRM_EVENT_BLANK) {    //event
-        #else
-        else if (*blank == FB_BLANK_UNBLANK) { //resume
-            if (val == FB_EVENT_BLANK) {    //event
-        #endif
-            printk(KERN_INFO  "%s, UNBLANK\n", __func__);
+            pr_debug(KERN_INFO  "%s, UNBLANK\n", __func__);
             }
         }
         
@@ -1611,8 +1594,8 @@ static int ws_fb_notify_callback(struct notifier_block *nb, unsigned long val, v
 	return NOTIFY_OK;
 }
 
-static struct notifier_block ws_fb_notify_block = {
-	.notifier_call =  ws_fb_notify_callback,
+static struct notifier_block ws_msm_drm_notify_block = {
+	.notifier_call =  ws_msm_drm_notify_callback,
 };
 
 static struct kobj_attribute active_max = __ATTR_RW(active_max);
@@ -1647,17 +1630,10 @@ static int __init wakelock_profiler_init(void)
 		printk(KERN_WARNING "[%s] failed to create a sysfs group %d\n",
 				__func__, retval);
 	}
-#if defined(CONFIG_DRM_MSM)
-	retval = msm_drm_register_client(&ws_fb_notify_block);
+	retval = msm_drm_register_client(&ws_msm_drm_notify_block);
 	if (retval) {
 		printk("%s error: register notifier failed,drm!\n", __func__);
 	}
-#elif defined(CONFIG_FB)
-    retval = fb_register_client(&ws_fb_notify_block);
-	if (retval) {
-		printk("%s error: register notifier failed!\n", __func__);
-	}
-#endif
 
 	return 0;
 }
