@@ -14,7 +14,7 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/init.h>
-#include <linux/fb.h>
+#include <linux/msm_drm_notify.h>
 #include <linux/leds.h>
 #include "../leds.h"
 
@@ -35,12 +35,12 @@ static int fb_notifier_callback(struct notifier_block *p,
 	struct bl_trig_notifier *n = container_of(p,
 					struct bl_trig_notifier, notifier);
 	struct led_classdev *led = n->led;
-	struct fb_event *fb_event = data;
+	struct msm_drm_notifier *fb_event = data;
 	int *blank;
 	int new_status;
 
 	/* If we aren't interested in this event, skip it immediately ... */
-	if (event != FB_EVENT_BLANK)
+	if (event != MSM_DRM_EVENT_BLANK)
 		return 0;
 
 	blank = fb_event->data;
@@ -119,7 +119,7 @@ static void bl_trig_activate(struct led_classdev *led)
 	n->old_status = UNBLANK;
 	n->notifier.notifier_call = fb_notifier_callback;
 
-	ret = fb_register_client(&n->notifier);
+	ret = msm_drm_register_client(&n->notifier);
 	if (ret)
 		dev_err(led->dev, "unable to register backlight trigger\n");
 	led->activated = true;
@@ -138,7 +138,7 @@ static void bl_trig_deactivate(struct led_classdev *led)
 
 	if (led->activated) {
 		device_remove_file(led->dev, &dev_attr_inverted);
-		fb_unregister_client(&n->notifier);
+		msm_drm_unregister_client(&n->notifier);
 		kfree(n);
 		led->activated = false;
 	}
