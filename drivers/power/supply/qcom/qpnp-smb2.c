@@ -260,7 +260,7 @@ module_param_named(
  *** THE SECOND PART:  driver sector ***
  ************************************************
  ************************************************/
-extern 	bool boot_with_console(void);
+#define boot_with_console(x) false
  static int oppo_chg_set_2uart_pinctrl_chgID(struct oppo_chg_chip *chip)
 {
 	struct smb_charger *chg = NULL;
