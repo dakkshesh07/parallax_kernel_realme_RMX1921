@@ -2120,6 +2120,7 @@ wait_again:
 		WARN_ON(signal_pending(current));
 		if (rcu_nocb_poll) {
 			schedule_timeout_interruptible(1);
+		}
 		goto wait_again;
 	}
 
