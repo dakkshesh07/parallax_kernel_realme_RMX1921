@@ -727,8 +727,13 @@ ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
 ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-KBUILD_CFLAGS	+= -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
+OPT_FLAGS := -O3 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
+else
+OPT_FLAGS := -O2 -march=armv8-a+crypto+crc -mtune=cortex-a55 -mcpu=cortex-a55+crypto+crc
 endif
+
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
 
 ifdef CONFIG_LLVM_POLLY
 KBUILD_CFLAGS	+= -mllvm -polly \
@@ -830,17 +835,19 @@ endif
 endif
 
 ifeq ($(cc-name),gcc)
-KBUILD_CFLAGS	+= -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
+OPT_FLAGS := -O3 -march=armv8-a+crypto+crc -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
 endif
+
 ifeq ($(cc-name),clang)
 ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-KBUILD_CFLAGS   += -O3
-KBUILD_CFLAGS	+= $(call cc-option, -mcpu=cortex-a75 -mtune=cortex-a75)
+OPT_FLAGS := -O3 -march=armv8-a+crypto+crc -mcpu=cortex-a75 -mtune=cortex-a75
 else
+OPT_FLAGS := -O2 -march=armv8-a+crypto+crc -mcpu=cortex-a55 -mtune=cortex-a55
 endif
-KBUILD_CFLAGS   += -O3
-KBUILD_CFLAGS	+= $(call cc-option, -mcpu=cortex-a55 -mtune=cortex-a55)
 endif
+
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror
