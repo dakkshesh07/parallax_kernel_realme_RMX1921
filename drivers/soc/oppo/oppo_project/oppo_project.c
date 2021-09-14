@@ -28,29 +28,6 @@ void init_project_version(void)
         }
 }
 
-
-unsigned int get_project(void)
-{
-        if (format == NULL) {
-                init_project_version();
-        }
-        return format->nproject;
-}
-
-#ifdef CONFIG_MACH_REALME
-//Nan.Zhong@PSW.MM.AudioDriver.SmartPA, 2019/06/11, Add for export get_project
-EXPORT_SYMBOL(get_project);
-#endif /* CONFIG_MACH_REALME */
-
-unsigned int is_project(OPPO_PROJECT project)
-{
-        return (get_project() == project?1:0);
-}
-#ifdef CONFIG_MACH_REALME
-/* Hui.Fan@PSW.BSP.OPPOFeature.Hypnus, 2017-7-17, export is_project */
-EXPORT_SYMBOL(is_project);
-#endif /* CONFIG_MACH_REALME */
-
 unsigned char get_PCB_Version(void)
 {
         if (format == NULL) {
