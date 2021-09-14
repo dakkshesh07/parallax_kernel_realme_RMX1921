@@ -6337,11 +6337,7 @@ schedtune_cpu_margin(unsigned long util, int cpu)
 static inline long
 schedtune_task_margin(struct task_struct *p)
 {
-#ifdef CONFIG_SCHED_TUNE
 	int boost = schedtune_task_boost(p);
-#elif  CONFIG_UCLAMP_TASK
-	int boost = uclamp_boosted(p);
-#endif
 	unsigned long util;
 	long margin;
 
@@ -8605,11 +8601,7 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 	 */
 	if (!env->src_rq->rd->overutilized &&
 		env->flags & LBF_IGNORE_BIG_TASKS &&
-#ifdef CONFIG_SCHED_TUNE	
 		(schedtune_task_boost(p) > 0))
-#elif  CONFIG_UCLAMP_TASK
-		(uclamp_boosted(p) > 0))
-#endif
 		return 0;
 
 	if (task_running(env->src_rq, p)) {
