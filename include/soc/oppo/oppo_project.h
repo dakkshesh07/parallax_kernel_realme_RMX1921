@@ -109,10 +109,30 @@ enum OPPO_ENG_VERSION {
 };
 /*#endif VENDOR_EDIT*/
 
+#ifdef CONFIG_MACH_REALME_RMX1921
+static inline unsigned int is_project(OPPO_PROJECT project)
+{
+        return OPPO_19651 == project;
+}
+
+static inline unsigned int get_project(void)
+{
+        return 19651;
+}
+#elif CONFIG_MACH_REALME_RMX1971
+static inline unsigned int get_project(void)
+{
+        return 19691;
+}
+
+static inline unsigned int is_project(OPPO_PROJECT project)
+{
+        return OPPO_19691 == project;
+}
+#endif
+
 #ifdef CONFIG_OPPO_COMMON_SOFT
 void init_project_version(void);
-unsigned int get_project(void);
-unsigned int is_project(OPPO_PROJECT project);
 unsigned char get_PCB_Version(void);
 unsigned char get_Modem_Version(void);
 unsigned char get_Operator_Version(void);
@@ -121,8 +141,6 @@ bool is_confidential(void);
 bool oppo_daily_build(void);
 #else
 unsigned int init_project_version(void) { return 0;}
-unsigned int get_project(void) { return 0;}
-unsigned int is_project(OPPO_PROJECT project) { return 0;}
 unsigned char get_PCB_Version(void) { return 0;}
 unsigned char get_Modem_Version(void) { return 0;}
 unsigned char get_Operator_Version(void) { return 0;}

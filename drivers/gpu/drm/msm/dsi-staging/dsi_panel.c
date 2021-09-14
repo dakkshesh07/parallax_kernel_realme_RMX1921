@@ -19,6 +19,7 @@
 #include <linux/of_gpio.h>
 #include <video/mipi_display.h>
 #include <linux/firmware.h>
+#include <soc/oppo/oppo_project.h>
 
 #ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
