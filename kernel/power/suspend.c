@@ -34,12 +34,6 @@
 
 #include "power.h"
 #ifdef VENDOR_EDIT
-//Fei.Mo@BSP.Sensor 2018/06/25 modify for notify sensor suspend forward
-#include <linux/gpio.h>
-extern int slst_gpio_base_id;
-#define PROC_AWAKE_ID 12 /* 12th bit */
-#endif /* VENDOR_EDIT */
-#ifdef VENDOR_EDIT
 //Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
 #include <soc/oppo/oppo_project.h>
 __attribute__((weak)) int check_touchirq_triggered(void) {return 0;}
