@@ -19,6 +19,7 @@
 #include <linux/of_gpio.h>
 #include <video/mipi_display.h>
 #include <linux/firmware.h>
+#include <soc/oppo/oppo_project.h>
 
 #include "dsi_panel.h"
 #include "dsi_ctrl_hw.h"
