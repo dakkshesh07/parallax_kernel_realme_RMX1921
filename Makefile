@@ -304,9 +304,9 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 HOSTCC       = clang
 HOSTCXX      = clang++
 ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -std=gnu89 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
-HOSTCXXFLAGS = -O3 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
-HOSTAFLAGS = -O3 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -std=gnu89 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
+HOSTCXXFLAGS = -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
+HOSTAFLAGS = -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
 else
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
 HOSTCXXFLAGS = -O2
@@ -727,9 +727,9 @@ ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
 ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-OPT_FLAGS := -O3 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
+OPT_FLAGS := -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
 else
-OPT_FLAGS := -O2 -march=armv8-a+crypto+crc -mtune=cortex-a55 -mcpu=cortex-a55+crypto+crc
+OPT_FLAGS := -O2 -march=armv8.2-a+crypto+crc -mtune=cortex-a55 -mcpu=cortex-a55+crypto+crc
 endif
 
 KBUILD_CFLAGS += $(OPT_FLAGS)
@@ -835,14 +835,14 @@ endif
 endif
 
 ifeq ($(cc-name),gcc)
-OPT_FLAGS := -O3 -march=armv8-a+crypto+crc -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
+OPT_FLAGS := -O3 -march=armv8.2-a+crypto+crc -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
 endif
 
 ifeq ($(cc-name),clang)
 ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-OPT_FLAGS := -O3 -march=armv8-a+crypto+crc -mcpu=cortex-a75 -mtune=cortex-a75
+OPT_FLAGS := -O3 -march=armv8.2-a+crypto+crc -mcpu=cortex-a75 -mtune=cortex-a75
 else
-OPT_FLAGS := -O2 -march=armv8-a+crypto+crc -mcpu=cortex-a55 -mtune=cortex-a55
+OPT_FLAGS := -O2 -march=armv8.2-a+crypto+crc -mcpu=cortex-a55 -mtune=cortex-a55
 endif
 endif
 
