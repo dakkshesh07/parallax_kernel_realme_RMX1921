@@ -769,7 +769,7 @@ static void sys_sync_work_func(struct work_struct *work)
     wake_up(&sys_sync_wait);
 }
 
-static int sys_sync_queue(void)
+static int __maybe_unused sys_sync_queue(void)
 {
     int work_status = work_busy(&sys_sync_work);
 
