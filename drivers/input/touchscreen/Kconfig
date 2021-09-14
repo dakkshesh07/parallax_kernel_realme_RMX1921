@@ -240,7 +240,6 @@ config TOUCHSCREEN_CYTTSP4_SPI
 
 config TOUCHSCREEN_CYPRESS_CYTTSP5
 	tristate "Parade TrueTouch Gen5 Touchscreen Driver"
-	default y
 	help
 	  Core driver for Parade TrueTouch(tm) Standard Product
 	  Geneartion5 touchscreen controllers.
@@ -255,7 +254,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5
 config TOUCHSCREEN_CYPRESS_CYTTSP5_DEVICETREE_SUPPORT
 	bool "Enable Device Tree support"
 	depends on TOUCHSCREEN_CYPRESS_CYTTSP5 && OF
-	default y
 	help
 	  Devicetree parsor for Parade TrueTouch(tm) Standard Product
 	  Geneartion5 touchscreen controllers. Say Y here to enable
@@ -267,7 +265,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5_I2C
 	tristate "Parade TrueTouch Gen5 I2C"
 	depends on TOUCHSCREEN_CYPRESS_CYTTSP5
 	select I2C
-	default y
 	help
 	  Say Y here to enable I2C bus interface to Parade
 	  TrueTouch(tm) Standard Product Generation5 touchscreen
@@ -309,7 +306,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5_MT_A
 config TOUCHSCREEN_CYPRESS_CYTTSP5_MT_B
 	bool "Parade TrueTouch Gen5 MultiTouch Protocol B"
 	depends on TOUCHSCREEN_CYPRESS_CYTTSP5
-	default y
 	help
 	  This option controls which MultiTouch protocol will be
 	  used to report the touch events. This depends on your
@@ -324,7 +320,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5_MT_B
 config TOUCHSCREEN_CYPRESS_CYTTSP5_BUTTON
 	bool "Parade TrueTouch Gen5 MultiTouch CapSense Button"
 	depends on TOUCHSCREEN_CYPRESS_CYTTSP5
-	default y
 	help
 	  Say Y here to enable CapSense reporting on Parade
 	  TrueTouch(tm) Standard Product Generation5 touchscreen
@@ -335,7 +330,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5_BUTTON
 config TOUCHSCREEN_CYPRESS_CYTTSP5_PROXIMITY
 	bool "Parade TrueTouch Gen5 Proximity"
 	depends on TOUCHSCREEN_CYPRESS_CYTTSP5
-	default y
 	help
 	  Say Y here to enable proximity reporting on Parade
 	  TrueTouch(tm) Standard Product Generation5 touchscreen
@@ -346,7 +340,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5_PROXIMITY
 config TOUCHSCREEN_CYPRESS_CYTTSP5_DEVICE_ACCESS
 	tristate "Parade TrueTouch Gen5 MultiTouch Device Access"
 	depends on TOUCHSCREEN_CYPRESS_CYTTSP5
-	default y
 	help
 	  Say Y here to enable Parade TrueTouch(tm) Standard Product
 	  Generation5 touchscreen controller device access module.
@@ -372,7 +365,6 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5_DEVICE_ACCESS_API
 config TOUCHSCREEN_DA9034
 	tristate "Touchscreen support for Dialog Semiconductor DA9034"
 	depends on PMIC_DA903X
-	default y
 	help
 	  Say Y here to enable the support for the touchscreen found
 	  on Dialog Semiconductor DA9034 PMIC.
@@ -885,7 +877,6 @@ config TOUCHSCREEN_WM97XX
 config TOUCHSCREEN_WM9705
 	bool "WM9705 Touchscreen interface support"
 	depends on TOUCHSCREEN_WM97XX
-	default y
 	help
 	  Say Y here to enable support for the Wolfson Microelectronics
 	  WM9705 touchscreen controller.
@@ -893,7 +884,6 @@ config TOUCHSCREEN_WM9705
 config TOUCHSCREEN_WM9712
 	bool "WM9712 Touchscreen interface support"
 	depends on TOUCHSCREEN_WM97XX
-	default y
 	help
 	  Say Y here to enable support for the Wolfson Microelectronics
 	  WM9712 touchscreen controller.
@@ -901,7 +891,6 @@ config TOUCHSCREEN_WM9712
 config TOUCHSCREEN_WM9713
 	bool "WM9713 Touchscreen interface support"
 	depends on TOUCHSCREEN_WM97XX
-	default y
 	help
 	  Say Y here to enable support for the Wolfson Microelectronics
 	  WM9713 touchscreen controller.
@@ -996,92 +985,74 @@ config TOUCHSCREEN_MC13783
 	  module will be called mc13783_ts.
 
 config TOUCHSCREEN_USB_EGALAX
-	default y
 	bool "eGalax, eTurboTouch CT-410/510/700 device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_PANJIT
-	default y
 	bool "PanJit device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_3M
-	default y
 	bool "3M/Microtouch EX II series device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_ITM
-	default y
 	bool "ITM device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_ETURBO
-	default y
 	bool "eTurboTouch (non-eGalax compatible) device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_GUNZE
-	default y
 	bool "Gunze AHL61 device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_DMC_TSC10
-	default y
 	bool "DMC TSC-10/25 device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_IRTOUCH
-	default y
 	bool "IRTOUCHSYSTEMS/UNITOP device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_IDEALTEK
-	default y
 	bool "IdealTEK URTC1000 device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_GENERAL_TOUCH
-	default y
 	bool "GeneralTouch Touchscreen device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_GOTOP
-	default y
 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_JASTEC
-	default y
 	bool "JASTEC/DigiTech DTR-02U USB touch controller device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_ELO
-	default y
 	bool "Elo TouchSystems 2700 IntelliTouch controller device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_E2I
-	default y
 	bool "e2i Touchscreen controller (e.g. from Mimo 740)" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_ZYTRONIC
-	default y
 	bool "Zytronic controller" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_ETT_TC45USB
-	default y
 	bool "ET&T USB series TC4UM/TC5UH touchscreen controller support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_NEXIO
-	default y
 	bool "NEXIO/iNexio device support" if EXPERT
 	depends on TOUCHSCREEN_USB_COMPOSITE
 
 config TOUCHSCREEN_USB_EASYTOUCH
-	default y
 	bool "EasyTouch USB Touch controller device support" if EMBEDDED
 	depends on TOUCHSCREEN_USB_COMPOSITE
 	help
