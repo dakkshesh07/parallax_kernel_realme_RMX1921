@@ -468,6 +468,7 @@ static struct platform_driver oppo_fp_common_driver = {
         .name = "oppo_fp_common",
         .owner = THIS_MODULE,
         .of_match_table = oppo_fp_common_match_table,
+        .probe_type = PROBE_PREFER_ASYNCHRONOUS,
     },
 };
 

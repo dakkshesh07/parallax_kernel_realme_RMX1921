@@ -688,6 +688,7 @@ static struct platform_driver fpc1020_irq_driver = {
                 .name                   = "fpc_irq",
                 .owner                  = THIS_MODULE,
                 .of_match_table = fpc1020_of_match,
+                .probe_type = PROBE_PREFER_ASYNCHRONOUS,
          },
         .probe  = fpc1020_irq_probe,
         .remove = fpc1020_irq_remove
@@ -700,6 +701,7 @@ static struct spi_driver fpc1020_spi_driver = {
                 .bus    = &spi_bus_type,
 #ifdef CONFIG_OF
                 .of_match_table = fpc1020_spi_of_match,
+                .probe_type = PROBE_PREFER_ASYNCHRONOUS,
 #endif
         },
         .probe  = fpc1020_spi_probe,
