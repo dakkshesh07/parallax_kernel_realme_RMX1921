@@ -557,7 +557,7 @@ int adf_device_init(struct adf_device *dev, struct device *parent,
 	mutex_init(&dev->client_lock);
 	INIT_LIST_HEAD(&dev->post_list);
 	mutex_init(&dev->post_lock);
-	init_kthread_worker(&dev->post_worker);
+	kthread_init_worker(&dev->post_worker);
 	INIT_LIST_HEAD(&dev->attached);
 	INIT_LIST_HEAD(&dev->attach_allowed);
 
@@ -571,7 +571,7 @@ int adf_device_init(struct adf_device *dev, struct device *parent,
 				__func__, ret);
 		goto err;
 	}
-	init_kthread_work(&dev->post_work, adf_post_work_func);
+	kthread_init_work(&dev->post_work, adf_post_work_func);
 
 	ret = adf_device_sysfs_init(dev);
 	if (ret < 0)
