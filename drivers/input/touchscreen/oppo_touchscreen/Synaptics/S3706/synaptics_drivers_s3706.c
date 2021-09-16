@@ -5733,6 +5733,7 @@ static struct i2c_driver tp_i2c_driver = {
                 .name   = TPD_DEVICE,
                 .of_match_table =  tp_match_table,
                 .pm = &tp_pm_ops,
+                .probe_type = PROBE_PREFER_ASYNCHRONOUS,
         },
 };
 
