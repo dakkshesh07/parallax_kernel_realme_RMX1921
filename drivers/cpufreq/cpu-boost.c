@@ -23,7 +23,7 @@
 #include <linux/slab.h>
 #include <linux/input.h>
 #include <linux/time.h>
-#include <uapi/linux/sched/types.h>
+#include <linux/sched.h>
 
 #include <linux/sched/rt.h>
 
