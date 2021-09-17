@@ -20,7 +20,7 @@
 
 #define SET_DELAY (2 * HZ)
 #define PROC_AWAKE_ID 12 /* 12th bit */
-static int slst_gpio_base_id;
+int slst_gpio_base_id;
 
 
 /**
