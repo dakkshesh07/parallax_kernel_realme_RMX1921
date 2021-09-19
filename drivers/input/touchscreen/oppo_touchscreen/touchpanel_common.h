@@ -26,7 +26,7 @@
 #include <linux/slab.h>
 #include <linux/firmware.h>
 #include <linux/kthread.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <soc/oppo/device_info.h>
 #include <linux/delay.h>
 #include <linux/jiffies.h>

@@ -20,7 +20,7 @@
 #include <linux/delay.h>
 #include <linux/sysfs.h>
 #include <linux/input.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>

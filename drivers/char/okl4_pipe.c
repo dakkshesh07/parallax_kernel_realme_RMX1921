@@ -36,7 +36,7 @@
 #include <linux/sched.h>
 #include <linux/wait.h>
 #include <linux/of.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <asm-generic/okl4_virq.h>
 
 #include <microvisor/microvisor.h>
