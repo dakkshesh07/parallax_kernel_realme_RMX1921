@@ -243,6 +243,7 @@ ifdef CONFIG_VDSO32
 	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso32 \
 	include/generated/vdso32-offsets.h arch/arm64/kernel/vdso32/vdso.so
 endif
+endif
 
 define archhelp
   echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
