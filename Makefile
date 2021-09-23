@@ -382,7 +382,7 @@ AFLAGS_MODULE   =
 LDFLAGS_MODULE  = --strip-debug
 CFLAGS_KERNEL	=
 AFLAGS_KERNEL	=
-LDFLAGS_vmlinux =
+LDFLAGS_vmlinux =	--strip-debug
 
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE    := \
@@ -921,11 +921,11 @@ KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 
 ifeq ($(ld-name),lld)
 ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-KBUILD_LDFLAGS += -O3
-LDFLAGS += -O3
+KBUILD_LDFLAGS += -O3 --strip-debug
+LDFLAGS += -O3 --strip-debug
 else
-KBUILD_LDFLAGS += -O2
-LDFLAGS += -O2
+KBUILD_LDFLAGS += -O2 --strip-debug
+LDFLAGS += -O2 --strip-debug
 endif
 endif
 
