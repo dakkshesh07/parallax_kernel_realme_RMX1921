@@ -221,7 +221,7 @@ config PTE_64BIT
 config PHYS_64BIT
 	bool 'Large physical address support' if E500 || PPC_86xx
 	depends on (44x || E500 || PPC_86xx) && !PPC_83xx && !PPC_82xx
-	---help---
+	help
 	  This option enables kernel support for larger than 32-bit physical
 	  addresses.  This feature may not be available on all cores.
 
@@ -234,7 +234,7 @@ config PHYS_64BIT
 config ALTIVEC
 	bool "AltiVec Support"
 	depends on 6xx || PPC_BOOK3S_64 || (PPC_E500MC && PPC64)
-	---help---
+	help
 	  This option enables kernel support for the Altivec extensions to the
 	  PowerPC processor. The kernel currently supports saving and restoring
 	  altivec registers, and turning on the 'altivec enable' bit so user
@@ -250,7 +250,7 @@ config ALTIVEC
 config VSX
 	bool "VSX Support"
 	depends on PPC_BOOK3S_64 && ALTIVEC && PPC_FPU
-	---help---
+	help
 
 	  This option enables kernel support for the Vector Scaler extensions
 	  to the PowerPC processor. The kernel currently supports saving and
@@ -267,7 +267,7 @@ config PPC_ICSWX
 	bool "Support for PowerPC icswx coprocessor instruction"
 	depends on PPC_BOOK3S_64
 	default n
-	---help---
+	help
 
 	  This option enables kernel support for the PowerPC Initiate
 	  Coprocessor Store Word (icswx) coprocessor instruction on POWER7
@@ -285,7 +285,7 @@ config PPC_ICSWX_PID
 	bool "icswx requires direct PID management"
 	depends on PPC_ICSWX
 	default y
-	---help---
+	help
 	  The PID register in server is used explicitly for ICSWX.  In
 	  embedded systems PID management is done by the system.
 
@@ -293,7 +293,7 @@ config PPC_ICSWX_USE_SIGILL
 	bool "Should a bad CT cause a SIGILL?"
 	depends on PPC_ICSWX
 	default n
-	---help---
+	help
 	  Should a bad CT used for "non-record form ICSWX" cause an
 	  illegal instruction signal or should it be silent as
 	  architected.
@@ -308,7 +308,7 @@ config SPE
 	bool "SPE Support"
 	depends on SPE_POSSIBLE
 	default y
-	---help---
+	help
 	  This option enables kernel support for the Signal Processing
 	  Extensions (SPE) to the PowerPC processor. The kernel currently
 	  supports saving and restoring SPE registers, and turning on the
@@ -366,7 +366,7 @@ config PPC_PERF_CTRS
 config SMP
 	depends on PPC_BOOK3S || PPC_BOOK3E || FSL_BOOKE || PPC_47x
 	bool "Symmetric multi-processing support"
-	---help---
+	help
 	  This enables support for systems with more than one CPU. If you have
 	  a system with only one CPU, say N. If you have a system with more
 	  than one CPU, say Y.  Note that the kernel does not currently

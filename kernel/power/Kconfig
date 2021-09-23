@@ -3,7 +3,7 @@ config SUSPEND
 	depends on ARCH_SUSPEND_POSSIBLE
 	select RTC_LIB
 	default y
-	---help---
+	help
 	  Allow the system to enter sleep states in which main memory is
 	  powered and thus its contents are preserved, such as the
 	  suspend-to-RAM state (e.g. the ACPI S3 state).
@@ -39,7 +39,7 @@ config HIBERNATION
 	select LZO_COMPRESS
 	select LZO_DECOMPRESS
 	select CRC32
-	---help---
+	help
 	  Enable the suspend to disk (STD) functionality, which is usually
 	  called "hibernation" in user interfaces.  STD checkpoints the
 	  system and powers it off; and restores that checkpoint on reboot.
@@ -80,7 +80,7 @@ config HIBERNATION
 config HIBERNATION_IMAGE_REUSE
 	bool "Reuse hibernation image"
 	depends on HIBERNATION
-	---help---
+	help
 	  By default this hibernation image is erased after either a
 	  successful or unsuccessful hibernation restore sequeunce. Since
 	  filesystem contents on disk are not part of the hibernation
@@ -98,7 +98,7 @@ config HIBERNATION_SKIP_CRC
 	bool "Skip LZO image CRC check"
 	default n
 	depends on HIBERNATION
-	---help---
+	help
 	  Some filesystem devices may have hw based integrity checks. In this
 	  scenario, repeating the integrity check in software is unnecessary
 	  and wasteful. This config option has no effect if uncompressed
@@ -111,7 +111,7 @@ config PM_STD_PARTITION
 	string "Default resume partition"
 	depends on HIBERNATION
 	default ""
-	---help---
+	help
 	  The default resume partition is the partition that the suspend-
 	  to-disk implementation will look for a suspended disk image. 
 
@@ -146,7 +146,7 @@ config PM_AUTOSLEEP
 	bool "Opportunistic sleep"
 	depends on PM_SLEEP
 	default n
-	---help---
+	help
 	Allow the kernel to trigger a system transition into a global sleep
 	state automatically whenever there are no active wakeup sources.
 
@@ -154,7 +154,7 @@ config PM_WAKELOCKS
 	bool "User space wakeup sources interface"
 	depends on PM_SLEEP
 	default n
-	---help---
+	help
 	Allow user space to create, activate and deactivate wakeup source
 	objects with the help of a sysfs-based interface.
 
@@ -171,7 +171,7 @@ config PM_WAKELOCKS_GC
 
 config PM
 	bool "Device power management core functionality"
-	---help---
+	help
 	  Enable functionality allowing I/O devices to be put into energy-saving
 	  (low power) states, for example after a specified period of inactivity
 	  (autosuspended), and woken up in response to a hardware-generated
@@ -185,7 +185,7 @@ config PM
 config PM_DEBUG
 	bool "Power Management Debug Support"
 	depends on PM
-	---help---
+	help
 	This option enables various debugging support in the Power Management
 	code. This is helpful when debugging and reporting PM bugs, like
 	suspend support.
@@ -193,7 +193,7 @@ config PM_DEBUG
 config PM_ADVANCED_DEBUG
 	bool "Extra PM attributes in sysfs for low-level debugging/testing"
 	depends on PM_DEBUG
-	---help---
+	help
 	Add extra sysfs attributes allowing one to access some Power Management
 	fields of device objects from user space.  If you are not a kernel
 	developer interested in debugging/testing Power Management, say "no".
@@ -201,7 +201,7 @@ config PM_ADVANCED_DEBUG
 config PM_TEST_SUSPEND
 	bool "Test suspend/resume and wakealarm during bootup"
 	depends on SUSPEND && PM_DEBUG && RTC_CLASS=y
-	---help---
+	help
 	This option will let you suspend your machine during bootup, and
 	make it wake up a few seconds later using an RTC wakeup alarm.
 	Enable this with a kernel parameter like "test_suspend=mem".
@@ -216,7 +216,7 @@ config PM_SLEEP_DEBUG
 config DPM_WATCHDOG
 	bool "Device suspend/resume watchdog"
 	depends on PM_DEBUG && PSTORE && EXPERT
-	---help---
+	help
 	  Sets up a watchdog timer to capture drivers that are
 	  locked up attempting to suspend/resume a device.
 	  A detected lockup causes system panic with message
@@ -249,7 +249,7 @@ config PM_TRACE_RTC
 	depends on PM_SLEEP_DEBUG
 	depends on X86
 	select PM_TRACE
-	---help---
+	help
 	This enables some cheesy code to save the last PM event point in the
 	RTC across reboots, so that you can debug a machine that just hangs
 	during suspend (or more commonly, during resume).

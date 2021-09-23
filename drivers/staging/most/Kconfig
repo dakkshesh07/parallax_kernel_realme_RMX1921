@@ -3,7 +3,7 @@ menuconfig MOST
 	depends on HAS_DMA
         select MOSTCORE
         default n
-        ---help---
+	help
           This option allows you to enable support for MOST Network transceivers.
 
           If in doubt, say N here.

@@ -5,7 +5,7 @@ menu "IO Schedulers"
 config IOSCHED_NOOP
 	bool
 	default y
-	---help---
+	help
 	  The no-op I/O scheduler is a minimal scheduler that does basic merging
 	  and sorting. Its main uses include non-disk based block devices like
 	  memory devices, and specialised software or hardware environments
@@ -15,7 +15,7 @@ config IOSCHED_NOOP
 config IOSCHED_DEADLINE
 	tristate "Deadline I/O scheduler"
 	default y
-	---help---
+	help
 	  The deadline I/O scheduler is simple and compact. It will provide
 	  CSCAN service with FIFO expiration of requests, switching to
 	  a new point in the service tree and doing a batch of IO from there
@@ -28,7 +28,7 @@ config IOSCHED_MAPLE
 config IOSCHED_CFQ
 	tristate "CFQ I/O scheduler"
 	default y
-	---help---
+	help
 	  The CFQ I/O scheduler tries to distribute bandwidth equally
 	  among all processes in the system. It should provide a fair
 	  and low latency working environment, suitable for both desktop
@@ -39,7 +39,7 @@ config IOSCHED_CFQ
 config IOSCHED_ANXIETY
 	tristate "Anxiety I/O scheduler"
 	default y
-	---help---
+	help
 	  The Anxiety I/O scheduler prioritizes latency over everything
 	  else. It uses a simple algorithm that selects from FIFO queues
 	  implemented as doubly linked lists and prioritizes reads over
@@ -49,13 +49,13 @@ config CFQ_GROUP_IOSCHED
 	bool "CFQ Group Scheduling support"
 	depends on IOSCHED_CFQ && BLK_CGROUP
 	default n
-	---help---
+	help
 	  Enable group IO scheduling in CFQ.
 
 config IOSCHED_BFQ
 	tristate "BFQ I/O scheduler"
 	default n
-	---help---
+	help
 	The BFQ I/O scheduler distributes bandwidth among all
 	processes according to their weights, regardless of the
 	device parameters and with any workload. It also guarantees
@@ -66,7 +66,7 @@ config BFQ_GROUP_IOSCHED
 	bool "BFQ hierarchical scheduling support"
 	depends on IOSCHED_BFQ && BLK_CGROUP
 	default n
-	---help---
+	help
 
 	Enable hierarchical scheduling in BFQ, using the blkio
 	(cgroups-v1) or io (cgroups-v2) controller.
@@ -74,7 +74,7 @@ config BFQ_GROUP_IOSCHED
 config IOSCHED_FIOPS
 	tristate "IOPS based I/O scheduler"
 	default y
-	---help---
+	help
 	  This is an IOPS based I/O scheduler. It will try to distribute
           IOPS equally among all processes in the system. It's mainly for
           Flash based storage.
@@ -82,7 +82,7 @@ config IOSCHED_FIOPS
 config IOSCHED_TRIPNDROID
 	tristate "TripNDroid IO Scheduler"
 	default n
-	---help---
+	help
 	  The TripNDroid IO Scheduler is based on noop, deadline and vr
 	  it uses deadlines to ensure some fairness. The scheduler is build
 	  to keep a minimum overhead. It is mainly build for mobile devices.
@@ -90,7 +90,7 @@ config IOSCHED_TRIPNDROID
 config IOSCHED_ZEN
 	tristate "Zen I/O scheduler"
 	default y
-	---help---
+	help
 	FCFS, dispatches are back-inserted, deadlines ensure fairness.
         Should work best with devices where there is no travel delay.
 

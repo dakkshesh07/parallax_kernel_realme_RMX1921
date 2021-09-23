@@ -6,7 +6,7 @@ menuconfig V4L_PLATFORM_DRIVERS
 	bool "V4L platform devices"
 	depends on MEDIA_CAMERA_SUPPORT
 	default n
-	---help---
+	help
 	  Say Y here to enable support for platform-specific V4L drivers.
 
 if V4L_PLATFORM_DRIVERS
@@ -47,7 +47,7 @@ config VIDEO_VIU
 	depends on VIDEO_V4L2 && PPC_MPC512x
 	select VIDEOBUF_DMA_CONTIG
 	default y
-	---help---
+	help
 	  Support for Freescale VIU video driver. This device captures
 	  video data, or overlays video on DIU frame buffer.
 
@@ -58,7 +58,7 @@ config VIDEO_M32R_AR
 	tristate "AR devices"
 	depends on VIDEO_V4L2
 	depends on M32R || COMPILE_TEST
-	---help---
+	help
 	  This is a video4linux driver for the Renesas AR (Artificial Retina)
 	  camera module.
 
@@ -66,7 +66,7 @@ config VIDEO_M32R_AR_M64278
 	tristate "AR device with color module M64278(VGA)"
 	depends on PLAT_M32700UT
 	select VIDEO_M32R_AR
-	---help---
+	help
 	  This is a video4linux driver for the Renesas AR (Artificial
 	  Retina) with M64278E-800 camera module.
 	  This module supports VGA(640x480 pixels) resolutions.
@@ -82,13 +82,13 @@ config VIDEO_OMAP3
 	select ARM_DMA_USE_IOMMU
 	select VIDEOBUF2_DMA_CONTIG
 	select MFD_SYSCON
-	---help---
+	help
 	  Driver for an OMAP 3 camera controller.
 
 config VIDEO_OMAP3_DEBUG
 	bool "OMAP 3 Camera debug messages"
 	depends on VIDEO_OMAP3
-	---help---
+	help
 	  Enable debug messages on OMAP 3 camera controller driver.
 
 config VIDEO_PXA27x
@@ -97,7 +97,7 @@ config VIDEO_PXA27x
 	depends on PXA27x || COMPILE_TEST
 	select VIDEOBUF2_DMA_SG
 	select SG_SPLIT
-	---help---
+	help
 	  This is a v4l2 driver for the PXA27x Quick Capture Interface
 
 config VIDEO_S3C_CAMIF
@@ -107,7 +107,7 @@ config VIDEO_S3C_CAMIF
 	depends on ARCH_S3C64XX || PLAT_S3C24XX || COMPILE_TEST
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
-	---help---
+	help
 	  This is a v4l2 driver for s3c24xx and s3c64xx SoC series camera
 	  host interface (CAMIF).
 
@@ -129,7 +129,7 @@ config VIDEO_TI_CAL
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
 	default n
-	---help---
+	help
 	  Support for the TI CAL (Camera Adaptation Layer) block
 	  found on DRA72X SoC.
 	  In TI Technical Reference Manual this module is referred as
@@ -142,7 +142,7 @@ menuconfig V4L_MEM2MEM_DRIVERS
 	depends on VIDEO_V4L2
 	depends on MEDIA_CAMERA_SUPPORT
 	default n
-	---help---
+	help
 	  Say Y here to enable selecting drivers for V4L devices that
 	  use system memory for both source and destination buffers, as opposed
 	  to capture and output drivers, which use memory buffers for just
@@ -159,7 +159,7 @@ config VIDEO_CODA
 	select VIDEOBUF2_VMALLOC
 	select V4L2_MEM2MEM_DEV
 	select GENERIC_ALLOCATOR
-	---help---
+	help
 	   Coda is a range of video codec IPs that supports
 	   H.264, MPEG-4, and other video formats.
 
@@ -167,7 +167,7 @@ config VIDEO_MEDIATEK_VPU
 	tristate "Mediatek Video Processor Unit"
 	depends on VIDEO_DEV && VIDEO_V4L2 && HAS_DMA
 	depends on ARCH_MEDIATEK || COMPILE_TEST
-	---help---
+	help
 	    This driver provides downloading VPU firmware and
 	    communicating with VPU. This driver for hw video
 	    codec embedded in Mediatek's MT8173 SOCs. It is able
@@ -185,7 +185,7 @@ config VIDEO_MEDIATEK_VCODEC
 	select V4L2_MEM2MEM_DEV
 	select VIDEO_MEDIATEK_VPU
 	default n
-	---help---
+	help
 	    Mediatek video codec driver provides HW capability to
 	    encode and decode in a range of video formats
 	    This driver rely on VPU driver to communicate with VPU.
@@ -210,7 +210,7 @@ config VIDEO_SAMSUNG_S5P_G2D
 	select VIDEOBUF2_DMA_CONTIG
 	select V4L2_MEM2MEM_DEV
 	default n
-	---help---
+	help
 	  This is a v4l2 driver for Samsung S5P and EXYNOS4 G2D
 	  2d graphics accelerator.
 
@@ -221,7 +221,7 @@ config VIDEO_SAMSUNG_S5P_JPEG
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
 	select V4L2_MEM2MEM_DEV
-	---help---
+	help
 	  This is a v4l2 driver for Samsung S5P, EXYNOS3250
 	  and EXYNOS4 JPEG codec
 
@@ -297,7 +297,7 @@ config VIDEO_RENESAS_JPU
 	depends on ARCH_RENESAS || COMPILE_TEST
 	select VIDEOBUF2_DMA_CONTIG
 	select V4L2_MEM2MEM_DEV
-	---help---
+	help
 	  This is a V4L2 driver for the Renesas JPEG Processing Unit.
 
 	  To compile this driver as a module, choose M here: the module
@@ -307,7 +307,7 @@ config VIDEO_RENESAS_FCP
 	tristate "Renesas Frame Compression Processor"
 	depends on ARCH_RENESAS || COMPILE_TEST
 	depends on OF
-	---help---
+	help
 	  This is a driver for the Renesas Frame Compression Processor (FCP).
 	  The FCP is a companion module of video processing modules in the
 	  Renesas R-Car Gen3 SoCs. It handles memory access for the codec,
@@ -322,7 +322,7 @@ config VIDEO_RENESAS_VSP1
 	depends on (ARCH_RENESAS && OF) || COMPILE_TEST
 	depends on (!ARM64 && !VIDEO_RENESAS_FCP) || VIDEO_RENESAS_FCP
 	select VIDEOBUF2_DMA_CONTIG
-	---help---
+	help
 	  This is a V4L2 driver for the Renesas VSP1 video processing engine.
 
 	  To compile this driver as a module, choose M here: the module
@@ -336,14 +336,14 @@ config VIDEO_TI_VPE
 	select VIDEOBUF2_DMA_CONTIG
 	select V4L2_MEM2MEM_DEV
 	default n
-	---help---
+	help
 	  Support for the TI VPE(Video Processing Engine) block
 	  found on DRA7XX SoC.
 
 config VIDEO_TI_VPE_DEBUG
 	bool "VPE debug messages"
 	depends on VIDEO_TI_VPE
-	---help---
+	help
 	  Enable debug messages on VPE driver.
 
 endif # V4L_MEM2MEM_DRIVERS
@@ -362,7 +362,7 @@ config VIDEO_VIM2M
 	select VIDEOBUF2_VMALLOC
 	select V4L2_MEM2MEM_DEV
 	default n
-	---help---
+	help
 	  This is a virtual test device for the memory-to-memory driver
 	  framework.
 endif #V4L_TEST_DRIVERS
@@ -371,7 +371,7 @@ menuconfig DVB_PLATFORM_DRIVERS
 	bool "DVB platform devices"
 	depends on MEDIA_DIGITAL_TV_SUPPORT
 	default n
-	---help---
+	help
 	  Say Y here to enable support for platform-specific Digital TV drivers.
 
 if DVB_PLATFORM_DRIVERS

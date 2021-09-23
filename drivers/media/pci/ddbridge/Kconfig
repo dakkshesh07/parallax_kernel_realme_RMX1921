@@ -6,7 +6,7 @@ config DVB_DDBRIDGE
 	select DVB_STV090x if MEDIA_SUBDRV_AUTOSELECT
 	select DVB_DRXK if MEDIA_SUBDRV_AUTOSELECT
 	select DVB_TDA18271C2DD if MEDIA_SUBDRV_AUTOSELECT
-	---help---
+	help
 	  Support for cards with the Digital Devices PCI express bridge:
 	  - Octopus PCIe Bridge
 	  - Octopus mini PCIe Bridge

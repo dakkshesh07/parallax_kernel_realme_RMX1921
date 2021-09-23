@@ -19,7 +19,7 @@ if NVM
 config NVM_DEBUG
 	bool "Open-Channel SSD debugging support"
 	default n
-	---help---
+	help
 	Exposes a debug management interface to create/remove targets at:
 
 	  /sys/module/lnvm/parameters/configure_debug
@@ -28,7 +28,7 @@ config NVM_DEBUG
 
 config NVM_GENNVM
 	tristate "General Non-Volatile Memory Manager for Open-Channel SSDs"
-	---help---
+	help
 	Non-volatile memory media manager for Open-Channel SSDs that implements
 	physical media metadata management and block provisioning API.
 
@@ -37,7 +37,7 @@ config NVM_GENNVM
 
 config NVM_RRPC
 	tristate "Round-robin Hybrid Open-Channel SSD target"
-	---help---
+	help
 	Allows an open-channel SSD to be exposed as a block device to the
 	host. The target is implemented using a linear mapping table and
 	cost-based garbage collection. It is optimized for 4K IO sizes.

@@ -54,7 +54,7 @@ config TTY_PRINTK
 	tristate "TTY driver to output user messages via printk"
 	depends on EXPERT && TTY
 	default n
-	---help---
+	help
 	  If you say Y here, the support for writing user messages (i.e.
 	  console messages) via printk is available.
 
@@ -96,7 +96,7 @@ config BFIN_OTP_WRITE_ENABLE
 config PRINTER
 	tristate "Parallel printer support"
 	depends on PARPORT
-	---help---
+	help
 	  If you intend to attach a printer to the parallel port of your Linux
 	  box (as opposed to using a serial printer; if the connector at the
 	  printer has 9 or 25 holes ["female"], then it's serial), say Y.
@@ -122,7 +122,7 @@ config PRINTER
 config LP_CONSOLE
 	bool "Support for console on line printer"
 	depends on PRINTER
-	---help---
+	help
 	  If you want kernel messages to be printed out as they occur, you
 	  can have a console on the printer. This option adds support for
 	  doing that; to actually get it to happen you need to pass the
@@ -139,7 +139,7 @@ config LP_CONSOLE
 config PPDEV
 	tristate "Support for user-space parallel port device drivers"
 	depends on PARPORT
-	---help---
+	help
 	  Saying Y to this adds support for /dev/parport device nodes.  This
 	  is needed for programs that want portable access to the parallel
 	  port, for instance deviceid (which displays Plug-and-Play device
@@ -211,7 +211,7 @@ config DS1620
 config NWBUTTON
 	tristate "NetWinder Button"
 	depends on ARCH_NETWINDER
-	---help---
+	help
 	  If you say Y here and create a character device node /dev/nwbutton
 	  with major and minor numbers 10 and 158 ("man mknod"), then every
 	  time the orange button is pressed a number of times, the number of
@@ -247,7 +247,7 @@ config NWBUTTON_REBOOT
 config NWFLASH
 	tristate "NetWinder flash support"
 	depends on ARCH_NETWINDER
-	---help---
+	help
 	  If you say Y here and create a character device /dev/flash with
 	  major 10 and minor 160 you can manipulate the flash ROM containing
 	  the NetWinder firmware. Be careful as accidentally overwriting the
@@ -264,7 +264,7 @@ source "drivers/char/hw_random/Kconfig"
 config NVRAM
 	tristate "/dev/nvram support"
 	depends on ATARI || X86 || (ARM && RTC_DRV_CMOS) || GENERIC_NVRAM
-	---help---
+	help
 	  If you say Y here and create a character special file /dev/nvram
 	  with major number 10 and minor number 144 using mknod ("man mknod"),
 	  you get read and write access to the extra bytes of non-volatile
@@ -296,7 +296,7 @@ if RTC_LIB=n
 config RTC
 	tristate "Enhanced Real Time Clock Support (legacy PC RTC driver)"
 	depends on ALPHA || (MIPS && MACH_LOONGSON64)
-	---help---
+	help
 	  If you say Y here and create a character special file /dev/rtc with
 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 	  will get access to the real time clock (or hardware clock) built
@@ -322,7 +322,7 @@ config RTC
 config JS_RTC
 	tristate "Enhanced Real Time Clock Support"
 	depends on SPARC32 && PCI
-	---help---
+	help
 	  If you say Y here and create a character special file /dev/rtc with
 	  major number 10 and minor number 135 using mknod ("man mknod"), you
 	  will get access to the real time clock (or hardware clock) built
@@ -380,7 +380,7 @@ config XILINX_HWICAP
 config R3964
 	tristate "Siemens R3964 line discipline"
 	depends on TTY && BROKEN
-	---help---
+	help
 	  This driver allows synchronous communication with devices using the
 	  Siemens R3964 packet protocol. Unless you are dealing with special
 	  hardware like PLCs, you are unlikely to need this.
@@ -393,7 +393,7 @@ config R3964
 config APPLICOM
 	tristate "Applicom intelligent fieldbus card support"
 	depends on PCI
-	---help---
+	help
 	  This driver provides the kernel-side support for the intelligent
 	  fieldbus cards made by Applicom International. More information
 	  about these cards can be found on the WWW at the address
@@ -408,7 +408,7 @@ config APPLICOM
 config SONYPI
 	tristate "Sony Vaio Programmable I/O Control Device support"
 	depends on X86_32 && PCI && INPUT
-	---help---
+	help
 	  This driver enables access to the Sony Programmable I/O Control
 	  Device which can be found in many (all ?) Sony Vaio laptops.
 
@@ -429,7 +429,7 @@ config MWAVE
 	tristate "ACP Modem (Mwave) support"
 	depends on X86 && TTY
 	select SERIAL_8250
-	---help---
+	help
 	  The ACP modem (Mwave) for Linux is a WinModem. It is composed of a
 	  kernel driver and a user level application. Together these components
 	  support direct attachment to public switched telephone networks (PSTNs)
@@ -597,7 +597,7 @@ config TILE_SROM
 	bool "Character-device access via hypervisor to the Tilera SPI ROM"
 	depends on TILE
 	default y
-	---help---
+	help
 	  This device provides character-level read-write access
 	  to the SROM, typically via the "0", "1", and "2" devices
 	  in /dev/srom/.  The Tilera hypervisor makes the flash

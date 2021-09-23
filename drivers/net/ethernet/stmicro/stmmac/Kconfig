@@ -6,7 +6,7 @@ config STMMAC_ETH
 	select CRC32
 	select PTP_1588_CLOCK
 	select RESET_CONTROLLER
-	---help---
+	help
 	  This is the driver for the Ethernet IPs are built around a
 	  Synopsys IP Core and only tested on the STMicroelectronics
 	  platforms.
@@ -18,7 +18,7 @@ config STMMAC_PLATFORM
 	depends on STMMAC_ETH
 	select MFD_SYSCON
 	default y
-	---help---
+	help
 	  This selects the platform specific bus support for the stmmac driver.
 	  This is the driver used on several SoCs:
 	  STi, Allwinner, Amlogic Meson, Altera SOCFPGA.
@@ -32,7 +32,7 @@ if STMMAC_PLATFORM
 config DWMAC_GENERIC
 	tristate "Generic driver for DWMAC"
 	default STMMAC_PLATFORM
-	---help---
+	help
 	  Generic DWMAC driver for platforms that don't require any
 	  platform specific code to function or is using platform
 	  data for setup.
@@ -55,7 +55,7 @@ config DWMAC_LPC18XX
 	default ARCH_LPC18XX
 	depends on OF && (ARCH_LPC18XX || COMPILE_TEST)
 	select MFD_SYSCON
-	---help---
+	help
 	  Support for NXP LPC18xx/43xx DWMAC Ethernet.
 
 config DWMAC_MESON
@@ -97,7 +97,7 @@ config DWMAC_STI
 	default ARCH_STI
 	depends on OF && (ARCH_STI || COMPILE_TEST)
 	select MFD_SYSCON
-	---help---
+	help
 	  Support for ethernet controller on STi SOCs.
 
 	  This selects STi SoC glue layer support for the stmmac
@@ -109,7 +109,7 @@ config DWMAC_STM32
 	default ARCH_STM32
 	depends on OF && HAS_IOMEM && (ARCH_STM32 || COMPILE_TEST)
 	select MFD_SYSCON
-	---help---
+	help
 	  Support for ethernet controller on STM32 SOCs.
 
 	  This selects STM32 SoC glue layer support for the stmmac
@@ -120,7 +120,7 @@ config DWMAC_SUNXI
 	tristate "Allwinner GMAC support"
 	default ARCH_SUNXI
 	depends on OF && (ARCH_SUNXI || COMPILE_TEST)
-	---help---
+	help
 	  Support for Allwinner A20/A31 GMAC ethernet controllers.
 
 	  This selects Allwinner SoC glue layer support for the
@@ -131,7 +131,7 @@ endif
 config STMMAC_PCI
 	tristate "STMMAC PCI bus support"
 	depends on STMMAC_ETH && PCI
-	---help---
+	help
 	  This is to select the Synopsys DWMAC available on PCI devices,
 	  if you have a controller with this interface, say Y or M here.
 

@@ -10,7 +10,7 @@ menuconfig IP_SCTP
 	select CRYPTO_HMAC
 	select CRYPTO_SHA1
 	select LIBCRC32C
-	---help---
+	help
 	  Stream Control Transmission Protocol
 
 	  From RFC 2960 <http://www.ietf.org/rfc/rfc2960.txt>.
@@ -40,7 +40,7 @@ if IP_SCTP
 config NET_SCTPPROBE
 	tristate "SCTP: Association probing"
         depends on PROC_FS && KPROBES
-        ---help---
+	help
         This module allows for capturing the changes to SCTP association
         state in response to incoming packets. It is used for debugging
         SCTP congestion control algorithms. If you don't understand

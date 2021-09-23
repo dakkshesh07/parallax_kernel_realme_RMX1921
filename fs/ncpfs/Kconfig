@@ -66,7 +66,7 @@ config NCPFS_OS2_NS
 config NCPFS_SMALLDOS
 	bool "Lowercase DOS filenames"
 	depends on NCP_FS
-	---help---
+	help
 	  If you say Y here, every filename on a NetWare server volume using
 	  the OS2/LONG namespace and created under DOS or on a volume using
 	  DOS namespace will be converted to lowercase characters.

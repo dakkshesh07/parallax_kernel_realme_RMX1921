@@ -8,7 +8,7 @@ source "lib/Kconfig.debug"
 config X86_VERBOSE_BOOTUP
 	bool "Enable verbose x86 bootup info messages"
 	default y
-	---help---
+	help
 	  Enables the informational output from the decompression stage
 	  (e.g. bzImage) of the boot. If you disable this you will still
 	  see errors. Disable this if you want silent bootup.
@@ -16,7 +16,7 @@ config X86_VERBOSE_BOOTUP
 config EARLY_PRINTK
 	bool "Early printk" if EXPERT
 	default y
-	---help---
+	help
 	  Write kernel log output directly into the VGA buffer or to a serial
 	  port.
 
@@ -29,7 +29,7 @@ config EARLY_PRINTK
 config EARLY_PRINTK_DBGP
 	bool "Early printk via EHCI debug port"
 	depends on EARLY_PRINTK && PCI
-	---help---
+	help
 	  Write kernel log output directly into the EHCI debug port.
 
 	  This is useful for kernel debugging when your machine crashes very
@@ -42,7 +42,7 @@ config EARLY_PRINTK_EFI
 	bool "Early printk via the EFI framebuffer"
 	depends on EFI && EARLY_PRINTK
 	select FONT_SUPPORT
-	---help---
+	help
 	  Write kernel log output directly into the EFI framebuffer.
 
 	  This is useful for kernel debugging when your machine crashes very
@@ -56,7 +56,7 @@ config X86_PTDUMP
 	depends on DEBUG_KERNEL
 	select DEBUG_FS
 	select X86_PTDUMP_CORE
-	---help---
+	help
 	  Say Y here if you want to show the kernel pagetable layout in a
 	  debugfs file. This information is only useful for kernel developers
 	  who are working in architecture specific areas of the kernel.
@@ -68,7 +68,7 @@ config EFI_PGT_DUMP
 	bool "Dump the EFI pagetable"
 	depends on EFI
 	select X86_PTDUMP_CORE
-	---help---
+	help
 	  Enable this if you want to dump the EFI page table before
 	  enabling virtual mode. This can be used to debug miscellaneous
 	  issues with the mapping of the EFI runtime regions into that
@@ -77,7 +77,7 @@ config EFI_PGT_DUMP
 config DEBUG_RODATA_TEST
 	bool "Testcase for the marking rodata read-only"
 	default y
-	---help---
+	help
 	  This option enables a testcase for the setting rodata read-only
 	  as well as for the change_page_attr() infrastructure.
 	  If in doubt, say "N"
@@ -85,7 +85,7 @@ config DEBUG_RODATA_TEST
 config DEBUG_WX
 	bool "Warn on W+X mappings at boot"
 	select X86_PTDUMP_CORE
-	---help---
+	help
 	  Generate a warning if any W+X mappings are found at boot.
 
 	  This is useful for discovering cases where the kernel is leaving
@@ -112,7 +112,7 @@ config DEBUG_WX
 config DEBUG_SET_MODULE_RONX
 	bool "Set loadable kernel module data as NX and text as RO"
 	depends on MODULES
-	---help---
+	help
 	  This option helps catch unintended modifications to loadable
 	  kernel module's text and read-only data. It also prevents execution
 	  of module data. Such protection may interfere with run-time code
@@ -123,7 +123,7 @@ config DEBUG_SET_MODULE_RONX
 config DEBUG_NX_TEST
 	tristate "Testcase for the NX non-executable stack feature"
 	depends on DEBUG_KERNEL && m
-	---help---
+	help
 	  This option enables a testcase for the CPU NX capability
 	  and the software setup of this feature.
 	  If in doubt, say "N"
@@ -131,7 +131,7 @@ config DEBUG_NX_TEST
 config DOUBLEFAULT
 	default y
 	bool "Enable doublefault exception handler" if EXPERT
-	---help---
+	help
 	  This option allows trapping of rare doublefault exceptions that
 	  would otherwise cause a system to silently reboot. Disabling this
 	  option saves about 4k and might cause you much additional grey
@@ -140,7 +140,7 @@ config DOUBLEFAULT
 config DEBUG_TLBFLUSH
 	bool "Set upper limit of TLB entries to flush one-by-one"
 	depends on DEBUG_KERNEL
-	---help---
+	help
 
 	X86-only for now.
 
@@ -160,7 +160,7 @@ config IOMMU_DEBUG
 	bool "Enable IOMMU debugging"
 	depends on GART_IOMMU && DEBUG_KERNEL
 	depends on X86_64
-	---help---
+	help
 	  Force the IOMMU to on even when you have less than 4GB of
 	  memory and add debugging code. On overflow always panic. And
 	  allow to enable IOMMU leak tracing. Can be disabled at boot
@@ -174,7 +174,7 @@ config IOMMU_DEBUG
 
 config IOMMU_STRESS
 	bool "Enable IOMMU stress-test mode"
-	---help---
+	help
 	  This option disables various optimizations in IOMMU related
 	  code to do real stress testing of the IOMMU code. This option
 	  will cause a performance drop and should only be enabled for
@@ -183,7 +183,7 @@ config IOMMU_STRESS
 config IOMMU_LEAK
 	bool "IOMMU leak tracing"
 	depends on IOMMU_DEBUG && DMA_API_DEBUG
-	---help---
+	help
 	  Add a simple leak tracer to the IOMMU code. This is useful when you
 	  are debugging a buggy device driver that leaks IOMMU mappings.
 
@@ -194,7 +194,7 @@ config X86_DECODER_SELFTEST
 	bool "x86 instruction decoder selftest"
 	depends on DEBUG_KERNEL && INSTRUCTION_DECODER
 	depends on !COMPILE_TEST
-	---help---
+	help
 	 Perform x86 instruction decoder selftests at build time.
 	 This option is useful for checking the sanity of x86 instruction
 	 decoder code.
@@ -226,25 +226,25 @@ choice
 
 config IO_DELAY_0X80
 	bool "port 0x80 based port-IO delay [recommended]"
-	---help---
+	help
 	  This is the traditional Linux IO delay used for in/out_p.
 	  It is the most tested hence safest selection here.
 
 config IO_DELAY_0XED
 	bool "port 0xed based port-IO delay"
-	---help---
+	help
 	  Use port 0xed as the IO delay. This frees up port 0x80 which is
 	  often used as a hardware-debug port.
 
 config IO_DELAY_UDELAY
 	bool "udelay based port-IO delay"
-	---help---
+	help
 	  Use udelay(2) as the IO delay method. This provides the delay
 	  while not having any side-effect on the IO port space.
 
 config IO_DELAY_NONE
 	bool "no port-IO delay"
-	---help---
+	help
 	  No port-IO delay. Will break on old boxes that require port-IO
 	  delay for certain operations. Should work on most new machines.
 
@@ -278,19 +278,19 @@ config DEBUG_BOOT_PARAMS
 	bool "Debug boot parameters"
 	depends on DEBUG_KERNEL
 	depends on DEBUG_FS
-	---help---
+	help
 	  This option will cause struct boot_params to be exported via debugfs.
 
 config CPA_DEBUG
 	bool "CPA self-test code"
 	depends on DEBUG_KERNEL
-	---help---
+	help
 	  Do change_page_attr() self-tests every 30 seconds.
 
 config DEBUG_ENTRY
 	bool "Debug low-level entry code"
 	depends on DEBUG_KERNEL
-	---help---
+	help
 	  This option enables sanity checks in x86's low-level entry code.
 	  Some of these sanity checks may slow down kernel entries and
 	  exits or otherwise impact performance.
@@ -302,7 +302,7 @@ config DEBUG_ENTRY
 config DEBUG_NMI_SELFTEST
 	bool "NMI Selftest"
 	depends on DEBUG_KERNEL && X86_LOCAL_APIC
-	---help---
+	help
 	  Enabling this option turns on a quick NMI selftest to verify
 	  that the NMI behaves correctly.
 
@@ -315,7 +315,7 @@ config DEBUG_IMR_SELFTEST
 	bool "Isolated Memory Region self test"
 	default n
 	depends on INTEL_IMR
-	---help---
+	help
 	  This option enables automated sanity testing of the IMR code.
 	  Some simple tests are run to verify IMR bounds checking, alignment
 	  and overlapping. This option is really only useful if you are
@@ -328,7 +328,7 @@ config X86_DEBUG_FPU
 	bool "Debug the x86 FPU code"
 	depends on DEBUG_KERNEL
 	default y
-	---help---
+	help
 	  If this option is enabled then there will be extra sanity
 	  checks and (boot time) debug printouts added to the kernel.
 	  This debugging adds some small amount of runtime overhead
@@ -341,7 +341,7 @@ config PUNIT_ATOM_DEBUG
 	depends on PCI
 	select DEBUG_FS
 	select IOSF_MBI
-	---help---
+	help
 	  This is a debug driver, which gets the power states
 	  of all Punit North Complex devices. The power states of
 	  each device is exposed as part of the debugfs interface.

@@ -5,7 +5,7 @@
 config MLXSW_CORE
 	tristate "Mellanox Technologies Switch ASICs support"
 	depends on MAY_USE_DEVLINK
-	---help---
+	help
 	  This driver supports Mellanox Technologies Switch ASICs family.
 
 	  To compile this driver as a module, choose M here: the
@@ -16,14 +16,14 @@ config MLXSW_CORE_HWMON
 	depends on MLXSW_CORE && HWMON
 	depends on !(MLXSW_CORE=y && HWMON=m)
 	default y
-	---help---
+	help
 	  Say Y here if you want to expose HWMON interface on mlxsw devices.
 
 config MLXSW_PCI
 	tristate "PCI bus implementation for Mellanox Technologies Switch ASICs"
 	depends on PCI && HAS_DMA && HAS_IOMEM && MLXSW_CORE
 	default m
-	---help---
+	help
 	  This is PCI bus implementation for Mellanox Technologies Switch ASICs.
 
 	  To compile this driver as a module, choose M here: the
@@ -33,7 +33,7 @@ config MLXSW_SWITCHX2
 	tristate "Mellanox Technologies SwitchX-2 support"
 	depends on MLXSW_CORE && NET_SWITCHDEV
 	default m
-	---help---
+	help
 	  This driver supports Mellanox Technologies SwitchX-2 Ethernet
 	  Switch ASICs.
 
@@ -44,7 +44,7 @@ config MLXSW_SPECTRUM
 	tristate "Mellanox Technologies Spectrum support"
 	depends on MLXSW_CORE && NET_SWITCHDEV && VLAN_8021Q
 	default m
-	---help---
+	help
 	  This driver supports Mellanox Technologies Spectrum Ethernet
 	  Switch ASICs.
 
@@ -55,6 +55,6 @@ config MLXSW_SPECTRUM_DCB
 	bool "Data Center Bridging (DCB) support"
 	depends on MLXSW_SPECTRUM && DCB
 	default y
-	---help---
+	help
 	  Say Y here if you want to use Data Center Bridging (DCB) in the
 	  driver.

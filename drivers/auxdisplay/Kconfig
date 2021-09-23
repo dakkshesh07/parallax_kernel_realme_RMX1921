@@ -7,7 +7,7 @@
 
 menuconfig AUXDISPLAY
 	bool "Auxiliary Display support"
-	---help---
+	help
 	  Say Y here to get to see options for auxiliary display drivers.
 	  This option alone does not add any kernel code.
 
@@ -19,7 +19,7 @@ config KS0108
 	tristate "KS0108 LCD Controller"
 	depends on PARPORT_PC
 	default n
-	---help---
+	help
 	  If you have a LCD controlled by one or more KS0108
 	  controllers, say Y. You will need also another more specific
 	  driver for your LCD.
@@ -37,7 +37,7 @@ config KS0108_PORT
 	hex "Parallel port where the LCD is connected"
 	depends on KS0108
 	default 0x378
-	---help---
+	help
 	  The address of the parallel port where the LCD is connected.
 
 	  The first  standard parallel port address is 0x378.
@@ -59,7 +59,7 @@ config KS0108_DELAY
 	int "Delay between each control writing (microseconds)"
 	depends on KS0108
 	default "2"
-	---help---
+	help
 	  Amount of time the ks0108 should wait between each control write
 	  to the parallel port.
 
@@ -80,7 +80,7 @@ config CFAG12864B
 	select FB_SYS_IMAGEBLIT
 	select FB_SYS_FOPS
 	default n
-	---help---
+	help
 	  If you have a Crystalfontz 128x64 2-color LCD, cfag12864b Series,
 	  say Y. You also need the ks0108 LCD Controller driver.
 
@@ -102,7 +102,7 @@ config CFAG12864B_RATE
        int "Refresh rate (hertz)"
 	depends on CFAG12864B
 	default "20"
-	---help---
+	help
 	  Refresh rate of the LCD.
 
 	  As the LCD is not memory mapped, the driver has to make the work by

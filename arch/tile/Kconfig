@@ -158,7 +158,7 @@ config NR_CPUS
 	range 2 255
 	depends on SMP
 	default "64"
-	---help---
+	help
 	  Building with 64 is the recommended value, but a slightly
 	  smaller kernel memory footprint results from using a smaller
 	  value on chips with fewer tiles.
@@ -192,7 +192,7 @@ source "kernel/Kconfig.hz"
 config KEXEC
 	bool "kexec system call"
 	select KEXEC_CORE
-	---help---
+	help
 	  kexec is a system call that implements the ability to shutdown your
 	  current kernel, and to start another kernel.  It is like a reboot
 	  but it is independent of the system firmware.   It is used
@@ -205,7 +205,7 @@ config COMPAT
 	depends on TILEGX
 	select COMPAT_BINFMT_ELF
 	default y
-	---help---
+	help
 	  If enabled, the kernel will support running TILE-Gx binaries
 	  that were built with the -m32 option.
 
@@ -233,7 +233,7 @@ config SYSVIPC_COMPAT
 config HIGHMEM
 	bool # "Support for more than 512 MB of RAM"
 	default !TILEGX
-	---help---
+	help
 	  Linux can use the full amount of RAM in the system by
 	  default.  However, the address space of TILE processors is
 	  only 4 Gigabytes large. That means that, if you have a large
@@ -269,7 +269,7 @@ config NUMA
 	bool # "NUMA Memory Allocation and Scheduler Support"
 	depends on SMP && DISCONTIGMEM
 	default y
-	---help---
+	help
 	  NUMA memory allocation is required for TILE processors
 	  unless booting with memory striping enabled in the
 	  hypervisor, or with only a single memory controller.
@@ -279,7 +279,7 @@ config NODES_SHIFT
 	int "Log base 2 of the max number of memory controllers"
 	default 2
 	depends on NEED_MULTIPLE_NODES
-	---help---
+	help
 	  By default, 2, i.e. 2^2 == 4 DDR2 controllers.
 	  In a system with more controllers, this value should be raised.
 
@@ -287,7 +287,7 @@ choice
 	depends on !TILEGX
 	prompt "Memory split" if EXPERT
 	default VMSPLIT_3G
-	---help---
+	help
 	  Select the desired split between kernel and user memory.
 
 	  If the address range available to the kernel is less than the
@@ -340,7 +340,7 @@ source "kernel/Kconfig.preempt"
 config CMDLINE_BOOL
 	bool "Built-in kernel command line"
 	default n
-	---help---
+	help
 	  Allow for specifying boot arguments to the kernel at
 	  build time.  On some systems (e.g. embedded ones), it is
 	  necessary or convenient to provide some or all of the
@@ -358,7 +358,7 @@ config CMDLINE
 	string "Built-in kernel command string"
 	depends on CMDLINE_BOOL
 	default ""
-	---help---
+	help
 	  Enter arguments here that should be compiled into the kernel
 	  image and used at boot time.  If the boot loader provides a
 	  command line at boot time, it is appended to this string to
@@ -375,7 +375,7 @@ config CMDLINE_OVERRIDE
 	bool "Built-in command line overrides boot loader arguments"
 	default n
 	depends on CMDLINE_BOOL
-	---help---
+	help
 	  Set this option to 'Y' to have the kernel ignore the boot loader
 	  command line, and use ONLY the built-in command line.
 
@@ -395,7 +395,7 @@ config KERNEL_PL
 	range 1 2
 	default 2 if TILEGX
 	default 1 if !TILEGX
-	---help---
+	help
 	  Since MDE 4.2, the Tilera hypervisor runs the kernel
 	  at PL2 by default.  If running under an older hypervisor,
 	  or as a KVM guest, you must run at PL1.  (The current
@@ -418,7 +418,7 @@ config PCI
 	select GENERIC_PCI_IOMAP
 	select TILE_GXIO_TRIO if TILEGX
 	select PCI_MSI if TILEGX
-	---help---
+	help
 	  Enable PCI root complex support, so PCIe endpoint devices can
 	  be attached to the Tile chip.  Many, but not all, PCI devices
 	  are supported under Tilera's root complex driver.
@@ -437,7 +437,7 @@ config TILE_PCI_IO
 	default n
 	depends on PCI
 	depends on TILEGX
-	---help---
+	help
 	  Enable PCI I/O space support on TILEGx. Since the PCI I/O space
 	  is used by few modern PCIe endpoint devices, its support is disabled
 	  by default to save the TRIO PIO Region resource for other purposes.
@@ -450,7 +450,7 @@ config TILE_USB
 	depends on USB
 	depends on TILEGX
 	select TILE_GXIO_USB_HOST
-	---help---
+	help
 	  Provides USB host adapter support for the built-in EHCI and OHCI
 	  interfaces on TILE-Gx chips.
 

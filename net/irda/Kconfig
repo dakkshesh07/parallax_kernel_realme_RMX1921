@@ -6,7 +6,7 @@ menuconfig IRDA
 	depends on NET && !S390
 	tristate "IrDA (infrared) subsystem support"
 	select CRC_CCITT
-	---help---
+	help
 	  Say Y here if you want to build support for the IrDA (TM) protocols.
 	  The Infrared Data Associations (tm) specifies standards for wireless
 	  infrared communication and is supported by most laptops and PDA's.
@@ -59,7 +59,7 @@ config IRDA_CACHE_LAST_LSAP
 config IRDA_FAST_RR
 	bool "Fast RRs (low latency)"
 	depends on IRDA
-	---help---
+	help
 	  Say Y here is you want IrLAP to send fast RR (Receive Ready) frames
 	  when acting as a primary station.
 	  Disabling this option will make latency over IrDA very bad. Enabling

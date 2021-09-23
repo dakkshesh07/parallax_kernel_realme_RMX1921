@@ -11,7 +11,7 @@ source "lib/Kconfig.debug"
 config ETRAX_KGDB
 	bool "Use kernel GDB debugger"
 	depends on DEBUG_KERNEL
-	---help---
+	help
 	  The CRIS version of gdb can be used to remotely debug a running
 	  Linux kernel via the serial debug port.  Provided you have gdb-cris
 	  installed, run gdb-cris vmlinux, then type

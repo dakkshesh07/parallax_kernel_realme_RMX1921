@@ -2,11 +2,11 @@ config MEDIA_CEC
 	bool "CEC API (EXPERIMENTAL)"
 	depends on MEDIA_SUPPORT
 	select MEDIA_CEC_EDID
-	---help---
+	help
 	  Enable the CEC API.
 
 config MEDIA_CEC_DEBUG
 	bool "CEC debugfs interface (EXPERIMENTAL)"
 	depends on MEDIA_CEC && DEBUG_FS
-	---help---
+	help
 	  Turns on the DebugFS interface for CEC devices.

@@ -103,7 +103,7 @@ config IRQ_FORCED_THREADING
 
 config SPARSE_IRQ
 	bool "Support sparse irq numbering" if MAY_HAVE_SPARSE_IRQ
-	---help---
+	help
 
 	  Sparse irq numbering is useful for distro kernels that want
 	  to define a high CONFIG_NR_CPUS value but still want to have

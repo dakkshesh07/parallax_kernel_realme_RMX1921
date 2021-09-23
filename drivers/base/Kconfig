@@ -80,7 +80,7 @@ config PREVENT_FIRMWARE_BUILD
 config FW_LOADER
 	tristate "Userspace firmware loading support" if EXPERT
 	default y
-	---help---
+	help
 	  This option is provided for the case where none of the in-tree modules
 	  require userspace firmware loading support, but a module built
 	  out-of-tree does.
