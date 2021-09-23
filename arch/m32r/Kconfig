@@ -278,7 +278,7 @@ source "kernel/Kconfig.preempt"
 config SMP
 	bool "Symmetric multi-processing support"
 	depends on MMU
-	---help---
+	help
 	  This enables support for systems with more than one CPU. If you have
 	  a system with only one CPU, say N. If you have a system with more
 	  than one CPU, say Y.
@@ -349,7 +349,7 @@ choice
 
 config PCI_GOBIOS
 	bool "BIOS"
-	---help---
+	help
 	  On PCI systems, the BIOS can be used to detect the PCI devices and
 	  determine their configuration. However, some old PCI motherboards
 	  have BIOS bugs and may crash if this is done. Also, some embedded

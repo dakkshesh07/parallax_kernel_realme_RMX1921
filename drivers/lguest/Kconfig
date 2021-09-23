@@ -2,7 +2,7 @@ config LGUEST
 	tristate "Linux hypervisor example code"
 	depends on X86_32 && EVENTFD && TTY && PCI_DIRECT
 	select HVC_DRIVER
-	---help---
+	help
 	  This is a very simple module which allows you to run
 	  multiple instances of the same Linux kernel, using the
 	  "lguest" command found in the tools/lguest directory.

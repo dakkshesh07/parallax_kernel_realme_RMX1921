@@ -5,7 +5,7 @@ menu "IO Schedulers"
 config IOSCHED_NOOP
 	bool
 	default y
-	---help---
+	help
 	  The no-op I/O scheduler is a minimal scheduler that does basic merging
 	  and sorting. Its main uses include non-disk based block devices like
 	  memory devices, and specialised software or hardware environments
@@ -15,7 +15,7 @@ config IOSCHED_NOOP
 config IOSCHED_DEADLINE
 	tristate "Deadline I/O scheduler"
 	default y
-	---help---
+	help
 	  The deadline I/O scheduler is simple and compact. It will provide
 	  CSCAN service with FIFO expiration of requests, switching to
 	  a new point in the service tree and doing a batch of IO from there
@@ -28,7 +28,7 @@ config IOSCHED_MAPLE
 config IOSCHED_CFQ
 	tristate "CFQ I/O scheduler"
 	default y
-	---help---
+	help
 	  The CFQ I/O scheduler tries to distribute bandwidth equally
 	  among all processes in the system. It should provide a fair
 	  and low latency working environment, suitable for both desktop
@@ -40,7 +40,7 @@ config CFQ_GROUP_IOSCHED
 	bool "CFQ Group Scheduling support"
 	depends on IOSCHED_CFQ && BLK_CGROUP
 	default n
-	---help---
+	help
 	  Enable group IO scheduling in CFQ.
 
 choice

@@ -505,7 +505,7 @@ endchoice
 config ETRAX_GPIO
 	bool "GPIO support"
 	depends on ETRAX_ARCH_V10
-	---help---
+	help
 	  Enables the ETRAX general port device (major 120, minors 0 and 1).
 	  You can use this driver to access the general port bits. It supports
 	  these ioctl's:

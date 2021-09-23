@@ -31,7 +31,7 @@ menuconfig USB_SUPPORT
 	bool "USB support"
 	depends on HAS_IOMEM
 	default y
-	---help---
+	help
 	  This option adds core support for Universal Serial Bus (USB).
 	  You will also need drivers from the following menu to make use of it.
 
@@ -49,7 +49,7 @@ config USB
 	depends on USB_ARCH_HAS_HCD
 	select USB_COMMON
 	select NLS  # for UTF-8 strings
-	---help---
+	help
 	  Universal Serial Bus (USB) is a specification for a serial bus
 	  subsystem which offers higher speeds and more features than the
 	  traditional PC serial port.  The bus supplies power to peripherals
@@ -123,7 +123,7 @@ config USB_USS720
 	tristate "USS720 parport driver"
 	depends on PARPORT
 	select PARPORT_NOT_PC
-	---help---
+	help
 	  This driver is for USB parallel port adapters that use the Lucent
 	  Technologies USS-720 chip. These cables are plugged into your USB
 	  port and provide USB compatibility to peripherals designed with

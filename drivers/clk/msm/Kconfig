@@ -12,7 +12,7 @@ config COMMON_CLK_MSM
 config MSM_CLK_CONTROLLER_V2
 	bool "QTI clock driver"
 	depends on COMMON_CLK_MSM
-	---help---
+	help
 	   Generate clock data structures from definitions found in
 	   device tree.
 
