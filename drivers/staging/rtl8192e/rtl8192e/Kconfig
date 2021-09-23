@@ -6,4 +6,4 @@ config RTL8192E
 	select WEXT_PRIV
 	select CRYPTO
 	select FW_LOADER
-	---help---
+	help

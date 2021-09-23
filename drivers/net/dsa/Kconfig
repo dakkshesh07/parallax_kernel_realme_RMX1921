@@ -5,7 +5,7 @@ config NET_DSA_MV88E6060
 	tristate "Marvell 88E6060 ethernet switch chip support"
 	depends on NET_DSA
 	select NET_DSA_TAG_TRAILER
-	---help---
+	help
 	  This enables support for the Marvell 88E6060 ethernet switch
 	  chip.
 
@@ -17,7 +17,7 @@ config NET_DSA_BCM_SF2
 	select BCM7XXX_PHY
 	select MDIO_BCM_UNIMAC
 	select B53
-	---help---
+	help
 	  This enables support for the Broadcom Starfighter 2 Ethernet
 	  switch chips.
 
@@ -30,7 +30,7 @@ config NET_DSA_QCA8K
 	depends on NET_DSA
 	select NET_DSA_TAG_QCA
 	select REGMAP
-	---help---
+	help
 	  This enables support for the Qualcomm Atheros QCA8K Ethernet
 	  switch chips.
 

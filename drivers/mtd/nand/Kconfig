@@ -234,7 +234,7 @@ config MTD_NAND_DISKONCHIP_PROBE_ADDRESS
         hex "Physical address of DiskOnChip" if MTD_NAND_DISKONCHIP_PROBE_ADVANCED
         depends on MTD_NAND_DISKONCHIP
         default "0"
-        ---help---
+	help
         By default, the probe for DiskOnChip devices will look for a
         DiskOnChip at every multiple of 0x2000 between 0xC8000 and 0xEE000.
         This option allows you to specify a single address at which to probe

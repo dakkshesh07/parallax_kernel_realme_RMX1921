@@ -4,7 +4,7 @@
 config IPX
 	tristate "The IPX protocol"
 	select LLC
-	---help---
+	help
 	  This is support for the Novell networking protocol, IPX, commonly
 	  used for local networks of Windows machines.  You need it if you
 	  want to access Novell NetWare file or print servers using the Linux
@@ -33,7 +33,7 @@ config IPX
 config IPX_INTERN
 	bool "IPX: Full internal IPX network"
 	depends on IPX
-	---help---
+	help
 	  Every IPX network has an address that identifies it. Sometimes it is
 	  useful to give an IPX "network" address to your Linux box as well
 	  (for example if your box is acting as a file server for different

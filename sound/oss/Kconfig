@@ -259,7 +259,7 @@ config SOUND_TRACEINIT
 
 config SOUND_DMAP
 	bool "Persistent DMA buffers"
-	---help---
+	help
 	  Linux can often have problems allocating DMA buffers for ISA sound
 	  cards on machines with more than 16MB of RAM. This is because ISA
 	  DMA buffers must exist below the 16MB boundary and it is quite
@@ -303,7 +303,7 @@ config TRIX_BOOT_FILE
 
 config SOUND_MSS
 	tristate "Microsoft Sound System support"
-	---help---
+	help
 	  Again think carefully before answering Y to this question.  It's
 	  safe to answer Y if you have the original Windows Sound System card
 	  made by Microsoft or Aztech SG 16 Pro (or NX16 Pro).  Also you may
@@ -334,7 +334,7 @@ config SOUND_MSS
 
 config SOUND_MPU401
 	tristate "MPU-401 support (NOT for SB16)"
-	---help---
+	help
 	  Be careful with this question.  The MPU401 interface is supported by
 	  all sound cards.  However, some natively supported cards have their
 	  own driver for MPU401.  Enabling this MPU401 option with these cards
@@ -349,7 +349,7 @@ config SOUND_MPU401
 
 config SOUND_PAS
 	tristate "ProAudioSpectrum 16 support"
-	---help---
+	help
 	  Answer Y only if you have a Pro Audio Spectrum 16, ProAudio Studio
 	  16 or Logitech SoundMan 16 sound card. Answer N if you have some
 	  other card made by Media Vision or Logitech since those are not
@@ -412,7 +412,7 @@ config PSS_BOOT_FILE
 
 config SOUND_SB
 	tristate "100% Sound Blaster compatibles (SB16/32/64, ESS, Jazz16) support"
-	---help---
+	help
 	  Answer Y if you have an original Sound Blaster card made by Creative
 	  Labs or a 100% hardware compatible clone (like the Thunderboard or
 	  SM Games). For an unknown card you may answer Y if the card claims
@@ -436,7 +436,7 @@ config SOUND_SB
 
 config SOUND_YM3812
 	tristate "Yamaha FM synthesizer (YM3812/OPL-3) support"
-	---help---
+	help
 	  Answer Y if your card has a FM chip made by Yamaha (OPL2/OPL3/OPL4).
 	  Answering Y is usually a safe and recommended choice, however some
 	  cards may have software (TSR) FM emulation. Enabling FM support with
@@ -461,7 +461,7 @@ config SOUND_UART6850
 
 config SOUND_AEDSP16
 	tristate "Gallant Audio Cards (SC-6000 and SC-6600 based)"
-	---help---
+	help
 	  Answer Y if you have a Gallant's Audio Excel DSP 16 card. This
 	  driver supports Audio Excel DSP 16 but not the III nor PnP versions
 	  of this card.
