@@ -301,17 +301,10 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-HOSTCC       = clang
-HOSTCXX      = clang++
-ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -std=gnu89 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
-HOSTCXXFLAGS = -O3 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
-HOSTAFLAGS = -O3 -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
-else
+HOSTCC       = gcc
+HOSTCXX      = g++
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
 HOSTCXXFLAGS = -O2
-HOSTAFLAGS = -O2
-endif
 
 ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
 HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
@@ -702,9 +695,6 @@ LDFLAGS		+= -plugin-opt=-data-sections
 # of objdump for processing symbol versions and exports
 LLVM_AR		:= llvm-ar
 LLVM_DIS	:= llvm-dis
-ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-LDFLAGS		+= --plugin-opt=O3
-endif
 export LLVM_AR LLVM_DIS
 endif
 
@@ -730,10 +720,6 @@ ARCH_CPPFLAGS :=
 ARCH_AFLAGS :=
 ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
-
-ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-KBUILD_CFLAGS	+= -march=armv8-a+crypto+crc -mtune=cortex-a75 -mcpu=cortex-a75+crypto+crc
-endif
 
 ifdef CONFIG_LLVM_POLLY
 KBUILD_CFLAGS	+= -mllvm -polly \
@@ -827,24 +813,14 @@ endif
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
 else
-ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-KBUILD_CFLAGS   += -O3
-else
 KBUILD_CFLAGS   += -O2
-endif
 endif
 
 ifeq ($(cc-name),gcc)
 KBUILD_CFLAGS	+= -mcpu=cortex-a75.cortex-a55 -mtune=cortex-a75.cortex-a55
 endif
 ifeq ($(cc-name),clang)
-ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
-KBUILD_CFLAGS   += -O3
-KBUILD_CFLAGS	+= $(call cc-option, -mcpu=cortex-a75 -mtune=cortex-a75)
-else
-endif
-KBUILD_CFLAGS   += -O3
-KBUILD_CFLAGS	+= $(call cc-option, -mcpu=cortex-a55 -mtune=cortex-a55)
+KBUILD_CFLAGS	+= -mcpu=cortex-a55 -mtune=cortex-a55
 endif
 
 ifdef CONFIG_CC_WERROR
@@ -918,13 +894,8 @@ endif
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 
 ifeq ($(ld-name),lld)
-ifeq ($(CONFIG_BETTER_OPTIMIZATION), y)
 KBUILD_LDFLAGS += -O3 --strip-debug
 LDFLAGS += -O3 --strip-debug
-else
-KBUILD_LDFLAGS += -O2 --strip-debug
-LDFLAGS += -O2 --strip-debug
-endif
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
