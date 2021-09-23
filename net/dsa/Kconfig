@@ -9,7 +9,7 @@ config NET_DSA
 	depends on HAVE_NET_DSA
 	select NET_SWITCHDEV
 	select PHYLIB
-	---help---
+	help
 	  Say Y if you want to enable support for the hardware switches supported
 	  by the Distributed Switch Architecture.
 
@@ -19,7 +19,7 @@ config NET_DSA_HWMON
 	bool "Distributed Switch Architecture HWMON support"
 	default y
 	depends on HWMON && !(NET_DSA=y && HWMON=m)
-	---help---
+	help
 	  Say Y if you want to expose thermal sensor data on switches supported
 	  by the Distributed Switch Architecture.
 

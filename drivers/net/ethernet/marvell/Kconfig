@@ -6,7 +6,7 @@ config NET_VENDOR_MARVELL
 	bool "Marvell devices"
 	default y
 	depends on PCI || CPU_PXA168 || MV64X60 || PPC32 || PLAT_ORION || INET
-	---help---
+	help
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -21,7 +21,7 @@ config MV643XX_ETH
 	depends on (MV64X60 || PPC32 || PLAT_ORION) && INET
 	select PHYLIB
 	select MVMDIO
-	---help---
+	help
 	  This driver supports the gigabit ethernet MACs in the
 	  Marvell Discovery PPC/MIPS chipset family (MV643XX) and
 	  in the Marvell Orion ARM SoC family.
@@ -33,7 +33,7 @@ config MVMDIO
 	tristate "Marvell MDIO interface support"
 	depends on HAS_IOMEM
 	select PHYLIB
-	---help---
+	help
 	  This driver supports the MDIO interface found in the network
 	  interface units of the Marvell EBU SoCs (Kirkwood, Orion5x,
 	  Dove, Armada 370 and Armada XP).
@@ -43,7 +43,7 @@ config MVMDIO
 config MVNETA_BM_ENABLE
 	tristate "Marvell Armada 38x/XP network interface BM support"
 	depends on MVNETA
-	---help---
+	help
 	  This driver supports auxiliary block of the network
 	  interface units in the Marvell ARMADA XP and ARMADA 38x SoC
 	  family, which is called buffer manager.
@@ -58,7 +58,7 @@ config MVNETA
 	depends on PLAT_ORION
 	select MVMDIO
 	select FIXED_PHY
-	---help---
+	help
 	  This driver supports the network interface units in the
 	  Marvell ARMADA XP, ARMADA 370 and ARMADA 38x SoC family.
 
@@ -79,7 +79,7 @@ config MVPP2
 	tristate "Marvell Armada 375 network interface support"
 	depends on MACH_ARMADA_375
 	select MVMDIO
-	---help---
+	help
 	  This driver supports the network interface units in the
 	  Marvell ARMADA 375 SoC.
 
@@ -88,7 +88,7 @@ config PXA168_ETH
 	depends on HAS_IOMEM && HAS_DMA
 	depends on CPU_PXA168 || ARCH_BERLIN || COMPILE_TEST
 	select PHYLIB
-	---help---
+	help
 	  This driver supports the pxa168 Ethernet ports.
 
 	  To compile this driver as a module, choose M here. The module
@@ -98,7 +98,7 @@ config SKGE
 	tristate "Marvell Yukon Gigabit Ethernet support"
 	depends on PCI
 	select CRC32
-	---help---
+	help
 	  This driver support the Marvell Yukon or SysKonnect SK-98xx/SK-95xx
 	  and related Gigabit Ethernet adapters. It is a new smaller driver
 	  with better performance and more complete ethtool support.
@@ -119,7 +119,7 @@ config SKGE
 config SKGE_DEBUG
 	bool "Debugging interface"
 	depends on SKGE && DEBUG_FS
-	---help---
+	help
 	  This option adds the ability to dump driver state for debugging.
 	  The file /sys/kernel/debug/skge/ethX displays the state of the internal
 	  transmit and receive rings.
@@ -129,7 +129,7 @@ config SKGE_DEBUG
 config SKGE_GENESIS
 	bool "Support for older SysKonnect Genesis boards"
 	depends on SKGE
-	---help---
+	help
 	 This enables support for the older and uncommon SysKonnect Genesis
 	 chips, which support MII via an external transceiver, instead of
 	 an internal one. Disabling this option will save some memory
@@ -139,7 +139,7 @@ config SKY2
 	tristate "Marvell Yukon 2 support"
 	depends on PCI
 	select CRC32
-	---help---
+	help
 	  This driver supports Gigabit Ethernet adapters based on the
 	  Marvell Yukon 2 chipset:
 	  Marvell 88E8021/88E8022/88E8035/88E8036/88E8038/88E8050/88E8052/
@@ -154,7 +154,7 @@ config SKY2
 config SKY2_DEBUG
 	bool "Debugging interface"
 	depends on SKY2 && DEBUG_FS
-	---help---
+	help
 	  This option adds the ability to dump driver state for debugging.
 	  The file /sys/kernel/debug/sky2/ethX displays the state of the internal
 	  transmit and receive rings.

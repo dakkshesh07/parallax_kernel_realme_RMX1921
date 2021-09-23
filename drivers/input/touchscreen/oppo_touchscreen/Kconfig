@@ -36,7 +36,7 @@ config TOUCHPANEL_MULTI_NOFLASH
 config TOUCHPANEL_SYNAPTICS
 #	default y
 	bool "TP Synaptics_IC enable or not for OPPO"
-	---help---
+	help
 	say Y to enable driver for Touchpanel using Synaptics_IC
 	
 source "drivers/input/touchscreen/oppo_touchscreen/util_interface/Kconfig"

@@ -8,7 +8,7 @@ config OPLUS_SYSTEM_KERNEL
 
 config OPPO_ARCH_FILE
   bool "for build directory oppo"
-  ---help---
+	help
   say Y to buid in
 
 config OPPO_COMMON_SOFT

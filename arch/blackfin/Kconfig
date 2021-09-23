@@ -239,7 +239,7 @@ config SMP
 	depends on BF561
 	select TICKSOURCE_CORETMR
 	bool "Symmetric multi-processing support"
-	---help---
+	help
 	  This enables support for systems with more than one CPU,
 	  like the dual core BF561. If you have a system with only one
 	  CPU, say N. If you have a system with more than one CPU, say Y.

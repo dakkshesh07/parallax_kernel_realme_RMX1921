@@ -24,7 +24,7 @@ config VIDEO_SH_MOBILE_CEU
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
 	select SOC_CAMERA_SCALE_CROP
-	---help---
+	help
 	  This is a v4l2 driver for the SuperH Mobile CEU Interface
 
 config VIDEO_ATMEL_ISI
@@ -33,7 +33,7 @@ config VIDEO_ATMEL_ISI
 	depends on ARCH_AT91 || COMPILE_TEST
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
-	---help---
+	help
 	  This module makes the ATMEL Image Sensor Interface available
 	  as a v4l2 device.
 
