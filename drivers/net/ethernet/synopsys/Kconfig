@@ -5,7 +5,7 @@
 config NET_VENDOR_SYNOPSYS
 	bool "Synopsys devices"
 	default y
-	---help---
+	help
 	  If you have a network (Ethernet) device belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -21,7 +21,7 @@ config SYNOPSYS_DWC_ETH_QOS
 	select CRC32
 	select MII
 	depends on OF && HAS_DMA
-	---help---
+	help
 	  This driver supports the DWC Ethernet QoS from Synopsys
 
 endif # NET_VENDOR_SYNOPSYS

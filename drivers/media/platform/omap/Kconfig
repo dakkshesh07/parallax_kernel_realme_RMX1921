@@ -12,5 +12,5 @@ config VIDEO_OMAP2_VOUT
 	select VIDEO_OMAP2_VOUT_VRFB if VIDEO_OMAP2_VOUT && OMAP2_VRFB
 	select FRAME_VECTOR
 	default n
-	---help---
+	help
 	  V4L2 Display driver support for OMAP2/3 based boards.

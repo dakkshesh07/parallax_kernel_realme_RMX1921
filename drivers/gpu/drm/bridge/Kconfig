@@ -11,7 +11,7 @@ config DRM_ANALOGIX_ANX78XX
 	tristate "Analogix ANX78XX bridge"
 	select DRM_KMS_HELPER
 	select REGMAP_I2C
-	---help---
+	help
 	  ANX78XX is an ultra-low Full-HD SlimPort transmitter
 	  designed for portable devices. The ANX78XX transforms
 	  the HDMI output of an application processor to MyDP
@@ -44,7 +44,7 @@ config DRM_NXP_PTN3460
 	depends on OF
 	select DRM_KMS_HELPER
 	select DRM_PANEL
-	---help---
+	help
 	  NXP PTN3460 eDP-LVDS bridge chip driver.
 
 config DRM_PARADE_PS8622
@@ -54,7 +54,7 @@ config DRM_PARADE_PS8622
 	select DRM_KMS_HELPER
 	select BACKLIGHT_LCD_SUPPORT
 	select BACKLIGHT_CLASS_DEVICE
-	---help---
+	help
 	  Parade eDP-LVDS bridge chip driver.
 
 config DRM_SII902X
@@ -62,7 +62,7 @@ config DRM_SII902X
 	depends on OF
 	select DRM_KMS_HELPER
 	select REGMAP_I2C
-	---help---
+	help
 	  Silicon Image sii902x bridge chip driver.
 
 config DRM_TOSHIBA_TC358767
@@ -71,7 +71,7 @@ config DRM_TOSHIBA_TC358767
 	select DRM_KMS_HELPER
 	select REGMAP_I2C
 	select DRM_PANEL
-	---help---
+	help
 	  Toshiba TC358767 eDP bridge chip driver.
 
 config DRM_LT_LT9611

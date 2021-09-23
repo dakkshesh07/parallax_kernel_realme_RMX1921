@@ -3,7 +3,7 @@
 #
 config COMMON_CLK_MEDIATEK
 	bool
-	---help---
+	help
 	  Mediatek SoCs' clock support.
 
 config COMMON_CLK_MT8135
@@ -11,7 +11,7 @@ config COMMON_CLK_MT8135
 	depends on ARCH_MEDIATEK || COMPILE_TEST
 	select COMMON_CLK_MEDIATEK
 	default ARCH_MEDIATEK
-	---help---
+	help
 	  This driver supports Mediatek MT8135 clocks.
 
 config COMMON_CLK_MT8173
@@ -19,5 +19,5 @@ config COMMON_CLK_MT8173
 	depends on ARCH_MEDIATEK || COMPILE_TEST
 	select COMMON_CLK_MEDIATEK
 	default ARCH_MEDIATEK
-	---help---
+	help
 	  This driver supports Mediatek MT8173 clocks.
