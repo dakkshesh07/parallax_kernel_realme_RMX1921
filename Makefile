@@ -842,9 +842,14 @@ export CFI_CFLAGS DISABLE_CFI
 endif
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+KBUILD_AFLAGS	+= -Os
 KBUILD_CFLAGS   += -Os
+KBUILD_LDFLAGS	+= -Os
 else
-KBUILD_CFLAGS   += -O2
+KBUILD_AFLAGS	+= -O3
+KBUILD_CFLAGS	+= -O3
+KBUILD_LDFLAGS	+= -O3
+KBUILD_LDFLAGS	+= --lto-O3
 endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
