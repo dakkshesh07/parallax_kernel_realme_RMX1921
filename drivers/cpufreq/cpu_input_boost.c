@@ -13,6 +13,7 @@
 #include <linux/msm_drm_notify.h>
 #include <linux/slab.h>
 #include <linux/version.h>
+#include <linux/kprofiles.h>
 
 /* The sched_param struct is located elsewhere in newer kernels */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
@@ -107,16 +108,19 @@ static unsigned int get_min_freq(struct cpufreq_policy *policy)
 	struct boost_drv *b = &boost_drv_g;
 	unsigned int freq;
 
-	if (cpumask_test_cpu(policy->cpu, cpu_lp_mask) &&
-			test_bit(SCREEN_OFF, &b->state))
-		freq = idle_min_freq_lp;
+	if (test_bit(SCREEN_OFF, &b->state) || active_mode() == 1) {
+		if (cpumask_test_cpu(policy->cpu, cpu_lp_mask))
+			freq = idle_min_freq_lp;
+		else
+			freq = idle_min_freq_perf;
+	}
 	else if (cpumask_test_cpu(policy->cpu, cpu_lp_mask))
 		freq = remove_input_boost_freq_lp;
 	else
 		freq = remove_input_boost_freq_perf;
-
 	return max(freq, policy->cpuinfo.min_freq);
 }
+
 
 static void update_online_cpu_policy(void)
 {
@@ -133,7 +137,7 @@ static void update_online_cpu_policy(void)
 
 static void __cpu_input_boost_kick(struct boost_drv *b)
 {
-	if (test_bit(SCREEN_OFF, &b->state))
+	if (test_bit(SCREEN_OFF, &b->state) || active_mode() == 1)
 		return;
 
 	if (!input_boost_duration)
@@ -158,7 +162,7 @@ static void __cpu_input_boost_kick_max(struct boost_drv *b,
 	unsigned long boost_jiffies = msecs_to_jiffies(duration_ms);
 	unsigned long curr_expires, new_expires;
 
-	if (test_bit(SCREEN_OFF, &b->state))
+	if (test_bit(SCREEN_OFF, &b->state) || active_mode() == 1)
 		return;
 
 	do {
