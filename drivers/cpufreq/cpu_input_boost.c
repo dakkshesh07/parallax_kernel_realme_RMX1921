@@ -13,7 +13,7 @@
 #include <linux/msm_drm_notify.h>
 #include <linux/slab.h>
 #include <linux/version.h>
-#include <linux/battery_saver.h>
+#include <linux/kernelspace_profiles.h>
 
 /* The sched_param struct is located elsewhere in newer kernels */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
@@ -111,7 +111,7 @@ static unsigned int get_min_freq(struct cpufreq_policy *policy)
 	struct boost_drv *b = &boost_drv_g;
 	unsigned int freq;
 
-	if (test_bit(SCREEN_OFF, &b->state) || is_battery_saver_on())
+	if (test_bit(SCREEN_OFF, &b->state) || active_mode() == 1)
 	{
 		if (cpumask_test_cpu(policy->cpu, cpu_lp_mask))
 			freq = idle_min_freq_lp;
@@ -141,7 +141,7 @@ static void update_online_cpu_policy(void)
 
 static void __cpu_input_boost_kick(struct boost_drv *b)
 {
-	if (test_bit(SCREEN_OFF, &b->state) || is_battery_saver_on())
+	if (test_bit(SCREEN_OFF, &b->state) || active_mode() == 1)
 		return;
 
 	if (!input_boost_duration)
@@ -166,7 +166,7 @@ static void __cpu_input_boost_kick_max(struct boost_drv *b,
 	unsigned long boost_jiffies = msecs_to_jiffies(duration_ms);
 	unsigned long curr_expires, new_expires;
 
-	if (test_bit(SCREEN_OFF, &b->state))
+	if (test_bit(SCREEN_OFF, &b->state) || active_mode() == 1)
 		return;
 
 	do {
@@ -254,7 +254,7 @@ static int cpu_notifier_cb(struct notifier_block *nb, unsigned long action,
 	}
 
 	/* Pin min freq to lowest when battery saver is on*/
-	if (is_battery_saver_on()) {
+	if (active_mode() == 1) {
 		policy->min = policy->cpuinfo.min_freq;
 		return NOTIFY_OK;
 	}
