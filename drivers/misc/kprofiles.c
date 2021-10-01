@@ -7,26 +7,25 @@
 #include <linux/moduleparam.h>
 #include <linux/kprofiles.h>
 
-unsigned int enabled = 0;
+unsigned int enabled = 1;
 module_param(enabled, uint, 0664);
 
-
-unsigned int active_mode(void) {
-	if (enabled == 1) {
-		return 1;
-	}
-
-	if (enabled == 2) {
-		return 2;
-	}
-
-	if (enabled == 3) {
-		return 3;
-	}
-
-	else {
-		pr_info("Invalid value passed, falling back to level 0\n");
-		return 0;
+unsigned int active_mode(void)
+{
+	switch (enabled)
+	{
+		case 1:
+			return 1;
+			break;
+		case 2:
+			return 2;
+			break;
+		case 3:
+			return 3;
+			break;
+		default:
+			pr_info("Invalid value passed, falling back to level 0\n");
+			return 0;
 	}
 }
 
