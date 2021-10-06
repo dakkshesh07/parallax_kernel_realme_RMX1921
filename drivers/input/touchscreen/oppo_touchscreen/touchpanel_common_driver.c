@@ -11,7 +11,7 @@
  *   <version>    <date>          < author >                            <desc>
  * Revision 1.1, 2016-09-09, Tong.han@Bsp.Group.Tp, modify based on gerrit review result(http://gerrit.scm.adc.com:8080/#/c/223721/)
  ****************************************************************/
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>

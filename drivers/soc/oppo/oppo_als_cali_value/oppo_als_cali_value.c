@@ -13,7 +13,7 @@
  **  Chao.Zeng       11/21/2018      create the file
  ************************************************************************************/
 
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
