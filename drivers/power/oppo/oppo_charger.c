@@ -17,7 +17,7 @@
 #include <linux/delay.h>
 #include <linux/power_supply.h>
 #include <linux/proc_fs.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/of_gpio.h>
 #include <linux/kthread.h>
 #include <linux/version.h>
