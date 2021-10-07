@@ -2,7 +2,7 @@
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <soc/qcom/smem.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #include <linux/sysfs.h>
 #include <linux/gpio.h>

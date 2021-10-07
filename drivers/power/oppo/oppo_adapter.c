@@ -16,7 +16,7 @@
 
 #include <linux/delay.h>
 #include <linux/proc_fs.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #include "oppo_charger.h"
 #include "oppo_vooc.h"

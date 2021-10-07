@@ -25,7 +25,7 @@
 #include <linux/platform_device.h>
 #include <linux/qpnp/qpnp-adc.h>
 #include "../../../fs/proc/internal.h"
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #define DEVINFO_NAME "devinfo"
 #define INFO_BUF_LEN 64
