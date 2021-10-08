@@ -752,8 +752,9 @@ ARCH_AFLAGS :=
 ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
+ifeq ($(cc-name),clang)
 ifdef CONFIG_LLVM_POLLY
-KBUILD_CFLAGS	+= -mllvm -polly \
+OPT_FLAGS := -mllvm -polly \
 		   -mllvm -polly-run-dce \
 		   -mllvm -polly-run-inliner \
 		   -mllvm -polly-opt-fusion=max \
@@ -761,6 +762,13 @@ KBUILD_CFLAGS	+= -mllvm -polly \
 		   -mllvm -polly-detect-keep-going \
 		   -mllvm -polly-vectorizer=stripmine \
 		   -mllvm -polly-invariant-load-hoisting
+endif
+OPT_FLAGS += -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 \
+			-mcpu=cortex-a75+crypto+crc
+
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
+KBUILD_LDFLAGS += $(OPT_FLAGS)
 endif
 
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
@@ -846,9 +854,11 @@ KBUILD_AFLAGS	+= -Os
 KBUILD_CFLAGS   += -Os
 KBUILD_LDFLAGS	+= -Os
 else
-KBUILD_AFLAGS	+= -O3
-KBUILD_CFLAGS	+= -O3
-KBUILD_LDFLAGS	+= -O3
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
+KBUILD_LDFLAGS += $(OPT_FLAGS)
+endif
 KBUILD_LDFLAGS	+= --lto-O3
 endif
 
