@@ -727,6 +727,7 @@ ARCH_AFLAGS :=
 ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
+ifeq ($(cc-name),clang)
 ifdef CONFIG_LLVM_POLLY
 OPT_FLAGS := -mllvm -polly \
 		   -mllvm -polly-run-dce \
@@ -743,6 +744,13 @@ OPT_FLAGS += -mllvm -polly-reschedule=1 \
 else
 OPT_FLAGS += -mllvm -polly-opt-fusion=max
 endif
+
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
+KBUILD_LDFLAGS += $(OPT_FLAGS)
+endif
+OPT_FLAGS += -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 \
+			-mcpu=cortex-a75+crypto+crc
 
 KBUILD_CFLAGS += $(OPT_FLAGS)
 KBUILD_AFLAGS += $(OPT_FLAGS)
@@ -832,9 +840,11 @@ KBUILD_AFLAGS	+= -Os
 KBUILD_CFLAGS   += -Os
 KBUILD_LDFLAGS	+= -Os
 else
-KBUILD_AFLAGS	+= -O3
-KBUILD_CFLAGS	+= -O3
-KBUILD_LDFLAGS	+= -O3
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
+KBUILD_LDFLAGS += $(OPT_FLAGS)
+endif
 KBUILD_LDFLAGS	+= --lto-O3
 endif
 
