@@ -56,7 +56,6 @@
 #include "tfa98xx_parameters.h"
 
 #define TFA98XX_VERSION        "2.10.1-a"
-#define CONFIG_DEBUG_FS 1
 
 #ifdef VENDOR_EDIT
 /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
@@ -685,47 +684,6 @@ static int tfa98xx_dbgfs_temp_set(void *data, u64 val)
     return 0;
 }
 
-/*
- * calibration:
- * write key phrase to the 'calibration' file to trigger a new calibration
- * read the calibration file once to get the calibration result
- */
-/* tfa98xx_deferred_calibration_status - called from tfaRunWaitCalibration */
-void tfa98xx_deferred_calibration_status(Tfa98xx_handle_t handle, int calibrateDone)
-{
-    struct tfa98xx *tfa98xx = tfa98xx_devices[handle];
-    struct tfa98xx_control *calib = &(handles_local[handle].dev_ops.controls.calib);
-
-    if (calib->wr_value) {
-        /* a calibration was programmed from the calibration file
-         * interface
-         */
-        switch (calibrateDone) {
-        case 1:
-            /* calibration complete ! */
-            calib->wr_value = false; /* calibration over */
-            calib->rd_valid = true;  /* result available */
-            calib->rd_value = true;  /* result valid */
-            tfa_dsp_get_calibration_impedance(tfa98xx->handle);
-            wake_up_interruptible(&tfa98xx->wq);
-            break;
-        case 0:
-            pr_info("Calibration not complete, still waiting...\n");
-            break;
-        case -1:
-            pr_info("Calibration failed\n");
-            calib->wr_value = false; /* calibration over */
-            calib->rd_valid = true;  /* result available */
-            calib->rd_value = false; /* result not valid */
-            wake_up_interruptible(&tfa98xx->wq);
-            break;
-        default:
-            pr_info("Unknown calibration status: %d\n",
-                            calibrateDone);
-        }
-    }
-}
-
 static ssize_t tfa98xx_dbgfs_start_get(struct file *file,
                      char __user *user_buf, size_t count,
                      loff_t *ppos)
@@ -1272,6 +1230,47 @@ static void tfa98xx_debug_remove(struct tfa98xx *tfa98xx)
         debugfs_remove_recursive(tfa98xx->dbg_dir);
 }
 #endif
+
+/*
+ * calibration:
+ * write key phrase to the 'calibration' file to trigger a new calibration
+ * read the calibration file once to get the calibration result
+ */
+/* tfa98xx_deferred_calibration_status - called from tfaRunWaitCalibration */
+void tfa98xx_deferred_calibration_status(Tfa98xx_handle_t handle, int calibrateDone)
+{
+    struct tfa98xx *tfa98xx = tfa98xx_devices[handle];
+    struct tfa98xx_control *calib = &(handles_local[handle].dev_ops.controls.calib);
+
+    if (calib->wr_value) {
+        /* a calibration was programmed from the calibration file
+         * interface
+         */
+        switch (calibrateDone) {
+        case 1:
+            /* calibration complete ! */
+            calib->wr_value = false; /* calibration over */
+            calib->rd_valid = true;  /* result available */
+            calib->rd_value = true;  /* result valid */
+            tfa_dsp_get_calibration_impedance(tfa98xx->handle);
+            wake_up_interruptible(&tfa98xx->wq);
+            break;
+        case 0:
+            pr_info("Calibration not complete, still waiting...\n");
+            break;
+        case -1:
+            pr_info("Calibration failed\n");
+            calib->wr_value = false; /* calibration over */
+            calib->rd_valid = true;  /* result available */
+            calib->rd_value = false; /* result not valid */
+            wake_up_interruptible(&tfa98xx->wq);
+            break;
+        default:
+            pr_info("Unknown calibration status: %d\n",
+                            calibrateDone);
+        }
+    }
+}
 
 #ifdef VENDOR_EDIT
 /*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/07/20, Add for calibrate*/
