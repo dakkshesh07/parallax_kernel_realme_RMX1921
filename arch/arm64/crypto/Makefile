@@ -38,9 +38,6 @@ aes-neon-blk-y := aes-glue-neon.o aes-neon.o
 obj-$(CONFIG_CRYPTO_AES_ARM64) += aes-arm64.o
 aes-arm64-y := aes-cipher-core.o aes-cipher-glue.o
 
-obj-$(CONFIG_CRYPTO_CHACHA20_NEON) += chacha20-neon.o
-chacha20-neon-y := chacha20-neon-core.o chacha20-neon-glue.o
-
 obj-$(CONFIG_CRYPTO_SHA256_ARM64) += sha256-arm64.o
 sha256-arm64-y := sha256-glue.o sha256-core.o
 
