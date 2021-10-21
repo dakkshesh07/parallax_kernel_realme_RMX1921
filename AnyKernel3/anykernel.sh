@@ -12,7 +12,7 @@ do.cleanup=1
 do.cleanuponabort=0
 device.name1=RMX1921
 device.name2=RMX1921EU
-supported.versions=11
+supported.versions=11 - 12
 '; } # end properties
 
 # shell variables
