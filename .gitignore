@@ -128,7 +128,7 @@ Android.bp
 
 # my crap
 any/
-builds.sh
+build.sh
 clang/
 dtc/
 eva-32/
