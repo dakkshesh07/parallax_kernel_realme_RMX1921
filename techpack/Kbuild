@@ -1,2 +1,4 @@
 obj-y += stub/ audio/
 header-y += stub/include/uapi/ audio/include/uapi/
+ccflags-y += $(call cc-option, -g0)
+ccflags-y += $(call cc-option, -Os)
