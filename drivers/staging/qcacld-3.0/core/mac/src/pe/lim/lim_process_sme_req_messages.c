@@ -730,6 +730,7 @@ __lim_handle_sme_start_bss_request(struct mac_context *mac_ctx, uint32_t *msg_bu
 
 			break;
 		case eSIR_NDI_MODE:
+			session->vdev_nss = vdev_type_nss->ndi;
 			session->limSystemRole = eLIM_NDI_ROLE;
 			break;
 
@@ -4629,12 +4630,11 @@ bool lim_process_sme_req_messages(struct mac_context *mac,
 		break;
 
 	case eWNI_SME_ASSOC_CNF:
-		if (pMsg->type == eWNI_SME_ASSOC_CNF){
+		if (pMsg->type == eWNI_SME_ASSOC_CNF)
 			pe_debug("Received ASSOC_CNF message");
 			__lim_process_sme_assoc_cnf_new(mac, pMsg->type,
 							msg_buf);
 		break;
-		}
 
 	case eWNI_SME_ADDTS_REQ:
 		pe_debug("Received ADDTS_REQ message");

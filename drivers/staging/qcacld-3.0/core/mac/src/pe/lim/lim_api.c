@@ -1074,11 +1074,10 @@ static QDF_STATUS pe_drop_pending_rx_mgmt_frames(struct mac_context *mac_ctx,
 	qdf_spin_unlock(&mac_ctx->sys.bbt_mgmt_lock);
 	if (mac_ctx->sys.sys_bbt_pending_mgmt_count ==
 	    (MGMT_RX_PACKETS_THRESHOLD / 4)) {
-		if (!(mac_ctx->rx_packet_drop_counter % 100)){
+		if (!(mac_ctx->rx_packet_drop_counter % 100))
 			pe_debug("No.of pending RX management frames reaches to 1/4th of threshold, rx_packet_drop_counter: %d",
 				mac_ctx->rx_packet_drop_counter);
 			mac_ctx->rx_packet_drop_counter++;
-		}
 	}
 	return QDF_STATUS_SUCCESS;
 }
@@ -1174,12 +1173,15 @@ static bool pe_filter_bcn_probe_frame(struct mac_context *mac_ctx,
 
 		ssid_ie = wlan_get_ie_ptr_from_eid(WLAN_ELEMID_SSID,
 				body + SIR_MAC_B_PR_SSID_OFFSET,
-				frame_len);
+				frame_len - SIR_MAC_B_PR_SSID_OFFSET);
 
 		if (!ssid_ie)
 			return false;
 
 		bcn_ssid.length = ssid_ie[1];
+		if (bcn_ssid.length > WLAN_SSID_MAX_LEN)
+			return false;
+
 		qdf_mem_copy(&bcn_ssid.ssId,
 			     &ssid_ie[2],
 			     bcn_ssid.length);
