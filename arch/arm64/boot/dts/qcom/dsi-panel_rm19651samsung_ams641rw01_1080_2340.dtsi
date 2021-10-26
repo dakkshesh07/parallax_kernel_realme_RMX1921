@@ -64,6 +64,9 @@
 		qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000 17000 15500 30000 8000 3000>;
 		qcom,mdss-dsi-panel-peak-brightness = <4200000>;
 		qcom,mdss-dsi-panel-blackness-level = <2000>;
+		qcom,ulps-enabled;
+ 		qcom,suspend-ulps-enabled;
+		qcom,panel-allow-phy-poweroff;
 		qcom,mdss-dsi-display-timings {
 			timing@0{
 				qcom,mdss-dsi-panel-width = <1080>;
