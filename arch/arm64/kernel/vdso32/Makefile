@@ -60,8 +60,12 @@ VDSO_CAFLAGS += -DDISABLE_BRANCH_PROFILING
 # Try to compile for ARMv8. If the compiler is too old and doesn't support it,
 # fall back to v7. There is no easy way to check for what architecture the code
 # is being compiled, so define a macro specifying that (see arch/arm/Makefile).
+ifndef CONFIG_MACH_REALME
 VDSO_CAFLAGS += $(call cc32-option,-march=armv8-a -D__LINUX_ARM_ARCH__=8,\
                                    -march=armv7-a -D__LINUX_ARM_ARCH__=7)
+else
+VDSO_CAFLAGS += -D__LINUX_ARM_ARCH__=8
+endif
 
 VDSO_CFLAGS := $(VDSO_CAFLAGS)
 # KBUILD_CFLAGS from top-level Makefile
@@ -91,6 +95,9 @@ VDSO_CFLAGS += -Wno-int-to-pointer-cast
 
 VDSO_AFLAGS := $(VDSO_CAFLAGS)
 VDSO_AFLAGS += -D__ASSEMBLY__
+
+VDSO_CFLAGS += -mtune=cortex-a75 -march=armv8.2-a
+VDSO_AFLAGS += -mtune=cortex-a75 -march=armv8.2-a
 
 # From arm vDSO Makefile
 VDSO_LDFLAGS += -Bsymbolic --no-undefined -soname=linux-vdso.so.1
