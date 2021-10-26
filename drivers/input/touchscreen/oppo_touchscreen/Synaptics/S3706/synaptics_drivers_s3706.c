@@ -5638,10 +5638,6 @@ static int synaptics_tp_probe(struct i2c_client *client, const struct i2c_device
                 mutex_unlock(&ts->mutex);
         }
 
-
-        /*step7:create synaptics related proc files*/
-        synaptics_create_proc(ts, chip_info->syna_ops);
-
         /*step8:Chip Related function*/
 #ifdef CONFIG_SYNAPTIC_RED
         premote_data = remote_alloc_panel_data();
