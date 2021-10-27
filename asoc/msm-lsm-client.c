@@ -333,6 +333,12 @@ static void lsm_event_handler(uint32_t opcode, uint32_t token,
 
 	case LSM_SESSION_DETECTION_ENGINE_GENERIC_EVENT: {
 		struct snd_lsm_event_status *tmp;
+		if (client_size < 2 * sizeof(uint16_t)) {
+			dev_err(rtd->dev,
+					"%s: client_size has invalid size[%d]\n",
+					__func__, client_size);
+			return;
+		}
 
 		status = ((uint16_t *)payload)[0];
 		payload_size = ((uint16_t *)payload)[1];
@@ -355,8 +361,16 @@ static void lsm_event_handler(uint32_t opcode, uint32_t token,
 		prtd->det_event = tmp;
 		prtd->det_event->status = status;
 		prtd->det_event->payload_size = payload_size;
-		memcpy(prtd->det_event->payload, &((uint8_t *)payload)[4],
-		       payload_size);
+		if (client_size >= payload_size + 4) {
+			memcpy(prtd->det_event->payload,
+				&((uint8_t *)payload)[4], payload_size);
+		} else {
+			spin_unlock_irqrestore(&prtd->event_lock, flags);
+			dev_err(rtd->dev,
+				"%s: Failed to copy memory with invalid size = %d\n",
+				__func__, payload_size);
+			return;
+		}
 		prtd->event_avail = 1;
 		spin_unlock_irqrestore(&prtd->event_lock, flags);
 		wake_up(&prtd->event_wait);
