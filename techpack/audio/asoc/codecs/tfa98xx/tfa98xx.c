@@ -119,8 +119,8 @@ static int get_profile_from_list(char *buf, int id);
 static int get_profile_id_for_sr(int id, unsigned int rate);
 #ifdef VENDOR_EDIT
 /*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/07/20, Add for force calibrate*/
-static int tfa98xx_speaker_recalibration(Tfa98xx_handle_t handle,unsigned int *speakerImpedance);
-static int tfa98xx_get_speaker_resistance(Tfa98xx_handle_t handle, unsigned int *speakerResistance, unsigned int *speakerTemp);
+static __maybe_unused int tfa98xx_speaker_recalibration(Tfa98xx_handle_t handle,unsigned int *speakerImpedance);
+static __maybe_unused int tfa98xx_get_speaker_resistance(Tfa98xx_handle_t handle, unsigned int *speakerResistance, unsigned int *speakerTemp);
 #endif /* VENDOR_EDIT */
 
 #ifdef VENDOR_EDIT
