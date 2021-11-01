@@ -45,26 +45,25 @@ static int checkCMD(struct chip_data_s3706 *chip_info, int retry_time);
 
 /*******Part0:LOG TAG Declear********************/
 
-#define TPD_DEVICE "synaptics-s3706"
-#define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
+#define TPD_DEVICE_SYNAPTICS "synaptics-s3706"
 #define TPD_DEBUG(a, arg...)\
         do {\
                 if (LEVEL_DEBUG == tp_debug) {\
-                        pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
+                        pr_debug("[TP]"TPD_DEVICE_SYNAPTICS ": " a, ##arg);\
                 }\
         }while(0)
 
 #define TPD_DETAIL(a, arg...)\
         do {\
                 if (LEVEL_BASIC != tp_debug) {\
-                        pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
+                        pr_debug("[TP]"TPD_DEVICE_SYNAPTICS ": " a, ##arg);\
                 }\
         }while(0)
 
 #define TPD_DEBUG_NTAG(a, arg...)\
         do {\
                 if (tp_debug) {\
-                        printk(a, ##arg);\
+                        pr_debug(a, ##arg);\
                 }\
         }while(0)
 
@@ -1259,7 +1258,7 @@ unsigned char GetLogicalPin(unsigned char p_pin, uint8_t RX_NUM, uint8_t * rx_ph
     return 0xff;
 }
 
-static int synaptics_capacity_test(struct seq_file *s, struct chip_data_s3706 *chip_info, struct syna_testdata *syna_testdata, struct test_header *ph, uint8_t *raw_data, uint8_t *data_buf)
+static __maybe_unused int synaptics_capacity_test(struct seq_file *s, struct chip_data_s3706 *chip_info, struct syna_testdata *syna_testdata, struct test_header *ph, uint8_t *raw_data, uint8_t *data_buf)
 {
         int ret = 0;
         int x = 0, y = 0, z = 0;
@@ -5705,12 +5704,12 @@ static int synaptics_i2c_resume(struct device *dev)
 }
 
 static const struct i2c_device_id tp_id[] = {
-        { TPD_DEVICE, 0 },
+        { TPD_DEVICE_SYNAPTICS, 0 },
         { }
 };
 
 static struct of_device_id tp_match_table[] = {
-        { .compatible = TPD_DEVICE, },
+        { .compatible = TPD_DEVICE_SYNAPTICS, },
         { },
 };
 
@@ -5726,7 +5725,7 @@ static struct i2c_driver tp_i2c_driver = {
         .remove         = synaptics_tp_remove,
         .id_table   = tp_id,
         .driver         = {
-                .name   = TPD_DEVICE,
+                .name   = TPD_DEVICE_SYNAPTICS,
                 .of_match_table =  tp_match_table,
                 .pm = &tp_pm_ops,
                 .probe_type = PROBE_PREFER_ASYNCHRONOUS,
@@ -5736,7 +5735,7 @@ static struct i2c_driver tp_i2c_driver = {
 static int __init tp_driver_init(void)
 {
         TPD_INFO("%s is called\n", __func__);
-		if (!tp_judge_ic_match(TPD_DEVICE)) {
+		if (!tp_judge_ic_match(TPD_DEVICE_SYNAPTICS)) {
 			return -1;
 		}
 

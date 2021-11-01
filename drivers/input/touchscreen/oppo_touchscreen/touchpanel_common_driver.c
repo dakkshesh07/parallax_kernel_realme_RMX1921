@@ -50,24 +50,23 @@
 #endif
 /*******Part0:LOG TAG Declear************************/
 #define TPD_PRINT_POINT_NUM 150
-#define TPD_DEVICE "touchpanel"
-#define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
+#define TPD_DEVICE_COMMON "touchpanel"
 #define TPD_DEBUG(a, arg...)\
     do{\
         if (LEVEL_DEBUG == tp_debug)\
-            pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
+            pr_err("[TP]"TPD_DEVICE_COMMON ": " a, ##arg);\
     }while(0)
 
 #define TPD_DETAIL(a, arg...)\
     do{\
         if (LEVEL_BASIC != tp_debug)\
-            pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
+            pr_err("[TP]"TPD_DEVICE_COMMON ": " a, ##arg);\
     }while(0)
 
 #define TPD_SPECIFIC_PRINT(count, a, arg...)\
     do{\
         if (count++ == TPD_PRINT_POINT_NUM || LEVEL_DEBUG == tp_debug) {\
-            TPD_INFO(TPD_DEVICE ": " a, ##arg);\
+            TPD_INFO(TPD_DEVICE_COMMON ": " a, ##arg);\
             count = 0;\
         }\
     }while(0)
@@ -1920,7 +1919,7 @@ static ssize_t cap_vk_show(struct kobject *kobj, struct kobj_attribute *attr, ch
 
 static struct kobj_attribute virtual_keys_attr = {
     .attr = {
-        .name = "virtualkeys."TPD_DEVICE,
+        .name = "virtualkeys."TPD_DEVICE_COMMON,
         .mode = S_IRUGO,
     },
     .show = &cap_vk_show,
@@ -4684,12 +4683,12 @@ static int init_input_device(struct touchpanel_data *ts)
             return ret;
         }
 
-        ts->ps_input_dev->name = TPD_DEVICE"_ps";
+        ts->ps_input_dev->name = TPD_DEVICE_COMMON"_ps";
         set_bit(EV_MSC, ts->ps_input_dev->evbit);
         set_bit(MSC_RAW, ts->ps_input_dev->mscbit);
     }
 
-    ts->input_dev->name = TPD_DEVICE;
+    ts->input_dev->name = TPD_DEVICE_COMMON;
     set_bit(EV_SYN, ts->input_dev->evbit);
     set_bit(EV_ABS, ts->input_dev->evbit);
     set_bit(EV_KEY, ts->input_dev->evbit);
@@ -4722,7 +4721,7 @@ static int init_input_device(struct touchpanel_data *ts)
 #endif //end of CONFIG_OPPO_TP_APK
     }
 
-    ts->kpd_input_dev->name = TPD_DEVICE"_kpd";
+    ts->kpd_input_dev->name = TPD_DEVICE_COMMON"_kpd";
     set_bit(EV_KEY, ts->kpd_input_dev->evbit);
     set_bit(EV_SYN, ts->kpd_input_dev->evbit);
 
@@ -5319,7 +5318,7 @@ int tp_register_irq_func(struct touchpanel_data *ts)
         ret = request_threaded_irq(ts->irq, NULL,
                                    tp_irq_thread_fn,
                                    ts->irq_flags | IRQF_ONESHOT,
-                                   TPD_DEVICE, ts);
+                                   TPD_DEVICE_COMMON, ts);
         if (ret < 0) {
             TPD_INFO("%s request_threaded_irq ret is %d\n", __func__, ret);
         }
