@@ -249,6 +249,12 @@ static int cpu_notifier_cb(struct notifier_block *nb, unsigned long action,
 		return NOTIFY_OK;
 	}
 
+	/* Pin min freq to lowest when Kprofile is on battery mode*/
+	if (active_mode() == 1) {
+		policy->min = policy->cpuinfo.min_freq;
+		return NOTIFY_OK;
+	}
+
 	/* Boost CPU to max frequency for max boost */
 	if (test_bit(MAX_BOOST, &b->state)) {
 		policy->min = get_max_boost_freq(policy);
