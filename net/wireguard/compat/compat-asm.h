@@ -51,10 +51,13 @@
 #undef pull
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 76) && !defined(ISCENTOS8S)
+/* as we have these assembler symbol macros backported,
+   we dont need to redefine it here*/
+
+/*#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 76) && !defined(ISCENTOS8S)
 #define SYM_FUNC_START ENTRY
 #define SYM_FUNC_END ENDPROC
-#endif
+#endif*/
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 5, 0)
 #define blake2s_compress_ssse3 zinc_blake2s_compress_ssse3
