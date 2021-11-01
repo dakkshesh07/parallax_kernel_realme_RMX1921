@@ -2152,7 +2152,7 @@ static void oppo_ffl_setting_thread(struct kthread_work *work)
 	system_backlight_target = display->panel->bl_config.bl_level;
 
 	if(index < system_backlight_target) {
-		for(index = index; index < system_backlight_target; index =index + BACKUPRATE) {
+		for(index; index < system_backlight_target; index =index + BACKUPRATE) {
 			if((is_ffl_enable ==FFL_EXIT_FULLY_CONTROL) ||
 			   !ffl_work_running)
 				break;
@@ -2162,7 +2162,7 @@ static void oppo_ffl_setting_thread(struct kthread_work *work)
 			usleep_range(6000, 6100);
 		}
 	} else if (index > system_backlight_target) {
-		for(index =index; index > system_backlight_target; index =index - BACKUPRATE) {
+		for(index; index > system_backlight_target; index =index - BACKUPRATE) {
 			if((is_ffl_enable ==FFL_EXIT_FULLY_CONTROL) ||
 			   !ffl_work_running)
 				break;
