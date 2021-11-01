@@ -30,6 +30,7 @@
 #include <linux/timer.h>
 #include <linux/pm_opp.h>
 #include <linux/cpu_cooling.h>
+#include <linux/cpufreq.h>
 #include <linux/atomic.h>
 #include <linux/regulator/consumer.h>
 
