@@ -279,6 +279,7 @@ static int msm_drm_uninit(struct device *dev)
 	drm_vblank_cleanup(ddev);
 
 	if (priv->registered) {
+		drm_client_dev_unregister(ddev);
 		drm_dev_unregister(ddev);
 		priv->registered = false;
 	}
@@ -1467,7 +1468,7 @@ static int msm_release(struct inode *inode, struct file *filp)
 			msm_register_event(dev, &node->info, file_priv, false);
 		kfree(node);
 	}
-
+	
 	msm_preclose(dev, file_priv);
 
        /**

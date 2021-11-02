@@ -311,7 +311,6 @@ static void kgsl_destroy_anon(struct kgsl_memdesc *memdesc)
 			 */
 			if (!(memdesc->flags & KGSL_MEMFLAGS_GPUREADONLY))
 				set_page_dirty_lock(nth_page(page, j));
-
 			/*
 			 * Put the page reference taken using get_user_pages
 			 * during memdesc_sg_virt.
