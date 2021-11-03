@@ -18,6 +18,96 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 
+		/* #ifdef VENDOR_EDIT */
+		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Add for audio config */
+                sec_mi2s_bclk {
+                        sec_mi2s_bclk_sleep: sec_mi2s_bclk_sleep {
+                                mux {
+                                        pins = "gpio8";
+                                        function = "func3";
+                                };
+
+                                config {
+                                        pins = "gpio8";
+                                        drive-strength = <2>;   /* 2 mA */
+                                        //bias-pull-down;         /* PULL DOWN */
+                                        //output-low;
+                                };
+                        };
+
+                        sec_mi2s_bclk_active: sec_mi2s_bclk_active {
+                                mux {
+                                        pins = "gpio8";
+                                        function = "func3";
+                                };
+                                config {
+                                        pins = "gpio8";
+                                        drive-strength = <8>;   /* 8 mA */
+                                        //bias-disable;           /* NO PULL */
+                                        //output-high;
+                                };
+                        };
+                };
+
+                sec_mi2s_ws {
+                        sec_mi2s_ws_sleep: sec_mi2s_ws_sleep {
+                                mux {
+                                        pins = "gpio9";
+                                        function = "func3";
+                                };
+
+                                config {
+                                        pins = "gpio9";
+                                        drive-strength = <2>;   /* 2 mA */
+                                        //bias-pull-down;         /* PULL DOWN */
+                                        //output-low;
+                                };
+                        };
+
+                        sec_mi2s_ws_active: sec_mi2s_ws_active {
+                                mux {
+                                        pins = "gpio9";
+                                        function = "func3";
+                                };
+                                config {
+                                        pins = "gpio9";
+                                        drive-strength = <8>;   /* 8 mA */
+                                        //bias-disable;           /* NO PULL */
+                                        //output-high;
+                                };
+                        };
+                };
+
+                sec_mi2s_sd0 {
+                        sec_mi2s_sd0_sleep: sec_mi2s_sd0_sleep {
+                                mux {
+                                        pins = "gpio10";
+                                        function = "func4";
+                                };
+
+                                config {
+                                        pins = "gpio10";
+                                        drive-strength = <2>;   /* 2 mA */
+                                        //bias-pull-down;         /* PULL DOWN */
+                                        //output-low;
+                                };
+                        };
+
+                        sec_mi2s_sd0_active: sec_mi2s_sd0_active {
+                                mux {
+                                        pins = "gpio10";
+                                        function = "func4";
+                                };
+                                config {
+                                        pins = "gpio10";
+                                        drive-strength = <8>;   /* 8 mA */
+                                        //bias-disable;           /* NO PULL */
+                                        //output-high;
+                                };
+                        };
+                };
+		/* #endif VENDOR_EDIT */
+
 		lpi_mclk0_active: lpi_mclk0_active {
 			mux {
 				pins = "gpio19";
@@ -271,14 +361,24 @@
 		cdc_dmic12_gpios_sleep: dmic12_gpios_sleep {
 			mux {
 				pins = "gpio26", "gpio28";
-				function = "func1";
+				//#ifndef VENDOR_EDIT
+				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
+				//function = "func1";
+				//#else
+				function = "gpio";
+				//#endif
 			};
 
 			config {
 				pins = "gpio26", "gpio28";
 				drive-strength = <2>;
 				bias-disable;
-				output-low;
+				//#ifndef VENDOR_EDIT
+				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
+				//output-low;
+				//#else
+				input-enable;
+				//#endif
 			};
 		};
 
@@ -298,13 +398,23 @@
 		cdc_dmic34_gpios_sleep: dmic34_gpios_sleep {
 			mux {
 				pins = "gpio27", "gpio29";
-				function = "func1";
+				//#ifndef VENDOR_EDIT
+				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
+				//function = "func1";
+				//#else
+				function = "gpio";
+				//#endif
 			};
 
 			config {
 				pins = "gpio27", "gpio29";
 				drive-strength = <2>;
-				pull-down;
+				//#ifndef VENDOR_EDIT
+				//xiang.fei@PSW.MM.AudioDriver.Codec, 2018/10/29, Modify for dbmdx
+				//pull-down;
+				//#else
+				bias-disable;
+				//endif
 				input-enable;
 			};
 		};
