@@ -2844,6 +2844,21 @@ void sde_plane_clear_multirect(const struct drm_plane_state *drm_state)
 	pstate->multirect_mode = SDE_SSPP_MULTIRECT_NONE;
 }
 
+#ifdef VENDOR_EDIT
+/*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature temp modify*/
+int sde_plane_check_fingerprint_layer(const struct drm_plane_state *drm_state)
+{
+	struct sde_plane_state *pstate;
+
+	if (!drm_state)
+		return 0;
+
+	pstate = to_sde_plane_state(drm_state);
+
+	return sde_plane_get_property(pstate, PLANE_PROP_CUSTOM);
+}
+#endif
+
 /**
  * multi_rect validate API allows to validate only R0 and R1 RECT
  * passing for each plane. Client of this API must not pass multiple
@@ -3922,6 +3937,19 @@ static int sde_plane_sspp_atomic_update(struct drm_plane *plane,
 				crtc->base.id, dst.x, dst.y, dst.w, dst.h,
 				(char *)&fmt->base.pixel_format,
 				SDE_FORMAT_IS_UBWC(fmt));
+
+#ifndef VENDOR_EDIT
+/*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature, temp modify*/
+		if (sde_plane_get_property(pstate, PLANE_PROP_SRC_CONFIG) &
+			BIT(SDE_DRM_DEINTERLACE)) {
+			SDE_DEBUG_PLANE(psde, "deinterlace\n");
+			for (idx = 0; idx < SDE_MAX_PLANES; ++idx)
+				psde->pipe_cfg.layout.plane_pitch[idx] <<= 1;
+			src.h /= 2;
+			src.y  = DIV_ROUND_UP(src.y, 2);
+			src.y &= ~0x1;
+		}
+#endif
 
 		/*
 		 * adjust layer mixer position of the sspp in the presence
