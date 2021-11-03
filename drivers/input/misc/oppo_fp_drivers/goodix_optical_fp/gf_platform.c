@@ -348,13 +348,3 @@ int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms)
 	return 0;
 }
 
-int gf_irq_num(struct gf_dev *gf_dev)
-{
-	if(gf_dev == NULL) {
-		pr_info("Input buff is NULL.\n");
-		return -1;
-	} else {
-		return gpio_to_irq(gf_dev->irq_gpio);
-	}
-}
-
