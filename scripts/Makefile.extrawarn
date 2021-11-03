@@ -79,9 +79,10 @@ DTC_FLAGS += $(call dtc-option,-Wno-unit_address_format)
 DTC_FLAGS += $(call dtc-option,-Wno-avoid_unnecessary_addr_size)
 DTC_FLAGS += $(call dtc-option,-Wno-alias_paths)
 DTC_FLAGS += $(call dtc-option,-Wno-gpios_property)
-DTC_FLAGS += $(call dtc-option,-Wno-graph_child_address)
-DTC_FLAGS += $(call dtc-option,-Wno-graph_port)
-DTC_FLAGS += $(call dtc-option,-Wno-unique_unit_address)
+DTC_FLAGS += $(call dtc-option,-Wno-reg_format)
+DTC_FLAGS += $(call dtc-option,-Wno-pci_device_bus_num)
+DTC_FLAGS += $(call dtc-option,-Wno-avoid_default_addr_size)
+DTC_FLAGS += $(call dtc-option,-Wno-interrupts_property)
 DTC_FLAGS += $(call dtc-option,-Wno-pci_device_reg)
 
 endif
