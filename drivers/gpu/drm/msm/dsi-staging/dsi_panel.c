@@ -694,7 +694,6 @@ static int dsi_panel_1p8_on_off(struct dsi_panel *panel , int value)
 	return rc;
 }
 #endif
-
 static int dsi_panel_power_on(struct dsi_panel *panel)
 {
 	int rc = 0;
@@ -771,11 +770,10 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
 {
 	int rc = 0;
     pr_err("%s:project_name = %d\n",__func__, get_project());
+	dsi_panel_exd_disable(panel);
 
 #ifndef VENDOR_EDIT
 /* Jinzhu.Han@RM.MM.LCD.stability 2019.11.23. Add for compatibility*/
-	dsi_panel_exd_disable(panel);
-
 	if (gpio_is_valid(panel->reset_config.disp_en_gpio))
 		gpio_set_value(panel->reset_config.disp_en_gpio, 0);
 
@@ -1002,6 +1000,16 @@ static int dsi_panel_led_bl_register(struct dsi_panel *panel,
 }
 #endif
 
+#ifdef VENDOR_EDIT
+/*gaosong@PSW.MM.Display.LCD.Params,2019-05-13 add for underscreen fingerprints */
+extern int oppo_dimlayer_bl_alpha;
+extern int oppo_dimlayer_bl_enabled;
+extern int oppo_dimlayer_bl_enable_real;
+ktime_t oppo_backlight_time;
+u32 oppo_last_backlight = 0;
+u32 oppo_backlight_delta = 0;
+#endif /* VENDOR_EDIT */
+
 static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	u32 bl_lvl)
 {
@@ -1015,6 +1023,41 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 
 	dsi = &panel->mipi_device;
 
+	#ifdef VENDOR_EDIT
+	/*liping-m@PSW.MM.Display.LCD.Feature,2018/9/26 temp add for OnScreenFingerprint feature*/
+	if (panel->is_hbm_enabled){
+		pr_err("panel hbm is enabled\n");
+		return 0;
+	}
+
+	if (bl_lvl > oppo_last_backlight)
+		oppo_backlight_delta = bl_lvl - oppo_last_backlight;
+	else
+		oppo_backlight_delta = oppo_last_backlight - bl_lvl;
+	oppo_last_backlight = bl_lvl;
+	oppo_backlight_time = ktime_get();
+
+	/* LiPing-m@PSW.MM.Display.LCD.Stability,2019/01/10,add for lcd daily build and agingTest debug */
+	/* Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro */
+	if (oppo_daily_build())
+		pr_err("backlight level %d\n", bl_lvl);
+	/*** DC backlight config ****/
+	if (oppo_dimlayer_bl_enabled != oppo_dimlayer_bl_enable_real) {
+		oppo_dimlayer_bl_enable_real = oppo_dimlayer_bl_enabled;
+		if (oppo_dimlayer_bl_enable_real) {
+			pr_err("Enter DC backlight\n");
+		} else {
+			pr_err("Exit DC backlight\n");
+		}
+	}
+	if (oppo_dimlayer_bl_enable_real) {
+		/*
+		 * avoid effect power and aod mode
+		 */
+		if (bl_lvl > 1)
+			bl_lvl = oppo_dimlayer_bl_alpha;
+	}
+	#endif /* VENDOR_EDIT */
 	rc = mipi_dsi_dcs_set_display_brightness(dsi, bl_lvl);
 	if (rc < 0)
 		pr_err("failed to update dcs backlight:%d\n", bl_lvl);
@@ -4008,7 +4051,6 @@ int dsi_panel_set_lp1(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_set_lp1\n");
@@ -4039,7 +4081,6 @@ int dsi_panel_set_lp2(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_set_lp2\n");
@@ -4068,7 +4109,6 @@ int dsi_panel_set_nolp(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_set_nolp\n");
@@ -4392,7 +4432,6 @@ int dsi_panel_disable(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_disable\n");
@@ -4409,6 +4448,11 @@ int dsi_panel_disable(struct dsi_panel *panel)
 		}
 	}
 	panel->panel_initialized = false;
+#ifdef VENDOR_EDIT
+/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix esd not work when enable OnScreenFingerprint */
+	panel->is_hbm_enabled = false;
+#endif /* VENDOR_EDIT */
+
 error:
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for save display panel power status at oppo display management*/
