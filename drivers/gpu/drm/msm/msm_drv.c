@@ -1470,7 +1470,7 @@ static int msm_release(struct inode *inode, struct file *filp)
 			msm_register_event(dev, &node->info, file_priv, false);
 		kfree(node);
 	}
-	
+
 	msm_preclose(dev, file_priv);
 
        /**
@@ -1764,6 +1764,11 @@ static int compare_name_mdp(struct device *dev, void *data)
 	return (strnstr(dev_name(dev), "mdp", strlen("mdp")) != NULL);
 }
 
+#ifdef VENDOR_EDIT
+/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 disable dp function for 18385 */
+#include <soc/oppo/oppo_project.h>
+#endif
+
 static int add_display_components(struct device *dev,
 				  struct component_match **matchptr)
 {
@@ -1780,6 +1785,16 @@ static int add_display_components(struct device *dev,
 			node = of_parse_phandle(np, "connectors", i);
 			if (!node)
 				break;
+
+			#ifdef VENDOR_EDIT
+			/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 disable dp function for 18385 */
+			if (get_Operator_Version() == OPERATOR_FOREIGN &&
+			    get_project() == OPPO_18181 &&
+			    of_device_is_compatible(node, "qcom,dp-display")) {
+				pr_err("Disable dp function");
+				continue;
+			}
+			#endif /* VENDOR_EDIT */
 
 			component_match_add(dev, matchptr, compare_of, node);
 		}
