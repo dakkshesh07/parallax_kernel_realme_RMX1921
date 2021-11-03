@@ -123,3 +123,14 @@ kernel/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+
+# my crap
+build.sh
+clang/
+gcc32/
+gcc32_2/
+gcc64/
+gcc64_2/
+AnyKernel3/parallax-kernel/image/*Image*
+AnyKernel3/*.zip*
+out/
