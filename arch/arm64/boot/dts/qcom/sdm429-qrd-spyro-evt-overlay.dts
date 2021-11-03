@@ -1,4 +1,5 @@
-/* Copyright (c) 2018, The Linux Foundation. All rights reserved.
+/*
+ * Copyright (c) 2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -11,13 +12,11 @@
  */
 
 /dts-v1/;
+/plugin/;
 
-#include "sdm710.dtsi"
+#include "sdm429-qrd-spyro-evt.dtsi"
 
 / {
-	model = "Qualcomm Technologies, Inc. SDM710 SoC";
-	compatible = "qcom,sdm670";
-	qcom,board-id = <0 0>;
-	/*oppo,prjversion. first one is the count of projects*/
-	oppo,prjversion = <1 19651>;
+	model = "Qualcomm Technologies, Inc. SDM429 QRD Spyro Overlay";
+	qcom,board-id = <0xb 6>;
 };
