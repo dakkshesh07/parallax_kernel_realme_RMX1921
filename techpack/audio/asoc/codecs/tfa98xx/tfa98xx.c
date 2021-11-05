@@ -386,7 +386,7 @@ static void vol_gradual_change(struct work_struct *work)
 	} else {
         val -= 0x4000;
         ret = snd_soc_write(tfa98xx->codec, TFA98XX_AUDIO_CTR, val);
-        queue_delayed_work(tfa98xx->tfa98xx_wq, &tfa98xx->vol_work, msecs_to_jiffies(2));
+        queue_delayed_work(system_power_efficient_wq, &tfa98xx->vol_work, msecs_to_jiffies(2));
 	}
 	mutex_unlock(&tfa98xx->dsp_lock);
 }
@@ -1129,7 +1129,7 @@ static ssize_t tfa98xx_dbgfs_dsp_state_set(struct file *file,
 	 */
 	else if (!strncmp(buf, mon_start_cmd, sizeof(mon_start_cmd) - 1)) {
         pr_info("Manual start of monitor thread...\n");
-        queue_delayed_work(tfa98xx->tfa98xx_wq,
+        queue_delayed_work(system_power_efficient_wq,
                     &tfa98xx->monitor_work, HZ);
     } else if (!strncmp(buf, mon_stop_cmd, sizeof(mon_stop_cmd) - 1)) {
         pr_info("Manual stop of monitor thread...\n");
@@ -2506,7 +2506,7 @@ static void tfa98xx_tapdet_check_update(struct tfa98xx *tfa98xx)
         /* interrupt not available, setup polling mode */
         tfa98xx->tapdet_poll = true;
         if (enable)
-            queue_delayed_work(tfa98xx->tfa98xx_wq,
+            queue_delayed_work(system_power_efficient_wq,
                         &tfa98xx->tapdet_work, HZ/10);
         else
             cancel_delayed_work_sync(&tfa98xx->tapdet_work);
@@ -2870,7 +2870,7 @@ static void tfa98xx_tapdet_work(struct work_struct *work)
     if (val & TFA98XX_STATUSREG_SPKS)
         tfa98xx_tapdet(tfa98xx);
 
-    queue_delayed_work(tfa98xx->tfa98xx_wq, &tfa98xx->tapdet_work, HZ/10);
+    queue_delayed_work(system_power_efficient_wq, &tfa98xx->tapdet_work, HZ/10);
 }
 
 #ifndef OPLUS_ARCH_EXTENDS
@@ -2906,7 +2906,7 @@ static void tfa98xx_monitor(struct work_struct *work)
                 pr_err("ERROR: AMP_SWS\n");
 
             if ((val & TFA98XX_STATUSREG_UP_MASK) == TFA98XX_STATUSREG_UP_MASK)
-                queue_delayed_work(tfa98xx->tfa98xx_wq, &tfa98xx->init_work, 0);
+                queue_delayed_work(system_power_efficient_wq, &tfa98xx->init_work, 0);
         }
 
         /* Check secondary errors */
@@ -2926,7 +2926,7 @@ static void tfa98xx_monitor(struct work_struct *work)
     }
 
     /* reschedule */
-    queue_delayed_work(tfa98xx->tfa98xx_wq, &tfa98xx->monitor_work, 5*HZ);
+    queue_delayed_work(system_power_efficient_wq, &tfa98xx->monitor_work, 5*HZ);
 
 }
 #endif /* OPLUS_ARCH_EXTENDS */
@@ -2997,7 +2997,7 @@ static void tfa98xx_dsp_init(struct tfa98xx *tfa98xx)
              */
 		#ifndef OPLUS_ARCH_EXTENDS
 		/*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/07/20, Delete for remove monitor*/
-            queue_delayed_work(tfa98xx->tfa98xx_wq,
+            queue_delayed_work(system_power_efficient_wq,
                         &tfa98xx->monitor_work,
                         1*HZ);
 		#endif /* OPLUS_ARCH_EXTENDS */
@@ -3011,7 +3011,7 @@ static void tfa98xx_dsp_init(struct tfa98xx *tfa98xx)
     }
     if (reschedule) {
         /* reschedule this init work for later */
-        queue_delayed_work(tfa98xx->tfa98xx_wq,
+        queue_delayed_work(system_power_efficient_wq,
                         &tfa98xx->init_work,
                         msecs_to_jiffies(5));
         tfa98xx->init_count++;
@@ -3043,7 +3043,7 @@ static void tfa98xx_dsp_init(struct tfa98xx *tfa98xx)
 
 	#ifdef OPLUS_ARCH_EXTENDS
 	/*John.Xu@PSW.MM.AudioDriver.SmartPA, 2015/12/24, Add for avoid pop when start*/
-    queue_delayed_work(tfa98xx->tfa98xx_wq, &tfa98xx->vol_work, msecs_to_jiffies(10));
+    queue_delayed_work(system_power_efficient_wq, &tfa98xx->vol_work, msecs_to_jiffies(10));
     #endif /* OPLUS_ARCH_EXTENDS */
     mutex_unlock(&tfa98xx->dsp_lock);
     return;
@@ -3324,7 +3324,7 @@ static int tfa98xx_mute(struct snd_soc_dai *dai, int mute, int stream)
  *Modify for part of picture sound mute.
  */
         if (tfa98xx->dsp_init != TFA98XX_DSP_INIT_PENDING)
-            queue_delayed_work(tfa98xx->tfa98xx_wq,
+            queue_delayed_work(system_power_efficient_wq,
                             &tfa98xx->init_work,
                             0);
 #else /* OPLUS_ARCH_EXTENDS */
@@ -3359,7 +3359,7 @@ static int tfa98xx_trigger(struct snd_pcm_substream *substream, int cmd,
 		 */
 		if (tfa98xx->dsp_init != TFA98XX_DSP_INIT_PENDING)
 		{
-			queue_delayed_work(tfa98xx->tfa98xx_wq,
+			queue_delayed_work(system_power_efficient_wq,
 					&tfa98xx->init_work,
 					0);
 		}
@@ -3433,11 +3433,6 @@ static int tfa98xx_probe(struct snd_soc_codec *codec)
     tfa98xx->rate_constraint.count =
         ARRAY_SIZE(tfa98xx->rate_constraint_list);
 
-    /* setup work queue, will be used to initial DSP on first boot up */
-    tfa98xx->tfa98xx_wq = create_singlethread_workqueue("tfa98xx");
-    if (!tfa98xx->tfa98xx_wq)
-        return -ENOMEM;
-
     INIT_DELAYED_WORK(&tfa98xx->init_work, tfa98xx_dsp_init_work);
 	#ifndef OPLUS_ARCH_EXTENDS
 	/*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/08/18,Delete for remove monitor*/
@@ -3496,9 +3491,6 @@ static int tfa98xx_remove(struct snd_soc_codec *codec)
 	/*John.Xu@PSW.MM.AudioDriver.SmartPA, 2015/12/24, Add for avoid pop when start*/
 	cancel_delayed_work_sync(&tfa98xx->vol_work);
 	#endif /* OPLUS_ARCH_EXTENDS */
-
-    if (tfa98xx->tfa98xx_wq)
-        destroy_workqueue(tfa98xx->tfa98xx_wq);
 
     return 0;
 }
@@ -3586,7 +3578,7 @@ static void tfa98xx_irq_9888(struct tfa98xx *tfa98xx)
     regmap_write(tfa98xx->regmap, base_addr_inten + 2, en3);
 
     if (out1 || out2 || out3)
-        queue_delayed_work(tfa98xx->tfa98xx_wq, &tfa98xx->interrupt_work, 0);
+        queue_delayed_work(system_power_efficient_wq, &tfa98xx->interrupt_work, 0);
 }
 
 static void __tfa98xx_irq(struct tfa98xx *tfa98xx)
