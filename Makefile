@@ -749,8 +749,8 @@ KBUILD_CFLAGS += $(OPT_FLAGS)
 KBUILD_AFLAGS += $(OPT_FLAGS)
 KBUILD_LDFLAGS += $(OPT_FLAGS)
 endif
-OPT_FLAGS += -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 \
-			-mcpu=cortex-a75+crypto+crc
+OPT_FLAGS += -O3 -march=armv8.2-a+crypto+crc+nodotprod -mtune=cortex-a75 \
+			-mcpu=cortex-a75+crypto+crc+nodotprod
 
 KBUILD_CFLAGS += $(OPT_FLAGS)
 KBUILD_AFLAGS += $(OPT_FLAGS)
