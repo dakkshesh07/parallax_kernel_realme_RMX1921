@@ -765,8 +765,8 @@ OPT_FLAGS := -mllvm -polly \
 		   -mllvm -polly-vectorizer=stripmine \
 		   -mllvm -polly-invariant-load-hoisting
 endif
-OPT_FLAGS += -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75 \
-			-mcpu=cortex-a75+crypto+crc
+OPT_FLAGS += -O3 -march=armv8.2-a+crypto+crc+nodotprod -mtune=cortex-a75 \
+			-mcpu=cortex-a75+crypto+crc+nodotprod
 
 KBUILD_CFLAGS += $(OPT_FLAGS)
 KBUILD_AFLAGS += $(OPT_FLAGS)
