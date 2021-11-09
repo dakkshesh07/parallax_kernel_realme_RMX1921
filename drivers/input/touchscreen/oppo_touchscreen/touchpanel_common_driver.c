@@ -5371,7 +5371,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
     init_completion(&ts->fw_complete);
     init_completion(&ts->resume_complete);
 
-    ts->async_workqueue = create_singlethread_workqueue("tp_async");
+    ts->async_workqueue = alloc_ordered_workqueue("tp_async", WQ_HIGHPRI);
     if (!ts->async_workqueue) {
         ret = -ENOMEM;
         return -1;
@@ -5536,13 +5536,13 @@ int register_common_touch_device(struct touchpanel_data *pdata)
 #endif
 
     //step15 : workqueue create(speedup_resume)
-    ts->speedup_resume_wq = create_singlethread_workqueue("speedup_resume_wq");
+    ts->speedup_resume_wq = alloc_ordered_workqueue("speedup_resume_wq", WQ_HIGHPRI);
     if (!ts->speedup_resume_wq) {
         ret = -ENOMEM;
         goto threaded_irq_free;
     }
 
-    ts->lcd_trigger_load_tp_fw_wq = create_singlethread_workqueue("lcd_trigger_load_tp_fw_wq");
+    ts->lcd_trigger_load_tp_fw_wq = alloc_ordered_workqueue("lcd_trigger_load_tp_fw_wq", WQ_HIGHPRI);
     if (!ts->lcd_trigger_load_tp_fw_wq) {
         ret = -ENOMEM;
         goto threaded_irq_free;
@@ -5597,7 +5597,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
 
     //frequency hopping simulate support
     if (ts->freq_hop_simulate_support) {
-        ts->freq_hop_info.freq_hop_workqueue = create_singlethread_workqueue("syna_tcm_freq_hop");
+        ts->freq_hop_info.freq_hop_workqueue = alloc_ordered_workqueue("syna_tcm_freq_hop", WQ_HIGHPRI);
         INIT_DELAYED_WORK(&ts->freq_hop_info.freq_hop_work, tp_freq_hop_work);
         ts->freq_hop_info.freq_hop_simulating = false;
         ts->freq_hop_info.freq_hop_freq = 0;
@@ -5638,7 +5638,7 @@ int register_common_touch_device(struct touchpanel_data *pdata)
         }
 
         //create work queue for read earsense delta
-        ts->delta_read_wq = create_singlethread_workqueue("touch_delta_wq");
+        ts->delta_read_wq = alloc_ordered_workqueue("touch_delta_wq", WQ_HIGHPRI);
         if (!ts->delta_read_wq) {
             ret = -ENOMEM;
             goto earsense_alloc_free;
