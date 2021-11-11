@@ -746,10 +746,6 @@ OPT_FLAGS += -mllvm -polly-reschedule=1 \
 else
 OPT_FLAGS += -mllvm -polly-opt-fusion=max
 endif
-
-KBUILD_CFLAGS += $(OPT_FLAGS)
-KBUILD_AFLAGS += $(OPT_FLAGS)
-KBUILD_LDFLAGS += $(OPT_FLAGS)
 endif
 KBUILD_CFLAGS += -O3 $(OPT_FLAGS)
 KBUILD_AFLAGS += -O3 $(OPT_FLAGS)
