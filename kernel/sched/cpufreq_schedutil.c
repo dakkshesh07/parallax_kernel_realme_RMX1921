@@ -18,6 +18,7 @@
 #include <linux/sched/sysctl.h>
 #include "sched.h"
 #include "tune.h"
+#include <linux/kprofiles.h>
 
 #define SUGOV_KTHREAD_PRIORITY	50
 
@@ -231,6 +232,10 @@ static void sugov_set_iowait_boost(struct sugov_cpu *sg_cpu, u64 time,
 				   unsigned int flags)
 {
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
+
+	/*Disable iowait boost if Kprofile is set on battery mode*/
+	if (active_mode() == 1)
+		return;
 
 	if (!sg_policy->tunables->iowait_boost_enable)
 		return;
