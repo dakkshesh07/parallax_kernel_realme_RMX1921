@@ -4960,9 +4960,7 @@ int sde_encoder_wait_for_event(struct drm_encoder *drm_enc,
 		};
 
 		if (phys && fn_wait) {
-			SDE_ATRACE_BEGIN("wait_for_completion_event");
 			ret = fn_wait(phys);
-			SDE_ATRACE_END("wait_for_completion_event");
 			if (ret)
 				return ret;
 		}
