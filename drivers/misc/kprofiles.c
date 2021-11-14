@@ -118,20 +118,22 @@ inline unsigned int active_mode(void)
 static struct notifier_block common_notifier_block = {
 	.notifier_call = common_notifier_callback,
 };
+#endif
 
-static int  __init kprofiles_notifier_init(void)
+static int  __init kprofiles_init(void)
 {
-
+#if defined(CONFIG_AUTO_KPROFILES_MSM_DRM) || defined(CONFIG_AUTO_KPROFILES_FB)
+	set_mode = mode;
 #ifdef CONFIG_AUTO_KPROFILES_MSM_DRM
 	msm_drm_register_client(&common_notifier_block);
 #elif defined(CONFIG_AUTO_KPROFILES_FB)
 	fb_register_client(&common_notifier_block);
 #endif
+#endif
 	return 0;
 }
 
-late_initcall(kprofiles_notifier_init);
-#endif
+late_initcall(kprofiles_init);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dakkshesh");
 MODULE_DESCRIPTION("KernelSpace Profiles");
