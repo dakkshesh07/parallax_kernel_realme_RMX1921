@@ -314,10 +314,10 @@ static struct clk_rcg2 gpu_cc_gx_gfx3d_clk_src = {
 		.flags = CLK_SET_RATE_PARENT,
 		.ops =  &clk_rcg2_ops,
 		VDD_GX_FMAX_MAP8(
-			MIN, 147000000,
-			LOWER, 210000000,
-			LOW, 280000000,
-			LOW_L1, 338000000,
+			MIN, 130000000, //147
+			LOWER, 200000000, //210
+			LOW, 270000000, //280
+			LOW_L1, 328000000, //338
 			NOMINAL, 425000000,
 			NOMINAL_L1, 487000000,
 			HIGH, 548000000,
