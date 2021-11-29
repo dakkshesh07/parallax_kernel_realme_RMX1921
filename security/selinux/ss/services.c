@@ -1984,9 +1984,9 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
 	struct type_datum *typdatum;
 	struct user_datum *usrdatum;
 	char *s;
+	int rc;
 #ifdef CONFIG_AUDIT
 	u32 len;
-	int rc;
 #endif
 
 	args = p;
