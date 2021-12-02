@@ -54,9 +54,6 @@
 #include <linux/msm_drm_notify.h>
 #include <linux/pm_qos.h>
 #include <linux/cpufreq.h>
-//#include <linux/wakelock.h>
-//modify for kernel-4.9
-#include "../include/wakelock.h"
 #include "gf_spi.h"
 #include "../include/oppo_fp_common.h"
 #if defined(USE_SPI_BUS)
@@ -95,8 +92,8 @@ static int SPIDEV_MAJOR;
 static DECLARE_BITMAP(minors, N_SPI_MINORS);
 static LIST_HEAD(device_list);
 static DEFINE_MUTEX(device_list_lock);
-static struct wake_lock fp_wakelock;
-static struct wake_lock gf_cmd_wakelock;
+static struct wakeup_source fp_wakelock;
+static struct wakeup_source gf_cmd_wakelock;
 static struct gf_dev gf;
 
 
@@ -264,7 +261,7 @@ static irqreturn_t gf_irq(int irq, void *handle)
 {
 #if defined(GF_NETLINK_ENABLE)
         char msg = GF_NET_EVENT_IRQ;
-        wake_lock_timeout(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
+        __pm_wakeup_event(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
         sendnlmsg(&msg);
 #elif defined (GF_FASYNC)
     struct gf_dev *gf_dev = &gf;
@@ -411,11 +408,11 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             break;
         case GF_IOC_WAKELOCK_TIMEOUT_ENABLE:
             pr_debug("%s GF_IOC_WAKELOCK_TIMEOUT_ENABLE\n", __func__);
-            wake_lock_timeout(&gf_cmd_wakelock, msecs_to_jiffies(SENDCMD_WAKELOCK_HOLD_TIME));
+            __pm_wakeup_event(&gf_cmd_wakelock, msecs_to_jiffies(SENDCMD_WAKELOCK_HOLD_TIME));
             break;
         case GF_IOC_WAKELOCK_TIMEOUT_DISABLE:
             pr_debug("%s GF_IOC_WAKELOCK_TIMEOUT_DISABLE\n", __func__);
-            wake_unlock(&gf_cmd_wakelock);
+            __pm_relax(&gf_cmd_wakelock);
             break;
         case GF_IOC_CLEAN_TOUCH_FLAG:
             lasttouchmode = 0;
@@ -610,7 +607,7 @@ int gf_opticalfp_irq_handler(struct fp_underscreen_info* tp_info)
     if(tp_info->touch_state== lasttouchmode){
         return IRQ_HANDLED;
     }
-    wake_lock_timeout(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
+    __pm_wakeup_event(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
     if (1 == tp_info->touch_state) {
         msg = GF_NET_EVENT_TP_TOUCHDOWN;
         sendnlmsg(&msg);
@@ -704,8 +701,8 @@ static int gf_probe(struct platform_device *pdev)
         return status;
     }
 #endif
-    wake_lock_init(&fp_wakelock, WAKE_LOCK_SUSPEND, "fp_wakelock");
-    wake_lock_init(&gf_cmd_wakelock, WAKE_LOCK_SUSPEND, "gf_cmd_wakelock");
+    wakeup_source_init(&fp_wakelock, "fp_wakelock");
+    wakeup_source_init(&gf_cmd_wakelock, "gf_cmd_wakelock");
 	pr_err(" register goodix_fp_ok\n");
 
     pr_info("version V%d.%d.%02d\n", VER_MAJOR, VER_MINOR, PATCH_LEVEL);
@@ -736,8 +733,8 @@ static int gf_remove(struct platform_device *pdev)
 #endif
 {
     struct gf_dev *gf_dev = &gf;
-    wake_lock_destroy(&fp_wakelock);
-    wake_lock_destroy(&gf_cmd_wakelock);
+    wakeup_source_trash(&fp_wakelock);
+    wakeup_source_trash(&gf_cmd_wakelock);
 
     msm_drm_unregister_client(&gf_dev->notifier);
     if (gf_dev->input)
