@@ -38,7 +38,6 @@
 #include <linux/of_gpio.h>
 #include <linux/regulator/consumer.h>
 #include <linux/pinctrl/consumer.h>
-#include "../include/wakelock.h"
 #include <soc/qcom/scm.h>
 #include "../include/oppo_fp_common.h"
 
@@ -57,8 +56,6 @@
 #define   WAKELOCK_ENABLE                                   1
 #define   WAKELOCK_TIMEOUT_ENABLE                           2
 #define   WAKELOCK_TIMEOUT_DISABLE                          3
-
-//#define wake_lock_kernel_4_9
 
 struct vreg_config {
         char *name;
@@ -88,9 +85,9 @@ struct fpc1020_data {
         struct pinctrl                                  *ts_pinctrl;
         struct pinctrl_state                *gpio_state_active;
         struct pinctrl_state                *gpio_state_suspend;
-        struct wake_lock                                ttw_wl;
-        struct wake_lock                                fpc_wl;
-        struct wake_lock                                fpc_irq_wl;
+        struct wakeup_source                                ttw_wl;
+        struct wakeup_source                                fpc_wl;
+        struct wakeup_source                                fpc_irq_wl;
         struct regulator                                *vreg[ARRAY_SIZE(vreg_conf)];
 };
 
@@ -304,19 +301,14 @@ static ssize_t wakelock_enable_set(struct device *dev,
         int op = 0;
         struct  fpc1020_data *fpc1020 = dev_get_drvdata(dev);
         if (1 == sscanf(buffer, "%d", &op)) {
-                if (op == WAKELOCK_ENABLE) {
-                        wake_lock(&fpc1020->fpc_wl);
-                        /*dev_info(dev, "%s, fpc wake_lock\n", __func__);*/
-                } else if (op == WAKELOCK_DISABLE) {
-                        wake_unlock(&fpc1020->fpc_wl);
-                        /*dev_info(dev, "%s, fpc wake_unlock\n", __func__);*/
-                } else if (op == WAKELOCK_TIMEOUT_ENABLE) {
-                        wake_lock_timeout(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
-                        /*dev_info(dev, "%s, fpc wake_lock timeout\n", __func__);*/
-                } else if (op == WAKELOCK_TIMEOUT_DISABLE) {
-                        wake_unlock(&fpc1020->ttw_wl);
-                        /*dev_info(dev, "%s, fpc wake_unlock timeout\n", __func__);*/
-                }
+                if (op == WAKELOCK_ENABLE)
+                        __pm_stay_awake(&fpc1020->fpc_wl);
+                else if (op == WAKELOCK_DISABLE)
+                        __pm_relax(&fpc1020->fpc_wl);
+                else if (op == WAKELOCK_TIMEOUT_ENABLE)
+                        __pm_wakeup_event(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
+                else if (op == WAKELOCK_TIMEOUT_DISABLE)
+                        __pm_relax(&fpc1020->ttw_wl);
         } else {
                 printk("invalid content: '%s', length = %zd\n", buffer, count);
                 return -EINVAL;
@@ -360,11 +352,11 @@ static irqreturn_t fpc1020_irq_handler(int irq, void *handle)
         smp_rmb();
         /*
            if (fpc1020->wakeup_enabled ) {
-           wake_lock_timeout(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
+           __pm_wakeup_event(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
            }
            */
 
-        wake_lock_timeout(&fpc1020->fpc_irq_wl, msecs_to_jiffies(FPC_IRQ_WAKELOCK_TIMEOUT));
+        __pm_wakeup_event(&fpc1020->fpc_irq_wl, msecs_to_jiffies(FPC_IRQ_WAKELOCK_TIMEOUT));
 
         sysfs_notify(&fpc1020->dev->kobj, NULL, dev_attr_irq.attr.name);
 
@@ -410,9 +402,9 @@ static int fpc1020_probe(struct platform_device *pdev)
         }
         dev_info(dev, "found fpc sensor\n");
 
-        wake_lock_init(&fpc1020->ttw_wl, WAKE_LOCK_SUSPEND, "fpc_ttw_wl");
-        wake_lock_init(&fpc1020->fpc_wl, WAKE_LOCK_SUSPEND, "fpc_wl");
-        wake_lock_init(&fpc1020->fpc_irq_wl, WAKE_LOCK_SUSPEND, "fpc_irq_wl");
+        wakeup_source_init(&fpc1020->ttw_wl, "fpc_ttw_wl");
+        wakeup_source_init(&fpc1020->fpc_wl, "fpc_wl");
+        wakeup_source_init(&fpc1020->fpc_irq_wl, "fpc_irq_wl");
 
         rc = fpc1020_request_named_gpio(fpc1020, "fpc,rst-gpio",
                         &fpc1020->rst_gpio);
@@ -469,9 +461,9 @@ static int fpc1020_probe(struct platform_device *pdev)
         return 0;
 
 ERR_AFTER_WAKELOCK:
-        wake_lock_destroy(&fpc1020->ttw_wl);
-        wake_lock_destroy(&fpc1020->fpc_wl);
-        wake_lock_destroy(&fpc1020->fpc_irq_wl);
+        wakeup_source_trash(&fpc1020->ttw_wl);
+        wakeup_source_trash(&fpc1020->fpc_wl);
+        wakeup_source_trash(&fpc1020->fpc_irq_wl);
 ERR_BEFORE_WAKELOCK:
         dev_err(fpc1020->dev, "%s failed rc = %d\n", __func__, rc);
         devm_kfree(fpc1020->dev, fpc1020);

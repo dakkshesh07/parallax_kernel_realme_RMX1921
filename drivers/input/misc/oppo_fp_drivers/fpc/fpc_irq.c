@@ -37,16 +37,11 @@
 #include <linux/of.h>
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
-//#include <linux/irq.h>
 
 #define DEBUG
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-#include <linux/wakelock.h>
-#else
 #include <linux/pm_wakeup.h>
-#endif
 #include <linux/spi/spi.h>
 #include "../include/oppo_fp_common.h"
 
@@ -71,9 +66,6 @@
 #define   FPC1020_RESET_HIGH2_US                            1250
 #define   FPC_TTW_HOLD_TIME                                 1000
 #define   FPC_IRQ_WAKELOCK_TIMEOUT                          500
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(4, 5, 0))
-#define   FPC_WL_WAKELOCK_TIMEOUT                          0
-#endif
 
 #define   WAKELOCK_DISABLE                                  0
 #define   WAKELOCK_ENABLE                                   1
@@ -132,15 +124,9 @@ struct fpc1020_data {
         //LiBin@BSP.Fingerprint.Basic, 2016/10/13, modify for enable/disable irq
         int irq_enabled;
 #endif
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-        struct wake_lock                                ttw_wl;
-        struct wake_lock                                fpc_wl;
-        struct wake_lock                                fpc_irq_wl;
-#else
         struct wakeup_source                                ttw_wl;
         struct wakeup_source                                fpc_wl;
         struct wakeup_source                                fpc_irq_wl;
-#endif
         struct regulator                                *vreg[ARRAY_SIZE(vreg_conf)];
 };
 
@@ -402,35 +388,14 @@ static ssize_t wakelock_enable_set(struct device *dev,
         int op = 0;
         struct  fpc1020_data *fpc1020 = dev_get_drvdata(dev);
         if (1 == sscanf(buffer, "%d", &op)) {
-                if (op == WAKELOCK_ENABLE) {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-                        wake_lock(&fpc1020->fpc_wl);
-#else
+                if (op == WAKELOCK_ENABLE)
                         __pm_wakeup_event(&fpc1020->fpc_wl, FPC_WL_WAKELOCK_TIMEOUT);
-#endif
-                        /*dev_info(dev, "%s, fpc wake_lock\n", __func__);*/
-                } else if (op == WAKELOCK_DISABLE) {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-                        wake_unlock(&fpc1020->fpc_wl);
-#else
+                else if (op == WAKELOCK_DISABLE)
                         __pm_relax(&fpc1020->fpc_wl);
-#endif
-                        /*dev_info(dev, "%s, fpc wake_unlock\n", __func__);*/
-                } else if (op == WAKELOCK_TIMEOUT_ENABLE) {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-                        wake_lock_timeout(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
-#else
+                else if (op == WAKELOCK_TIMEOUT_ENABLE)
                         __pm_wakeup_event(&fpc1020->ttw_wl, FPC_TTW_HOLD_TIME);
-#endif
-                        /*dev_info(dev, "%s, fpc wake_lock timeout\n", __func__);*/
-                } else if (op == WAKELOCK_TIMEOUT_DISABLE) {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-                        wake_unlock(&fpc1020->ttw_wl);
-#else
+                else if (op == WAKELOCK_TIMEOUT_DISABLE)
                         __pm_relax(&fpc1020->ttw_wl);
-#endif
-                        /*dev_info(dev, "%s, fpc wake_unlock timeout\n", __func__);*/
-                }
         } else {
                 printk("invalid content: '%s', length = %zd\n", buffer, count);
                 return -EINVAL;
@@ -469,17 +434,8 @@ static irqreturn_t fpc1020_irq_handler(int irq, void *handle)
         /* Make sure 'wakeup_enabled' is updated before using it
          ** since this is interrupt context (other thread...) */
         smp_rmb();
-        /*
-           if (fpc1020->wakeup_enabled ) {
-           wake_lock_timeout(&fpc1020->ttw_wl, msecs_to_jiffies(FPC_TTW_HOLD_TIME));
-           }
-           */
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-        wake_lock_timeout(&fpc1020->fpc_irq_wl, msecs_to_jiffies(FPC_IRQ_WAKELOCK_TIMEOUT));
-#else
         __pm_wakeup_event(&fpc1020->fpc_irq_wl, FPC_IRQ_WAKELOCK_TIMEOUT);
-#endif
 
         sysfs_notify(&fpc1020->dev->kobj, NULL, dev_attr_irq.attr.name);
 
@@ -525,15 +481,9 @@ static int fpc1020_irq_probe(struct platform_device *pldev)
         }
         dev_info(dev, "found fpc sensor\n");
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-        wake_lock_init(&fpc1020->ttw_wl, WAKE_LOCK_SUSPEND, "fpc_ttw_wl");
-        wake_lock_init(&fpc1020->fpc_wl, WAKE_LOCK_SUSPEND, "fpc_wl");
-        wake_lock_init(&fpc1020->fpc_irq_wl, WAKE_LOCK_SUSPEND, "fpc_irq_wl");
-#else
         wakeup_source_init(&fpc1020->ttw_wl, "fpc_ttw_wl");
         wakeup_source_init(&fpc1020->fpc_wl, "fpc_wl");
         wakeup_source_init(&fpc1020->fpc_irq_wl, "fpc_irq_wl");
-#endif
 
         rc = fpc1020_request_named_gpio(fpc1020, "fpc,irq-gpio",
                         &fpc1020->irq_gpio);
@@ -606,15 +556,9 @@ static int fpc1020_irq_probe(struct platform_device *pldev)
         return 0;
 
 ERR_AFTER_WAKELOCK:
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-        wake_lock_destroy(&fpc1020->ttw_wl);
-        wake_lock_destroy(&fpc1020->fpc_wl);
-        wake_lock_destroy(&fpc1020->fpc_irq_wl);
-#else
         wakeup_source_trash(&fpc1020->ttw_wl);
         wakeup_source_trash(&fpc1020->fpc_wl);
         wakeup_source_trash(&fpc1020->fpc_irq_wl);
-#endif
 ERR_BEFORE_WAKELOCK:
         dev_err(fpc1020->dev, "%s failed rc = %d\n", __func__, rc);
         devm_kfree(fpc1020->dev, fpc1020);
@@ -628,11 +572,7 @@ static int fpc1020_irq_remove(struct platform_device *pldev)
         struct  fpc1020_data *fpc1020 = dev_get_drvdata(&pldev->dev);
         sysfs_remove_group(&pldev->dev.kobj, &attribute_group);
         mutex_destroy(&fpc1020->lock);
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
-        wake_lock_destroy(&fpc1020->ttw_wl);
-#else
         wakeup_source_trash(&fpc1020->ttw_wl);
-#endif
 
         dev_info(fpc1020->dev, "%s: removed\n", __func__);
         return 0;
