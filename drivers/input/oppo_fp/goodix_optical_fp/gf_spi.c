@@ -372,7 +372,7 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             if (gf_dev->device_available == 1)
                 pr_info("Sensor has already powered-on.\n");
             else
-                gf_power_on(gf_dev);
+                gf_set_power(gf_dev, true);
             gf_dev->device_available = 1;
             break;
         case GF_IOC_DISABLE_POWER:
@@ -380,7 +380,7 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             if (gf_dev->device_available == 0)
                 pr_info("Sensor has already powered-off.\n");
             else
-                gf_power_off(gf_dev);
+                gf_set_power(gf_dev, false);
             gf_dev->device_available = 0;
             break;
         case GF_IOC_ENTER_SLEEP_MODE:
@@ -720,7 +720,7 @@ error_hw:
     boot_mode = get_boot_mode();
     if (MSM_BOOT_MODE__FACTORY == boot_mode)
     {
-        gf_power_off(gf_dev);
+        gf_set_power(gf_dev, false);
     }
 
     return status;

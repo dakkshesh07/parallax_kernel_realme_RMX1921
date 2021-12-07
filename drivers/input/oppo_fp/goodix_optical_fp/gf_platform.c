@@ -256,7 +256,7 @@ void gf_cleanup(struct gf_dev *gf_dev)
 #endif
 }
 
-int gf_power_on(struct gf_dev* gf_dev)
+int gf_set_power(struct gf_dev *gf_dev, bool enabled)
 {
     int rc = 0;
 
@@ -267,53 +267,23 @@ int gf_power_on(struct gf_dev* gf_dev)
 #endif
     pr_info("---- power on ok ----\n");
 #if defined(USED_GPIO_PWR)
-    gpio_set_value(gf_dev->pwr_gpio, 1);
+    gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
     pr_info("set pwe_gpio 1\n");
 #elif defined(PROJECT_19651)
     if (is_project(OPPO_19651)) {
-        gpio_set_value(gf_dev->pwr_gpio, 1);
+        gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
         msleep(5);
-        gpio_set_value(gf_dev->vdd_gpio, 1);
-        pr_info("set pwe_gpio 1 for 19651 \n");
+        gpio_set_value(gf_dev->vdd_gpio, enabled ? 1 : 0);
+        pr_debug("set pwe_gpio %s for 19651 \n",
+            enabled ? "1" : "0");
     } else {
-        rc = vreg_setup(gf_dev, "ldo5", true);
+        rc = vreg_setup(gf_dev, "ldo5", enabled);
     }
 #else 
-	rc = vreg_setup(gf_dev, "ldo5", true);
+	rc = vreg_setup(gf_dev, "ldo5", enabled);
 #endif
 #ifdef CONFIG_19081_PWR
-    rc = vreg_setup(gf_dev, "ldo7", true);
-#endif
-    msleep(30);
-    return rc;
-}
-
-int gf_power_off(struct gf_dev* gf_dev)
-{
-    int rc = 0;
-
-/*power off auto during shut down, no need fp driver power off*/
-#if defined(AUTO_PWR)
-    pr_info("[%s] power off auto, no need power off again\n", __func__);
-    return rc;
-#endif
-    pr_info("---- power off ----\n");
-#if defined(USED_GPIO_PWR)
-    gpio_set_value(gf_dev->pwr_gpio, 0);
-    pr_info("set pwe_gpio 0\n");
-#elif defined(PROJECT_19651)
-    if (is_project(OPPO_19651)) {
-		gpio_set_value(gf_dev->vdd_gpio, 0);
-        gpio_set_value(gf_dev->pwr_gpio, 0); 
-        pr_info("set pwe_gpio 1 for 19651 \n");
-    } else {
-        rc = vreg_setup(gf_dev, "ldo5", false);
-    }
-#else
-	rc = vreg_setup(gf_dev, "ldo5", false);
-#endif
-#ifdef CONFIG_19081_PWR
-    rc = vreg_setup(gf_dev, "ldo7", false);
+    rc = vreg_setup(gf_dev, "ldo7", enabled);
 #endif
     msleep(30);
     return rc;
@@ -333,11 +303,11 @@ int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms)
 			pr_info("goodix fingerprint power LDO: %d mV, enable=%d\n", voltage/1000, enable);
 		} else {
 			pr_err("goodix fingerprint power is disable.\n");
-			gf_power_on(gf_dev);
+			gf_set_power(gf_dev, true);
 		}
 	} else {
 		pr_err("goodix fingerprint power is NULL.\n");
-		gf_power_on(gf_dev);
+		gf_set_power(gf_dev, true);
 	}
 
 	//gpio_direction_output(gf_dev->reset_gpio, 1);
