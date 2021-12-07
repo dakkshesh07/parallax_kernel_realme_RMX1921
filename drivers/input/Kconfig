@@ -218,7 +218,7 @@ source "drivers/input/sensors/smi130/Kconfig"
 
 source "drivers/input/rmi4/Kconfig"
 
-source "drivers/input/misc/oppo_fp_drivers/Kconfig"
+source "drivers/input/oppo_fp/Kconfig"
 
 endif
 
