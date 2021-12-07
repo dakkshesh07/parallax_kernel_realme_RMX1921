@@ -57,7 +57,7 @@
 #include <asm/uaccess.h>
 #include <linux/delay.h>
 #include <linux/string.h>
-#include "../include/oppo_fp_common.h"
+#include "oppo_fp_common.h"
 extern char *saved_command_line;
 
 #if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6763 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 6771 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 6779
