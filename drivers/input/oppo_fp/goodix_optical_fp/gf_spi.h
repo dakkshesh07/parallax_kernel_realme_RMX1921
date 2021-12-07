@@ -8,7 +8,7 @@
 
 #include <linux/types.h>
 #include <linux/notifier.h>
-#include "../include/oppo_fp_common.h"
+#include "../oppo_fp_common/oppo_fp_common.h"
 
 /**********************************************************/
 enum FP_MODE{

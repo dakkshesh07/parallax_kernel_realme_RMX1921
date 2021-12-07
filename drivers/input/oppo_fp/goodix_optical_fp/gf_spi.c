@@ -55,7 +55,7 @@
 #include <linux/pm_qos.h>
 #include <linux/cpufreq.h>
 #include "gf_spi.h"
-#include "../include/oppo_fp_common.h"
+#include "../oppo_fp_common/oppo_fp_common.h"
 #if defined(USE_SPI_BUS)
 #include <linux/spi/spi.h>
 #include <linux/spi/spidev.h>
