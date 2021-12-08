@@ -32,10 +32,10 @@
 
 #include "gf_spi.h"
 
-#if defined(USE_SPI_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
 #include <linux/spi/spi.h>
 #include <linux/spi/spidev.h>
-#elif defined(USE_PLATFORM_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
 #include <linux/platform_device.h>
 #endif
 

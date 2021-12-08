@@ -56,10 +56,10 @@
 #include <linux/cpufreq.h>
 #include "gf_spi.h"
 #include "../oppo_fp_common/oppo_fp_common.h"
-#if defined(USE_SPI_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
 #include <linux/spi/spi.h>
 #include <linux/spi/spidev.h>
-#elif defined(USE_PLATFORM_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
 #include <linux/platform_device.h>
 #endif
 #include <soc/oppo/boot_mode.h>
@@ -117,7 +117,7 @@ static void gf_disable_irq(struct gf_dev *gf_dev)
     }
 }
 
-#ifdef AP_CONTROL_CLK
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_CLK_CTRL
 static long spi_clk_max_rate(struct clk *clk, unsigned long rate)
 {
     long lowest_available, nearest_low, step_size, cur;
@@ -336,12 +336,12 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             gf_hw_reset(gf_dev, 10);
             break;
         case GF_IOC_ENABLE_SPI_CLK:
-#ifdef AP_CONTROL_CLK
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_CLK_CTRL
             gfspi_ioctl_clk_enable(gf_dev);
 #endif
             break;
         case GF_IOC_DISABLE_SPI_CLK:
-#ifdef AP_CONTROL_CLK
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_CLK_CTRL
             gfspi_ioctl_clk_disable(gf_dev);
 #endif
             break;
@@ -566,9 +566,9 @@ int gf_opticalfp_irq_handler(struct fp_underscreen_info* tp_info)
 
 
 static struct class *gf_class;
-#if defined(USE_SPI_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
 static int gf_probe(struct spi_device *dev)
-#elif defined(USE_PLATFORM_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
 static int gf_probe(struct platform_device *dev)
 #endif
 {
@@ -621,7 +621,7 @@ static int gf_probe(struct platform_device *dev)
     }
     mutex_unlock(&device_list_lock);
 
-#ifdef AP_CONTROL_CLK
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_CLK_CTRL
     /* Enable spi clock */
     if (gfspi_ioctl_clk_init(gf_dev))
         goto gfspi_probe_clk_init_failed;
@@ -645,7 +645,7 @@ static int gf_probe(struct platform_device *dev)
 
     return status;
 
-#ifdef AP_CONTROL_CLK
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_CLK_CTRL
 gfspi_probe_clk_enable_failed:
     gfspi_ioctl_clk_uninit(gf_dev);
 gfspi_probe_clk_init_failed:
@@ -660,9 +660,9 @@ error_hw:
     return status;
 }
 
-#if defined(USE_SPI_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
 static int gf_remove(struct spi_device *dev)
-#elif defined(USE_PLATFORM_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
 static int gf_remove(struct platform_device *dev)
 #endif
 {
@@ -690,9 +690,9 @@ static struct of_device_id gx_match_table[] = {
     {},
 };
 
-#if defined(USE_SPI_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
 static struct spi_driver gf_driver = {
-#elif defined(USE_PLATFORM_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
 static struct platform_driver gf_driver = {
 #endif
     .driver = {
@@ -726,9 +726,9 @@ static int __init gf_init(void)
         rc = PTR_ERR(gf_class);
         goto error_class;
     }
-#if defined(USE_PLATFORM_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
     rc = platform_driver_register(&gf_driver);
-#elif defined(USE_SPI_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
     rc = spi_register_driver(&gf_driver);
 #endif
     if (rc < 0) {
@@ -745,9 +745,9 @@ static int __init gf_init(void)
     return 0;
 
 error_netlink:
-#if defined(USE_PLATFORM_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
         platform_driver_unregister(&gf_driver);
-#elif defined(USE_SPI_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
         spi_unregister_driver(&gf_driver);
 #endif
 error_register:
@@ -760,9 +760,9 @@ error_class:
 static void __exit gf_exit(void)
 {
     gf_netlink_exit();
-#if defined(USE_PLATFORM_BUS)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
     platform_driver_unregister(&gf_driver);
-#elif defined(USE_SPI_BUS)
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
     spi_unregister_driver(&gf_driver);
 #endif
     class_destroy(gf_class);
