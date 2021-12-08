@@ -60,21 +60,16 @@ void sendnlmsg(char *msg)
 	}
 }
 
-void nl_data_ready(struct sk_buff *__skb)
+static void gf_netlink_rcv(struct sk_buff *skb)
 {
-	struct sk_buff *skb;
 	struct nlmsghdr *nlh;
-	char str[100];
-	skb = skb_get (__skb);
-	if(skb->len >= NLMSG_SPACE(0))
-	{
+	skb = skb_get(skb);
+	
+	if (skb->len >= NLMSG_HDRLEN) {
 		nlh = nlmsg_hdr(skb);
-
-		if (nlh != NULL) {
-			memcpy(str, NLMSG_DATA(nlh), sizeof(str));
-			pid = nlh->nlmsg_pid;
-		}
-
+		pid = nlh->nlmsg_pid;
+		if (nlh->nlmsg_flags & NLM_F_ACK)
+			netlink_ack(skb, nlh, 0);
 		kfree_skb(skb);
 	}
 
@@ -84,7 +79,7 @@ void nl_data_ready(struct sk_buff *__skb)
 int netlink_init(void)
 {
 	struct netlink_kernel_cfg cfg = {
-		.input = nl_data_ready,
+		.input = gf_netlink_rcv,
 	};
 
 	nl_sk = netlink_kernel_create(&init_net, NETLINK_TEST, &cfg);
