@@ -39,7 +39,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/pinctrl/consumer.h>
 #include <soc/qcom/scm.h>
-#include "../include/oppo_fp_common.h"
+#include "../oppo_fp_common/oppo_fp_common.h"
 
 #undef dev_info
 #define dev_info dev_err
