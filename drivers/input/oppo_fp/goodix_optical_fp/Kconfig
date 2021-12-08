@@ -8,3 +8,45 @@ config OPPO_FINGERPRINT_GOODIX
 	  If unsure, say N.
 
 	  To compile this driver as a module, choose M here.
+
+choice
+	prompt "Goodix fingerprint sensor bus support"
+	depends on OPPO_FINGERPRINT_GOODIX
+	default FINGERPRINT_GOODIX_FP_PLATFORM
+
+config OPPO_FINGERPRINT_GOODIX_SPI
+	bool "SPI bus support"
+	depends on OPPO_FINGERPRINT_GOODIX && SPI
+	help
+	  Say Y here if you want to enable support for Goodix fingerprint
+	  sensor through SPI bus.
+
+config OPPO_FINGERPRINT_GOODIX_PLATFORM
+	bool "Platform bus support"
+	depends on OPPO_FINGERPRINT_GOODIX
+	help
+	  Say Y here if you want to enable support for Goodix fingerprint
+	  sensor through platform bus.
+
+endchoice
+
+config OPPO_FINGERPRINT_GOODIX_NETLINK
+	bool "Goodix fingerprint sensor netlink notification support"
+	depends on OPPO_FINGERPRINT_GOODIX
+	help
+	  Say Y here if you want to enable notification support through
+	  netlink in Goodix fingerprint sensor driver.
+
+config OPPO_FINGERPRINT_GOODIX_CLK_CTRL
+	bool "Goodix fingerprint sensor SPI clock control"
+	depends on OPPO_FINGERPRINT_GOODIX_SPI
+	help
+	  Say Y here if you want to enable SPI clock control support
+	  in Goodix fingerprint sensor driver.
+
+config OPPO_FINGERPRINT_GOODIX_NAV_EVENT
+	bool "Goodix fingerprint sensor navigation events"
+	depends on OPPO_FINGERPRINT_GOODIX
+	help
+	  Say Y here if you want to enable support for navigation events
+	  in Goodix fingerprint sensor driver

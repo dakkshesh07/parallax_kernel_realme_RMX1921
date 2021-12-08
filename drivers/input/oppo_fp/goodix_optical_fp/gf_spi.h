@@ -19,9 +19,7 @@ enum FP_MODE{
 	GF_DEBUG_MODE = 0x56
 };
 
-#define SUPPORT_NAV_EVENT
-
-#if defined(SUPPORT_NAV_EVENT)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_NAV_EVENT)
 #define GF_NAV_INPUT_UP			KEY_UP
 #define GF_NAV_INPUT_DOWN		KEY_DOWN
 #define GF_NAV_INPUT_LEFT		KEY_LEFT
@@ -38,7 +36,7 @@ enum FP_MODE{
 #define GF_KEY_INPUT_POWER		KEY_POWER
 #define GF_KEY_INPUT_CAMERA		KEY_CAMERA
 
-#if defined(SUPPORT_NAV_EVENT)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_NAV_EVENT)
 typedef enum gf_nav_event {
 	GF_NAV_NONE = 0,
 	GF_NAV_FINGER_UP,
@@ -100,18 +98,14 @@ struct gf_ioc_chip_info {
 #define GF_IOC_WAKELOCK_TIMEOUT_DISABLE        _IO(GF_IOC_MAGIC, 19 )
 #define GF_IOC_CLEAN_TOUCH_FLAG        _IO(GF_IOC_MAGIC, 20 )
 
-#if defined(SUPPORT_NAV_EVENT)
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_NAV_EVENT)
 #define GF_IOC_NAV_EVENT	_IOW(GF_IOC_MAGIC, 14, gf_nav_event_t)
 #define  GF_IOC_MAXNR    15  /* THIS MACRO IS NOT USED NOW... */
 #else
 #define  GF_IOC_MAXNR    14  /* THIS MACRO IS NOT USED NOW... */
 #endif
 
-//#define AP_CONTROL_CLK       1
-#define  USE_PLATFORM_BUS     1
-//#define  USE_SPI_BUS	1
 //#define GF_FASYNC   1	/*If support fasync mechanism.*/
-#define GF_NETLINK_ENABLE 1
 #define GF_NET_EVENT_FB_BLACK 2
 #define GF_NET_EVENT_FB_UNBLACK 3
 #define NETLINK_TEST 25
