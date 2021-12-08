@@ -251,7 +251,7 @@ static irqreturn_t gf_irq(int irq, void *handle)
 #if defined(GF_NETLINK_ENABLE)
     char msg = GF_NET_EVENT_IRQ;
     __pm_wakeup_event(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
-    sendnlmsg(&msg);
+    gf_sendnlmsg(&msg);
 #elif defined (GF_FASYNC)
     struct gf_dev *gf_dev = &gf;
     if (gf_dev->async) {
@@ -500,10 +500,7 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
         switch (op_mode) {
             case 1:
                 msg = GF_NET_EVENT_UI_READY;
-                sendnlmsg(&msg);
-                break;
-            default:
-                pr_debug("[%s] Unknown MSM_DRM_ONSCREENFINGERPRINT_EVENT\n", __func__);
+                gf_sendnlmsg(&msg);
                 break;
         }
         return retval;
@@ -517,7 +514,7 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
                     gf_dev->fb_black = 1;
 #if defined(GF_NETLINK_ENABLE)
                     msg = GF_NET_EVENT_FB_BLACK;
-                    sendnlmsg(&msg);
+                    gf_sendnlmsg(&msg);
 #elif defined (GF_FASYNC)
                     if (gf_dev->async) {
                         kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
@@ -530,7 +527,7 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
                     gf_dev->fb_black = 0;
 #if defined(GF_NETLINK_ENABLE)
                     msg = GF_NET_EVENT_FB_UNBLACK;
-                    sendnlmsg(&msg);
+                    gf_sendnlmsg(&msg);
 #elif defined (GF_FASYNC)
                     if (gf_dev->async) {
                         kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
@@ -560,11 +557,11 @@ int gf_opticalfp_irq_handler(struct fp_underscreen_info* tp_info)
     __pm_wakeup_event(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
     if (1 == tp_info->touch_state) {
         msg = GF_NET_EVENT_TP_TOUCHDOWN;
-        sendnlmsg(&msg);
+        gf_sendnlmsg(&msg);
         lasttouchmode = tp_info->touch_state;
     } else {
         msg = GF_NET_EVENT_TP_TOUCHUP;
-        sendnlmsg(&msg);
+        gf_sendnlmsg(&msg);
         lasttouchmode = tp_info->touch_state;
     }
 
