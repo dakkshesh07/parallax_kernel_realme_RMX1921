@@ -1,0 +1,10 @@
+config OPPO_FINGERPRINT_GOODIX
+	tristate "Goodix fingerprint sensor"
+	select OPPO_FINGERPRINT_QCOM
+	depends on OPPO_FINGERPRINT_COMMON
+	help
+	  Say Y here to enable support for Goodix fingerprint sensor.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here.
