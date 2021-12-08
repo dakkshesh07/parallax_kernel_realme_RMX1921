@@ -411,20 +411,19 @@ static int gf_open(struct inode *inode, struct file *filp)
     }
 
     if (status == 0) {
-        if (status == 0) {
-            gf_dev->users++;
-            filp->private_data = gf_dev;
-            nonseekable_open(inode, filp);
-            if (gf_dev->users == 1) {
-                status = gf_parse_dts(gf_dev);
-                if (status)
-                    return status;
+        gf_dev->users++;
+        filp->private_data = gf_dev;
+        nonseekable_open(inode, filp);
+        if (gf_dev->users == 1) {
+            status = gf_parse_dts(gf_dev);
+            if (status)
+                return status;
 
-                status = irq_setup(gf_dev);
-                if (status)
-                    gf_cleanup(gf_dev);
-            }
+            status = irq_setup(gf_dev);
+            if (status)
+                gf_cleanup(gf_dev);
         }
+        
     } else {
         pr_info("No device for minor %d\n", iminor(inode));
     }
