@@ -63,7 +63,7 @@ static int vreg_setup(struct gf_dev *goodix_fp, const char *name,
     size_t i;
     int rc;
     struct regulator *vreg;
-    struct device *dev = &goodix_fp->spi->dev;
+    struct device *dev = goodix_fp->dev;
     if (NULL == name) {
         pr_err("name is NULL\n");
         return -EINVAL;
@@ -123,7 +123,7 @@ found:
 int gf_parse_dts(struct gf_dev* gf_dev)
 {
 	int rc = 0;
-	struct device *dev = &gf_dev->spi->dev;
+	struct device *dev = gf_dev->dev;
 	struct device_node *np = dev->of_node;
 
 	gf_dev->reset_gpio = of_get_named_gpio(np, "goodix,gpio_reset", 0);
