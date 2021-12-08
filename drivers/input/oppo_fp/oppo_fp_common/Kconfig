@@ -1,0 +1,10 @@
+config OPPO_FINGERPRINT_COMMON
+	tristate "OPPO common fingerprint driver"
+	select OPPO_FINGERPRINT_QCOM
+	depends on OPPO_FINGERPRINT
+	help
+	  Say Y here if you wanna compile OPPO common fingerprint drivers.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here.
