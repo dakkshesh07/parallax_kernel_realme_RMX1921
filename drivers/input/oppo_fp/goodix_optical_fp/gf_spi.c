@@ -759,74 +759,74 @@ static struct of_device_id gx_match_table[] = {
 #if defined(USE_SPI_BUS)
 static struct spi_driver gf_driver = {
 #elif defined(USE_PLATFORM_BUS)
-    static struct platform_driver gf_driver = {
+static struct platform_driver gf_driver = {
 #endif
-        .driver = {
-            .name = GF_DEV_NAME,
-            .owner = THIS_MODULE,
-            .of_match_table = gx_match_table,
-            .probe_type = PROBE_PREFER_ASYNCHRONOUS,
-        },
-        .probe = gf_probe,
-        .remove = gf_remove,
-    };
+    .driver = {
+        .name = GF_DEV_NAME,
+        .owner = THIS_MODULE,
+        .of_match_table = gx_match_table,
+        .probe_type = PROBE_PREFER_ASYNCHRONOUS,
+    },
+    .probe = gf_probe,
+    .remove = gf_remove,
+};
 
-    static int __init gf_init(void)
-    {
-        int status;
-        /* Claim our 256 reserved device numbers.  Then register a class
-         * that will key udev/mdev to add/remove /dev nodes.  Last, register
-         * the driver which manages those device numbers.
-         */
+static int __init gf_init(void)
+{
+    int status;
+    /* Claim our 256 reserved device numbers.  Then register a class
+     * that will key udev/mdev to add/remove /dev nodes.  Last, register
+     * the driver which manages those device numbers.
+     */
 
-        BUILD_BUG_ON(N_SPI_MINORS > 256);
-        status = register_chrdev(SPIDEV_MAJOR, CHRD_DRIVER_NAME, &gf_fops);
-        if (status < 0) {
-            pr_warn("Failed to register char device!\n");
-            return status;
-        }
-        SPIDEV_MAJOR = status;
-        gf_class = class_create(THIS_MODULE, CLASS_NAME);
-        if (IS_ERR(gf_class)) {
-            unregister_chrdev(SPIDEV_MAJOR, gf_driver.driver.name);
-            pr_warn("Failed to create class.\n");
-            return PTR_ERR(gf_class);
-        }
-#if defined(USE_PLATFORM_BUS)
-        status = platform_driver_register(&gf_driver);
-#elif defined(USE_SPI_BUS)
-        status = spi_register_driver(&gf_driver);
-#endif
-        if (status < 0) {
-            class_destroy(gf_class);
-            unregister_chrdev(SPIDEV_MAJOR, gf_driver.driver.name);
-            pr_warn("Failed to register SPI driver.\n");
-        }
-
-#ifdef GF_NETLINK_ENABLE
-        netlink_init();
-#endif
-        pr_info("status = 0x%x\n", status);
-        return 0;
+    BUILD_BUG_ON(N_SPI_MINORS > 256);
+    status = register_chrdev(SPIDEV_MAJOR, CHRD_DRIVER_NAME, &gf_fops);
+    if (status < 0) {
+        pr_warn("Failed to register char device!\n");
+        return status;
     }
-    late_initcall(gf_init);
-
-    static void __exit gf_exit(void)
-    {
-#ifdef GF_NETLINK_ENABLE
-        netlink_exit();
-#endif
+    SPIDEV_MAJOR = status;
+    gf_class = class_create(THIS_MODULE, CLASS_NAME);
+    if (IS_ERR(gf_class)) {
+        unregister_chrdev(SPIDEV_MAJOR, gf_driver.driver.name);
+        pr_warn("Failed to create class.\n");
+        return PTR_ERR(gf_class);
+    }
 #if defined(USE_PLATFORM_BUS)
-        platform_driver_unregister(&gf_driver);
+    status = platform_driver_register(&gf_driver);
 #elif defined(USE_SPI_BUS)
-        spi_unregister_driver(&gf_driver);
+    status = spi_register_driver(&gf_driver);
 #endif
+    if (status < 0) {
         class_destroy(gf_class);
         unregister_chrdev(SPIDEV_MAJOR, gf_driver.driver.name);
+        pr_warn("Failed to register SPI driver.\n");
     }
-    module_exit(gf_exit);
+
+#ifdef GF_NETLINK_ENABLE
+    netlink_init();
+#endif
+    pr_info("status = 0x%x\n", status);
+    return 0;
+}
+
+static void __exit gf_exit(void)
+{
+#ifdef GF_NETLINK_ENABLE
+    netlink_exit();
+#endif
+#if defined(USE_PLATFORM_BUS)
+    platform_driver_unregister(&gf_driver);
+#elif defined(USE_SPI_BUS)
+    spi_unregister_driver(&gf_driver);
+#endif
+    class_destroy(gf_class);
+    unregister_chrdev(SPIDEV_MAJOR, gf_driver.driver.name);
+}
 
 EXPORT_SYMBOL(gf_opticalfp_irq_handler);
+late_initcall(gf_init);
+module_exit(gf_exit);
 
 MODULE_AUTHOR("Jiangtao Yi, <yijiangtao@goodix.com>");
 MODULE_AUTHOR("Jandy Gou, <gouqingsong@goodix.com>");
