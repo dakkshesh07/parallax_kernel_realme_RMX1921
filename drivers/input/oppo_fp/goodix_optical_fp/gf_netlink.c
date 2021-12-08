@@ -83,6 +83,7 @@ void nl_data_ready(struct sk_buff *__skb)
 
 int netlink_init(void)
 {
+#ifdef GF_NETLINK_ENABLE
 	struct netlink_kernel_cfg cfg = {
 		.input = nl_data_ready,
 	};
@@ -93,14 +94,17 @@ int netlink_init(void)
 		pr_err("goodix_fp: cannot create netlink socket\n");
 		return -EIO;
 	}
+#endif
 	return 0;
 }
 
 void netlink_exit(void)
 {
+#ifdef GF_NETLINK_ENABLE
 	if(nl_sk != NULL){
 		netlink_kernel_release(nl_sk);
 		nl_sk = NULL;
 	}
+#endif
 }
 
