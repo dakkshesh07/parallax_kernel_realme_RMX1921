@@ -75,7 +75,7 @@ static void gf_netlink_rcv(struct sk_buff *skb)
 }
 
 
-int netlink_init(void)
+int gf_netlink_init(void)
 {
 	struct netlink_kernel_cfg cfg = {
 		.input = gf_netlink_rcv,
@@ -90,7 +90,7 @@ int netlink_init(void)
 	return 0;
 }
 
-void netlink_exit(void)
+void gf_netlink_exit(void)
 {
 	if(nl_sk != NULL){
 		netlink_kernel_release(nl_sk);
