@@ -248,15 +248,11 @@ static int gfspi_ioctl_clk_uninit(struct gf_dev *data)
 
 static irqreturn_t gf_irq(int irq, void *handle)
 {
+    struct gf_dev *gf_dev = &gf;
     char msg = GF_NET_EVENT_IRQ;
     __pm_wakeup_event(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
     sendnlmsg(&msg);
-#if defined (GF_FASYNC)
-    struct gf_dev *gf_dev = &gf;
-    if (gf_dev->async) {
-        kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
-    }
-#endif
+    kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
 
     return IRQ_HANDLED;
 }
@@ -431,16 +427,11 @@ static int gf_open(struct inode *inode, struct file *filp)
     return status;
 }
 
-#ifdef GF_FASYNC
 static int gf_fasync(int fd, struct file *filp, int mode)
 {
     struct gf_dev *gf_dev = filp->private_data;
-    int ret;
-
-    ret = fasync_helper(fd, filp, mode, &gf_dev->async);
-    return ret;
+    return fasync_helper(fd, filp, mode, &gf_dev->async);
 }
-#endif
 
 static int gf_release(struct inode *inode, struct file *filp)
 {
@@ -475,9 +466,7 @@ static const struct file_operations gf_fops = {
 #endif /*CONFIG_COMPAT*/
     .open = gf_open,
     .release = gf_release,
-#ifdef GF_FASYNC
     .fasync = gf_fasync,
-#endif
 };
 
 static int goodix_fb_state_chg_callback(struct notifier_block *nb,
@@ -515,11 +504,7 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
                     gf_dev->fb_black = 1;
                     msg = GF_NET_EVENT_FB_BLACK;
                     sendnlmsg(&msg);
-#if defined (GF_FASYNC)
-                    if (gf_dev->async) {
-                        kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
-                    }
-#endif
+                    kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
                 }
                 break;
             case MSM_DRM_BLANK_UNBLANK:
@@ -527,11 +512,7 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
                     gf_dev->fb_black = 0;
                     msg = GF_NET_EVENT_FB_UNBLACK;
                     sendnlmsg(&msg);
-#if defined (GF_FASYNC)
-                    if (gf_dev->async) {
-                        kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
-                    }
-#endif
+                    kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
                 }
                 break;
             default:

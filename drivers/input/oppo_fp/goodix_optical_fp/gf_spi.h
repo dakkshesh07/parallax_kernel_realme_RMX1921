@@ -105,7 +105,6 @@ struct gf_ioc_chip_info {
 #define  GF_IOC_MAXNR    14  /* THIS MACRO IS NOT USED NOW... */
 #endif
 
-//#define GF_FASYNC   1	/*If support fasync mechanism.*/
 #define GF_NET_EVENT_FB_BLACK 2
 #define GF_NET_EVENT_FB_UNBLACK 3
 #define NETLINK_TEST 25
@@ -139,9 +138,7 @@ struct gf_dev {
 	int irq;
 	int irq_enabled;
 	int clk_enabled;
-#ifdef GF_FASYNC
 	struct fasync_struct *async;
-#endif
 	struct notifier_block notifier;
 	char device_available;
 	char fb_black;
