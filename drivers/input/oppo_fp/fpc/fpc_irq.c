@@ -71,6 +71,7 @@
 #define   WAKELOCK_ENABLE                                   1
 #define   WAKELOCK_TIMEOUT_ENABLE                           2
 #define   WAKELOCK_TIMEOUT_DISABLE                          3
+#define   FPC_WL_WAKELOCK_TIMEOUT                           0
 struct mtk_spi {
         void __iomem                                        *base;
         void __iomem                                        *peri_regs;
