@@ -248,11 +248,10 @@ static int gfspi_ioctl_clk_uninit(struct gf_dev *data)
 
 static irqreturn_t gf_irq(int irq, void *handle)
 {
-#if defined(GF_NETLINK_ENABLE)
     char msg = GF_NET_EVENT_IRQ;
     __pm_wakeup_event(&fp_wakelock, msecs_to_jiffies(WAKELOCK_HOLD_TIME));
     gf_sendnlmsg(&msg);
-#elif defined (GF_FASYNC)
+#if defined (GF_FASYNC)
     struct gf_dev *gf_dev = &gf;
     if (gf_dev->async) {
         kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
@@ -511,10 +510,9 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
             case MSM_DRM_BLANK_POWERDOWN:
                 if (gf_dev->device_available == 1) {
                     gf_dev->fb_black = 1;
-#if defined(GF_NETLINK_ENABLE)
                     msg = GF_NET_EVENT_FB_BLACK;
                     gf_sendnlmsg(&msg);
-#elif defined (GF_FASYNC)
+#if defined (GF_FASYNC)
                     if (gf_dev->async) {
                         kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
                     }
@@ -524,10 +522,9 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
             case MSM_DRM_BLANK_UNBLANK:
                 if (gf_dev->device_available == 1) {
                     gf_dev->fb_black = 0;
-#if defined(GF_NETLINK_ENABLE)
                     msg = GF_NET_EVENT_FB_UNBLACK;
                     gf_sendnlmsg(&msg);
-#elif defined (GF_FASYNC)
+#if defined (GF_FASYNC)
                     if (gf_dev->async) {
                         kill_fasync(&gf_dev->async, SIGIO, POLL_IN);
                     }
@@ -739,13 +736,11 @@ static int __init gf_init(void)
         goto error_register;
     }
 
-#ifdef GF_NETLINK_ENABLE
     rc = gf_netlink_init();
     if (rc < 0) {
         pr_warn("failed to initialize netlink\n");
         goto error_netlink;
     }
-#endif
     pr_debug("initialization successfully done\n");
     return 0;
 
@@ -764,9 +759,7 @@ error_class:
 
 static void __exit gf_exit(void)
 {
-#ifdef GF_NETLINK_ENABLE
     gf_netlink_exit();
-#endif
 #if defined(USE_PLATFORM_BUS)
     platform_driver_unregister(&gf_driver);
 #elif defined(USE_SPI_BUS)
