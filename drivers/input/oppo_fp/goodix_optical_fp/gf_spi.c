@@ -424,6 +424,8 @@ static int gf_open(struct inode *inode, struct file *filp)
     }
 
     mutex_unlock(&device_list_lock);
+    /* perform HW reset */
+    gf_hw_reset(gf_dev, 10);
     return status;
 }
 
