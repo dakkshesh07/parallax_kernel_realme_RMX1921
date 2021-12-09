@@ -329,7 +329,7 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             gf_enable_irq(gf_dev);
             break;
         case GF_IOC_RESET:
-            gf_hw_reset(gf_dev, 10);
+            gf_hw_reset(gf_dev, 3);
             break;
         case GF_IOC_ENABLE_SPI_CLK:
 #ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_CLK_CTRL
@@ -425,7 +425,7 @@ static int gf_open(struct inode *inode, struct file *filp)
 
     mutex_unlock(&device_list_lock);
     /* perform HW reset */
-    gf_hw_reset(gf_dev, 10);
+    gf_hw_reset(gf_dev, 3);
     return status;
 }
 
