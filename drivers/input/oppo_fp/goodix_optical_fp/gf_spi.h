@@ -146,16 +146,16 @@ struct gf_dev {
 };
 
 
-int gf_parse_dts(struct gf_dev* gf_dev);
-void gf_cleanup(struct gf_dev *gf_dev);
+static inline int gf_parse_dts(struct gf_dev* gf_dev);
+static inline void gf_cleanup(struct gf_dev *gf_dev);
 
-int gf_set_power(struct gf_dev *gf_dev, bool enabled);
+static inline int gf_set_power(struct gf_dev *gf_dev, bool enabled);
 
-int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms);
+static inline int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms);
 
-int gf_sendnlmsg(const char *message);
-int gf_netlink_init(void);
-void gf_netlink_exit(void);
+static inline int gf_sendnlmsg(const char *message);
+static inline int gf_netlink_init(void);
+static inline void gf_netlink_exit(void);
 int gf_opticalfp_irq_handler(struct fp_underscreen_info* tp_info);
 
 #endif /*__GF_SPI_H*/
