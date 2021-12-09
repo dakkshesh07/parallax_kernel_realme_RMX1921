@@ -68,7 +68,7 @@ static int vreg_setup(struct gf_dev *goodix_fp, const char *name,
         pr_err("name is NULL\n");
         return -EINVAL;
     }
-    pr_err("Regulator %s vreg_setup,enable=%d \n", name, enable);
+    pr_debug("Regulator %s vreg_setup,enable=%d \n", name, enable);
     for (i = 0; i < ARRAY_SIZE(goodix_fp->vreg); i++) {
         const char *n = vreg_conf[i].name;
         if (!strncmp(n, name, strlen(n)))
@@ -108,12 +108,12 @@ found:
         if (vreg) {
             if (regulator_is_enabled(vreg)) {
                 regulator_disable(vreg);
-                pr_err("disabled %s\n", name);
+                pr_debug("disabled %s\n", name);
             }
             regulator_put(vreg);
             goodix_fp->vreg[i] = NULL;
         }
-		pr_err("disable vreg is null \n");
+        pr_err("disable vreg is null \n");
         rc = 0;
     }
     return rc;
@@ -155,7 +155,7 @@ int gf_parse_dts(struct gf_dev* gf_dev)
 #if defined(USED_GPIO_PWR)
 
     gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
-        pr_err("end of_get_named_gpio  goodix_pwr!\n");
+        pr_debug("end of_get_named_gpio  goodix_pwr!\n");
     if (gf_dev->pwr_gpio < 0) {
         pr_err("falied to get goodix_pwr gpio!\n");
         return gf_dev->pwr_gpio;
@@ -167,14 +167,14 @@ int gf_parse_dts(struct gf_dev* gf_dev)
         goto err_pwr;
     }
     gpio_direction_output(gf_dev->pwr_gpio, 0);
-    pr_err("set goodix_pwr output 0 \n");
+    pr_debug("set goodix_pwr output 0 \n");
 
 #elif defined(PROJECT_19651)
 	
     if (is_project(OPPO_19651)) {
-		pr_err("begin of_get_named_gpio  goodix_vdd for 19651!\n");
+		pr_debug("begin of_get_named_gpio  goodix_vdd for 19651!\n");
         gf_dev->vdd_gpio = of_get_named_gpio(np, "goodix,goodix_vdd", 0);
-            pr_err("end of_get_named_gpio  goodix_vdd for 19651!\n");
+            pr_debug("end of_get_named_gpio  goodix_vdd for 19651!\n");
         if (gf_dev->vdd_gpio < 0) {
             pr_err("falied to get goodix_vdd gpio!\n");
             return gf_dev->vdd_gpio;
@@ -186,12 +186,12 @@ int gf_parse_dts(struct gf_dev* gf_dev)
             devm_gpio_free(dev, gf_dev->vdd_gpio);
         }
         gpio_direction_output(gf_dev->vdd_gpio, 0);
-        pr_err("set goodix_vdd output 0 \n");
+        pr_debug("set goodix_vdd output 0 \n");
     }
 
     if (is_project(OPPO_19651)) {
         gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
-            pr_err("end of_get_named_gpio  goodix_pwr for 19651!\n");
+            pr_debug("end of_get_named_gpio  goodix_pwr for 19651!\n");
         if (gf_dev->pwr_gpio < 0) {
             pr_err("falied to get goodix_pwr gpio!\n");
             return gf_dev->pwr_gpio;
@@ -203,11 +203,11 @@ int gf_parse_dts(struct gf_dev* gf_dev)
             devm_gpio_free(dev, gf_dev->pwr_gpio);
         }
         gpio_direction_output(gf_dev->pwr_gpio, 0);
-        pr_err("set goodix_pwr output 0 \n");
+        pr_debug("set goodix_pwr output 0 \n");
     }
 #endif
 
-pr_err("end gf_parse_dts !\n");
+pr_debug("end gf_parse_dts !\n");
 
 #if defined(USED_GPIO_PWR)
 err_pwr:
@@ -215,29 +215,29 @@ err_pwr:
 #endif
 
 err_irq:
-	devm_gpio_free(dev, gf_dev->reset_gpio);
+    devm_gpio_free(dev, gf_dev->reset_gpio);
 err_reset:
-	return rc;
+    return rc;
 }
 
 void gf_cleanup(struct gf_dev *gf_dev)
 {
-	pr_info("[info] %s\n",__func__);
+	pr_debug("[info] %s\n",__func__);
 	if (gpio_is_valid(gf_dev->irq_gpio))
 	{
 		gpio_free(gf_dev->irq_gpio);
-		pr_info("remove irq_gpio success\n");
+		pr_debug("remove irq_gpio success\n");
 	}
 	if (gpio_is_valid(gf_dev->reset_gpio))
 	{
 		gpio_free(gf_dev->reset_gpio);
-		pr_info("remove reset_gpio success\n");
+		pr_debug("remove reset_gpio success\n");
 	}
 #if defined(USED_GPIO_PWR)
     if (gpio_is_valid(gf_dev->pwr_gpio))
     {
         gpio_free(gf_dev->pwr_gpio);
-        pr_info("remove pwr_gpio success\n");
+        pr_debug("remove pwr_gpio success\n");
     }
 
 #elif defined(PROJECT_19651)
@@ -245,12 +245,12 @@ void gf_cleanup(struct gf_dev *gf_dev)
 	    if (gpio_is_valid(gf_dev->vdd_gpio))
         {
             gpio_free(gf_dev->vdd_gpio);
-            pr_info("remove vdd_gpio success\n");
+            pr_debug("remove vdd_gpio success\n");
         }
         if (gpio_is_valid(gf_dev->pwr_gpio))
         {
             gpio_free(gf_dev->pwr_gpio);
-            pr_info("remove pwr_gpio success\n");
+            pr_debug("remove pwr_gpio success\n");
         }
     }
 #endif
@@ -262,13 +262,13 @@ int gf_set_power(struct gf_dev *gf_dev, bool enabled)
 
 /*power on auto during boot, no need fp driver power on*/
 #if defined(AUTO_PWR)
-    pr_info("[%s] power on auto, no need power on again\n", __func__);
+    pr_debug("[%s] power on auto, no need power on again\n", __func__);
     return rc;
 #endif
-    pr_info("---- power on ok ----\n");
+    pr_debug("---- power on ok ----\n");
 #if defined(USED_GPIO_PWR)
     gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
-    pr_info("set pwe_gpio 1\n");
+    pr_debug("set pwe_gpio 1\n");
 #elif defined(PROJECT_19651)
     if (is_project(OPPO_19651)) {
         gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
@@ -300,13 +300,13 @@ int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms)
 		int voltage = regulator_get_voltage(gf_dev->vreg[0]);
 		int enable = regulator_is_enabled(gf_dev->vreg[0]);
 		if (enable) {
-			pr_info("goodix fingerprint power LDO: %d mV, enable=%d\n", voltage/1000, enable);
+			pr_debug("goodix fingerprint power LDO: %d mV, enable=%d\n", voltage/1000, enable);
 		} else {
-			pr_err("goodix fingerprint power is disable.\n");
+			pr_debug("goodix fingerprint power is disable.\n");
 			gf_set_power(gf_dev, true);
 		}
 	} else {
-		pr_err("goodix fingerprint power is NULL.\n");
+		pr_debug("goodix fingerprint power is NULL.\n");
 		gf_set_power(gf_dev, true);
 	}
 
