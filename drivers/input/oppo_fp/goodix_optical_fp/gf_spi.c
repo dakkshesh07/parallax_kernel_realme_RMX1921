@@ -47,7 +47,6 @@
 #define PATCH_LEVEL 9
 
 #define WAKELOCK_HOLD_TIME 500 /* in ms */
-#define SENDCMD_WAKELOCK_HOLD_TIME 1000 /* in ms */
 
 #define GF_SPIDEV_NAME      "goodix,goodix_fp"
 #define GF_DEV_NAME         "goodix_fp"
@@ -83,7 +82,6 @@ static DECLARE_BITMAP(minors, GF_MAX_DEVS);
 static LIST_HEAD(device_list);
 static DEFINE_MUTEX(device_list_lock);
 static struct wakeup_source fp_wakelock;
-static struct wakeup_source gf_cmd_wakelock;
 static struct gf_dev gf;
 static int pid = -1;
 static struct sock *nl_sk;
@@ -692,12 +690,6 @@ static inline long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long a
                 pr_info("operation: 0x%x\n", info.operation);
             }
             break;
-        case GF_IOC_WAKELOCK_TIMEOUT_ENABLE:
-            __pm_wakeup_event(&gf_cmd_wakelock, msecs_to_jiffies(SENDCMD_WAKELOCK_HOLD_TIME));
-            break;
-        case GF_IOC_WAKELOCK_TIMEOUT_DISABLE:
-            __pm_relax(&gf_cmd_wakelock);
-            break;
         case GF_IOC_CLEAN_TOUCH_FLAG:
             lasttouchmode = 0;
             break;
@@ -949,7 +941,6 @@ static int gf_probe(struct platform_device *dev)
     }
 #endif
     wakeup_source_init(&fp_wakelock, "fp_wakelock");
-    wakeup_source_init(&gf_cmd_wakelock, "gf_cmd_wakelock");
     pr_debug("version V%d.%d.%02d\n", VER_MAJOR, VER_MINOR, PATCH_LEVEL);
 
     return status;
@@ -977,7 +968,6 @@ static int gf_remove(struct platform_device *dev)
 {
     struct gf_dev *gf_dev = dev_get_drvdata(&dev->dev);
     wakeup_source_trash(&fp_wakelock);
-    wakeup_source_trash(&gf_cmd_wakelock);
 
     msm_drm_unregister_client(&gf_dev->notifier);
     if (gf_dev->input)
