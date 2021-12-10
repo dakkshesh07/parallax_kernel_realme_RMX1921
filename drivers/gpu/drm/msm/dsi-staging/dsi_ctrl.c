@@ -1173,7 +1173,7 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			true : false;
 
 		cmdbuf = (u8 *)(dsi_ctrl->vaddr);
-		//#ifdef VENDOR_EDIT
+		//#ifdef CONFIG_MACH_REALME
 		/*Jie.Hu@PSW.MM.Display.Lcd.Stability, 2018-04-14,add to solve smmu page fault error*/
 		if (cmdbuf == NULL) {
 			pr_err("dsi_message_tx and cmdbuf is null\n");
@@ -2321,7 +2321,7 @@ static void dsi_ctrl_handle_error_status(struct dsi_ctrl *dsi_ctrl,
 							0, 0, 0, 0);
 			}
 		}
-		#ifndef VENDOR_EDIT
+		#ifndef CONFIG_MACH_REALME
 		/*liping-m@PSW.MM.Display.Lcd.Stability, 2018-09-26,avoid printk too often*/
 		pr_err("tx timeout error: 0x%lx\n", error);
 		#else
