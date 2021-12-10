@@ -272,41 +272,36 @@ static inline int gf_parse_dts(struct gf_dev* gf_dev)
     pr_debug("set goodix_pwr output 0 \n");
 
 #elif defined(PROJECT_19651)
-    
-    if (is_project(OPPO_19651)) {
-        pr_debug("begin of_get_named_gpio  goodix_vdd for 19651!\n");
-        gf_dev->vdd_gpio = of_get_named_gpio(np, "goodix,goodix_vdd", 0);
-            pr_debug("end of_get_named_gpio  goodix_vdd for 19651!\n");
-        if (gf_dev->vdd_gpio < 0) {
-            pr_err("falied to get goodix_vdd gpio!\n");
-            return gf_dev->vdd_gpio;
-        }
-
-        rc = devm_gpio_request(dev, gf_dev->vdd_gpio, "goodix_vdd");
-        if (rc) {
-            pr_err("failed to request goodix_vdd gpio, rc = %d\n", rc);
-            devm_gpio_free(dev, gf_dev->vdd_gpio);
-        }
-        gpio_direction_output(gf_dev->vdd_gpio, 0);
-        pr_debug("set goodix_vdd output 0 \n");
+    pr_debug("begin of_get_named_gpio  goodix_vdd for 19651!\n");
+    gf_dev->vdd_gpio = of_get_named_gpio(np, "goodix,goodix_vdd", 0);
+        pr_debug("end of_get_named_gpio  goodix_vdd for 19651!\n");
+    if (gf_dev->vdd_gpio < 0) {
+        pr_err("falied to get goodix_vdd gpio!\n");
+        return gf_dev->vdd_gpio;
     }
 
-    if (is_project(OPPO_19651)) {
-        gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
-            pr_debug("end of_get_named_gpio  goodix_pwr for 19651!\n");
-        if (gf_dev->pwr_gpio < 0) {
-            pr_err("falied to get goodix_pwr gpio!\n");
-            return gf_dev->pwr_gpio;
-        }
-
-        rc = devm_gpio_request(dev, gf_dev->pwr_gpio, "goodix_pwr");
-        if (rc) {
-            pr_err("failed to request goodix_pwr gpio, rc = %d\n", rc);
-            devm_gpio_free(dev, gf_dev->pwr_gpio);
-        }
-        gpio_direction_output(gf_dev->pwr_gpio, 0);
-        pr_debug("set goodix_pwr output 0 \n");
+    rc = devm_gpio_request(dev, gf_dev->vdd_gpio, "goodix_vdd");
+    if (rc) {
+        pr_err("failed to request goodix_vdd gpio, rc = %d\n", rc);
+        devm_gpio_free(dev, gf_dev->vdd_gpio);
     }
+    gpio_direction_output(gf_dev->vdd_gpio, 0);
+    pr_debug("set goodix_vdd output 0 \n");
+
+    gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
+        pr_debug("end of_get_named_gpio  goodix_pwr for 19651!\n");
+    if (gf_dev->pwr_gpio < 0) {
+        pr_err("falied to get goodix_pwr gpio!\n");
+        return gf_dev->pwr_gpio;
+    }
+
+    rc = devm_gpio_request(dev, gf_dev->pwr_gpio, "goodix_pwr");
+    if (rc) {
+        pr_err("failed to request goodix_pwr gpio, rc = %d\n", rc);
+        devm_gpio_free(dev, gf_dev->pwr_gpio);
+    }
+    gpio_direction_output(gf_dev->pwr_gpio, 0);
+    pr_debug("set goodix_pwr output 0 \n");
 #endif
 
 pr_debug("end gf_parse_dts !\n");
@@ -343,17 +338,15 @@ static inline void gf_cleanup(struct gf_dev *gf_dev)
     }
 
 #elif defined(PROJECT_19651)
-    if (is_project(OPPO_19651)) {
-        if (gpio_is_valid(gf_dev->vdd_gpio))
-        {
-            gpio_free(gf_dev->vdd_gpio);
-            pr_debug("remove vdd_gpio success\n");
-        }
-        if (gpio_is_valid(gf_dev->pwr_gpio))
-        {
-            gpio_free(gf_dev->pwr_gpio);
-            pr_debug("remove pwr_gpio success\n");
-        }
+    if (gpio_is_valid(gf_dev->vdd_gpio))
+    {
+        gpio_free(gf_dev->vdd_gpio);
+        pr_debug("remove vdd_gpio success\n");
+    }
+    if (gpio_is_valid(gf_dev->pwr_gpio))
+    {
+        gpio_free(gf_dev->pwr_gpio);
+        pr_debug("remove pwr_gpio success\n");
     }
 #endif
 }
@@ -372,15 +365,11 @@ static inline int gf_set_power(struct gf_dev *gf_dev, bool enabled)
     gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
     pr_debug("set pwe_gpio 1\n");
 #elif defined(PROJECT_19651)
-    if (is_project(OPPO_19651)) {
-        gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
-        msleep(5);
-        gpio_set_value(gf_dev->vdd_gpio, enabled ? 1 : 0);
-        pr_debug("set pwe_gpio %s for 19651 \n",
-            enabled ? "1" : "0");
-    } else {
-        rc = vreg_setup(gf_dev, "ldo5", enabled);
-    }
+    gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
+    msleep(5);
+    gpio_set_value(gf_dev->vdd_gpio, enabled ? 1 : 0);
+    pr_debug("set pwe_gpio %s for 19651 \n",
+        enabled ? "1" : "0");
 #else 
     rc = vreg_setup(gf_dev, "ldo5", enabled);
 #endif
