@@ -52,10 +52,8 @@
 #define GF_DEV_NAME         "goodix_fp"
 #define GF_CHRDEV_NAME      "goodix_fp_spi"
 #define GF_CLASS_NAME       "goodix_fp"
-#define MAX_MSGSIZE         32
 #define GF_MAX_DEVS         32	/* ... up to 256 */
 
-#if (!defined USED_GPIO_PWR) || (defined CONFIG_19081_PWR)
 struct vreg_config {
     char *name;
     unsigned long vmin;
@@ -63,15 +61,9 @@ struct vreg_config {
     int ua_load;
 };
 
-#ifdef CONFIG_19081_PWR
-static const struct vreg_config vreg_conf[] = {
-    { "ldo7", 3300000UL, 3300000UL, 150000, },
-};
-#else
 static const struct vreg_config vreg_conf[] = {
     { "ldo5", 2960000UL, 2960000UL, 150000, },
 };
-#endif
 
 static struct fp_underscreen_info fp_tpinfo;
 static unsigned int lasttouchmode = 0;
@@ -83,81 +75,6 @@ static LIST_HEAD(device_list);
 static DEFINE_MUTEX(device_list_lock);
 static struct wakeup_source fp_wakelock;
 static struct gf_dev gf;
-static int pid = -1;
-static struct sock *nl_sk;
-
-static inline int gf_sendnlmsg(const char *message)
-{
-    struct nlmsghdr *nlh;
-    struct sk_buff *skb;
-    int rc;
-
-    if (!message)
-        return -EINVAL;
-
-    if (pid < 1) {
-        pr_info("cannot send msg... no receiver\n");
-        return 0;
-    }
-
-    skb = nlmsg_new(MAX_MSGSIZE, GFP_KERNEL);
-    if (!skb)
-        return -ENOMEM;
-
-    nlh = nlmsg_put(skb, 0, 0, 0, MAX_MSGSIZE, 0);
-    NETLINK_CB(skb).portid = 0;
-    NETLINK_CB(skb).dst_group = 0;
-    strlcpy(nlmsg_data(nlh), message, MAX_MSGSIZE);
-
-    rc = netlink_unicast(nl_sk, skb, pid, MSG_DONTWAIT);
-    if (rc < 0)
-        pr_err("failed to send msg to userspace. rc = %d\n", rc);
-
-    return rc;
-}
-
-static inline void gf_netlink_rcv(struct sk_buff *skb)
-{
-    struct nlmsghdr *nlh;
-    skb = skb_get(skb);
-
-    if (skb->len >= NLMSG_HDRLEN) {
-        nlh = nlmsg_hdr(skb);
-        pid = nlh->nlmsg_pid;
-        if (nlh->nlmsg_flags & NLM_F_ACK)
-            netlink_ack(skb, nlh, 0);
-        kfree_skb(skb);
-    }
-
-}
-
-
-static inline int gf_netlink_init(void)
-{
-#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_NETLINK
-    struct netlink_kernel_cfg cfg = {
-        .input = gf_netlink_rcv,
-    };
-
-    nl_sk = netlink_kernel_create(&init_net, NETLINK_TEST, &cfg);
-
-    if(!nl_sk){
-        pr_err("goodix_fp: cannot create netlink socket\n");
-        return -EIO;
-    }
-#endif
-    return 0;
-}
-
-static inline void gf_netlink_exit(void)
-{
-#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_NETLINK
-    if(nl_sk != NULL){
-        netlink_kernel_release(nl_sk);
-        nl_sk = NULL;
-    }
-#endif
-}
 
 static inline int vreg_setup(struct gf_dev *goodix_fp, const char *name,
     bool enable)
@@ -220,195 +137,6 @@ found:
     }
     return rc;
 }
-#endif
-
-static inline int gf_parse_dts(struct gf_dev* gf_dev)
-{
-    int rc = 0;
-    struct device *dev = gf_dev->dev;
-    struct device_node *np = dev->of_node;
-
-    gf_dev->reset_gpio = of_get_named_gpio(np, "goodix,gpio_reset", 0);
-    if (gf_dev->reset_gpio < 0) {
-        pr_err("falied to get reset gpio!\n");
-        return gf_dev->reset_gpio;
-    }
-
-    rc = devm_gpio_request(dev, gf_dev->reset_gpio, "goodix_reset");
-    if (rc) {
-        pr_err("failed to request reset gpio, rc = %d\n", rc);
-        goto err_reset;
-    }
-    gpio_direction_output(gf_dev->reset_gpio, 0);
-
-    gf_dev->irq_gpio = of_get_named_gpio(np, "goodix,gpio_irq", 0);
-    if (gf_dev->irq_gpio < 0) {
-        pr_err("falied to get irq gpio!\n");
-        return gf_dev->irq_gpio;
-    }
-
-    rc = devm_gpio_request(dev, gf_dev->irq_gpio, "goodix_irq");
-    if (rc) {
-        pr_err("failed to request irq gpio, rc = %d\n", rc);
-        goto err_irq;
-    }
-    gpio_direction_input(gf_dev->irq_gpio);
-
-#if defined(USED_GPIO_PWR)
-
-    gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
-        pr_debug("end of_get_named_gpio  goodix_pwr!\n");
-    if (gf_dev->pwr_gpio < 0) {
-        pr_err("falied to get goodix_pwr gpio!\n");
-        return gf_dev->pwr_gpio;
-    }
-
-    rc = devm_gpio_request(dev, gf_dev->pwr_gpio, "goodix_pwr");
-    if (rc) {
-        pr_err("failed to request goodix_pwr gpio, rc = %d\n", rc);
-        goto err_pwr;
-    }
-    gpio_direction_output(gf_dev->pwr_gpio, 0);
-    pr_debug("set goodix_pwr output 0 \n");
-
-#elif defined(PROJECT_19651)
-    pr_debug("begin of_get_named_gpio  goodix_vdd for 19651!\n");
-    gf_dev->vdd_gpio = of_get_named_gpio(np, "goodix,goodix_vdd", 0);
-        pr_debug("end of_get_named_gpio  goodix_vdd for 19651!\n");
-    if (gf_dev->vdd_gpio < 0) {
-        pr_err("falied to get goodix_vdd gpio!\n");
-        return gf_dev->vdd_gpio;
-    }
-
-    rc = devm_gpio_request(dev, gf_dev->vdd_gpio, "goodix_vdd");
-    if (rc) {
-        pr_err("failed to request goodix_vdd gpio, rc = %d\n", rc);
-        devm_gpio_free(dev, gf_dev->vdd_gpio);
-    }
-    gpio_direction_output(gf_dev->vdd_gpio, 0);
-    pr_debug("set goodix_vdd output 0 \n");
-
-    gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
-        pr_debug("end of_get_named_gpio  goodix_pwr for 19651!\n");
-    if (gf_dev->pwr_gpio < 0) {
-        pr_err("falied to get goodix_pwr gpio!\n");
-        return gf_dev->pwr_gpio;
-    }
-
-    rc = devm_gpio_request(dev, gf_dev->pwr_gpio, "goodix_pwr");
-    if (rc) {
-        pr_err("failed to request goodix_pwr gpio, rc = %d\n", rc);
-        devm_gpio_free(dev, gf_dev->pwr_gpio);
-    }
-    gpio_direction_output(gf_dev->pwr_gpio, 0);
-    pr_debug("set goodix_pwr output 0 \n");
-#endif
-
-pr_debug("end gf_parse_dts !\n");
-
-#if defined(USED_GPIO_PWR)
-err_pwr:
-    devm_gpio_free(dev, gf_dev->pwr_gpio);
-#endif
-
-err_irq:
-    devm_gpio_free(dev, gf_dev->reset_gpio);
-err_reset:
-    return rc;
-}
-
-static inline void gf_cleanup(struct gf_dev *gf_dev)
-{
-    pr_debug("[info] %s\n",__func__);
-    if (gpio_is_valid(gf_dev->irq_gpio))
-    {
-        gpio_free(gf_dev->irq_gpio);
-        pr_debug("remove irq_gpio success\n");
-    }
-    if (gpio_is_valid(gf_dev->reset_gpio))
-    {
-        gpio_free(gf_dev->reset_gpio);
-        pr_debug("remove reset_gpio success\n");
-    }
-#if defined(USED_GPIO_PWR)
-    if (gpio_is_valid(gf_dev->pwr_gpio))
-    {
-        gpio_free(gf_dev->pwr_gpio);
-        pr_debug("remove pwr_gpio success\n");
-    }
-
-#elif defined(PROJECT_19651)
-    if (gpio_is_valid(gf_dev->vdd_gpio))
-    {
-        gpio_free(gf_dev->vdd_gpio);
-        pr_debug("remove vdd_gpio success\n");
-    }
-    if (gpio_is_valid(gf_dev->pwr_gpio))
-    {
-        gpio_free(gf_dev->pwr_gpio);
-        pr_debug("remove pwr_gpio success\n");
-    }
-#endif
-}
-
-static inline int gf_set_power(struct gf_dev *gf_dev, bool enabled)
-{
-    int rc = 0;
-
-/*power on auto during boot, no need fp driver power on*/
-#if defined(AUTO_PWR)
-    pr_debug("[%s] power on auto, no need power on again\n", __func__);
-    return rc;
-#endif
-    pr_debug("---- power on ok ----\n");
-#if defined(USED_GPIO_PWR)
-    gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
-    pr_debug("set pwe_gpio 1\n");
-#elif defined(PROJECT_19651)
-    gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
-    msleep(5);
-    gpio_set_value(gf_dev->vdd_gpio, enabled ? 1 : 0);
-    pr_debug("set pwe_gpio %s for 19651 \n",
-        enabled ? "1" : "0");
-#else 
-    rc = vreg_setup(gf_dev, "ldo5", enabled);
-#endif
-#ifdef CONFIG_19081_PWR
-    rc = vreg_setup(gf_dev, "ldo7", enabled);
-#endif
-    msleep(30);
-    return rc;
-}
-
-static inline int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms)
-{
-    if(gf_dev == NULL) {
-        pr_info("Input buff is NULL.\n");
-        return -1;
-    }
-
-    if (gf_dev->vreg[0]) {
-        int voltage = regulator_get_voltage(gf_dev->vreg[0]);
-        int enable = regulator_is_enabled(gf_dev->vreg[0]);
-        if (enable) {
-            pr_debug("goodix fingerprint power LDO: %d mV, enable=%d\n", voltage/1000, enable);
-        } else {
-            pr_debug("goodix fingerprint power is disable.\n");
-            gf_set_power(gf_dev, true);
-        }
-    } else {
-        pr_debug("goodix fingerprint power is NULL.\n");
-        gf_set_power(gf_dev, true);
-    }
-
-    //gpio_direction_output(gf_dev->reset_gpio, 1);
-    gpio_set_value(gf_dev->reset_gpio, 0);
-    mdelay(5);
-    gpio_set_value(gf_dev->reset_gpio, 1);
-    mdelay(delay_ms);
-    return 0;
-}
-
 
 static inline void gf_enable_irq(struct gf_dev *gf_dev)
 {
