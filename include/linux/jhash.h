@@ -87,26 +87,26 @@ static inline u32 jhash(const void *key, u32 length, u32 initval)
 	/* Last block: affect all 32 bits of (c) */
 	/* All the case statements fall through */
 	switch (length) {
-	case 12: c += (u32)k[11]<<24;
-	case 11: c += (u32)k[10]<<16;
-	case 10: c += (u32)k[9]<<8;
-	case 9:  c += k[8];
-	case 8:  b += (u32)k[7]<<24;
-	case 7:  b += (u32)k[6]<<16;
-	case 6:  b += (u32)k[5]<<8;
-	case 5:  b += k[4];
-	case 4:  a += (u32)k[3]<<24;
-	case 3:  a += (u32)k[2]<<16;
-	case 2:  a += (u32)k[1]<<8;
+	case 12: c += (u32)k[11]<<24;	fallthrough;
+	case 11: c += (u32)k[10]<<16;	fallthrough;
+	case 10: c += (u32)k[9]<<8;	fallthrough;
+	case 9:  c += k[8];		fallthrough;
+	case 8:  b += (u32)k[7]<<24;	fallthrough;
+	case 7:  b += (u32)k[6]<<16;	fallthrough;
+	case 6:  b += (u32)k[5]<<8;	fallthrough;
+	case 5:  b += k[4];		fallthrough;
+	case 4:  a += (u32)k[3]<<24;	fallthrough;
+	case 3:  a += (u32)k[2]<<16;	fallthrough;
+	case 2:  a += (u32)k[1]<<8;	fallthrough;
 	case 1:  a += k[0];
 		 __jhash_final(a, b, c);
+		 break;
 	case 0: /* Nothing left to add */
 		break;
 	}
 
 	return c;
 }
-
 /* jhash2 - hash an array of u32's
  * @k: the key which must be an array of u32's
  * @length: the number of u32's in the key
@@ -133,10 +133,11 @@ static inline u32 jhash2(const u32 *k, u32 length, u32 initval)
 
 	/* Handle the last 3 u32's: all the case statements fall through */
 	switch (length) {
-	case 3: c += k[2];
-	case 2: b += k[1];
+	case 3: c += k[2];	fallthrough;
+	case 2: b += k[1];	fallthrough;
 	case 1: a += k[0];
 		__jhash_final(a, b, c);
+		break;
 	case 0:	/* Nothing left to add */
 		break;
 	}
