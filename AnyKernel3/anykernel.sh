@@ -27,12 +27,10 @@ ramdisk_compression=auto;
 ## AnyKernel install
 dump_boot;
 
-if [ -d /data/adb/magisk ]; then
-  # parallax related installation
-  . /tmp/anykernel/tools/parallax.sh;
-else
+if [ -d /data/adb/modules/parallax-kernel ]; then
   ui_print ""
-  ui_print "Magisk Not detected, skipping module installation"
+  ui_print "  • Parallax Profile installation found, removing"
+  rm -rf /data/adb/modules/parallax-kernel
 fi
 cp $home/parallax-kernel/image/Image.gz-dtb $home/Image.gz-dtb;
 
