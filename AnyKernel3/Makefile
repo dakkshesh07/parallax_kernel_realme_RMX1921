@@ -4,9 +4,9 @@ DATE := $(shell date "+%Y%m%d-%H%M")
 
 DEVICE := RMX1921
 
-VERSION := v1.0
+VERSION := r2
 
-ZIP := $(NAME)-$(COMPILER)-$(DEVICE)-$(DATE)-$(VERSION).zip
+ZIP := $(NAME)-$(DEVICE)-$(COMPILER)-$(DATE)-$(VERSION).zip
 
 EXCLUDE := Makefile *.git* *.jar* *placeholder* *.md*
 
