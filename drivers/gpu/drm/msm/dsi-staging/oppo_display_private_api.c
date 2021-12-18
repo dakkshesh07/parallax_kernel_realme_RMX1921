@@ -1004,8 +1004,9 @@ static ssize_t oppo_display_set_cabc(struct device *dev,
 
 	sscanf(buf, "%du", &temp_save);
 
-	if(get_project() != OPPO_18621 && get_project() != OPPO_19691)
-         return count;
+#ifdef CONFIG_MACH_REALME_RMX1921
+	return count;
+#endif
 
 	if(get_oppo_display_power_status() == OPPO_DISPLAY_POWER_ON) {
 		if(get_main_display() == NULL)
@@ -1080,8 +1081,9 @@ static ssize_t oppo_display_get_cabc(struct device *dev,
 struct device_attribute *attr, char *buf)
 {
 
-	if(get_project() != OPPO_18621 && get_project() != OPPO_19691)
-         return 0;
+#ifdef CONFIG_MACH_REALME_RMX1921
+	return 0;
+#endif
 
 	return sprintf(buf, "%d\n", cabc_mode);
 }

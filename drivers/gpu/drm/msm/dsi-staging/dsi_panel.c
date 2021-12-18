@@ -702,37 +702,28 @@ static int dsi_panel_1p8_on_off(struct dsi_panel *panel , int value)
 static int dsi_panel_power_on(struct dsi_panel *panel)
 {
 	int rc = 0;
-    pr_err("%s:project_name = %d\n",__func__, get_project());
 
-#ifndef CONFIG_MACH_REALME
-/* Jinzhu.Han@RM.MM.LCD.stability 2019.11.23. Add for compatibility*/
-	rc = dsi_pwr_enable_regulator(&panel->power_info, true);
-	if (rc) {
-		pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
-		goto exit;
-	}
-#else
-	if ((get_project() == 18621) || (get_project() == 19691)) {
-        if((0 == mdss_tp_black_gesture_status())||(1 == tp_black_power_on_ff_flag))
-        {
-            pr_err("%s:tp_black_power_on_ff_flag = %d\n",__func__,tp_black_power_on_ff_flag);
-            tp_black_power_on_ff_flag = 0;
-            dsi_panel_1p8_on_off(panel,true);
 
-            rc = dsi_pwr_enable_regulator(&panel->power_info, true);
-            if (rc) {
-                pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
-                goto exit;
-            }
-        }
-	} else {
+#ifdef CONFIG_MACH_REALME_RMX1971
+    if((0 == mdss_tp_black_gesture_status())||(1 == tp_black_power_on_ff_flag))
+    {
+        pr_err("%s:tp_black_power_on_ff_flag = %d\n",__func__,tp_black_power_on_ff_flag);
+        tp_black_power_on_ff_flag = 0;
+        dsi_panel_1p8_on_off(panel,true);
+
         rc = dsi_pwr_enable_regulator(&panel->power_info, true);
         if (rc) {
             pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
             goto exit;
         }
-	}
-#endif /*CONFIG_MACH_REALME */
+    }
+#else
+    rc = dsi_pwr_enable_regulator(&panel->power_info, true);
+    if (rc) {
+        pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
+        goto exit;
+    }
+#endif
 
 	rc = dsi_panel_set_pinctrl_state(panel, true);
 	if (rc) {
@@ -774,89 +765,66 @@ exit:
 static int dsi_panel_power_off(struct dsi_panel *panel)
 {
 	int rc = 0;
-    pr_err("%s:project_name = %d\n",__func__, get_project());
 	dsi_panel_exd_disable(panel);
 
-#ifndef CONFIG_MACH_REALME
-/* Jinzhu.Han@RM.MM.LCD.stability 2019.11.23. Add for compatibility*/
-	if (gpio_is_valid(panel->reset_config.disp_en_gpio))
-		gpio_set_value(panel->reset_config.disp_en_gpio, 0);
+#ifdef CONFIG_MACH_REALME_RMX1971
+    if (gpio_is_valid(panel->reset_config.disp_en_gpio))
+        gpio_set_value(panel->reset_config.disp_en_gpio, 0);
 
-	if (gpio_is_valid(panel->reset_config.reset_gpio))
-		gpio_set_value(panel->reset_config.reset_gpio, 0);
-
-	if (gpio_is_valid(panel->reset_config.lcd_mode_sel_gpio))
-		gpio_set_value(panel->reset_config.lcd_mode_sel_gpio, 0);
-
-	rc = dsi_panel_set_pinctrl_state(panel, false);
-	if (rc) {
-		pr_err("[%s] failed set pinctrl state, rc=%d\n", panel->name,
-		       rc);
-	}
-
-	rc = dsi_pwr_enable_regulator(&panel->power_info, false);
-	if (rc)
-		pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
-#else
-	if ((get_project() == 18621) || (get_project() == 19691)) {
-        if (gpio_is_valid(panel->reset_config.disp_en_gpio))
-            gpio_set_value(panel->reset_config.disp_en_gpio, 0);
-
-        if(0 == mdss_tp_black_gesture_status()){
-            pr_debug("rm to enable reset with tp tp_gesture_enable_flag\n");
-            if (gpio_is_valid(panel->reset_config.reset_gpio)){
-                gpio_set_value(panel->reset_config.reset_gpio, 0);
-                pr_debug("rm to reset_gpio 0 with tp tp_gesture_enable_flag\n");
-            }
-            msleep(25);
-        }else{
-            pr_debug("rm to disable reset with tp tp_gesture_enable_flag\n");
-            if (gpio_is_valid(panel->reset_config.reset_gpio)){
-                gpio_set_value(panel->reset_config.reset_gpio, 1);
-                pr_debug("rm to reset_gpio 1 with tp tp_gesture_enable_flag\n");
-            }
-        }
-
-        if (gpio_is_valid(panel->reset_config.lcd_mode_sel_gpio))
-            gpio_set_value(panel->reset_config.lcd_mode_sel_gpio, 0);
-
-        rc = dsi_panel_set_pinctrl_state(panel, false);
-        if (rc) {
-            pr_err("[%s] failed set pinctrl state, rc=%d\n", panel->name,
-                rc);
-        }
-
-        if(0 == mdss_tp_black_gesture_status())
-        {
-            tp_black_power_on_ff_flag = 1;
-            pr_debug("%s:tp_black_power_on_ff_flag = %d\n",__func__,tp_black_power_on_ff_flag);
-            pr_debug("rm to dsi_panel_power_off regulators enable with tp tp_gesture_enable_flag\n");
-            rc = dsi_pwr_enable_regulator(&panel->power_info, false);
-            if (rc)
-                pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
-            dsi_panel_1p8_on_off(panel,false);
-        }
-	} else {
-        if (gpio_is_valid(panel->reset_config.disp_en_gpio))
-            gpio_set_value(panel->reset_config.disp_en_gpio, 0);
-
-        if (gpio_is_valid(panel->reset_config.reset_gpio))
+    if(0 == mdss_tp_black_gesture_status()){
+        pr_debug("rm to enable reset with tp tp_gesture_enable_flag\n");
+        if (gpio_is_valid(panel->reset_config.reset_gpio)){
             gpio_set_value(panel->reset_config.reset_gpio, 0);
-
-        if (gpio_is_valid(panel->reset_config.lcd_mode_sel_gpio))
-            gpio_set_value(panel->reset_config.lcd_mode_sel_gpio, 0);
-
-        rc = dsi_panel_set_pinctrl_state(panel, false);
-        if (rc) {
-            pr_err("[%s] failed set pinctrl state, rc=%d\n", panel->name,
-                rc);
+            pr_debug("rm to reset_gpio 0 with tp tp_gesture_enable_flag\n");
         }
+        msleep(25);
+    }else{
+        pr_debug("rm to disable reset with tp tp_gesture_enable_flag\n");
+        if (gpio_is_valid(panel->reset_config.reset_gpio)){
+            gpio_set_value(panel->reset_config.reset_gpio, 1);
+            pr_debug("rm to reset_gpio 1 with tp tp_gesture_enable_flag\n");
+        }
+    }
 
+    if (gpio_is_valid(panel->reset_config.lcd_mode_sel_gpio))
+        gpio_set_value(panel->reset_config.lcd_mode_sel_gpio, 0);
+
+    rc = dsi_panel_set_pinctrl_state(panel, false);
+    if (rc) {
+        pr_err("[%s] failed set pinctrl state, rc=%d\n", panel->name,
+            rc);
+    }
+
+    if(0 == mdss_tp_black_gesture_status())
+    {
+        tp_black_power_on_ff_flag = 1;
+        pr_debug("%s:tp_black_power_on_ff_flag = %d\n",__func__,tp_black_power_on_ff_flag);
+        pr_debug("rm to dsi_panel_power_off regulators enable with tp tp_gesture_enable_flag\n");
         rc = dsi_pwr_enable_regulator(&panel->power_info, false);
         if (rc)
             pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
+        dsi_panel_1p8_on_off(panel,false);
     }
-#endif /*CONFIG_MACH_REALME */
+#else
+    if (gpio_is_valid(panel->reset_config.disp_en_gpio))
+        gpio_set_value(panel->reset_config.disp_en_gpio, 0);
+
+    if (gpio_is_valid(panel->reset_config.reset_gpio))
+        gpio_set_value(panel->reset_config.reset_gpio, 0);
+
+    if (gpio_is_valid(panel->reset_config.lcd_mode_sel_gpio))
+        gpio_set_value(panel->reset_config.lcd_mode_sel_gpio, 0);
+
+    rc = dsi_panel_set_pinctrl_state(panel, false);
+    if (rc) {
+        pr_err("[%s] failed set pinctrl state, rc=%d\n", panel->name,
+            rc);
+    }
+
+    rc = dsi_pwr_enable_regulator(&panel->power_info, false);
+    if (rc)
+        pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
+#endif
 
 	return rc;
 }

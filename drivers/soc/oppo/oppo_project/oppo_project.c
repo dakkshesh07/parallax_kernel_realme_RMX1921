@@ -86,8 +86,6 @@ static const char* manifest_src[MANIFEST_LEN] = {
 	}
 	substr += strlen("simcardnum.doublesim=");
 
-	pr_err("update_manifest, project [%d] substr:[%c]", get_project(), substr[0]);
-
 	fs = get_fs();
 	set_fs(KERNEL_DS);
 
@@ -108,16 +106,14 @@ late_initcall(update_manifest);
 #ifdef CONFIG_MACH_REALME
 static int __init update_feature(void)
 {
-	mm_segment_t fs;
+        mm_segment_t fs;
 	fs = get_fs();
-    pr_err("update_feature, Operator Version [%d], Project Name [%d]", get_Operator_Version(), get_project());
-    set_fs(KERNEL_DS);
-    if (oppoVersion) {
-            if ((get_project() == 19651) &&
-                ((get_Operator_Version() == 11 || get_Operator_Version() == 34))) {
-			proc_symlink(nfc_feature, oppoVersion, feature_src);
-		}
-	}
+        set_fs(KERNEL_DS);
+#ifdef CONFIG_MACH_REALME_RMX1921
+        if ((oppoVersion) && ((get_Operator_Version() == 11 || get_Operator_Version() == 34)))
+                proc_symlink(nfc_feature, oppoVersion, feature_src);
+#endif
+
 	set_fs(fs);
 	return 0;
 }
