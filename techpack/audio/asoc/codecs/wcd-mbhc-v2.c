@@ -1463,27 +1463,14 @@ static int wcd_mbhc_initialise(struct wcd_mbhc *mbhc)
 	/* enable HS detection */
 	if (mbhc->mbhc_cb->hph_pull_up_control)
 		mbhc->mbhc_cb->hph_pull_up_control(codec, I_DEFAULT);
+#if defined(CONFIG_MACH_REALME_RMX1921) || defined(CONFIG_MACH_REALME_RMX1971)
 	else
-		#ifndef CONFIG_MACH_REALME
 		/* Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2018/07/09,
 		 * Modify for improve hp detect when enter water, disable DET internal
 		 * pull up(0xf150), use external hardware pull up.
 		 */
-		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_CTRL, 3);
-		#else /* CONFIG_MACH_REALME */
-		if (is_project(OPPO_18081) || is_project(OPPO_18085)) {
-			if (get_PCB_Version() < HW_VERSION__12) { /* before DVT */
-				pr_info("%s: internal 3uA pull up for detection\n", __func__);
-				WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_CTRL, 3);
-			} else {
-				pr_info("%s: disable pull up for detection\n", __func__);
-				WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_CTRL, 0);
-			}
-		} else {
-			pr_info("%s: default disable pull up for detection\n", __func__);
-			WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_CTRL, 0);
-		}
-		#endif /* CONFIG_MACH_REALME */
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_CTRL, 0);
+#endif
 
 	if (mbhc->mbhc_cfg->moisture_en && mbhc->mbhc_cb->mbhc_moisture_config)
 		mbhc->mbhc_cb->mbhc_moisture_config(mbhc);
