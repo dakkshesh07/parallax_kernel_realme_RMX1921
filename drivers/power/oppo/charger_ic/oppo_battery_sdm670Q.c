@@ -229,12 +229,7 @@ static struct smb_params pm660_params = {
 		.set_proc = smblib_set_chg_freq,
 	},
 };
-#ifndef CONFIG_MACH_REALME
-/* Jianchao.Shi@BSP.CHG.Basic, 2017/03/15, sjc Add for OTG debug */
-static int __debug_mask = PR_MISC | PR_OTG | PR_INTERRUPT | PR_REGISTER;
-#else
 static int __debug_mask;
-#endif
 module_param_named(
 	debug_mask, __debug_mask, int, 0600
 );
@@ -262,18 +257,6 @@ module_param_named(
 	pr_err("%s: %s: " fmt, chg->name,	\
 		__func__, ##__VA_ARGS__)	\
 
-#ifdef CONFIG_MACH_REALME
-/* Jianchao.Shi@BSP.CHG.Basic, 2017/03/15, sjc Add for OTG debug */
-#define smblib_dbg(chg, reason, fmt, ...)			\
-	do {							\
-		if (*chg->debug_mask & (reason))		\
-			pr_err("%s: %s: " fmt, chg->name,	\
-				__func__, ##__VA_ARGS__);	\
-		else						\
-			pr_err("%s: %s: " fmt, chg->name,	\
-				__func__, ##__VA_ARGS__);	\
-	} while (0)
-#else
 #define smblib_dbg(chg, reason, fmt, ...)			\
 	do {							\
 		if (*chg->debug_mask & (reason))		\
@@ -283,7 +266,7 @@ module_param_named(
 			pr_debug("%s: %s: " fmt, chg->name,	\
 				__func__, ##__VA_ARGS__);	\
 	} while (0)
-#endif
+
 static bool is_secure(struct smb_charger *chg, int addr)
 {
 	if (addr == SHIP_MODE_REG || addr == FREQ_CLK_DIV_REG)
