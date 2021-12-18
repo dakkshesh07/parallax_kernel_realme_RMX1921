@@ -118,6 +118,7 @@ static char dsi_dsc_rc_range_bpg_offset[] = {2, 0, 0, -2, -4, -6, -8, -8,
 //Wenping.ZHOU@BSP, 2019/09/20,
 //add for tp black gesture
 extern int tp_gesture_enable_flag(void);
+#ifdef CONFIG_MACH_REALME_RMX1971
 static int mdss_tp_black_gesture_status(void){
 	int ret = 0;
 	/*default disable tp gesture*/
@@ -127,6 +128,7 @@ static int mdss_tp_black_gesture_status(void){
 	pr_err("%s: ret = %d\n", __func__, ret);
 	return ret;
 }
+#endif /*CONFIG_MACH_REALME_RMX1971*/
 #endif /*CONFIG_MACH_REALME*/
 
 int dsi_dsc_create_pps_buf_cmd(struct msm_display_dsc_info *dsc, char *buf,
@@ -685,7 +687,7 @@ static void dsi_panel_exd_disable(struct dsi_panel *panel)
 		gpio_set_value(e_config->switch_power, 0);
 }
 
-#ifdef CONFIG_MACH_REALME
+#ifdef CONFIG_MACH_REALME_RMX1971
 static int dsi_panel_1p8_on_off(struct dsi_panel *panel , int value)
 {
 	int rc = 0;
