@@ -181,7 +181,7 @@ static inline int gf_parse_dts(struct gf_dev* gf_dev)
     }
     gpio_direction_input(gf_dev->irq_gpio);
 
-#if defined(PROJECT_19651)
+#ifdef CONFIG_MACH_REALME_RMX1921
     pr_debug("begin of_get_named_gpio  goodix_vdd for 19651!\n");
     gf_dev->vdd_gpio = of_get_named_gpio(np, "goodix,goodix_vdd", 0);
         pr_debug("end of_get_named_gpio  goodix_vdd for 19651!\n");
@@ -236,7 +236,7 @@ static inline void gf_cleanup(struct gf_dev *gf_dev)
         pr_debug("remove reset_gpio success\n");
     }
 
-#if defined(PROJECT_19651)
+#ifdef CONFIG_MACH_REALME_RMX1921
     if (gpio_is_valid(gf_dev->vdd_gpio))
     {
         gpio_free(gf_dev->vdd_gpio);
@@ -260,7 +260,7 @@ static inline int gf_set_power(struct gf_dev *gf_dev, bool enabled)
     return rc;
 #endif
     pr_debug("---- power on ok ----\n");
-#if defined(PROJECT_19651)
+#ifdef CONFIG_MACH_REALME_RMX1921
     gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
     msleep(5);
     gpio_set_value(gf_dev->vdd_gpio, enabled ? 1 : 0);

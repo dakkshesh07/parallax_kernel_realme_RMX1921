@@ -1,2 +1,1 @@
-ccflags-y += -DPROJECT_19651
 obj-$(CONFIG_OPPO_FINGERPRINT_GOODIX) += gf_spi.o

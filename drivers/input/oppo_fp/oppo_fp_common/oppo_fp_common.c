@@ -58,15 +58,8 @@
 #include <linux/delay.h>
 #include <linux/string.h>
 #include "oppo_fp_common.h"
-extern char *saved_command_line;
-
-#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6763 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 6771 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 6779
-#include <sec_boot_lib.h>
-#elif CONFIG_OPPO_FINGERPRINT_PLATFORM == 855 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 6125 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 7150 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 7250 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 6885 || CONFIG_OPPO_FINGERPRINT_PLATFORM == 8250
-#include <linux/uaccess.h>
-#else
 #include <soc/qcom/smem.h>
-#endif
+extern char *saved_command_line;
 
 #define FP_GPIO_NODE           "oppo,fp_gpio"
 #define FP_ID_VALUE_NODE       "oppo,fp-id"
