@@ -231,12 +231,7 @@ struct smb2 {
 	bool			bad_part;
 };
 #endif
-#ifndef CONFIG_MACH_REALME
-/* Jianchao.Shi@BSP.CHG.Basic, 2017/03/15, sjc Add for OTG debug */
-static int __debug_mask = PR_MISC | PR_OTG | PR_INTERRUPT | PR_REGISTER;
-#else
 static int __debug_mask;
-#endif
 module_param_named(
 	debug_mask, __debug_mask, int, 0600
 );
