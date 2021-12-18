@@ -91,38 +91,19 @@ int tp_util_get_vendor(struct hw_resource *hw_res, struct panel_info *panel_data
 		pr_err("[TP]panel_data.test_limit_name kzalloc error\n");
 	}
 
-	if (is_project(OPPO_18081) || is_project(OPPO_18085) || is_project(OPPO_18181)) {
-		panel_data->tp_type = TP_SAMSUNG;
-		prj_id = OPPO_18081;
-	}else if (is_project(OPPO_18097) || is_project(OPPO_18099)) {
-		panel_data->tp_type = TP_SAMSUNG;
-		prj_id = OPPO_18097;
-	} else if (is_project(OPPO_18041)) {
-		panel_data->tp_type = TP_SAMSUNG;
-		if (get_PCB_Version() == HW_VERSION__10) {
-			pr_info("18041 T0 use 18097 TP FW\n");
-			prj_id = OPPO_18097;
-		}else{
-			prj_id = OPPO_18041;
-		}
-	}else if (is_project(OPPO_18383)) {
-		panel_data->tp_type = TP_SAMSUNG;
-		prj_id = OPPO_18383;
-	}else if(is_project(OPPO_18621) || is_project(OPPO_19691)){	
+#ifdef CONFIG_MACH_REALME_RMX1971
 #ifdef CONFIG_TOUCHPANEL_MULTI_NOFLASH
 	if (g_tp_chip_name != NULL) {
 			panel_data->chip_name = g_tp_chip_name;
 	}
 #endif
-		panel_data->tp_type = TP_DSJM;
-		if(is_project(OPPO_18621))
-			prj_id = OPPO_18621;
-		else if(is_project(OPPO_19691))
-			prj_id = OPPO_19691;
-    }else if (is_project(OPPO_19651)) {
-		panel_data->tp_type = TP_SAMSUNG;
-		prj_id = OPPO_19651;
-	}
+	panel_data->tp_type = TP_DSJM;
+	prj_id = OPPO_19691;
+#elif CONFIG_MACH_REALME_RMX1921
+	panel_data->tp_type = TP_SAMSUNG;
+	prj_id = OPPO_19651;
+#endif
+
 	if (panel_data->tp_type == TP_UNKNOWN) {
 		pr_err("[TP]%s type is unknown\n", __func__);
 		return 0;
@@ -154,42 +135,10 @@ int tp_util_get_vendor(struct hw_resource *hw_res, struct panel_info *panel_data
 int reconfig_power_control(struct touchpanel_data *ts)
 {
     int ret = 0;
-    if ((is_project(OPPO_18097) || is_project(OPPO_18099))) {
-        if (get_PCB_Version() == HW_VERSION__10) {
-            if (gpio_is_valid(ts->hw_res.reset_gpio)) {
-                gpio_free(ts->hw_res.reset_gpio);
-            } else {
-                pr_info("ts->reset-gpio not specified\n");
-            }
-
-            ts->hw_res.reset_gpio = of_get_named_gpio(ts->dev->of_node, "reset_t0-gpio", 0);
-            if (gpio_is_valid(ts->hw_res.reset_gpio)) {
-                ret = gpio_request(ts->hw_res.reset_gpio, "reset-gpio");
-                if (ret) {
-                    pr_info("unable to request gpio [%d]\n", ts->hw_res.reset_gpio);
-                } else {
-                    pr_info("ts->reset-gpio not specified\n");
-                }
-            }
-        } else {
-            if (!IS_ERR_OR_NULL(ts->hw_res.vdd_2v8)) {
-                //ret = regulator_disable(ts->hw_res.vdd_2v8);
-                regulator_put(ts->hw_res.vdd_2v8);
-                ts->hw_res.vdd_2v8 = NULL;
-            }
-        }
-    }
-    if (is_project(OPPO_18041)) {
-        if (get_PCB_Version() == HW_VERSION__10) {
-            ts->hw_res.TX_NUM = 16;
-            ts->hw_res.RX_NUM = 33;
-            pr_info("18041 T0 use TX,RX=[%d],[%d]\n", ts->hw_res.TX_NUM, ts->hw_res.RX_NUM);
-        }
-    }
-	if (is_project(OPPO_19651)) {
-		ts->hw_res.TX_NUM = 16;
-		ts->hw_res.RX_NUM = 33;
-		pr_info("19651 T0 use TX,RX=[%d],[%d]\n", ts->hw_res.TX_NUM, ts->hw_res.RX_NUM);
-	}
+#ifdef CONFIG_MACH_REALME_RMX1921
+	ts->hw_res.TX_NUM = 16;
+	ts->hw_res.RX_NUM = 33;
+	pr_info("19651 T0 use TX,RX=[%d],[%d]\n", ts->hw_res.TX_NUM, ts->hw_res.RX_NUM);
+#endif
     return ret;
 }

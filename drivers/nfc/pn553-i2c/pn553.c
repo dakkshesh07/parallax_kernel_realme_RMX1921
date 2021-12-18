@@ -202,8 +202,11 @@ static void pn544_disable_irq(struct pn544_dev *pn544_dev)
 static bool isNFCVDD(void);
 static bool isNFCVDD()
 {
-    printk("%s : isProject(OPPO_19651): %d \n", __func__, is_project(OPPO_19651));
-    return is_project(OPPO_19651);
+#ifdef CONFIG_MACH_REALME_RMX1921
+    return true;
+#elif CONFIG_MACH_REALME_RMX1971
+    return false;
+#endif
 }
 
 static bool isNFCRefClockControlByExternalPin(void);
@@ -213,10 +216,10 @@ static bool isNFCRefClockControlByExternalPin(void);
  */
 static bool isNFCRefClockControlByExternalPin()
 {
-    if((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() < HW_VERSION__13))
+    #ifdef CONFIG_MACH_REALME_RMX1921
+    if(get_PCB_Version() == HW_VERSION__12)
         return false;
-    if(is_project(OPPO_19651) && (get_PCB_Version() == HW_VERSION__12))
-        return false;
+    #endif
 
     printk("%s : isNFCRefClockControlByExternalPin return true\n", __func__);
     return true;
@@ -1456,7 +1459,7 @@ static int pn544_parse_dt(struct device *dev,
         //#ifdef CONFIG_MACH_REALME
         //Weiwei.Deng@CN.NFC.Basic.Hardware, 2018/12/03,
         //Add for: adapt 18097 EVT1 and EVT2 clk_req gpio
-        if (isNFCVDD() || ((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() >= HW_VERSION__13))) {
+        if (isNFCVDD() && (get_PCB_Version() >= HW_VERSION__13)) {
             data->clkreq_gpio = of_get_named_gpio(np, "qcom,nq-clkreq", 0);
             if ((!gpio_is_valid(data->clkreq_gpio)))
             {
@@ -1494,7 +1497,7 @@ static int pn544_parse_dt(struct device *dev,
         data->ese_pwr_gpio,errorno);*/
     //#else /* CONFIG_MACH_REALME */
     #if DEBUG_GPIO_SWITCH
-    if (isNFCVDD() || ((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() >= HW_VERSION__13))) {
+    if (isNFCVDD() && (get_PCB_Version() >= HW_VERSION__13)) {
         pr_info("%s: %d, %d, %d, %d, %d, %d error:%d\n", __func__,
         data->irq_gpio, data->ven_gpio, data->firm_gpio, data->iso_rst_gpio,
         data->ese_pwr_gpio, data->clkreq_gpio,errorno);
@@ -1602,7 +1605,7 @@ static int pn544_probe(struct i2c_client *client,
     //#ifdef CONFIG_MACH_REALME
     //Weiwei.Deng@CN.NFC.Basic.Hardware, 2018/12/03,
     //Add for: adapt 18097 EVT1 and EVT2 clk_req gpio
-    if (isNFCVDD() || ((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() >= HW_VERSION__13))) {
+    if (isNFCVDD() && (get_PCB_Version() >= HW_VERSION__13)) {
         pn544_dev->clkreq_gpio = platform_data->clkreq_gpio;
 
         pn544_dev->nfc_pinctrl = devm_pinctrl_get(&client->dev);
@@ -1658,7 +1661,7 @@ static int pn544_probe(struct i2c_client *client,
     //#ifdef CONFIG_MACH_REALME
     //Weiwei.Deng@CN.NFC.Basic.Hardware, 2018/12/03,
     //Add for: adapt 18097 EVT1 and EVT2 clk_req gpio
-    if (isNFCVDD() || ((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() >= HW_VERSION__13))) {
+    if (isNFCVDD() && (get_PCB_Version() >= HW_VERSION__13)) {
         ret = gpio_direction_input(pn544_dev->clkreq_gpio);
         if (ret < 0) {
             pr_err("%s :not able to set clkreq_gpio as input\n", __func__);
@@ -1773,7 +1776,7 @@ static int pn544_remove(struct i2c_client *client)
     //#ifdef CONFIG_MACH_REALME
     //Weiwei.Deng@CN.NFC.Basic.Hardware, 2018/12/03,
     //Add for: adapt 18097 EVT1 and EVT2 clk_req gpio
-    if (isNFCVDD() || ((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() >= HW_VERSION__13))) {
+    if (isNFCVDD() && (get_PCB_Version() >= HW_VERSION__13)) {
         gpio_free(pn544_dev->clkreq_gpio);
     }
     //#endif /* CONFIG_MACH_REALME */

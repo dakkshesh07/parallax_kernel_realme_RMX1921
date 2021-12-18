@@ -948,11 +948,9 @@ static ssize_t oppo_display_set_hbm(struct device *dev,
 	__oppo_display_set_hbm(temp_save);
 
 	if((hbm_mode > 1) &&(hbm_mode <= 10)) {
-	  if ((is_project(OPPO_18041) || is_project(OPPO_18097) || is_project(OPPO_18099))) {
-			ret = dsi_display_normal_hbm_on(get_main_display());
-		} else {
-			ret = dsi_display_hbm_on(get_main_display());
-		}
+	#if defined(CONFIG_MACH_REALME_RMX1921) || defined(CONFIG_MACH_REALME_RMX1971)
+		ret = dsi_display_hbm_on(get_main_display());
+	#endif
 	} else if(hbm_mode == 1) {
 		ret = dsi_display_hbm_on(get_main_display());
 	} else if(hbm_mode == 0) {
