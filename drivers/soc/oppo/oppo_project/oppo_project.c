@@ -264,7 +264,6 @@ static ssize_t secureType_read_proc(struct file *file, char __user *buf,
         oem_config_base = ioremap(OEM_SEC_BOOT_REG, 4);
         secure_oem_config = __raw_readl(oem_config_base);
         iounmap(oem_config_base);
-        printk(KERN_EMERG "lycan test secure_oem_config 0x%x\n", secure_oem_config);
         len = sprintf(page, "%d", secure_oem_config);
 
         if (len > *off) {
@@ -296,7 +295,6 @@ static ssize_t secureStage_read_proc(struct file *file, char __user *buf,
         oem_config_base = ioremap(OEM_SEC_ENABLE_ANTIROLLBACK_REG, 4);
         secure_oem_config = __raw_readl(oem_config_base);
         iounmap(oem_config_base);
-        printk(KERN_EMERG "lycan test secureStage_oem_config 0x%x\n", secure_oem_config);
         len = sprintf(page, "%d", secure_oem_config);
 
         if (len > *off) {
@@ -354,27 +352,7 @@ static ssize_t serialID_read_proc(struct file *file, char __user *buf,
 struct file_operations serialID_proc_fops = {
         .read = serialID_read_proc,
 };
-/*for get which ldo ocp*/
-void print_ocp(void)
-{
-        int i = 0;
 
-        if (format == NULL) {
-                init_project_version();
-        }
-        printk("ocp:");
-        for (i = 0;i < OCPCOUNTMAX;i++) {
-                printk(" %d", format->npmicocp[i]);
-        }
-        printk("\n");
-}
-
-static int __init ocplog_init(void)
-{
-        print_ocp();
-        return 0;
-}
-late_initcall(ocplog_init);
 static ssize_t ocplog_read_proc(struct file *file, char __user *buf,
                 size_t count, loff_t *off)
 {
@@ -439,7 +417,6 @@ int get_eng_version(void)
     oppo_eng_version = RELEASE;
     substr = strstr(boot_command_line, "eng_version=");
     if (!substr) {      //if cmdline does't cover the version, we use normal version as default version
-        printk(KERN_EMERG "cmdline does't have the sw_version %s \n", __func__);
         return oppo_eng_version;
     }
 
@@ -531,8 +508,6 @@ int rpmb_is_enable(void)
                 rpmbtmp = __raw_readl(rpmb_addr);
                 iounmap(rpmb_addr);
                 rpmbenable = (rpmbtmp >> 24) & 0x01;
-                /*printk(KERN_EMERG "rpmb 0x%x\n", rpmbenable);
-*/
         } else {
                 rpmbenable = 0;
         }
@@ -551,9 +526,7 @@ static int __init oppo_project_init(void)
         if (serial_id_addr) {
                 g_serial_id = __raw_readl(serial_id_addr);
                 iounmap(serial_id_addr);
-                printk(KERN_EMERG "serialID 0x%x\n", g_serial_id);
-        } else
-        {
+        } else {
                 g_serial_id = 0xffffffff;
         }
 
