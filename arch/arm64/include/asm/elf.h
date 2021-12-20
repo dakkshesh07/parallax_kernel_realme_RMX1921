@@ -212,6 +212,8 @@ extern int aarch32_setup_additional_pages(struct linux_binprm *bprm,
 #define compat_arch_setup_additional_pages \
 					aarch32_setup_additional_pages
 
+#endif /* CONFIG_COMPAT */ 
+
 #endif /* !__ASSEMBLY__ */
 
 #endif
