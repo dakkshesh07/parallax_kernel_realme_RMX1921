@@ -13628,7 +13628,6 @@ static QDF_STATUS csr_roam_start_wait_for_key_timer(
 QDF_STATUS csr_roam_stop_wait_for_key_timer(struct mac_context *mac)
 {
 	uint8_t vdev_id = mac->roam.WaitForKeyTimerInfo.vdev_id;
-#ifdef WLAN_DEBUG
 	tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
 		&mac->roam.neighborRoamInfo[vdev_id];
 
@@ -13637,7 +13636,6 @@ QDF_STATUS csr_roam_stop_wait_for_key_timer(struct mac_context *mac)
 						   neighborRoamState),
 		mac_trace_getcsr_roam_sub_state(mac->roam.
 						curSubState[vdev_id]));
-#endif
 	if (csr_neighbor_roam_is_handoff_in_progress(mac, vdev_id)) {
 		/*
 		 * Enable heartbeat timer when hand-off is in progress
@@ -20011,6 +20009,7 @@ csr_roam_switch_to_deinit(struct mac_context *mac, uint8_t vdev_id,
 		return status;
 
 	mlme_set_roam_state(mac->psoc, vdev_id, ROAM_DEINIT);
+	mlme_clear_operations_bitmap(mac->psoc, vdev_id);
 
 	if (reason != REASON_SUPPLICANT_INIT_ROAMING)
 		csr_enable_roaming_on_connected_sta(mac, vdev_id);
