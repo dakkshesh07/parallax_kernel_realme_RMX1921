@@ -190,8 +190,6 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 	}
 
 	#ifdef CONFIG_MACH_REALME
-	/*liping-m@PSW.MM.Display.LCD.Stable,2018-09-26 add key log for debug */
-	pr_err("backlight level change to %d\n", bl_lvl);
 
 	/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add some delay to avoid screen flash */
 	if (panel->need_power_on_backlight && panel->type != EXT_BRIDGE) {
