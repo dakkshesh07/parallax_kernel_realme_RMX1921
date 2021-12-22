@@ -301,7 +301,6 @@ static enum Tfa98xx_Error tfa98xx_tfa_start(struct tfa98xx *tfa98xx, int next_pr
             strcpy(ftm_clk, "clk_fail");
         }
     }
-    pr_err("%s: TFA98XX_STATUSREG=%x\n", __func__, reg);
     #endif /* CONFIG_MACH_REALME */
 
     return err;
@@ -2805,10 +2804,6 @@ static void tfa98xx_dsp_init(struct tfa98xx *tfa98xx)
                     ret, tfa98xx->init_count);
             reschedule = true;
         } else {
-            /* Subsystem ready, tfa init complete */
-            dev_err(&tfa98xx->i2c->dev,
-                        "tfa_start success (%d)\n",
-                        tfa98xx->init_count);
             /* cancel other pending init works */
             cancel_delayed_work(&tfa98xx->init_work);
             tfa98xx->init_count = 0;
@@ -3066,9 +3061,6 @@ static int tfa98xx_hw_params(struct snd_pcm_substream *substream,
 
     /* Supported */
     rate = params_rate(params);
-    pr_info("Requested rate: %d, sample size: %d, physical size: %d\n",
-            rate, snd_pcm_format_width(params_format(params)),
-            snd_pcm_format_physical_width(params_format(params)));
 
     /* check if samplerate is supported for this mixer profile */
     prof_idx = get_profile_id_for_sr(tfa98xx_mixer_profile, rate);
@@ -3076,7 +3068,6 @@ static int tfa98xx_hw_params(struct snd_pcm_substream *substream,
         pr_err("tfa98xx: invalid sample rate %d.\n", rate);
         return -EINVAL;
     }
-    pr_info("mixer profile:container profile = [%d:%d]\n", tfa98xx_mixer_profile, prof_idx);
 
     if (params_channels(params) > 2) {
         pr_warn("Unusual number of channels: %d\n", params_channels(params));
@@ -3095,8 +3086,6 @@ static int tfa98xx_mute(struct snd_soc_dai *dai, int mute, int stream)
 {
     struct snd_soc_codec *codec = dai->codec;
     struct tfa98xx *tfa98xx = snd_soc_codec_get_drvdata(codec);
-
-    dev_err(&tfa98xx->i2c->dev, "state: %d\n", mute);
 
     if (!(tfa98xx->flags & TFA98XX_FLAG_DSP_START_ON_MUTE))
         return 0;
