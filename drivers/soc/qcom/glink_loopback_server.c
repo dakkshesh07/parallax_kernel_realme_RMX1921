@@ -23,7 +23,9 @@
 /* Number of internal IPC Logging log pages */
 #define GLINK_LBSRV_NUM_LOG_PAGES	3
 
+#ifdef CONFIG_IPC_LOGGING
 static void *glink_lbsrv_log_ctx;
+#endif
 
 #define GLINK_LBSRV_IPC_LOG_STR(x...) ((void)0)
 
@@ -807,7 +809,7 @@ void glink_lpbsrv_notify_rx_tp(void *handle, const void *priv,
 void glink_lpbsrv_notify_tx_done(void *handle, const void *priv,
 				 const void *pkt_priv, const void *ptr)
 {
-	struct ch_info *tx_done_ch_info = (struct ch_info *)priv;
+	struct ch_info __maybe_unused *tx_done_ch_info = (struct ch_info *)priv;
 
 	LBSRV_INFO("%s:%s:%s %s: end (Success) TX_DONE ptr[%p]\n",
 			tx_done_ch_info->transport, tx_done_ch_info->edge,
