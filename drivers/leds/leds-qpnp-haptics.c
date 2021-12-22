@@ -769,7 +769,6 @@ static int qpnp_haptics_play(struct hap_chip *chip, bool enable)
 		//Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 		time_ms = time_ms < chip->time_min ?
 		chip->time_min : time_ms;
-		pr_err("vib on = %d, enable is %d\n", time_ms, enable);
 		#endif/*CONFIG_MACH_REALME*/
 		hrtimer_start(&chip->stop_timer,
 			ktime_set(time_ms / MSEC_PER_SEC,
@@ -787,10 +786,6 @@ static int qpnp_haptics_play(struct hap_chip *chip, bool enable)
 				ktime_set(0, AUTO_RES_ERR_POLL_TIME_NS),
 				HRTIMER_MODE_REL);
 	} else {
-		#ifdef CONFIG_MACH_REALME
-		//Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
-		pr_err("vib enable is %d\n", enable);
-		#endif/*CONFIG_MACH_REALME*/
 		rc = qpnp_haptics_play_control(chip, HAP_STOP);
 		if (rc < 0) {
 			pr_err("Error in disabling play, rc=%d\n", rc);
@@ -855,7 +850,7 @@ static enum hrtimer_restart hap_stop_timer(struct hrtimer *timer)
 					stop_timer);
 
 	atomic_set(&chip->state, 0);
-    #ifdef CONFIG_MACH_REALME
+	#ifdef CONFIG_MACH_REALME
 	// fangpan@Swdp.shanghai 2016/10/25, fix sometimes the vibrator shake long time issue
 	queue_work(system_unbound_wq, &chip->haptics_work);
 	#else
