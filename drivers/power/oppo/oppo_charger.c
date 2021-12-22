@@ -494,7 +494,6 @@ int oppo_battery_set_property(struct power_supply *psy,
 #ifdef CONFIG_OPPO_SHORT_C_BATT_CHECK
 #ifdef CONFIG_OPPO_SHORT_USERSPACE
 		case POWER_SUPPLY_PROP_SHORT_C_LIMIT_CHG:
-			printk(KERN_ERR "[OPPO_CHG] [short_c_bat] set limit chg[%d]\n", !!val->intval);
 			chip->short_c_batt.limit_chg = !!val->intval;
 			//for userspace logic
 			if (!!val->intval == 0){
@@ -502,25 +501,21 @@ int oppo_battery_set_property(struct power_supply *psy,
 			}
 			break;
 		case POWER_SUPPLY_PROP_SHORT_C_LIMIT_RECHG:
-			printk(KERN_ERR "[OPPO_CHG] [short_c_bat] set limit rechg[%d]\n", !!val->intval);
 			chip->short_c_batt.limit_rechg = !!val->intval;
 			break;
 #else
 		case POWER_SUPPLY_PROP_SHORT_C_BATT_UPDATE_CHANGE:
-			printk(KERN_ERR "[OPPO_CHG] [short_c_batt]: set update change[%d]\n", val->intval);
 			oppo_short_c_batt_update_change(chip, val->intval);
 			chip->short_c_batt.update_change = val->intval;
 			break;
 
 		case POWER_SUPPLY_PROP_SHORT_C_BATT_IN_IDLE:
-			printk(KERN_ERR "[OPPO_CHG] [short_c_batt]: set in idle[%d]\n", !!val->intval);
 			chip->short_c_batt.in_idle = !!val->intval;
 			break;
 #endif /*CONFIG_OPPO_SHORT_USERSPACE*/
 #endif /* CONFIG_OPPO_SHORT_C_BATT_CHECK */
 #ifdef CONFIG_OPPO_SHORT_HW_CHECK
 		case POWER_SUPPLY_PROP_SHORT_C_HW_FEATURE:
-			printk(KERN_ERR "[OPPO_CHG] [short_c_hw_check]: set is_feature_hw_on [%d]\n", val->intval);
 			chip->short_c_batt.is_feature_hw_on = val->intval;
 			break;
 #endif /* CONFIG_OPPO_SHORT_C_BATT_CHECK */
@@ -529,7 +524,6 @@ int oppo_battery_set_property(struct power_supply *psy,
 			if (chip) {
 				chip->short_c_batt.ic_volt_threshold = val->intval;
 				oppo_short_ic_set_volt_threshold(chip);
-				//pr_err("%s:[OPPO_CHG][oppo_short_ic],ic_volt_threshold val->intval[%d]\n", __FUNCTION__, val->intval);
 			}
 			break;
 #endif
@@ -1177,8 +1171,6 @@ static ssize_t charging_limit_time_write(struct file *filp,
 	sscanf(temp, "%d", &limit_time);
 	if (g_charger_chip) {
 		g_charger_chip->limits.max_chg_time_sec = limit_time;
-		printk(KERN_EMERG"charging_feature:max_chg_time_sec = %d\n",
-			g_charger_chip->limits.max_chg_time_sec);
 	}
 	return len;
 }
@@ -1216,7 +1208,6 @@ static ssize_t charging_limit_current_write(struct file *filp,
 		g_charger_chip->limits.input_current_led_ma_high = limit_current;
 		g_charger_chip->limits.input_current_led_ma_warm = limit_current;
 		g_charger_chip->limits.input_current_led_ma_normal = limit_current;
-		printk(KERN_EMERG"charging_feature:limit_current = %d\n",limit_current);
 	}
 	return len;
 }
