@@ -3310,8 +3310,6 @@ static int dwc3_msm_id_notifier(struct notifier_block *nb,
 /* Jianchao.Shi@BSP.CHG.Basic, 2017/02/18, sjc Add for OTG sw */
 	mdwc->otg_is_in = !id;
 #endif
-	printk(KERN_ERR "[OPPO_CHG][%s] notifier otg_is_in = %d\n",
-			__func__, mdwc->otg_is_in);
 	dev_dbg(mdwc->dev, "host:%ld (id:%d) event received\n", event, id);
 
 	if (mdwc->id_state != id) {
@@ -3681,34 +3679,24 @@ EXPORT_SYMBOL(oppo_get_otg_online_status_dwc3);
 void oppo_set_otg_switch_status_dwc3(bool value)
 {
 	struct dwc3 *dwc;
-    printk("oppo_set_otg_switch_status_dwc3\n");
 	if (!oppodwc)
 		return;
-    printk("oppo_set_otg_switch_status_dwc3 1\n");
 
 	dwc = platform_get_drvdata(oppodwc->dwc3);
 	if (!dwc) {
-		printk(KERN_ERR "%s: Failed to get dwc3 device\n", __func__);
+		pr_err("%s: Failed to get dwc3 device\n", __func__);
 		return;
 	}
-    printk("oppo_set_otg_switch_status_dwc3 2\n");
 	oppodwc->otg_switch = !!value;
 	if (oppodwc->otg_switch) {
-        printk("oppo_set_otg_switch_status_dwc3 3\n");
 		otg_enable_id_value();
-        printk("oppo_set_otg_switch_status_dwc3 4\n");
 		if (oppodwc->otg_is_in) {
 			oppodwc->id_state = DWC3_ID_GROUND;
-			#ifdef CONFIG_MACH_REALME/* OuYangBaiLi@BSP.CHG.Basic, 2019/01/17,Add for otg */
 			oppodwc->otg_online = true;
-			#endif /* CONFIG_MACH_REALME */
 			if (dwc->is_drd)
 				queue_work(oppodwc->dwc3_wq, &oppodwc->resume_work);
-            printk("oppo_set_otg_switch_status_dwc3 5\n");
-		#ifdef CONFIG_MACH_REALME/* OuYangBaiLi@BSP.CHG.Basic, 2019/01/21,Add for otg */
 		}else{
 			oppodwc->otg_online = false;
-		#endif /* CONFIG_MACH_REALME */
 		}
 	} else {
 		otg_disable_id_value();
@@ -3719,9 +3707,6 @@ void oppo_set_otg_switch_status_dwc3(bool value)
 				queue_work(oppodwc->dwc3_wq, &oppodwc->resume_work);
 		}
 	}
-    printk("oppo_set_otg_switch_status_dwc3 6\n");
-	printk(KERN_ERR "[OPPO_CHG][%s] otg_is_in=%d, id_state=%d, otg_switch=%d, otg_online=%d, drd=%d\n",
-			__func__, oppodwc->otg_is_in, oppodwc->id_state, oppodwc->otg_switch, oppodwc->otg_online, dwc->is_drd);
 }
 EXPORT_SYMBOL(oppo_set_otg_switch_status_dwc3);
 #endif /*CONFIG_MACH_REALME*/
