@@ -702,7 +702,10 @@ static int smblib_set_adapter_allowance(struct smb_charger *chg,
 	}
 
 	rc = smblib_read(chg, USBIN_ADAPTER_ALLOW_CFG_REG, &val);
-	smblib_err(chg, "USBIN_ADAPTER_ALLOW_CFG_REG=0x%02x, allowed_voltage=0x%02x\n", val, allowed_voltage);
+	if (rc < 0) {
+		smblib_err(chg, "Couldn't read USBIN_ADAPTER_ALLOW_CFG rc=%d\n", rc);
+		return rc;
+	}
 
 	rc = smblib_write(chg, USBIN_ADAPTER_ALLOW_CFG_REG, allowed_voltage);
 	if (rc < 0) {
