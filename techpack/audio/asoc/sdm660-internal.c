@@ -35,13 +35,6 @@
 #define WCN_CDC_SLIM_RX_CH_MAX 2
 #define WCN_CDC_SLIM_TX_CH_MAX 3
 
-#ifdef CONFIG_MACH_REALME
-/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-static unsigned long clk_on_jiffies = 0;
-static unsigned long clk_off_jiffies = 0;
-static unsigned int clk_switch_us = 52*1000; //52ms
-#endif /* CONFIG_MACH_REALME */
-
 #define WSA8810_NAME_1 "wsa881x.20170211"
 #define WSA8810_NAME_2 "wsa881x.20170212"
 #define MSM_LL_QOS_VALUE 300 /* time in us to ensure LPM doesn't go in C3/C4 */
@@ -1104,11 +1097,6 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 	struct msm_asoc_mach_data *pdata = NULL;
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
 	int ret = 0;
-	#ifdef CONFIG_MACH_REALME
-	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-	static bool dmic_active = false;
-	unsigned int interval_us = 0;
-	#endif /* CONFIG_MACH_REALME */
 
 	pdata = snd_soc_card_get_drvdata(codec->component.card);
 	#ifndef CONFIG_MACH_REALME
@@ -1433,10 +1421,6 @@ static int msm_int_dig_mi2s_snd_startup(struct snd_pcm_substream *substream)
 static void msm_int_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 {
 	int ret;
-	#ifdef CONFIG_MACH_REALME
-	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-	unsigned int interval_us = 0;
-	#endif /* CONFIG_MACH_REALME */
 
 	#ifndef CONFIG_MACH_REALME
 	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2019/03/22, Add for print log*/
@@ -3081,26 +3065,6 @@ static struct snd_soc_dai_link tfa98xx_be_dai_links[] = {
 };
 #endif /* CONFIG_MACH_REALME */
 
-#ifdef CONFIG_MACH_REALME
-/* xiang.fei@PSW.MM.AudioDriver.SmartPA, 2019/02/25, Add for tfa98xx */
-static struct snd_soc_dai_link tfa98xx_be_dai_links_new[] = {
-	{
-		.name = LPASS_BE_TERT_MI2S_RX,
-		.stream_name = "Tertiary MI2S Playback",
-		.cpu_dai_name = "msm-dai-q6-mi2s.2",
-		.platform_name = "msm-pcm-routing",
-		.codec_name = "tfa98xx.0-0035",
-		.codec_dai_name = "tfa98xx-aif-0-35",
-		.no_pcm = 1,
-		.dpcm_playback = 1,
-		.id = MSM_BACKEND_DAI_TERTIARY_MI2S_RX,
-		.be_hw_params_fixup = msm_common_be_hw_params_fixup,
-		.ops = &msm_mi2s_be_ops,
-		.ignore_suspend = 1,
-		.ignore_pmdown_time = 1,
-	},
-};
-#endif /* CONFIG_MACH_REALME */
 static struct snd_soc_dai_link msm_mi2s_be_dai_links[] = {
 	{
 		.name = LPASS_BE_PRI_MI2S_RX,

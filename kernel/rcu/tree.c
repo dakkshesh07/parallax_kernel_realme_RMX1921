@@ -1748,7 +1748,7 @@ static int rcu_future_gp_cleanup(struct rcu_state *rsp, struct rcu_node *rnp)
 {
 	int c = rnp->completed;
 	int needmore;
-	struct rcu_data *rdp = this_cpu_ptr(rsp->rda);
+	struct rcu_data __maybe_unused *rdp = this_cpu_ptr(rsp->rda);
 
 	rnp->need_future_gp[c & 0x1] = 0;
 	needmore = rnp->need_future_gp[(c + 1) & 0x1];
