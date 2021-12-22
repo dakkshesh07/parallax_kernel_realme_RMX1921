@@ -1206,10 +1206,6 @@ qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 		input_report_key(pon->pon_input, cfg->key_code, 1);
 		input_sync(pon->pon_input);
 	}
-	#ifdef CONFIG_MACH_REALME
-    //Fanhong.Kong@ProDrv.CHG,add 2016/7/26 for keycode
-	pr_err("keycode = %d,key_st = %d\n",cfg->key_code, key_status);
-	#endif
 
 	input_report_key(pon->pon_input, cfg->key_code, key_status);
 	input_sync(pon->pon_input);
