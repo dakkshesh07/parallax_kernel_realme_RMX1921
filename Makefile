@@ -904,6 +904,15 @@ ifdef CONFIG_CC_STACKPROTECTOR
 endif
 KBUILD_CFLAGS += $(stackp-flag)
 
+ifdef CONFIG_CC_IMPLICIT_FALLTHROUGH
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS += $(call cc-option,-Wunreachable-code-fallthrough)
+KBUILD_CFLAGS += $(call cc-option,-Wimplicit-fallthrough)
+else
+KBUILD_CFLAGS += $(call cc-option,-Wimplicit-fallthrough=5)
+endif
+endif
+
 ifeq ($(cc-name),clang)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)

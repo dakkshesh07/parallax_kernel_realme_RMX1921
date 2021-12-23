@@ -494,6 +494,12 @@ config CC_STACKPROTECTOR_STRONG
 
 endchoice
 
+config CC_IMPLICIT_FALLTHROUGH
+	bool "fallthrough diagonaostics feature"
+	help
+	  An architecture can select this to enable 
+	  the fallthrough detection feature.
+
 config THIN_ARCHIVES
 	bool
 	help
