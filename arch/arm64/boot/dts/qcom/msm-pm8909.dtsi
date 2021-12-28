@@ -36,7 +36,7 @@
 
 			qcom,pon_1 {
 				qcom,pon-type = <0>;
-				qcom,pull-up = <1>;
+				qcom,pull-up;
 				qcom,s1-timer = <10256>;
 				qcom,s2-timer = <2000>;
 				qcom,s2-type = <1>;
@@ -45,7 +45,7 @@
 
 			qcom,pon_2 {
 				qcom,pon-type = <1>;
-				qcom,pull-up = <1>;
+				qcom,pull-up;
 				linux,code = <114>;
 			};
 		};
