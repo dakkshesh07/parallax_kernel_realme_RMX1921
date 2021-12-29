@@ -1362,31 +1362,28 @@ int tp_control_reset_gpio(bool enable)
 }
 
 /*
- * check_touchirq_triggered--used for stop system going sleep when touch irq is triggered
+ * check_touchirq_triggered -  used for stop system going sleep when touch irq is triggered
  * 1 if irq triggered, otherwise is 0
 */
 int check_touchirq_triggered(void)
 {
     int value = -1;
+    int ret = 0;
 
-    if (!g_tp) {
-        return 0;
-    }
-    if ((1 != g_tp->gesture_enable) && (0 == g_tp->fp_enable)) {
-        return 0;
-    }
+    if (!g_tp)
+        goto exit;
+
+    if ((1 != g_tp->gesture_enable) && (0 == g_tp->fp_enable))
+        goto exit;
 
     value = gpio_get_value(g_tp->hw_res.irq_gpio);
-    if ((0 == value) && (g_tp->irq_flags & IRQF_TRIGGER_LOW)) {
-        TPD_INFO("touch irq is triggered.\n");
-        return 1; //means irq is triggered
-    }
-    if ((1 == value) && (g_tp->irq_flags & IRQF_TRIGGER_HIGH)) {
-        TPD_INFO("touch irq is triggered.\n");
-        return 1; //means irq is triggered
+    if (((value == 1) && (g_tp->irq_flags & IRQF_TRIGGER_HIGH)) || ((value == 0) && (g_tp->irq_flags & IRQF_TRIGGER_LOW))) {
+        ret = 1;
+        goto exit;
     }
 
-    return 0;
+exit:
+    return ret;
 }
 EXPORT_SYMBOL(check_touchirq_triggered);
 

@@ -38,7 +38,10 @@
 extern int slst_gpio_base_id;
 #define PROC_AWAKE_ID 12 /* 12th bit */
 
-__attribute__((weak)) int check_touchirq_triggered(void) {return 0;}
+__attribute__((weak)) int check_touchirq_triggered(void)
+{
+	return 0;
+}
 
 const char *pm_states[PM_SUSPEND_MAX] = {
 	[PM_SUSPEND_FREEZE] = "freeze",
@@ -398,7 +401,7 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	BUG_ON(!irqs_disabled());
 
 #ifdef CONFIG_MACH_REALME
-//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
+//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system going sleep when touch irq is triggered
     if (check_touchirq_triggered()) {
         error = -EBUSY;
         goto Enable_irqs;
@@ -425,7 +428,7 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	}
 
 #ifdef CONFIG_MACH_REALME
-//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
+//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system going sleep when touch irq is triggered
  Enable_irqs:
 #endif /* CONFIG_MACH_REALME */
 	arch_suspend_enable_irqs();
