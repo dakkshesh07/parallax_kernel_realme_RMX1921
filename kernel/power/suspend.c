@@ -509,68 +509,6 @@ static void suspend_finish(void)
 	pm_restore_console();
 }
 
-#ifdef CONFIG_MACH_REALME
-/*xing.xiong@BSP.Kernel.Statbily, 2018/03/24, Add for speed up suspend workaround*/
-/**
-* Sync the filesystem in seperate workqueue.
-* Then check it finishing or not periodically and
-* abort if any wakeup source comes in. That can reduce
-* the wakeup latency
-*
-*/
-static bool sys_sync_completed = false;
-static void sys_sync_work_func(struct work_struct *work);
-static DECLARE_WORK(sys_sync_work, sys_sync_work_func);
-static DECLARE_WAIT_QUEUE_HEAD(sys_sync_wait);
-static void sys_sync_work_func(struct work_struct *work)
-{
-    trace_suspend_resume(TPS("sync_filesystems"), 0, true);
-    pr_info(KERN_INFO "PM: Syncing filesystems ... ");
-    sys_sync();
-    pr_cont("done.\n");
-    trace_suspend_resume(TPS("sync_filesystems"), 0, false);
-    sys_sync_completed = true;
-    wake_up(&sys_sync_wait);
-}
-
-static __maybe_unused int sys_sync_queue(void)
-{
-    int work_status = work_busy(&sys_sync_work);
-
-    /*maybe some irq coming here before pending check*/
-    pm_wakeup_clear();
-
-    /*Check if the previous work still running.*/
-    if (!(work_status & WORK_BUSY_PENDING)) {
-        if (work_status & WORK_BUSY_RUNNING) {
-            while (wait_event_timeout(sys_sync_wait, sys_sync_completed,
-                        msecs_to_jiffies(100)) == 0) {
-                if (pm_wakeup_pending()) {
-                    pr_info("PM: Pre-Syncing abort\n");
-                    goto abort;
-                }
-            }
-            pr_info("PM: Pre-Syncing done\n");
-        }
-        sys_sync_completed = false;
-        schedule_work(&sys_sync_work);
-    }
-
-    while (wait_event_timeout(sys_sync_wait, sys_sync_completed,
-                    msecs_to_jiffies(100)) == 0) {
-        if (pm_wakeup_pending()) {
-            pr_info("PM: Syncing abort\n");
-            goto abort;
-        }
-    }
-
-    pr_info("PM: Syncing done\n");
-    return 0;
-abort:
-    return -EAGAIN;
-}
-#endif /*CONFIG_MACH_REALME*/
-
 /**
  * enter_state - Do common work needed to enter system sleep state.
  * @state: System sleep state to enter.
@@ -601,20 +539,11 @@ static int enter_state(suspend_state_t state)
 		freeze_begin();
 
 #ifndef CONFIG_SUSPEND_SKIP_SYNC
-#ifndef CONFIG_MACH_REALME
-/*xing.xiong@BSP.Kernel.Statbily, 2018/03/24, Add for speed up suspend workaround*/
     trace_suspend_resume(TPS("sync_filesystems"), 0, true);
     pr_info("PM: Syncing filesystems ... ");
     sys_sync();
     pr_cont("done.\n");
     trace_suspend_resume(TPS("sync_filesystems"), 0, false);
-#else
-    error = sys_sync_queue();
-    if (error) {
-        pr_err("%s sys_sync_queue fail\n", __func__);
-        goto Unlock;
-    }
-#endif
 #endif
 
 	pr_debug("PM: Preparing system for sleep (%s)\n", pm_states[state]);
