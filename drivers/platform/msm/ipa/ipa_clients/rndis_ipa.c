@@ -2706,10 +2706,13 @@ static ssize_t rndis_ipa_debugfs_atomic_read
 
 static int rndis_ipa_init_module(void)
 {
+
+#ifdef CONFIG_IPC_LOGGING
 	ipa_rndis_logbuf = ipc_log_context_create(IPA_RNDIS_IPC_LOG_PAGES,
 		"ipa_rndis", 0);
 	if (ipa_rndis_logbuf == NULL)
 		RNDIS_IPA_DEBUG("failed to create IPC log, continue...\n");
+#endif
 
 	pr_info("RNDIS_IPA module is loaded.");
 	return 0;
