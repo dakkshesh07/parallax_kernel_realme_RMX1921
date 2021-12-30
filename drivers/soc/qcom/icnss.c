@@ -5243,6 +5243,7 @@ static void icnss_create_fw_state_kobj(void) {
 
 static int __init icnss_initialize(void)
 {
+#ifdef CONFIG_IPC_LOGGING
 	icnss_ipc_log_context = ipc_log_context_create(NUM_LOG_PAGES,
 						       "icnss", 0);
 	if (!icnss_ipc_log_context)
@@ -5252,6 +5253,7 @@ static int __init icnss_initialize(void)
 						       "icnss_long", 0);
 	if (!icnss_ipc_log_long_context)
 		icnss_pr_err("Unable to create log long context\n");
+#endif
 
 	return platform_driver_register(&icnss_driver);
 }

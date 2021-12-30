@@ -2599,13 +2599,14 @@ static int glink_smem_native_probe(struct platform_device *pdev)
 	einfo->debug_mask = QCOM_GLINK_DEBUG_ENABLE;
 	snprintf(log_name, sizeof(log_name), "%s_%s_xprt",
 			einfo->xprt_cfg.edge, einfo->xprt_cfg.name);
+#ifdef CONFIG_IPC_LOGGING
 	if (einfo->debug_mask & QCOM_GLINK_DEBUG_ENABLE)
-		einfo->log_ctx =
-			ipc_log_context_create(NUM_LOG_PAGES, log_name, 0);
+		einfo->log_ctx = ipc_log_context_create(NUM_LOG_PAGES, log_name, 0);
 	if (!einfo->log_ctx)
 		GLINK_ERR("%s: unable to create log context for [%s:%s]\n",
 			__func__, einfo->xprt_cfg.edge,
 			einfo->xprt_cfg.name);
+#endif
 	register_debugfs_info(einfo);
 	/* fake an interrupt on this edge to see if the remote side is up */
 	irq_handler(0, einfo);
@@ -2855,6 +2856,7 @@ static int glink_rpm_native_probe(struct platform_device *pdev)
 	einfo->debug_mask = QCOM_GLINK_DEBUG_DISABLE;
 	snprintf(log_name, sizeof(log_name), "%s_%s_xprt",
 			einfo->xprt_cfg.edge, einfo->xprt_cfg.name);
+#ifdef CONFIG_IPC_LOGGING
 	if (einfo->debug_mask & QCOM_GLINK_DEBUG_ENABLE)
 		einfo->log_ctx =
 			ipc_log_context_create(NUM_LOG_PAGES, log_name, 0);
@@ -2862,6 +2864,7 @@ static int glink_rpm_native_probe(struct platform_device *pdev)
 		GLINK_ERR("%s: unable to create log context for [%s:%s]\n",
 			__func__, einfo->xprt_cfg.edge,
 			einfo->xprt_cfg.name);
+#endif
 	register_debugfs_info(einfo);
 	einfo->xprt_if.glink_core_if_ptr->link_up(&einfo->xprt_if);
 	return 0;
@@ -3107,6 +3110,7 @@ static int glink_mailbox_probe(struct platform_device *pdev)
 	einfo->debug_mask = QCOM_GLINK_DEBUG_DISABLE;
 	snprintf(log_name, sizeof(log_name), "%s_%s_xprt",
 			einfo->xprt_cfg.edge, einfo->xprt_cfg.name);
+#ifdef CONFIG_IPC_LOGGING
 	if (einfo->debug_mask & QCOM_GLINK_DEBUG_ENABLE)
 		einfo->log_ctx =
 			ipc_log_context_create(NUM_LOG_PAGES, log_name, 0);
@@ -3114,6 +3118,7 @@ static int glink_mailbox_probe(struct platform_device *pdev)
 		GLINK_ERR("%s: unable to create log context for [%s:%s]\n",
 			__func__, einfo->xprt_cfg.edge,
 			einfo->xprt_cfg.name);
+#endif
 	register_debugfs_info(einfo);
 
 	writel_relaxed(mbox_cfg_size, mbox_size);
