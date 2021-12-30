@@ -11252,10 +11252,10 @@ static bool smbchg_get_pd_type(void)
         return false;
 
     if (chip->pmic_spmi.smb2_chip->chg.pd_active) {
-        pr_err("pd_active true\n");
+        chg_debug("pd_active true\n");
         return true;
     } else {
-        pr_err("pd_active false\n");
+        chg_debug("pd_active false\n");
         return false;
     }
 }
