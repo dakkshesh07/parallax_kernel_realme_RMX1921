@@ -1611,10 +1611,12 @@ static const char *ecm_ipa_state_string(enum ecm_ipa_state state)
 static int ecm_ipa_init_module(void)
 {
 	ECM_IPA_LOG_ENTRY();
+#ifdef CONFIG_IPC_LOGGING
 	ipa_ecm_logbuf = ipc_log_context_create(IPA_ECM_IPC_LOG_PAGES,
 			"ipa_ecm", 0);
 	if (ipa_ecm_logbuf == NULL)
 		ECM_IPA_DEBUG("failed to create IPC log, continue...\n");
+#endif
 	ECM_IPA_LOG_EXIT();
 	return 0;
 }
