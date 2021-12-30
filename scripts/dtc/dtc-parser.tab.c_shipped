@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.7.6.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
@@ -46,10 +46,10 @@
    USER NAME SPACE" below.  */
 
 /* Identify Bison output, and Bison version.  */
-#define YYBISON 30706
+#define YYBISON 30802
 
 /* Bison version string.  */
-#define YYBISON_VERSION "3.7.6"
+#define YYBISON_VERSION "3.8.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -354,12 +354,18 @@ typedef int yy_state_fast_t;
 # define YY_USE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                            \
+#if defined __GNUC__ && ! defined __ICC && 406 <= __GNUC__ * 100 + __GNUC_MINOR__
+# if __GNUC__ * 100 + __GNUC_MINOR__ < 407
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
+    _Pragma ("GCC diagnostic push")                                     \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")
+# else
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
     _Pragma ("GCC diagnostic push")                                     \
     _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")              \
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# endif
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
@@ -579,7 +585,7 @@ static const yytype_int8 yytranslate[] =
 };
 
 #if YYDEBUG
-  /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
+/* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
        0,   101,   101,   109,   113,   120,   121,   131,   134,   141,
@@ -631,19 +637,6 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#ifdef YYPRINT
-/* YYTOKNUM[NUM] -- (External) token number corresponding to the
-   (internal) symbol number NUM (which must be that of a token).  */
-static const yytype_int16 yytoknum[] =
-{
-       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277,   278,   279,   280,   281,    59,    47,   123,
-     125,    61,    62,    91,    93,    40,    44,    41,    60,    63,
-      58,   124,    94,    38,    43,    45,    42,    37,   126,    33
-};
-#endif
-
 #define YYPACT_NINF (-46)
 
 #define yypact_value_is_default(Yyn) \
@@ -654,8 +647,8 @@ static const yytype_int16 yytoknum[] =
 #define yytable_value_is_error(Yyn) \
   0
 
-  /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
-     STATE-NUM.  */
+/* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
+   STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
       16,    13,    21,    16,    15,    40,   -46,   -46,    -3,    15,
@@ -677,9 +670,9 @@ static const yytype_int8 yypact[] =
       97,   -46
 };
 
-  /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
-     Performed when YYTABLE does not specify something else to do.  Zero
-     means the default is an error.  */
+/* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
+   Performed when YYTABLE does not specify something else to do.  Zero
+   means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
        0,     0,     0,     5,     7,     3,     1,     6,     0,     0,
@@ -701,7 +694,7 @@ static const yytype_int8 yydefact[] =
        0,    32
 };
 
-  /* YYPGOTO[NTERM-NUM].  */
+/* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
      -46,   -46,   -46,   128,   122,   127,   -45,   -46,   -16,   -46,
@@ -710,7 +703,7 @@ static const yytype_int16 yypgoto[] =
      -44
 };
 
-  /* YYDEFGOTO[NTERM-NUM].  */
+/* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_uint8 yydefgoto[] =
 {
        0,     2,     3,     4,    10,    11,    21,    22,   121,    76,
@@ -719,9 +712,9 @@ static const yytype_uint8 yydefgoto[] =
      109
 };
 
-  /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
-     positive, shift that token.  If negative, reduce the rule whose
-     number is the opposite.  If YYTABLE_NINF, syntax error.  */
+/* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
+   positive, shift that token.  If negative, reduce the rule whose
+   number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
       16,    77,    78,    79,    44,    45,    64,    65,    42,    72,
@@ -762,8 +755,8 @@ static const yytype_int16 yycheck[] =
       -1,   159
 };
 
-  /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
-     symbol of state STATE-NUM.  */
+/* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
+   state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
        0,     3,    51,    52,    53,    27,     0,    53,     5,    23,
@@ -785,7 +778,7 @@ static const yytype_int8 yystos[] =
       64,    37
 };
 
-  /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
+/* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    50,    51,    52,    52,    53,    53,    54,    54,    55,
@@ -800,7 +793,7 @@ static const yytype_int8 yyr1[] =
       80
 };
 
-  /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
+/* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     3,     2,     4,     1,     2,     0,     2,     4,
@@ -824,6 +817,7 @@ enum { YYENOMEM = -2 };
 #define YYACCEPT        goto yyacceptlab
 #define YYABORT         goto yyabortlab
 #define YYERROR         goto yyerrorlab
+#define YYNOMEM         goto yyexhaustedlab
 
 
 #define YYRECOVERING()  (!!yyerrstatus)
@@ -891,12 +885,19 @@ do {                                            \
 } while (0)
 
 
-/* YY_LOCATION_PRINT -- Print the location on the stream.
+/* YYLOCATION_PRINT -- Print the location on the stream.
    This macro was not mandated originally: define only if we know
    we won't break user code: when these are the locations we know.  */
 
-# ifndef YY_LOCATION_PRINT
-#  if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# ifndef YYLOCATION_PRINT
+
+#  if defined YY_LOCATION_PRINT
+
+   /* Temporary convenience wrapper in case some people defined the
+      undocumented and private YY_LOCATION_PRINT macros.  */
+#   define YYLOCATION_PRINT(File, Loc)  YY_LOCATION_PRINT(File, *(Loc))
+
+#  elif defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
@@ -924,15 +925,23 @@ yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
         res += YYFPRINTF (yyo, "-%d", end_col);
     }
   return res;
- }
+}
 
-#   define YY_LOCATION_PRINT(File, Loc)          \
-  yy_location_print_ (File, &(Loc))
+#   define YYLOCATION_PRINT  yy_location_print_
+
+    /* Temporary convenience wrapper in case some people defined the
+       undocumented and private YY_LOCATION_PRINT macros.  */
+#   define YY_LOCATION_PRINT(File, Loc)  YYLOCATION_PRINT(File, &(Loc))
 
 #  else
-#   define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+
+#   define YYLOCATION_PRINT(File, Loc) ((void) 0)
+    /* Temporary convenience wrapper in case some people defined the
+       undocumented and private YY_LOCATION_PRINT macros.  */
+#   define YY_LOCATION_PRINT  YYLOCATION_PRINT
+
 #  endif
-# endif /* !defined YY_LOCATION_PRINT */
+# endif /* !defined YYLOCATION_PRINT */
 
 
 # define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                    \
@@ -960,10 +969,6 @@ yy_symbol_value_print (FILE *yyo,
   YY_USE (yylocationp);
   if (!yyvaluep)
     return;
-# ifdef YYPRINT
-  if (yykind < YYNTOKENS)
-    YYPRINT (yyo, yytoknum[yykind], *yyvaluep);
-# endif
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   YY_USE (yykind);
   YY_IGNORE_MAYBE_UNINITIALIZED_END
@@ -981,7 +986,7 @@ yy_symbol_print (FILE *yyo,
   YYFPRINTF (yyo, "%s %s (",
              yykind < YYNTOKENS ? "token" : "nterm", yysymbol_name (yykind));
 
-  YY_LOCATION_PRINT (yyo, *yylocationp);
+  YYLOCATION_PRINT (yyo, yylocationp);
   YYFPRINTF (yyo, ": ");
   yy_symbol_value_print (yyo, yykind, yyvaluep, yylocationp);
   YYFPRINTF (yyo, ")");
@@ -1167,6 +1172,7 @@ yyparse (void)
   YYDPRINTF ((stderr, "Starting parse\n"));
 
   yychar = YYEMPTY; /* Cause a token to be read.  */
+
   yylsp[0] = yylloc;
   goto yysetstate;
 
@@ -1193,7 +1199,7 @@ yysetstate:
 
   if (yyss + yystacksize - 1 <= yyssp)
 #if !defined yyoverflow && !defined YYSTACK_RELOCATE
-    goto yyexhaustedlab;
+    YYNOMEM;
 #else
     {
       /* Get the current used size of the three stacks, in elements.  */
@@ -1224,7 +1230,7 @@ yysetstate:
 # else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-        goto yyexhaustedlab;
+        YYNOMEM;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
         yystacksize = YYMAXDEPTH;
@@ -1235,7 +1241,7 @@ yysetstate:
           YY_CAST (union yyalloc *,
                    YYSTACK_ALLOC (YY_CAST (YYSIZE_T, YYSTACK_BYTES (yystacksize))));
         if (! yyptr)
-          goto yyexhaustedlab;
+          YYNOMEM;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
         YYSTACK_RELOCATE (yyls_alloc, yyls);
@@ -1258,6 +1264,7 @@ yysetstate:
         YYABORT;
     }
 #endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
+
 
   if (yystate == YYFINAL)
     YYACCEPT;
@@ -1380,7 +1387,7 @@ yyreduce:
 			parser_output = build_dt_info((yyvsp[-2].flags), (yyvsp[-1].re), (yyvsp[0].node),
 			                              guess_boot_cpuid((yyvsp[0].node)));
 		}
-#line 1384 "dtc-parser.tab.c"
+#line 1391 "dtc-parser.tab.c"
     break;
 
   case 3: /* header: DT_V1 ';'  */
@@ -1388,7 +1395,7 @@ yyreduce:
                 {
 			(yyval.flags) = DTSF_V1;
 		}
-#line 1392 "dtc-parser.tab.c"
+#line 1399 "dtc-parser.tab.c"
     break;
 
   case 4: /* header: DT_V1 ';' DT_PLUGIN ';'  */
@@ -1396,7 +1403,7 @@ yyreduce:
                 {
 			(yyval.flags) = DTSF_V1 | DTSF_PLUGIN;
 		}
-#line 1400 "dtc-parser.tab.c"
+#line 1407 "dtc-parser.tab.c"
     break;
 
   case 6: /* headers: header headers  */
@@ -1406,7 +1413,7 @@ yyreduce:
 				ERROR(&(yylsp[0]), "Header flags don't match earlier ones");
 			(yyval.flags) = (yyvsp[-1].flags);
 		}
-#line 1410 "dtc-parser.tab.c"
+#line 1417 "dtc-parser.tab.c"
     break;
 
   case 7: /* memreserves: %empty  */
@@ -1414,7 +1421,7 @@ yyreduce:
                 {
 			(yyval.re) = NULL;
 		}
-#line 1418 "dtc-parser.tab.c"
+#line 1425 "dtc-parser.tab.c"
     break;
 
   case 8: /* memreserves: memreserve memreserves  */
@@ -1422,7 +1429,7 @@ yyreduce:
                 {
 			(yyval.re) = chain_reserve_entry((yyvsp[-1].re), (yyvsp[0].re));
 		}
-#line 1426 "dtc-parser.tab.c"
+#line 1433 "dtc-parser.tab.c"
     break;
 
   case 9: /* memreserve: DT_MEMRESERVE integer_prim integer_prim ';'  */
@@ -1430,7 +1437,7 @@ yyreduce:
                 {
 			(yyval.re) = build_reserve_entry((yyvsp[-2].integer), (yyvsp[-1].integer));
 		}
-#line 1434 "dtc-parser.tab.c"
+#line 1441 "dtc-parser.tab.c"
     break;
 
   case 10: /* memreserve: DT_LABEL memreserve  */
@@ -1439,7 +1446,7 @@ yyreduce:
 			add_label(&(yyvsp[0].re)->labels, (yyvsp[-1].labelref));
 			(yyval.re) = (yyvsp[0].re);
 		}
-#line 1443 "dtc-parser.tab.c"
+#line 1450 "dtc-parser.tab.c"
     break;
 
   case 13: /* devicetree: '/' nodedef  */
@@ -1447,7 +1454,7 @@ yyreduce:
                 {
 			(yyval.node) = name_node((yyvsp[0].node), "");
 		}
-#line 1451 "dtc-parser.tab.c"
+#line 1458 "dtc-parser.tab.c"
     break;
 
   case 14: /* devicetree: devicetree '/' nodedef  */
@@ -1455,7 +1462,7 @@ yyreduce:
                 {
 			(yyval.node) = merge_nodes((yyvsp[-2].node), (yyvsp[0].node));
 		}
-#line 1459 "dtc-parser.tab.c"
+#line 1466 "dtc-parser.tab.c"
     break;
 
   case 15: /* devicetree: dt_ref nodedef  */
@@ -1473,7 +1480,7 @@ yyreduce:
 						  ""),
 					(yyvsp[0].node), (yyvsp[-1].labelref));
 		}
-#line 1477 "dtc-parser.tab.c"
+#line 1484 "dtc-parser.tab.c"
     break;
 
   case 16: /* devicetree: devicetree DT_LABEL dt_ref nodedef  */
@@ -1488,7 +1495,7 @@ yyreduce:
 				ERROR(&(yylsp[-1]), "Label or path %s not found", (yyvsp[-1].labelref));
 			(yyval.node) = (yyvsp[-3].node);
 		}
-#line 1492 "dtc-parser.tab.c"
+#line 1499 "dtc-parser.tab.c"
     break;
 
   case 17: /* devicetree: devicetree DT_PATH_REF nodedef  */
@@ -1511,7 +1518,7 @@ yyreduce:
 			}
 			(yyval.node) = (yyvsp[-2].node);
 		}
-#line 1515 "dtc-parser.tab.c"
+#line 1522 "dtc-parser.tab.c"
     break;
 
   case 18: /* devicetree: devicetree DT_LABEL_REF nodedef  */
@@ -1534,7 +1541,7 @@ yyreduce:
 			}
 			(yyval.node) = (yyvsp[-2].node);
 		}
-#line 1538 "dtc-parser.tab.c"
+#line 1545 "dtc-parser.tab.c"
     break;
 
   case 19: /* devicetree: devicetree DT_DEL_NODE dt_ref ';'  */
@@ -1550,7 +1557,7 @@ yyreduce:
 
 			(yyval.node) = (yyvsp[-3].node);
 		}
-#line 1554 "dtc-parser.tab.c"
+#line 1561 "dtc-parser.tab.c"
     break;
 
   case 20: /* devicetree: devicetree DT_OMIT_NO_REF dt_ref ';'  */
@@ -1566,7 +1573,7 @@ yyreduce:
 
 			(yyval.node) = (yyvsp[-3].node);
 		}
-#line 1570 "dtc-parser.tab.c"
+#line 1577 "dtc-parser.tab.c"
     break;
 
   case 21: /* nodedef: '{' proplist subnodes '}' ';'  */
@@ -1574,7 +1581,7 @@ yyreduce:
                 {
 			(yyval.node) = build_node((yyvsp[-3].proplist), (yyvsp[-2].nodelist), &(yyloc));
 		}
-#line 1578 "dtc-parser.tab.c"
+#line 1585 "dtc-parser.tab.c"
     break;
 
   case 22: /* proplist: %empty  */
@@ -1582,7 +1589,7 @@ yyreduce:
                 {
 			(yyval.proplist) = NULL;
 		}
-#line 1586 "dtc-parser.tab.c"
+#line 1593 "dtc-parser.tab.c"
     break;
 
   case 23: /* proplist: proplist propdef  */
@@ -1590,7 +1597,7 @@ yyreduce:
                 {
 			(yyval.proplist) = chain_property((yyvsp[0].prop), (yyvsp[-1].proplist));
 		}
-#line 1594 "dtc-parser.tab.c"
+#line 1601 "dtc-parser.tab.c"
     break;
 
   case 24: /* propdef: DT_PROPNODENAME '=' propdata ';'  */
@@ -1598,7 +1605,7 @@ yyreduce:
                 {
 			(yyval.prop) = build_property((yyvsp[-3].propnodename), (yyvsp[-1].data), &(yyloc));
 		}
-#line 1602 "dtc-parser.tab.c"
+#line 1609 "dtc-parser.tab.c"
     break;
 
   case 25: /* propdef: DT_PROPNODENAME ';'  */
@@ -1606,7 +1613,7 @@ yyreduce:
                 {
 			(yyval.prop) = build_property((yyvsp[-1].propnodename), empty_data, &(yyloc));
 		}
-#line 1610 "dtc-parser.tab.c"
+#line 1617 "dtc-parser.tab.c"
     break;
 
   case 26: /* propdef: DT_DEL_PROP DT_PROPNODENAME ';'  */
@@ -1614,7 +1621,7 @@ yyreduce:
                 {
 			(yyval.prop) = build_property_delete((yyvsp[-1].propnodename));
 		}
-#line 1618 "dtc-parser.tab.c"
+#line 1625 "dtc-parser.tab.c"
     break;
 
   case 27: /* propdef: DT_LABEL propdef  */
@@ -1623,7 +1630,7 @@ yyreduce:
 			add_label(&(yyvsp[0].prop)->labels, (yyvsp[-1].labelref));
 			(yyval.prop) = (yyvsp[0].prop);
 		}
-#line 1627 "dtc-parser.tab.c"
+#line 1634 "dtc-parser.tab.c"
     break;
 
   case 28: /* propdata: propdataprefix DT_STRING  */
@@ -1631,7 +1638,7 @@ yyreduce:
                 {
 			(yyval.data) = data_merge((yyvsp[-1].data), (yyvsp[0].data));
 		}
-#line 1635 "dtc-parser.tab.c"
+#line 1642 "dtc-parser.tab.c"
     break;
 
   case 29: /* propdata: propdataprefix arrayprefix '>'  */
@@ -1639,7 +1646,7 @@ yyreduce:
                 {
 			(yyval.data) = data_merge((yyvsp[-2].data), (yyvsp[-1].array).data);
 		}
-#line 1643 "dtc-parser.tab.c"
+#line 1650 "dtc-parser.tab.c"
     break;
 
   case 30: /* propdata: propdataprefix '[' bytestring ']'  */
@@ -1647,7 +1654,7 @@ yyreduce:
                 {
 			(yyval.data) = data_merge((yyvsp[-3].data), (yyvsp[-1].data));
 		}
-#line 1651 "dtc-parser.tab.c"
+#line 1658 "dtc-parser.tab.c"
     break;
 
   case 31: /* propdata: propdataprefix dt_ref  */
@@ -1656,7 +1663,7 @@ yyreduce:
 			(yyvsp[-1].data) = data_add_marker((yyvsp[-1].data), TYPE_STRING, (yyvsp[0].labelref));
 			(yyval.data) = data_add_marker((yyvsp[-1].data), REF_PATH, (yyvsp[0].labelref));
 		}
-#line 1660 "dtc-parser.tab.c"
+#line 1667 "dtc-parser.tab.c"
     break;
 
   case 32: /* propdata: propdataprefix DT_INCBIN '(' DT_STRING ',' integer_prim ',' integer_prim ')'  */
@@ -1676,7 +1683,7 @@ yyreduce:
 			(yyval.data) = data_merge((yyvsp[-8].data), d);
 			fclose(f);
 		}
-#line 1680 "dtc-parser.tab.c"
+#line 1687 "dtc-parser.tab.c"
     break;
 
   case 33: /* propdata: propdataprefix DT_INCBIN '(' DT_STRING ')'  */
@@ -1690,7 +1697,7 @@ yyreduce:
 			(yyval.data) = data_merge((yyvsp[-4].data), d);
 			fclose(f);
 		}
-#line 1694 "dtc-parser.tab.c"
+#line 1701 "dtc-parser.tab.c"
     break;
 
   case 34: /* propdata: propdata DT_LABEL  */
@@ -1698,7 +1705,7 @@ yyreduce:
                 {
 			(yyval.data) = data_add_marker((yyvsp[-1].data), LABEL, (yyvsp[0].labelref));
 		}
-#line 1702 "dtc-parser.tab.c"
+#line 1709 "dtc-parser.tab.c"
     break;
 
   case 35: /* propdataprefix: %empty  */
@@ -1706,7 +1713,7 @@ yyreduce:
                 {
 			(yyval.data) = empty_data;
 		}
-#line 1710 "dtc-parser.tab.c"
+#line 1717 "dtc-parser.tab.c"
     break;
 
   case 36: /* propdataprefix: propdata ','  */
@@ -1714,7 +1721,7 @@ yyreduce:
                 {
 			(yyval.data) = (yyvsp[-1].data);
 		}
-#line 1718 "dtc-parser.tab.c"
+#line 1725 "dtc-parser.tab.c"
     break;
 
   case 37: /* propdataprefix: propdataprefix DT_LABEL  */
@@ -1722,7 +1729,7 @@ yyreduce:
                 {
 			(yyval.data) = data_add_marker((yyvsp[-1].data), LABEL, (yyvsp[0].labelref));
 		}
-#line 1726 "dtc-parser.tab.c"
+#line 1733 "dtc-parser.tab.c"
     break;
 
   case 38: /* arrayprefix: DT_BITS DT_LITERAL '<'  */
@@ -1747,7 +1754,7 @@ yyreduce:
 			(yyval.array).data = data_add_marker(empty_data, type, NULL);
 			(yyval.array).bits = bits;
 		}
-#line 1751 "dtc-parser.tab.c"
+#line 1758 "dtc-parser.tab.c"
     break;
 
   case 39: /* arrayprefix: '<'  */
@@ -1756,7 +1763,7 @@ yyreduce:
 			(yyval.array).data = data_add_marker(empty_data, TYPE_UINT32, NULL);
 			(yyval.array).bits = 32;
 		}
-#line 1760 "dtc-parser.tab.c"
+#line 1767 "dtc-parser.tab.c"
     break;
 
   case 40: /* arrayprefix: arrayprefix integer_prim  */
@@ -1779,7 +1786,7 @@ yyreduce:
 
 			(yyval.array).data = data_append_integer((yyvsp[-1].array).data, (yyvsp[0].integer), (yyvsp[-1].array).bits);
 		}
-#line 1783 "dtc-parser.tab.c"
+#line 1790 "dtc-parser.tab.c"
     break;
 
   case 41: /* arrayprefix: arrayprefix dt_ref  */
@@ -1797,7 +1804,7 @@ yyreduce:
 
 			(yyval.array).data = data_append_integer((yyvsp[-1].array).data, val, (yyvsp[-1].array).bits);
 		}
-#line 1801 "dtc-parser.tab.c"
+#line 1808 "dtc-parser.tab.c"
     break;
 
   case 42: /* arrayprefix: arrayprefix DT_LABEL  */
@@ -1805,7 +1812,7 @@ yyreduce:
                 {
 			(yyval.array).data = data_add_marker((yyvsp[-1].array).data, LABEL, (yyvsp[0].labelref));
 		}
-#line 1809 "dtc-parser.tab.c"
+#line 1816 "dtc-parser.tab.c"
     break;
 
   case 45: /* integer_prim: '(' integer_expr ')'  */
@@ -1813,109 +1820,109 @@ yyreduce:
                 {
 			(yyval.integer) = (yyvsp[-1].integer);
 		}
-#line 1817 "dtc-parser.tab.c"
+#line 1824 "dtc-parser.tab.c"
     break;
 
   case 48: /* integer_trinary: integer_or '?' integer_expr ':' integer_trinary  */
 #line 436 "dtc-parser.y"
                                                           { (yyval.integer) = (yyvsp[-4].integer) ? (yyvsp[-2].integer) : (yyvsp[0].integer); }
-#line 1823 "dtc-parser.tab.c"
+#line 1830 "dtc-parser.tab.c"
     break;
 
   case 50: /* integer_or: integer_or DT_OR integer_and  */
 #line 441 "dtc-parser.y"
                                        { (yyval.integer) = (yyvsp[-2].integer) || (yyvsp[0].integer); }
-#line 1829 "dtc-parser.tab.c"
+#line 1836 "dtc-parser.tab.c"
     break;
 
   case 52: /* integer_and: integer_and DT_AND integer_bitor  */
 #line 446 "dtc-parser.y"
                                            { (yyval.integer) = (yyvsp[-2].integer) && (yyvsp[0].integer); }
-#line 1835 "dtc-parser.tab.c"
+#line 1842 "dtc-parser.tab.c"
     break;
 
   case 54: /* integer_bitor: integer_bitor '|' integer_bitxor  */
 #line 451 "dtc-parser.y"
                                            { (yyval.integer) = (yyvsp[-2].integer) | (yyvsp[0].integer); }
-#line 1841 "dtc-parser.tab.c"
+#line 1848 "dtc-parser.tab.c"
     break;
 
   case 56: /* integer_bitxor: integer_bitxor '^' integer_bitand  */
 #line 456 "dtc-parser.y"
                                             { (yyval.integer) = (yyvsp[-2].integer) ^ (yyvsp[0].integer); }
-#line 1847 "dtc-parser.tab.c"
+#line 1854 "dtc-parser.tab.c"
     break;
 
   case 58: /* integer_bitand: integer_bitand '&' integer_eq  */
 #line 461 "dtc-parser.y"
                                         { (yyval.integer) = (yyvsp[-2].integer) & (yyvsp[0].integer); }
-#line 1853 "dtc-parser.tab.c"
+#line 1860 "dtc-parser.tab.c"
     break;
 
   case 60: /* integer_eq: integer_eq DT_EQ integer_rela  */
 #line 466 "dtc-parser.y"
                                         { (yyval.integer) = (yyvsp[-2].integer) == (yyvsp[0].integer); }
-#line 1859 "dtc-parser.tab.c"
+#line 1866 "dtc-parser.tab.c"
     break;
 
   case 61: /* integer_eq: integer_eq DT_NE integer_rela  */
 #line 467 "dtc-parser.y"
                                         { (yyval.integer) = (yyvsp[-2].integer) != (yyvsp[0].integer); }
-#line 1865 "dtc-parser.tab.c"
+#line 1872 "dtc-parser.tab.c"
     break;
 
   case 63: /* integer_rela: integer_rela '<' integer_shift  */
 #line 472 "dtc-parser.y"
                                          { (yyval.integer) = (yyvsp[-2].integer) < (yyvsp[0].integer); }
-#line 1871 "dtc-parser.tab.c"
+#line 1878 "dtc-parser.tab.c"
     break;
 
   case 64: /* integer_rela: integer_rela '>' integer_shift  */
 #line 473 "dtc-parser.y"
                                          { (yyval.integer) = (yyvsp[-2].integer) > (yyvsp[0].integer); }
-#line 1877 "dtc-parser.tab.c"
+#line 1884 "dtc-parser.tab.c"
     break;
 
   case 65: /* integer_rela: integer_rela DT_LE integer_shift  */
 #line 474 "dtc-parser.y"
                                            { (yyval.integer) = (yyvsp[-2].integer) <= (yyvsp[0].integer); }
-#line 1883 "dtc-parser.tab.c"
+#line 1890 "dtc-parser.tab.c"
     break;
 
   case 66: /* integer_rela: integer_rela DT_GE integer_shift  */
 #line 475 "dtc-parser.y"
                                            { (yyval.integer) = (yyvsp[-2].integer) >= (yyvsp[0].integer); }
-#line 1889 "dtc-parser.tab.c"
+#line 1896 "dtc-parser.tab.c"
     break;
 
   case 67: /* integer_shift: integer_shift DT_LSHIFT integer_add  */
 #line 479 "dtc-parser.y"
                                               { (yyval.integer) = ((yyvsp[0].integer) < 64) ? ((yyvsp[-2].integer) << (yyvsp[0].integer)) : 0; }
-#line 1895 "dtc-parser.tab.c"
+#line 1902 "dtc-parser.tab.c"
     break;
 
   case 68: /* integer_shift: integer_shift DT_RSHIFT integer_add  */
 #line 480 "dtc-parser.y"
                                               { (yyval.integer) = ((yyvsp[0].integer) < 64) ? ((yyvsp[-2].integer) >> (yyvsp[0].integer)) : 0; }
-#line 1901 "dtc-parser.tab.c"
+#line 1908 "dtc-parser.tab.c"
     break;
 
   case 70: /* integer_add: integer_add '+' integer_mul  */
 #line 485 "dtc-parser.y"
                                       { (yyval.integer) = (yyvsp[-2].integer) + (yyvsp[0].integer); }
-#line 1907 "dtc-parser.tab.c"
+#line 1914 "dtc-parser.tab.c"
     break;
 
   case 71: /* integer_add: integer_add '-' integer_mul  */
 #line 486 "dtc-parser.y"
                                       { (yyval.integer) = (yyvsp[-2].integer) - (yyvsp[0].integer); }
-#line 1913 "dtc-parser.tab.c"
+#line 1920 "dtc-parser.tab.c"
     break;
 
   case 73: /* integer_mul: integer_mul '*' integer_unary  */
 #line 491 "dtc-parser.y"
                                         { (yyval.integer) = (yyvsp[-2].integer) * (yyvsp[0].integer); }
-#line 1919 "dtc-parser.tab.c"
+#line 1926 "dtc-parser.tab.c"
     break;
 
   case 74: /* integer_mul: integer_mul '/' integer_unary  */
@@ -1928,7 +1935,7 @@ yyreduce:
 				(yyval.integer) = 0;
 			}
 		}
-#line 1932 "dtc-parser.tab.c"
+#line 1939 "dtc-parser.tab.c"
     break;
 
   case 75: /* integer_mul: integer_mul '%' integer_unary  */
@@ -1941,25 +1948,25 @@ yyreduce:
 				(yyval.integer) = 0;
 			}
 		}
-#line 1945 "dtc-parser.tab.c"
+#line 1952 "dtc-parser.tab.c"
     break;
 
   case 78: /* integer_unary: '-' integer_unary  */
 #line 515 "dtc-parser.y"
                             { (yyval.integer) = -(yyvsp[0].integer); }
-#line 1951 "dtc-parser.tab.c"
+#line 1958 "dtc-parser.tab.c"
     break;
 
   case 79: /* integer_unary: '~' integer_unary  */
 #line 516 "dtc-parser.y"
                             { (yyval.integer) = ~(yyvsp[0].integer); }
-#line 1957 "dtc-parser.tab.c"
+#line 1964 "dtc-parser.tab.c"
     break;
 
   case 80: /* integer_unary: '!' integer_unary  */
 #line 517 "dtc-parser.y"
                             { (yyval.integer) = !(yyvsp[0].integer); }
-#line 1963 "dtc-parser.tab.c"
+#line 1970 "dtc-parser.tab.c"
     break;
 
   case 81: /* bytestring: %empty  */
@@ -1967,7 +1974,7 @@ yyreduce:
                 {
 			(yyval.data) = data_add_marker(empty_data, TYPE_UINT8, NULL);
 		}
-#line 1971 "dtc-parser.tab.c"
+#line 1978 "dtc-parser.tab.c"
     break;
 
   case 82: /* bytestring: bytestring DT_BYTE  */
@@ -1975,7 +1982,7 @@ yyreduce:
                 {
 			(yyval.data) = data_append_byte((yyvsp[-1].data), (yyvsp[0].byte));
 		}
-#line 1979 "dtc-parser.tab.c"
+#line 1986 "dtc-parser.tab.c"
     break;
 
   case 83: /* bytestring: bytestring DT_LABEL  */
@@ -1983,7 +1990,7 @@ yyreduce:
                 {
 			(yyval.data) = data_add_marker((yyvsp[-1].data), LABEL, (yyvsp[0].labelref));
 		}
-#line 1987 "dtc-parser.tab.c"
+#line 1994 "dtc-parser.tab.c"
     break;
 
   case 84: /* subnodes: %empty  */
@@ -1991,7 +1998,7 @@ yyreduce:
                 {
 			(yyval.nodelist) = NULL;
 		}
-#line 1995 "dtc-parser.tab.c"
+#line 2002 "dtc-parser.tab.c"
     break;
 
   case 85: /* subnodes: subnode subnodes  */
@@ -1999,7 +2006,7 @@ yyreduce:
                 {
 			(yyval.nodelist) = chain_node((yyvsp[-1].node), (yyvsp[0].nodelist));
 		}
-#line 2003 "dtc-parser.tab.c"
+#line 2010 "dtc-parser.tab.c"
     break;
 
   case 86: /* subnodes: subnode propdef  */
@@ -2008,7 +2015,7 @@ yyreduce:
 			ERROR(&(yylsp[0]), "Properties must precede subnodes");
 			YYERROR;
 		}
-#line 2012 "dtc-parser.tab.c"
+#line 2019 "dtc-parser.tab.c"
     break;
 
   case 87: /* subnode: DT_PROPNODENAME nodedef  */
@@ -2016,7 +2023,7 @@ yyreduce:
                 {
 			(yyval.node) = name_node((yyvsp[0].node), (yyvsp[-1].propnodename));
 		}
-#line 2020 "dtc-parser.tab.c"
+#line 2027 "dtc-parser.tab.c"
     break;
 
   case 88: /* subnode: DT_DEL_NODE DT_PROPNODENAME ';'  */
@@ -2024,7 +2031,7 @@ yyreduce:
                 {
 			(yyval.node) = name_node(build_node_delete(&(yyloc)), (yyvsp[-1].propnodename));
 		}
-#line 2028 "dtc-parser.tab.c"
+#line 2035 "dtc-parser.tab.c"
     break;
 
   case 89: /* subnode: DT_OMIT_NO_REF subnode  */
@@ -2032,7 +2039,7 @@ yyreduce:
                 {
 			(yyval.node) = omit_node_if_unused((yyvsp[0].node));
 		}
-#line 2036 "dtc-parser.tab.c"
+#line 2043 "dtc-parser.tab.c"
     break;
 
   case 90: /* subnode: DT_LABEL subnode  */
@@ -2041,11 +2048,11 @@ yyreduce:
 			add_label(&(yyvsp[0].node)->labels, (yyvsp[-1].labelref));
 			(yyval.node) = (yyvsp[0].node);
 		}
-#line 2045 "dtc-parser.tab.c"
+#line 2052 "dtc-parser.tab.c"
     break;
 
 
-#line 2049 "dtc-parser.tab.c"
+#line 2056 "dtc-parser.tab.c"
 
       default: break;
     }
@@ -2129,6 +2136,7 @@ yyerrorlab:
      label yyerrorlab therefore never appears in user code.  */
   if (0)
     YYERROR;
+  ++yynerrs;
 
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
@@ -2192,7 +2200,7 @@ yyerrlab1:
 `-------------------------------------*/
 yyacceptlab:
   yyresult = 0;
-  goto yyreturn;
+  goto yyreturnlab;
 
 
 /*-----------------------------------.
@@ -2200,24 +2208,22 @@ yyacceptlab:
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
-  goto yyreturn;
+  goto yyreturnlab;
 
 
-#if !defined yyoverflow
-/*-------------------------------------------------.
-| yyexhaustedlab -- memory exhaustion comes here.  |
-`-------------------------------------------------*/
+/*-----------------------------------------------------------.
+| yyexhaustedlab -- YYNOMEM (memory exhaustion) comes here.  |
+`-----------------------------------------------------------*/
 yyexhaustedlab:
   yyerror (YY_("memory exhausted"));
   yyresult = 2;
-  goto yyreturn;
-#endif
+  goto yyreturnlab;
 
 
-/*-------------------------------------------------------.
-| yyreturn -- parsing is finished, clean up and return.  |
-`-------------------------------------------------------*/
-yyreturn:
+/*----------------------------------------------------------.
+| yyreturnlab -- parsing is finished, clean up and return.  |
+`----------------------------------------------------------*/
+yyreturnlab:
   if (yychar != YYEMPTY)
     {
       /* Make sure we have latest lookahead translation.  See comments at
