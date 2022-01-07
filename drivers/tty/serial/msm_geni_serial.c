@@ -30,9 +30,9 @@
 #include <linux/tty.h>
 #include <linux/tty_flip.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
+#ifdef CONFIG_MACH_REALME //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 /* UART specific GENI registers */
 #define SE_UART_LOOPBACK_CFG		(0x22C)

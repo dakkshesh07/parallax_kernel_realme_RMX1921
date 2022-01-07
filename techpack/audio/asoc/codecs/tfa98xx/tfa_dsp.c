@@ -25,7 +25,7 @@
 /* TODO: remove genregs usage? */
 #include "tfa98xx_genregs_N1C.h"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
 extern int ftm_mode;
 extern char ftm_SpeakerCalibration[17];
@@ -33,7 +33,7 @@ extern char ftm_spk_resistance[24];
 #ifndef BOOT_MODE_FACTORY
 #define BOOT_MODE_FACTORY 3
 #endif
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 #define CONFIG_DEBUG_FS 1
 
 /* handle macro for bitfield */
@@ -117,18 +117,18 @@ int tfa_get_calibration_info(Tfa98xx_handle_t handle, int channel) {
  */
 static void tfa_set_query_info (int dev_idx) {
 
-    #ifndef VENDOR_EDIT
+    #ifndef CONFIG_MACH_REALME
     /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08, Modify for code error*/
     if (dev_idx > MAX_HANDLES) {
         _ASSERT(dev_idx > MAX_HANDLES);
         return;
     }
-    #else /* VENDOR_EDIT */
+    #else /* CONFIG_MACH_REALME */
     if (dev_idx >= MAX_HANDLES) {
         _ASSERT(dev_idx >= MAX_HANDLES);
         return;
     }
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_MACH_REALME */
 
     /* invalidate  device struct cached values */
     handles_local[dev_idx].hw_feature_bits = -1;
@@ -754,17 +754,17 @@ void tfa98xx_apply_deferred_calibration(Tfa98xx_handle_t handle)
             controls->mtpex.rd_valid = true;
             err = tfa98xx_get_mtp(handle, &value);
             if (err == Tfa98xx_Error_Ok)
-            #ifndef VENDOR_EDIT
+            #ifndef CONFIG_MACH_REALME
             /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08, Modify
               for code error*/
                 controls->otc.rd_value =
                     (value & TFA98XX_KEY2_PROTECTED_MTP0_MTPEX_MSK)
                     >> TFA98XX_KEY2_PROTECTED_MTP0_MTPEX_POS;
-             #else /* VENDOR_EDIT */
+             #else /* CONFIG_MACH_REALME */
                 controls->mtpex.rd_value =
                     (value & TFA98XX_KEY2_PROTECTED_MTP0_MTPEX_MSK)
                     >> TFA98XX_KEY2_PROTECTED_MTP0_MTPEX_POS;
-             #endif /* VENDOR_EDIT */
+             #endif /* CONFIG_MACH_REALME */
             else
                 controls->mtpex.rd_value = controls->mtpex.wr_value;
         }
@@ -1533,10 +1533,10 @@ const char* tfa98xx_get_i2c_status_id_string(int status)
 {
         const char* p_id_str;
 
-        #ifndef VENDOR_EDIT
+        #ifndef CONFIG_MACH_REALME
         /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08,Remove for code error*/
         char latest_errorstr[64];
-        #endif /* VENDOR_EDIT */
+        #endif /* CONFIG_MACH_REALME */
 
         switch (status)
         {
@@ -1568,14 +1568,14 @@ const char* tfa98xx_get_i2c_status_id_string(int status)
                         p_id_str = "I2C buffer has overflowed: host has sent too many parameters, memory integrity is not guaranteed";
                         break;
                 default:
-                        #ifndef VENDOR_EDIT
+                        #ifndef CONFIG_MACH_REALME
                         /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08,
                           Modify for code error*/
                         sprintf(latest_errorstr, "Unspecified error (%d)", (int)status);
                         p_id_str = latest_errorstr;
-                        #else /* VENDOR_EDIT */
+                        #else /* CONFIG_MACH_REALME */
                         p_id_str = "Unspecified error";
-                        #endif /* VENDOR_EDIT */
+                        #endif /* CONFIG_MACH_REALME */
 
                         break;
         }
@@ -2735,7 +2735,7 @@ enum Tfa98xx_Error tfaRunSpeakerCalibration(Tfa98xx_handle_t handle, int profile
 
         if (spkr_count == 1) {
             pr_info("%s: %d mOhms \n", __func__, handles_local[handle].mohm[0]);
-            #ifdef VENDOR_EDIT
+            #ifdef CONFIG_MACH_REALME
             /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
             if(ftm_mode == BOOT_MODE_FACTORY)
             {
@@ -2746,7 +2746,7 @@ enum Tfa98xx_Error tfaRunSpeakerCalibration(Tfa98xx_handle_t handle, int profile
                     err = Tfa98xx_Error_Fail;
                 }
             }
-            #endif /* VENDOR_EDIT */
+            #endif /* CONFIG_MACH_REALME */
         } else {
             pr_err(" Prim:%d mOhms, Sec:%d mOhms\n",
                         handles_local[handle].mohm[0],
@@ -2841,20 +2841,20 @@ enum Tfa98xx_Error tfaRunStartDSP(Tfa98xx_handle_t handle)
 enum Tfa98xx_Error tfaRunStartup(Tfa98xx_handle_t handle, int profile)
 {
     enum Tfa98xx_Error err = Tfa98xx_Error_Ok;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	/*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/08/22, Add for current*/
 	int status1 = 0;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_MACH_REALME */
     nxpTfaDeviceList_t *dev = tfaContDevice(handle);
     int tries, status, i, noinit=0;
 
-    #ifdef VENDOR_EDIT
+    #ifdef CONFIG_MACH_REALME
     /*xiang.fei@PSW.MM.AudioDriver.SmartPA, 2017/09/08, Add for code error*/
     if (dev == NULL) {
         pr_err("Devlist index error\n");
         return Tfa98xx_Error_Other;
     }
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_MACH_REALME */
     /* process the device list to see if the user implemented the noinit */
     for(i=0;i<dev->length;i++) {
         if (dev->list[i].type == dscNoInit) {
@@ -2881,7 +2881,7 @@ enum Tfa98xx_Error tfaRunStartup(Tfa98xx_handle_t handle, int profile)
     err = tfaContWriteRegsProf(handle, profile);
     PRINT_ASSERT(err);
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	/*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/08/22, Add for current*/
 	/* NXP: Added putting DSP to reset mode to start TFA in proper sequence */
 	/*Reset Coolflux */
@@ -2894,7 +2894,7 @@ enum Tfa98xx_Error tfaRunStartup(Tfa98xx_handle_t handle, int profile)
 		default:
 			break;
 	 }
-	 #endif /* VENDOR_EDIT */
+	 #endif /* CONFIG_MACH_REALME */
 
     if(tfa98xx_dev_family(handle) == 2) {
         /* Factory trimming for the Boost converter */
@@ -2931,12 +2931,12 @@ enum Tfa98xx_Error tfaRunStartup(Tfa98xx_handle_t handle, int profile)
         return Tfa98xx_Error_StateTimedOut;
     }  else
         if (tfa98xx_runtime_verbose) pr_debug(" OK (tries=%d)\n", tries);
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	/*Ping.Zhang@PSW.MM.AudioDriver.SmartPA, 2016/08/22, Add for current*/
 	status = TFA_GET_BF(handle, CLKS);
 	status1 = TFA_GET_BF(handle, PLLS);
 	pr_info("CLKS:%d,PLLS:%d\n",status,status1);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_MACH_REALME */
     if (tfa98xx_runtime_verbose && tfa98xx_dev_family(handle) == 2)
         err = show_current_state(handle);
 
@@ -3073,13 +3073,13 @@ enum Tfa98xx_Error tfaRunWaitCalibration(Tfa98xx_handle_t handle, int *calibrate
     }
 
     if(*calibrateDone != 1) {
-    #ifdef VENDOR_EDIT
+    #ifdef CONFIG_MACH_REALME
     /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
     if(ftm_mode == BOOT_MODE_FACTORY)
     {
         strcpy(ftm_SpeakerCalibration, "calibration_fail");
     }
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_MACH_REALME */
         pr_err("Calibration failed! \n");
         err = Tfa98xx_Error_Bad_Parameter;
     } else if (tries==TFA98XX_API_WAITRESULT_NTRIES) {
@@ -3106,10 +3106,10 @@ enum Tfa98xx_Error tfa_start(int next_profile, int *vstep)
     enum Tfa98xx_Error err = Tfa98xx_Error_Ok;
     int dev, devcount = tfa98xx_cnt_max_device();
     int cal_profile = -1, istap_prof = 0, active_profile = -1;
-    #ifdef VENDOR_EDIT
+    #ifdef CONFIG_MACH_REALME
     /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
     int Calibration_count = 0;
-    #endif /* VENDOR_EDIT */
+    #endif /* CONFIG_MACH_REALME */
 
     if ( devcount < 1 ) {
         pr_err("No or wrong container file loaded\n");
@@ -3158,7 +3158,7 @@ enum Tfa98xx_Error tfa_start(int next_profile, int *vstep)
         /* Check if we need coldstart or ACS is set */
         err = tfaRunSpeakerBoost(dev, 0, next_profile);
         pr_info("tfa_start %d mOhms \n", handles_local[dev].mohm[0]);
-        #ifdef VENDOR_EDIT
+        #ifdef CONFIG_MACH_REALME
         /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
         if(ftm_mode == BOOT_MODE_FACTORY)
         {
@@ -3177,10 +3177,10 @@ enum Tfa98xx_Error tfa_start(int next_profile, int *vstep)
             if ( err != Tfa98xx_Error_Ok)
                 goto error_exit;
         }
-        #else /* VENDOR_EDIT */
+        #else /* CONFIG_MACH_REALME */
         if ( err != Tfa98xx_Error_Ok)
             goto error_exit;
-        #endif /* VENDOR_EDIT */
+        #endif /* CONFIG_MACH_REALME */
 
         active_profile = tfa_get_swprof(dev);
 

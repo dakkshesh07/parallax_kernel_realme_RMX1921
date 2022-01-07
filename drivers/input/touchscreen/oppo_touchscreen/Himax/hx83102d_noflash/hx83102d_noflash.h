@@ -1,6 +1,6 @@
 /***************************************************
  * File:hx83102d_noflash.h
- * VENDOR_EDIT
+ * CONFIG_MACH_REALME
  * Copyright(C) 2008-2019 OPPO Mobile Comm Corp., Ltd
  * Description:
  *             hx83102d driver

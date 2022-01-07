@@ -441,7 +441,7 @@ struct sde_crtc_state {
 
 	struct sde_crtc_respool rp;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature*/
 	bool fingerprint_mode;
 	bool fingerprint_pressed;
