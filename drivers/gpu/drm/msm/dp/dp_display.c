@@ -438,11 +438,11 @@ static void dp_display_send_hpd_event(struct dp_display_private *dp)
 			envp);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix dp dump before sub switch chip init */
 extern bool oppo_dp_sub_switch_ready(void);
 extern int oppo_dp_sub_switch_status_update(void);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 static void dp_display_post_open(struct dp_display *dp_display)
 {
 	struct drm_connector *connector;
@@ -467,7 +467,7 @@ static void dp_display_post_open(struct dp_display *dp_display)
 	}
 
 	/* if cable is already connected, send notification */
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix usbpd null pointer */
 	if (!dp->usbpd) {
 		pr_err("usbpd not set\n");
@@ -479,7 +479,7 @@ static void dp_display_post_open(struct dp_display *dp_display)
 		pr_err("sub_switch not ready\n");
 		return;
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 	if (dp->usbpd->hpd_high)
 		queue_work(dp->wq, &dp->connect_work);
@@ -526,13 +526,13 @@ static int dp_display_process_hpd_high(struct dp_display_private *dp)
 	int rc = 0;
 	struct edid *edid;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix dp dump before sub switch chip init */
 	if (oppo_dp_sub_switch_status_update() < 0) {
 		pr_err("failed to update dp sub_switch status\n");
 		return -EINVAL;
 	}
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 	dp->aux->init(dp->aux, dp->parser->aux_cfg);
 

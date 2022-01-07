@@ -77,10 +77,10 @@ struct tfa98xx {
     struct delayed_work monitor_work;
     struct delayed_work interrupt_work;
     struct delayed_work tapdet_work;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
     /*John.Xu@PSW.MM.AudioDriver.SmartPA, 2015/12/24, Add for avoiding pop when start*/
     struct delayed_work vol_work;
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_MACH_REALME */
     struct mutex dsp_lock;
     int dsp_init;
     int dsp_fw_state;

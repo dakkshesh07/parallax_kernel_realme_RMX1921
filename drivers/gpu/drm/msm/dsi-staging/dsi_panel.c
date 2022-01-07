@@ -20,9 +20,9 @@
 #include <video/mipi_display.h>
 #include <linux/firmware.h>
 
-#ifdef VENDOR_EDIT //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
+#ifdef CONFIG_MACH_REALME //Cong.Dai@BSP.TP.Function, 2019/07/03, modified for replace daily build macro
 #include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 #include "dsi_panel.h"
 #include "dsi_ctrl_hw.h"
@@ -47,11 +47,11 @@
 #define MAX_PANEL_JITTER		10
 #define DEFAULT_PANEL_PREFILL_LINES	25
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*YunRui.Chen@BSP.TP.Function, 2018/12/05, add for trigger load tp fw by lcd driver after lcd reset*/
 extern void lcd_queue_load_tp_fw(void);
 static int tp_black_power_on_ff_flag = 0;
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_MACH_REALME*/
 
 enum dsi_dsc_ratio_type {
 	DSC_8BPC_8BPP,
@@ -109,7 +109,7 @@ static char dsi_dsc_rc_range_max_qp_1_1_scr1[][15] = {
  */
 static char dsi_dsc_rc_range_bpg_offset[] = {2, 0, 0, -2, -4, -6, -8, -8,
 		-8, -10, -10, -12, -12, -12, -12};
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Wenping.ZHOU@BSP, 2019/09/20,
 //add for tp black gesture
 extern int tp_gesture_enable_flag(void);
@@ -122,7 +122,7 @@ static int mdss_tp_black_gesture_status(void){
 	pr_err("%s: ret = %d\n", __func__, ret);
 	return ret;
 }
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 
 int dsi_dsc_create_pps_buf_cmd(struct msm_display_dsc_info *dsc, char *buf,
 				int pps_id)
@@ -680,7 +680,7 @@ static void dsi_panel_exd_disable(struct dsi_panel *panel)
 		gpio_set_value(e_config->switch_power, 0);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 static int dsi_panel_1p8_on_off(struct dsi_panel *panel , int value)
 {
 	int rc = 0;
@@ -699,7 +699,7 @@ static int dsi_panel_power_on(struct dsi_panel *panel)
 	int rc = 0;
     pr_err("%s:project_name = %d\n",__func__, get_project());
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 /* Jinzhu.Han@RM.MM.LCD.stability 2019.11.23. Add for compatibility*/
 	rc = dsi_pwr_enable_regulator(&panel->power_info, true);
 	if (rc) {
@@ -727,7 +727,7 @@ static int dsi_panel_power_on(struct dsi_panel *panel)
             goto exit;
         }
 	}
-#endif /*VENDOR_EDIT */
+#endif /*CONFIG_MACH_REALME */
 
 	rc = dsi_panel_set_pinctrl_state(panel, true);
 	if (rc) {
@@ -772,7 +772,7 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
     pr_err("%s:project_name = %d\n",__func__, get_project());
 	dsi_panel_exd_disable(panel);
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 /* Jinzhu.Han@RM.MM.LCD.stability 2019.11.23. Add for compatibility*/
 	if (gpio_is_valid(panel->reset_config.disp_en_gpio))
 		gpio_set_value(panel->reset_config.disp_en_gpio, 0);
@@ -851,19 +851,19 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
         if (rc)
             pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
     }
-#endif /*VENDOR_EDIT */
+#endif /*CONFIG_MACH_REALME */
 
 	return rc;
 }
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for oppo display new structure*/
 static int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
 				enum dsi_cmd_set_type type)
-#else  /*VENDOR_EDIT*/
+#else  /*CONFIG_MACH_REALME*/
 const char *cmd_set_prop_map[];
 int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
 				enum dsi_cmd_set_type type)
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 {
 	int rc = 0, i = 0;
 	ssize_t len;
@@ -884,10 +884,10 @@ int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
 	cmds = mode->priv_info->cmd_sets[type].cmds;
 	count = mode->priv_info->cmd_sets[type].count;
 	state = mode->priv_info->cmd_sets[type].state;
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	/*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for oppo display new structure*/
 	pr_err("dsi_cmd %s\n", cmd_set_prop_map[type]);
-	#endif /*VENDOR_EDIT*/
+	#endif /*CONFIG_MACH_REALME*/
 
 	if (count == 0) {
 		pr_debug("[%s] No commands to be sent for state(%d)\n",
@@ -1000,7 +1000,7 @@ static int dsi_panel_led_bl_register(struct dsi_panel *panel,
 }
 #endif
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*gaosong@PSW.MM.Display.LCD.Params,2019-05-13 add for underscreen fingerprints */
 extern int oppo_dimlayer_bl_alpha;
 extern int oppo_dimlayer_bl_enabled;
@@ -1008,7 +1008,7 @@ extern int oppo_dimlayer_bl_enable_real;
 ktime_t oppo_backlight_time;
 u32 oppo_last_backlight = 0;
 u32 oppo_backlight_delta = 0;
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	u32 bl_lvl)
@@ -1023,7 +1023,7 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 
 	dsi = &panel->mipi_device;
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	/*liping-m@PSW.MM.Display.LCD.Feature,2018/9/26 temp add for OnScreenFingerprint feature*/
 	if (panel->is_hbm_enabled){
 		pr_err("panel hbm is enabled\n");
@@ -1057,7 +1057,7 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 		if (bl_lvl > 1)
 			bl_lvl = oppo_dimlayer_bl_alpha;
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_MACH_REALME */
 	rc = mipi_dsi_dcs_set_display_brightness(dsi, bl_lvl);
 	if (rc < 0)
 		pr_err("failed to update dcs backlight:%d\n", bl_lvl);
@@ -1907,7 +1907,7 @@ static int dsi_panel_parse_phy_props(struct dsi_panel_phy_props *props,
 error:
 	return rc;
 }
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for support aod,hbm,seed*/
 const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-pre-on-command",
@@ -1957,7 +1957,7 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-post-mode-switch-on-command-state",
 };
 
-#else /*VENDOR_EDIT*/
+#else /*CONFIG_MACH_REALME*/
 const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-pre-on-command",
 	"qcom,mdss-dsi-on-command",
@@ -2045,7 +2045,7 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-cabc-still-image-command-state",
 	"qcom,mdss-dsi-cabc-video-command-state",
 };
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 
 static int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
 {
@@ -4051,7 +4051,7 @@ int dsi_panel_set_lp1(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_set_lp1\n");
 #endif
@@ -4060,7 +4060,7 @@ int dsi_panel_set_lp1(struct dsi_panel *panel)
 	if (rc)
 		pr_err("[%s] failed to send DSI_CMD_SET_LP1 cmd, rc=%d\n",
 		       panel->name, rc);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix aod flash problem */
 	panel->need_power_on_backlight = true;
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,set and save display status*/
@@ -4081,7 +4081,7 @@ int dsi_panel_set_lp2(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_set_lp2\n");
 #endif
@@ -4090,7 +4090,7 @@ int dsi_panel_set_lp2(struct dsi_panel *panel)
 	if (rc)
 		pr_err("[%s] failed to send DSI_CMD_SET_LP2 cmd, rc=%d\n",
 		       panel->name, rc);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-mo@PSW.MM.Display.LCD.Stability,2018/9/26,set and save display status*/
 	set_oppo_display_power_status(OPPO_DISPLAY_POWER_DOZE_SUSPEND);
 #endif
@@ -4109,7 +4109,7 @@ int dsi_panel_set_nolp(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_set_nolp\n");
 #endif
@@ -4118,7 +4118,7 @@ int dsi_panel_set_nolp(struct dsi_panel *panel)
 	if (rc)
 		pr_err("[%s] failed to send DSI_CMD_SET_NOLP cmd, rc=%d\n",
 		       panel->name, rc);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,set and save display status*/
 	set_oppo_display_power_status(OPPO_DISPLAY_POWER_ON);
 #endif
@@ -4148,15 +4148,15 @@ int dsi_panel_prepare(struct dsi_panel *panel)
 			goto error;
 		}
 	}
- 	#ifdef VENDOR_EDIT
+ 	#ifdef CONFIG_MACH_REALME
 	/*YunRui.Chen@BSP.TP.Function, 2018/12/05, add for trigger load tp fw by lcd driver after lcd reset*/
 	lcd_queue_load_tp_fw();
-	#endif/*VENDOR_EDIT*/
+	#endif/*CONFIG_MACH_REALME*/
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	/*Mark.Yao@PSW.MM.Display.LCD.Stable,2018-07-17 need wait 5ms after lp11 init */
 	usleep_range(5 * 1000, 5 * 1000);
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_MACH_REALME */
 
 	rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_PRE_ON);
 	if (rc) {
@@ -4346,7 +4346,7 @@ int dsi_panel_enable(struct dsi_panel *panel)
 	if (panel->type == EXT_BRIDGE)
 		return 0;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_enable\n");
 #endif
@@ -4358,11 +4358,11 @@ int dsi_panel_enable(struct dsi_panel *panel)
 		       panel->name, rc);
 	}
 	panel->panel_initialized = true;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 avoid screen flash when esd reset */
 	panel->need_power_on_backlight = true;
 #endif
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for save display panel power status at oppo display management*/
 	set_oppo_display_power_status(OPPO_DISPLAY_POWER_ON);
 #endif
@@ -4432,7 +4432,7 @@ int dsi_panel_disable(struct dsi_panel *panel)
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.Lcd.Stability, 2018/9/26,add to mark power states*/
 	pr_err("debug for dsi_panel_disable\n");
 #endif
@@ -4448,13 +4448,13 @@ int dsi_panel_disable(struct dsi_panel *panel)
 		}
 	}
 	panel->panel_initialized = false;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix esd not work when enable OnScreenFingerprint */
 	panel->is_hbm_enabled = false;
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 error:
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for save display panel power status at oppo display management*/
 	set_oppo_display_power_status(OPPO_DISPLAY_POWER_OFF);
 #endif

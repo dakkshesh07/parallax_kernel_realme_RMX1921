@@ -17,16 +17,16 @@
 #include <linux/pm_wakeirq.h>
 #include <linux/types.h>
 #include <trace/events/power.h>
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yanzhen.Feng@PSW.AD.OppoDebug.702252, 2016/06/21, Add for Sync App and Kernel time
 #include <linux/rtc.h>
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 #include <linux/irq.h>
 #include <linux/irqdesc.h>
 
 #include "power.h"
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yunqing.Zeng@BSP.Power.Basic 2017/11/09 add for wakelock profiler
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
@@ -37,8 +37,8 @@
 #ifdef CONFIG_DRM_MSM
 #include <linux/msm_drm_notify.h>
 #endif
-#endif /* VENDOR_EDIT */
-#ifdef VENDOR_EDIT
+#endif /* CONFIG_MACH_REALME */
+#ifdef CONFIG_MACH_REALME
 //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
 #include <soc/oppo/oppo_project.h>
 
@@ -76,17 +76,17 @@ char modem_wakeup_src_string[MODEM_WAKEUP_SRC_NUM][10] =
 		{"DIAG_WS",
 		"IPA_WS",
 		"QMI_WS"};
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //PengNan@BSP.Power.Basic,add for modifing the irq info. 2019/09/26
 static unsigned int qpnp_rtc_sirq = 0;
 static unsigned int qpnp_kpdpwr_sirq = 0;
 #define QPNP_RTC_IRQ_NAME   "qpnp_rtc_alarm"
 #define QPNP_KPDPWR_IRQ_NAME   "qpnp_kpdpwr_status"
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yunqing.Zeng@BSP.Power.Basic 2017/11/28 add for kernel wakelock time statistics
 static atomic_t ws_all_release_flag = ATOMIC_INIT(1);
 static ktime_t ws_start_node;
@@ -94,7 +94,7 @@ static ktime_t ws_end_node;
 static ktime_t ws_hold_all_time;
 static ktime_t reset_time;
 static spinlock_t statistics_lock;
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
  * if wakeup events are registered during or immediately before the transition.
@@ -609,7 +609,7 @@ static void wakeup_source_activate(struct wakeup_source *ws)
 			"unregistered wakeup source\n"))
 		return;
 
-	#ifdef VENDOR_EDIT
+	#ifdef CONFIG_MACH_REALME
 	//Yunqing.Zeng@BSP.Power.Basic 2017/11/28 add for kernel wakelock time statistics
 	if(atomic_read(&ws_all_release_flag)) {
 		atomic_set(&ws_all_release_flag, 0);
@@ -617,7 +617,7 @@ static void wakeup_source_activate(struct wakeup_source *ws)
 		ws_start_node = ktime_get();
 		spin_unlock(&statistics_lock);
 	}
-	#endif /* VENDOR_EDIT */
+	#endif /* CONFIG_MACH_REALME */
 	/*
 	 * active wakeup source should bring the system
 	 * out of PM_SUSPEND_FREEZE state
@@ -762,7 +762,7 @@ static void wakeup_source_deactivate(struct wakeup_source *ws)
 
 	split_counters(&cnt, &inpr);
 	if (!inpr && waitqueue_active(&wakeup_count_wait_queue)) {
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_MACH_REALME
 		//Yunqing.Zeng@BSP.Power.Basic 2017/11/28 add for kernel wakelock time statistics
 		ktime_t ws_hold_delta = ktime_set(0, 0);
 		atomic_set(&ws_all_release_flag, 1);
@@ -771,7 +771,7 @@ static void wakeup_source_deactivate(struct wakeup_source *ws)
 		ws_hold_delta = ktime_sub(ws_end_node, ws_start_node);
 		ws_hold_all_time = ktime_add(ws_hold_all_time, ws_hold_delta);
 		spin_unlock(&statistics_lock);
-		#endif /* VENDOR_EDIT */
+		#endif /* CONFIG_MACH_REALME */
 		wake_up(&wakeup_count_wait_queue);
 	}
 }
@@ -987,7 +987,7 @@ bool pm_wakeup_pending(void)
 	}
 	spin_unlock_irqrestore(&events_lock, flags);
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 /*yixue.ge@bsp.drv modify for maybe pm_abort_suspend happend here*/
 	if (ret) {
 #else
@@ -1028,7 +1028,7 @@ void pm_system_irq_wakeup(unsigned int irq_number)
 
 			pr_warn("%s: %d triggered %s\n", __func__,
 					irq_number, name);
-            #ifdef VENDOR_EDIT
+            #ifdef CONFIG_MACH_REALME
             //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
             if (is_project(OPPO_18081) || is_project(OPPO_18085)) //QCM670
 			{
@@ -1058,7 +1058,7 @@ void pm_system_irq_wakeup(unsigned int irq_number)
                 }
             }
 			#endif
-			#ifdef VENDOR_EDIT
+			#ifdef CONFIG_MACH_REALME
 			//PengNan@BSP.Power.Basic, add for modifing the irq info, 2019/09/26
 			if (irq_number == qpnp_rtc_sirq) {
 				wakeup_source_count_pmic_rtc++;
@@ -1066,7 +1066,7 @@ void pm_system_irq_wakeup(unsigned int irq_number)
 			if (irq_number == qpnp_kpdpwr_sirq) {
 				wakeup_source_count_kpdpwr++;
 			}
-			#endif /*VENDOR_EDIT*/
+			#endif /*CONFIG_MACH_REALME*/
 		}
 		pm_wakeup_irq = irq_number;
 		pm_system_wakeup();
@@ -1242,7 +1242,7 @@ static int wakeup_sources_stats_open(struct inode *inode, struct file *file)
 	return single_open(file, wakeup_sources_stats_show, NULL);
 }
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yanzhen.Feng@PSW.AD.OppoDebug.702252, 2015/08/14, Add for Sync App and Kernel time
 static ssize_t watchdog_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
 {
@@ -1287,7 +1287,7 @@ static ssize_t watchdog_write(struct file *file, const char __user *buf, size_t 
 
 	return count;
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 static const struct file_operations wakeup_sources_stats_fops = {
 	.owner = THIS_MODULE,
@@ -1295,25 +1295,25 @@ static const struct file_operations wakeup_sources_stats_fops = {
 	.read = seq_read,
 	.llseek = seq_lseek,
 	.release = single_release,
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yanzhen.Feng@PSW.AD.OppoDebug.702252, 2016/06/21, Add for Sync App and Kernel time
 	.write          = watchdog_write,
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 };
 
 static int __init wakeup_sources_debugfs_init(void)
 {
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 //Yanzhen.Feng@PSW.AD.OppoDebug.702252, 2016/06/21,  Modify for Sync App and Kernel time
 	wakeup_sources_stats_dentry = debugfs_create_file("wakeup_sources",
 			S_IRUGO, NULL, NULL, &wakeup_sources_stats_fops);
-#else /* VENDOR_EDIT */
+#else /* CONFIG_MACH_REALME */
 	wakeup_sources_stats_dentry = debugfs_create_file("wakeup_sources",
 			S_IRUGO| S_IWUGO, NULL, NULL, &wakeup_sources_stats_fops);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 	return 0;
 }
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yunqing.Zeng@BSP.Power.Basic 2017/11/09 add for wakelock profiler
 ktime_t active_max_reset_time;
 static ssize_t active_max_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
@@ -1416,35 +1416,35 @@ static void kernel_time_reset(void)
 	if(!ws_all_release()) {
 		ktime_t offset_hold_time;
 		ktime_t now = ktime_get();
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //wen.luo@BSP.Power.Basic 2017/11/09 add for wakelock profiler, protect for timer and process content deadlock
 		spin_lock_bh(&statistics_lock);
 #else
 		spin_lock(&statistics_lock);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 		offset_hold_time = ktime_sub(now, ws_start_node);
 		newest_hold_time = ktime_add(ws_hold_all_time, offset_hold_time);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //wen.luo@BSP.Power.Basic 2017/11/09 add for wakelock profiler, protect for timer and process content deadlock
 		spin_unlock_bh(&statistics_lock);
 #else
 		spin_unlock(&statistics_lock);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 	}
 	else {
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //wen.luo@BSP.Power.Basic 2017/11/09 add for wakelock profiler, protect for timer and process content deadlock
 		spin_lock_bh(&statistics_lock);
 #else
 		spin_lock(&statistics_lock);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 		newest_hold_time = ws_hold_all_time;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //wen.luo@BSP.Power.Basic 2017/11/09 add for wakelock profiler, protect for timer and process content deadlock
 		spin_unlock_bh(&statistics_lock);
 #else
 		spin_unlock(&statistics_lock);
-#endif /*VENDOR_EDIT*/
+#endif /*CONFIG_MACH_REALME*/
 	}
 
 	reset_time = newest_hold_time;
@@ -1579,10 +1579,10 @@ static int __init wakelock_profiler_init(void)
 
 	return 0;
 }
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */
 
 postcore_initcall(wakeup_sources_debugfs_init);
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Yunqing.Zeng@BSP.Power.Basic 2017/11/09 add for wakelock profiler
 postcore_initcall(wakelock_profiler_init);
-#endif /* VENDOR_EDIT */
+#endif /* CONFIG_MACH_REALME */

@@ -25,9 +25,9 @@
 		#global-interrupts = <2>;
 		qcom,regulator-names = "vdd";
 		vdd-supply = <&gpu_cx_gdsc>;
-		//#ifdef VENDOR_EDIT, Cong.Dai@Psw.Bsp.tp, add for qcom debug patch
+		//#ifdef CONFIG_MACH_REALME, Cong.Dai@Psw.Bsp.tp, add for qcom debug patch
 		//qcom,deferred-regulator-disable-delay = <80>;
-		//#endif /*VENDOR_EDIT*/
+		//#endif /*CONFIG_MACH_REALME*/
 		interrupts = <GIC_SPI 229 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 231 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 364 IRQ_TYPE_LEVEL_HIGH>,

@@ -1,6 +1,6 @@
 /**********************************************************************************
 * Copyright (c)  2008-2019  Guangdong OPPO Mobile Comm Corp., Ltd
-* VENDOR_EDIT
+* CONFIG_MACH_REALME
 * Description: OPPO Charge Module Device Tree
 * 
 * Version: 1.0
