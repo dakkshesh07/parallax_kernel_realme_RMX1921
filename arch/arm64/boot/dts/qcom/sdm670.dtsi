@@ -486,7 +486,8 @@
 /*#endif*/
 					// #ifdef VENDOR_EDIT
 					// #Wanghao@BSP.Bootloader.Bootflow, 2018/04/26, add to disable A/B partition
-					fsmgr_flags = "wait,avb";
+					fsmgr_flags = "wait";
+					status = "ok";
 					// #endif
 				};
 			};
