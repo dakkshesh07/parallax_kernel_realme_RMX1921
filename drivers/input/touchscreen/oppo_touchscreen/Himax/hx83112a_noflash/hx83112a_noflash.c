@@ -1358,36 +1358,34 @@ static int hx83112b_nf_zf_part_info(const struct firmware *fw_entry){
 	int crc = -1;
 	bool ret = false;
 
-	if (!hx_parse_bin_cfg_data(fw_entry)){
+	if (!hx_parse_bin_cfg_data(fw_entry))
 		TPD_INFO("%s, Parse cfg from bin failed\n", __func__);  
-		himax_register_write(pzf_op->addr_system_reset,  4,  pzf_op->data_system_reset,  false);
-		himax_enter_safe_mode();
-    }
-		getnstimeofday(&timeStart);
+	himax_register_write(pzf_op->addr_system_reset,  4,  pzf_op->data_system_reset,  false);
+	himax_enter_safe_mode();
+	getnstimeofday(&timeStart);
 	/* first 48K */
-	
-	    himax_sram_write_crc_check(fw_entry, pzf_op->data_sram_start_addr, 0, HX_48K_SZ);
-	    crc = himax_hw_check_CRC (pzf_op->data_sram_start_addr,  HX_48K_SZ);
-	    ret = (crc == 0)? true:false;
-	    if (crc != 0)
-		TPD_INFO("48k CRC Failed! CRC = %X", crc);
-	    do {
-			himax_mcu_register_write(sram_min, g_cfg_sz, FW_buf, 0);
-		    //himax_register_write(sram_min, g_cfg_sz, FW_buf, 0);
-		    crc = himax_hw_check_CRC(sram_min, g_cfg_sz);
-		    if (crc != g_cfg_crc)
-			    TPD_INFO("Config CRC FAIL, HW CRC = %X,SW CRC = %X, retry time = %d", crc, g_cfg_crc, retry);
-		    retry++;
-	    } while (!ret && retry < 10);
-	    if (G_POWERONOF == 1)
-		    g_core_fp.fp_write_sram_0f(fw_entry, pzf_op->data_mode_switch, 0xC33C, 4);
-	    else
-		    g_core_fp.fp_clean_sram_0f(pzf_op->data_mode_switch, 4, 2);
+    himax_sram_write_crc_check(fw_entry, pzf_op->data_sram_start_addr, 0, HX_48K_SZ);
+	crc = himax_hw_check_CRC (pzf_op->data_sram_start_addr,  HX_48K_SZ);
+	ret = (crc == 0)? true:false;
+	if (crc != 0)
+        TPD_INFO("48k CRC Failed! CRC = %X", crc);
+	do {
+		himax_mcu_register_write(sram_min, g_cfg_sz, FW_buf, 0);
+		//himax_register_write(sram_min, g_cfg_sz, FW_buf, 0);
+		crc = himax_hw_check_CRC(sram_min, g_cfg_sz);
+		if (crc != g_cfg_crc)
+            TPD_INFO("Config CRC FAIL, HW CRC = %X,SW CRC = %X, retry time = %d", crc, g_cfg_crc, retry);
+		retry++;
+	} while (!ret && retry < 10);
+    if (G_POWERONOF == 1)
+        g_core_fp.fp_write_sram_0f(fw_entry, pzf_op->data_mode_switch, 0xC33C, 4);
+	else
+        g_core_fp.fp_clean_sram_0f(pzf_op->data_mode_switch, 4, 2);
 	    
-	    getnstimeofday(&timeEnd);
-	    timeDelta.tv_nsec = (timeEnd.tv_sec * 1000000000 + timeEnd.tv_nsec) - (timeStart.tv_sec * 1000000000 + timeStart.tv_nsec);
-	    TPD_INFO("update firmware time = %ld us\n", timeDelta.tv_nsec / 1000);
-		return 0;
+	getnstimeofday(&timeEnd);
+	timeDelta.tv_nsec = (timeEnd.tv_sec * 1000000000 + timeEnd.tv_nsec) - (timeStart.tv_sec * 1000000000 + timeStart.tv_nsec);
+	TPD_INFO("update firmware time = %ld us\n", timeDelta.tv_nsec / 1000);
+    return 0;
 }
 
 void himax_mcu_firmware_update_0f(const struct firmware *fw_entry)
@@ -1686,6 +1684,24 @@ int himax_mcu_0f_operation_dirly(void)
 
     TPD_DETAIL("%s, Entering \n", __func__);
     TPD_DETAIL("file name = %s\n", private_ts->panel_data.fw_name);
+    if (g_chip_info->g_fw_entry == NULL) {
+        TPD_INFO("Request TP firmware.\n");
+        if(private_ts->fw_update_app_support) {
+            err = request_firmware_select (&g_chip_info->g_fw_entry, private_ts->panel_data.fw_name, private_ts->dev);
+        } else {
+            err = request_firmware (&g_chip_info->g_fw_entry, private_ts->panel_data.fw_name, private_ts->dev);
+        }
+        if (err < 0) {
+            TPD_INFO("%s, fail in line%d error code=%d,file maybe fail\n", __func__, __LINE__, err);
+            if(g_chip_info->g_fw_entry != NULL) {
+                release_firmware(g_chip_info->g_fw_entry);
+                g_chip_info->g_fw_entry = NULL;
+            }
+            return err;
+        }
+    } else {
+        TPD_DETAIL("TP firmware has been requested.\n");
+    }
 
     if(g_f_0f_updat == 1) {
         TPD_INFO("%s:[Warning]Other thread is updating now!\n", __func__);
@@ -1735,22 +1751,30 @@ int himax_mcu_0f_operation_test_dirly(char *fw_name)
 
 void himax_mcu_0f_operation(struct work_struct *work)
 {
-    //int err = NO_ERR;
-    //const struct firmware *fw_entry = NULL;
-
+    int err = NO_ERR;
 
     TPD_INFO("%s, Entering \n", __func__);
 
-#ifdef CONFIG_TOUCHPANEL_MTK_PLATFORM
-    if (private_ts->boot_mode != RECOVERY_BOOT)
-#else
-    if (private_ts->boot_mode != MSM_BOOT_MODE__RECOVERY)
-#endif
-    {
-    if (0 == is_oem_unlocked())
-       {
-			TPD_INFO("file name = %s\n", private_ts->panel_data.fw_name);
-	   }
+    if (private_ts->boot_mode != MSM_BOOT_MODE__RECOVERY) {
+        if (0 == is_oem_unlocked()) {
+            TPD_INFO("file name = %s\n", private_ts->panel_data.fw_name);
+            if (g_chip_info->g_fw_entry == NULL) {
+                TPD_INFO("Request TP firmware.\n");
+                if(private_ts->fw_update_app_support) {
+                    err = request_firmware_select (&g_chip_info->g_fw_entry, private_ts->panel_data.fw_name, private_ts->dev);
+                } else {
+                    err = request_firmware (&g_chip_info->g_fw_entry, private_ts->panel_data.fw_name, private_ts->dev);
+                }
+                if (err < 0) {
+                    TPD_INFO("%s, fail in line%d error code=%d,file maybe fail\n", __func__, __LINE__, err);
+                    if(g_chip_info->g_fw_entry != NULL) {
+                        release_firmware(g_chip_info->g_fw_entry);
+                        g_chip_info->g_fw_entry = NULL;
+                    }
+                    return;
+                }
+            }
+        }
     } else {
         TPD_INFO("TP firmware has been requested.\n");
     }
@@ -5224,10 +5248,10 @@ static int hx83112b_reset(void *chip_data)
 
     TPD_INFO("%s.\n", __func__);
 
-    //if (!chip_info->first_download_finished) {
-      //  TPD_INFO("%s:First download has not finished, don't do reset.\n", __func__);
-       // return 0;
-    //}
+    if (!chip_info->first_download_finished) {
+        TPD_INFO("%s:First download has not finished, don't do reset.\n", __func__);
+        return 0;
+    }
 
     g_zero_event_count = 0;
 
@@ -6593,22 +6617,15 @@ static int hx83112b_tp_probe(struct spi_device *spi)
     irq_en_cnt = 1;
     TPD_INFO("%s, probe normal end\n", __func__);
 
-#ifdef CONFIG_TOUCHPANEL_MTK_PLATFORM
-    if (ts->boot_mode == RECOVERY_BOOT)
-#else
-    if (ts->boot_mode == MSM_BOOT_MODE__RECOVERY)
-#endif
-    {
+    if (ts->boot_mode == MSM_BOOT_MODE__RECOVERY) {
         enable_irq(chip_info->hx_irq);
         TPD_INFO("In Recovery mode, no-flash download fw by headfile\n");
         queue_delayed_work(chip_info->himax_0f_update_wq, &chip_info->work_0f_update, msecs_to_jiffies(500));
-    } else {
-        //disable_irq_nosync(chip_info->hx_irq);
     }
-	//if (is_oem_unlocked()) {
-      //  TPD_INFO("Replace system image for cts, download fw by headfile\n");
+    if (is_oem_unlocked()) {
+        TPD_INFO("Replace system image for cts, download fw by headfile\n");
         queue_delayed_work(chip_info->himax_0f_update_wq, &chip_info->work_0f_update, msecs_to_jiffies(500));
-    //}
+    }
 
     return 0;
 err_spi_setup:

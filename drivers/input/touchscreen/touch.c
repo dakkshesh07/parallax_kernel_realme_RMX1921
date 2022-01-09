@@ -154,17 +154,15 @@ int tp_util_get_vendor(struct hw_resource *hw_res, struct panel_info *panel_data
         vendor,
         panel_data->fw_name,
         panel_data->test_limit_name==NULL?"NO Limit":panel_data->test_limit_name);
-		
-	 switch(get_project()) {
-	    case OPPO_18621:
-	        panel_data->firmware_headfile.firmware_data = FW_18621_HX83112A_NF_DSJM;
-	        panel_data->firmware_headfile.firmware_size = sizeof(FW_18621_HX83112A_NF_DSJM);
-	        break;
 
-	    default:
-	        panel_data->firmware_headfile.firmware_data = NULL;
-	        panel_data->firmware_headfile.firmware_size = 0;
-    }
+    #ifdef CONFIG_MACH_REALME_RMX1971
+    panel_data->firmware_headfile.firmware_data = FW_19691_HX83112A_NF_DSJM;
+    panel_data->firmware_headfile.firmware_size = sizeof(FW_19691_HX83112A_NF_DSJM);
+    #else
+    panel_data->firmware_headfile.firmware_data = NULL;
+    panel_data->firmware_headfile.firmware_size = 0;
+    #endif
+    
     return 0;
 }
 

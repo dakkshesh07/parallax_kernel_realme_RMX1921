@@ -43,7 +43,9 @@
 
 #include "touchpanel_common.h"
 #include "util_interface/touch_interfaces.h"
+#ifdef CONFIG_MACH_REALME_RMX1921
 #include <linux/oppo_checks.h>
+#endif
 
 #if GESTURE_RATE_MODE
 #include "gesture_recon_rate.h"
@@ -85,6 +87,7 @@ static int pm_qos_state = 0;
 #define PM_QOS_TOUCH_WAKEUP_VALUE 400
 #endif
 
+#ifdef CONFIG_MACH_REALME_RMX1921
 uint8_t DouTap_enable = 0;               // double tap
 uint8_t UpVee_enable  = 0;               // V
 uint8_t DownVee_enable  = 0;             // ^
@@ -99,6 +102,10 @@ uint8_t Down2UpSwip_enable = 0;          // |^
 uint8_t Mgestrue_enable = 0;             // M
 uint8_t Wgestrue_enable = 0;             // W
 uint8_t Enable_gesture = 0;
+#elif CONFIG_MACH_REALME_RMX1971
+uint8_t DouTap_enable = 0;               // double tap
+uint8_t gesture_enable = 0;
+#endif
 
 /*******Part2:declear Area********************************/
 static void speedup_resume(struct work_struct *work);
@@ -131,9 +138,11 @@ __attribute__((weak)) int reconfig_power_control(struct touchpanel_data *ts)
     return 0;
 }
 
+#ifdef CONFIG_MACH_REALME_RMX1921
 bool ambient_display_status(void){
     return device_is_dozing();
 }
+#endif
 
 /*******Part3:Function  Area********************************/
 /**
@@ -156,8 +165,10 @@ void operate_mode_switch(struct touchpanel_data *ts)
                 ts->ts_ops->mode_switch(ts->chip_data, MODE_GESTURE, true);
                 if (ts->mode_switch_type == SEQUENCE)
                     ts->ts_ops->mode_switch(ts->chip_data, MODE_NORMAL, true);
+                #ifdef CONFIG_MACH_REALME_RMX1921
                 if (ts->fp_enable == 1)
                     ts->fingerprint_underscreen_support = 1;
+                #endif
                 if (ts->fingerprint_underscreen_support)
                     ts->ts_ops->enable_fingerprint(ts->chip_data, !!ts->fp_enable);
                 if ((ts->gesture_enable != 1) && ts->ts_ops->enable_gesture_mask)
@@ -179,7 +190,11 @@ void operate_mode_switch(struct touchpanel_data *ts)
         }
 
         if (ts->face_detect_support) {
+            #ifdef CONFIG_MACH_REALME_RMX1921
             if (ts->fd_enable && !infra_prox_far) {
+            #elif CONFIG_MACH_REALME_RMX1971
+            if (ts->fd_enable) {
+            #endif
                 input_event(ts->ps_input_dev, EV_MSC, MSC_RAW, 0);
                 input_sync(ts->ps_input_dev);
             }
@@ -401,6 +416,8 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
              gesture_info_temp.gesture_type == Wgestrue ? "(W)" :
              gesture_info_temp.gesture_type == FingerprintDown ? "(fingerprintdown)" :
              gesture_info_temp.gesture_type == FingerprintUp ? "(fingerprintup)" : "unknown");
+             
+        #ifdef CONFIG_MACH_REALME_RMX1921
         switch (gesture_info_temp.gesture_type) {
         case DouTap:
             enabled = DouTap_enable;
@@ -455,6 +472,62 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
             key = KEY_GESTURE_W;
             break;
     }
+    #elif CONFIG_MACH_REALME_RMX1971
+    switch (gesture_info_temp.gesture_type) {
+        case DouTap:
+            enabled = DouTap_enable;
+            key = KEY_DOUBLE_TAP;
+            break;
+        case UpVee:
+                enabled = gesture_enable;
+            key = KEY_GESTURE_UP_ARROW;
+            break;
+        case DownVee:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_DOWN_ARROW;
+            break;
+        case LeftVee:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_LEFT_ARROW;
+            break;
+        case RightVee:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_RIGHT_ARROW;
+            break;
+        case Circle:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_CIRCLE;
+            break;
+        case DouSwip:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_TWO_SWIPE;
+            break;
+        case Left2RightSwip:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_SWIPE_LEFT;
+            break;
+        case Right2LeftSwip:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_SWIPE_RIGHT;
+            break;
+        case Up2DownSwip:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_SWIPE_UP;
+            break;
+        case Down2UpSwip:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_SWIPE_DOWN;
+            break;
+        case Mgestrue:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_M;
+            break;
+        case Wgestrue:
+                        enabled = gesture_enable;
+            key = KEY_GESTURE_W;
+            break;
+    }
+    #endif
 #if GESTURE_COORD_GET
     if (ts->ts_ops->get_gesture_coord) {
         ts->ts_ops->get_gesture_coord(ts->chip_data, gesture_info_temp.gesture_type);
@@ -477,10 +550,19 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
         if(ts->geature_ignore)
             return;
 #endif
+#ifdef CONFIG_MACH_REALME_RMX1921
         input_report_key(ts->input_dev, key, 1);
         input_sync(ts->input_dev);
         input_report_key(ts->input_dev, key, 0);
         input_sync(ts->input_dev);
+#elif CONFIG_MACH_REALME_RMX1971
+        if (enabled) {
+            input_report_key(ts->input_dev, key, 1);
+            input_sync(ts->input_dev);
+            input_report_key(ts->input_dev, key, 0);
+            input_sync(ts->input_dev);
+        }
+#endif
     } else if (gesture_info_temp.gesture_type == FingerprintDown) {
         ts->fp_info.touch_state = 1;
         opticalfp_irq_handler(&ts->fp_info);
@@ -955,10 +1037,12 @@ static void tp_face_detect_handle(struct touchpanel_data *ts)
     if (ps_state < 0)
         return;
 
+    #ifdef CONFIG_MACH_REALME_RMX1921
     if(infra_prox_far && !ps_state){
         TPD_INFO("Not overriding since userspace proximity reported near event.");
         return;
     }
+    #endif
 
     input_event(ts->ps_input_dev, EV_MSC, MSC_RAW, ps_state);
     input_sync(ts->ps_input_dev);
@@ -1830,6 +1914,7 @@ static const struct file_operations proc_glove_control_fops = {
     .owner = THIS_MODULE,
 };
 
+#ifdef CONFIG_MACH_REALME_RMX1921
 static ssize_t proc_is_dozing_rn(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
 {
     int ret = 0;
@@ -1901,6 +1986,7 @@ static const struct file_operations prox_mask_control_fops = {
     .open = simple_open,
     .owner = THIS_MODULE,
 };
+#endif
 
 static ssize_t cap_vk_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
@@ -3158,6 +3244,7 @@ static const struct file_operations proc_oppo_apk_fops = {
     };
 
 GESTURE_ATTR(double_tap, DouTap_enable);
+#ifdef CONFIG_MACH_REALME_RMX1921
 GESTURE_ATTR(up_arrow, UpVee_enable);
 GESTURE_ATTR(down_arrow, DownVee_enable);
 GESTURE_ATTR(left_arrow, LeftVee_enable);
@@ -3170,6 +3257,9 @@ GESTURE_ATTR(right_swipe, Right2LeftSwip_enable);
 GESTURE_ATTR(letter_o, Circle_enable);
 GESTURE_ATTR(letter_w, Wgestrue_enable);
 GESTURE_ATTR(letter_m, Mgestrue_enable);
+#elif CONFIG_MACH_REALME_RMX1971
+GESTURE_ATTR(gesture, gesture_enable);
+#endif
 
 #define CREATE_PROC_NODE(PARENT, NAME, MODE) \
     prEntry_tmp = proc_create(#NAME, MODE, PARENT, &NAME##_proc_fops); \
@@ -3257,6 +3347,7 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
     //proc files-step2-4:/proc/touchpanel/double_tap_enable (black gesture related interface)
     if (ts->black_gesture_support) {
         CREATE_GESTURE_NODE(double_tap);
+        #ifdef CONFIG_MACH_REALME_RMX1921
         CREATE_GESTURE_NODE(up_arrow);
         CREATE_GESTURE_NODE(down_arrow);
         CREATE_GESTURE_NODE(left_arrow);
@@ -3269,6 +3360,9 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
         CREATE_GESTURE_NODE(letter_o);
         CREATE_GESTURE_NODE(letter_w);
         CREATE_GESTURE_NODE(letter_m);
+        #elif CONFIG_MACH_REALME_RMX1971
+        CREATE_GESTURE_NODE(gesture);
+        #endif
         prEntry_tmp = proc_create_data("coordinate", 0444, prEntry_tp, &proc_coordinate_fops, ts);
         if (prEntry_tmp == NULL) {
             ret = -ENOMEM;
@@ -3276,6 +3370,7 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
         }
     }
 
+    #ifdef CONFIG_MACH_REALME_RMX1921
     prEntry_tmp = proc_create_data("DOZE_STATUS", 0444, prEntry_tp, &proc_is_dozing_rn_fops, ts);
     if (prEntry_tmp == NULL) {
         ret = -ENOMEM;
@@ -3287,6 +3382,7 @@ static int init_touchpanel_proc(struct touchpanel_data *ts)
         ret = -ENOMEM;
         TPD_INFO("%s: Couldn't create proc entry, %d\n", __func__, __LINE__);
     }
+    #endif
 
     //proc files-step2-5:/proc/touchpanel/glove_mode_enable (Glove mode related interface)
     if (ts->glove_mode_support) {
@@ -4704,7 +4800,9 @@ static int init_input_device(struct touchpanel_data *ts)
         set_bit(KEY_F4, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_W, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_M, ts->input_dev->keybit);
+        #ifdef CONFIG_MACH_REALME_RMX1921
         set_bit(KEY_GESTURE_S, ts->input_dev->keybit);
+        #endif
         set_bit(KEY_DOUBLE_TAP, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_CIRCLE, ts->input_dev->keybit);
         set_bit(KEY_GESTURE_TWO_SWIPE, ts->input_dev->keybit);
@@ -5927,8 +6025,9 @@ static void tp_resume(struct device *dev)
         ts->resume_finished = 0;
     }
 
-
+    #ifdef CONFIG_MACH_REALME_RMX1921
     infra_prox_far = false;
+    #endif
     queue_work(ts->speedup_resume_wq, &ts->speed_up_work);
     return;
 
