@@ -1,6 +1,6 @@
 /**************************************************************
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd.￡?
- * CONFIG_MACH_REALME
+ * VENDOR_EDIT
  * File       : touchpanel_common_driver.c
  * Description: Source file for Touch common driver
  * Version   : 1.0
@@ -26,7 +26,7 @@
 #include <linux/slab.h>
 #include <linux/firmware.h>
 #include <linux/kthread.h>
-#include <linux/uaccess.h>
+#include <asm/uaccess.h>
 #include <soc/oppo/device_info.h>
 #include <linux/delay.h>
 #include <linux/jiffies.h>
@@ -63,24 +63,23 @@
 #define Down2UpSwip         11  // |^
 #define Mgestrue            12  // M
 #define Wgestrue            13  // W
-#define FingerprintDown     14
-#define FingerprintUp       15
 
 #define KEY_GESTURE_W               246
 #define KEY_GESTURE_M               247
-#define KEY_GESTURE_S               248
 #define KEY_DOUBLE_TAP              KEY_WAKEUP
-#define KEY_GESTURE_CIRCLE          250
-#define KEY_GESTURE_TWO_SWIPE       251
-#define KEY_GESTURE_UP_ARROW        252
+#define KEY_GESTURE_CIRCLE          249
+#define KEY_GESTURE_TWO_SWIPE       250
+#define KEY_GESTURE_UP_ARROW        251
+#define KEY_GESTURE_DOWN_ARROW      252
 #define KEY_GESTURE_LEFT_ARROW      253
 #define KEY_GESTURE_RIGHT_ARROW     254
-#define KEY_GESTURE_DOWN_ARROW      255
-#define KEY_GESTURE_SWIPE_LEFT      KEY_F5
-#define KEY_GESTURE_SWIPE_DOWN      KEY_F6
-#define KEY_GESTURE_SWIPE_RIGHT     KEY_F7
-#define KEY_GESTURE_SWIPE_UP        KEY_F8
+#define KEY_GESTURE_SWIPE_UP        255
+#define KEY_GESTURE_SWIPE_DOWN      256
+#define KEY_GESTURE_SWIPE_LEFT      257
+#define KEY_GESTURE_SWIPE_RIGHT     258
 #define KEY_GESTURE_SINGLE_TAP      KEY_F9
+#define FingerprintDown     14
+#define FingerprintUp       15
 
 #define FINGERPRINT_DOWN_DETECT 0X0f
 #define FINGERPRINT_UP_DETECT 0X1f
@@ -740,8 +739,6 @@ struct earsense_proc_operations {
     void (*delta_read)          (void *chip_data, char *earsense_delta, int read_length);
     void (*self_data_read)      (void *chip_data, char *earsense_self_data, int read_length);
 };
-
-static bool infra_prox_far = false; //To be used by userspace proximity to toggle kernel proximity events
 
 /*********PART3:function or variables for other files**********************/
 extern unsigned int tp_debug ;                                                            /*using for print debug log*/

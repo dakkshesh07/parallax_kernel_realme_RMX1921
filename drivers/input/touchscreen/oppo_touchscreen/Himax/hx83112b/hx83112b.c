@@ -1,6 +1,6 @@
 /**************************************************************
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd
- * CONFIG_MACH_REALME
+ * VENDOR_EDIT
  * File       : hx83112b_drivers_s4322.c
  * Description: Source file for hx83112b S4322 driver
  * Version   : 1.0
@@ -14,7 +14,7 @@
 #include <linux/of_gpio.h>
 #include <linux/delay.h>
 #include <linux/sysfs.h>
-#include <linux/uaccess.h>
+#include <asm/uaccess.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/hrtimer.h>

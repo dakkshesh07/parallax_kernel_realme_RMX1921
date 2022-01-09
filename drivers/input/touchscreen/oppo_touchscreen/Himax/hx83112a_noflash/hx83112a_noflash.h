@@ -1,6 +1,6 @@
 /***************************************************
  * File:hx83112b_drivers_s4322.h
- * CONFIG_MACH_REALME
+ * VENDOR_EDIT
  * Copyright(C) 2008-2012 OPPO Mobile Comm Corp., Ltd
  * Description:
  *             hx83112b s4322 driver

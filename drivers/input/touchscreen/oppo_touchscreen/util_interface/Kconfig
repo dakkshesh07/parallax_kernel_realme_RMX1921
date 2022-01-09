@@ -1,5 +1,5 @@
 
-#ifdef CONFIG_MACH_REALME
+#ifdef CONFIG_PRODUCT_REALME_SDM710
 #Added by Tong.han@Bsp.group.Tp for synaptics ic driver
 
 #config TOUCHPANEL_OPPO
