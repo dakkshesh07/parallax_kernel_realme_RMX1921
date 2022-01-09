@@ -51,6 +51,7 @@
 /*******Part0:LOG TAG Declear************************/
 #define TPD_PRINT_POINT_NUM 150
 #define TPD_DEVICE_COMMON "touchpanel"
+#define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE_COMMON ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
     do{\
         if (LEVEL_DEBUG == tp_debug)\
