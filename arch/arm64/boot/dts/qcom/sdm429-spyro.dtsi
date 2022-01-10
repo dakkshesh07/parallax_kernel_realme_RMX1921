@@ -51,5 +51,4 @@
 
 &usb_otg {
 	qcom,enumeration-check-for-sdp;
-	qcom,hsusb-otg-mode = <1>; /* DEVICE mode */
 };

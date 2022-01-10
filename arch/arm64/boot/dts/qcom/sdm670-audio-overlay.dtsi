@@ -16,10 +16,6 @@
 #include <dt-bindings/clock/qcom,audio-ext-clk.h>
 
 &tavil_snd {
-	/* #ifdef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-	status = "disabled";
-	/* #endif CONFIG_MACH_REALME */
 	qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
 	qcom,audio-routing =
 		"AIF4 VI", "MCLK",
@@ -65,10 +61,6 @@
 };
 
 &tasha_snd {
-	/* #ifdef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-	status = "disabled";
-	/* #endif CONFIG_MACH_REALME */
 	qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
 	qcom,audio-routing =
 		"AIF4 VI", "MCLK",
@@ -143,26 +135,11 @@
 		"ADC2_IN", "ADC2_OUT",
 		"ADC3_IN", "ADC3_OUT";
 
-	/* #ifndef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/20, Modify for audio config */
-	//qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
-	/* #else  CONFIG_MACH_REALME */
-	qcom,msm-mi2s-master = <1>, <0>, <1>, <0>, <0>;
-	qcom,msm-mi2s-ext-mclk = <0>, <1>, <0>, <0>, <0>;
-	/* #endif CONFIG_MACH_REALME */
+	qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
 	qcom,msm-mclk-freq = <9600000>;
 	qcom,msm-mbhc-hphl-swh = <1>;
-	/* #ifndef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Modify for headset detect */
-	/*
 	qcom,msm-mbhc-gnd-swh = <1>;
 	qcom,msm-micbias2-ext-cap;
-	*/
-	/* #else  CONFIG_MACH_REALME */
-	qcom,msm-mbhc-gnd-swh = <0>;
-	qcom,msm-micbias1-ext-cap;
-	qcom,msm-micbias2-ext-cap;
-	/* #endif CONFIG_MACH_REALME */
 	qcom,msm-hs-micbias-type = "external";
 	qcom,cdc-pdm-gpios = <&cdc_pdm_gpios>;
 	qcom,cdc-comp-gpios = <&cdc_comp_gpios>;
@@ -175,43 +152,19 @@
 			   "analog-codec", "msm_sdw_codec",
 			   "msm-ext-disp-audio-codec-rx";
 
-	/* #ifndef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Modify for audio config */
-	/*
 	qcom,wsa-max-devs = <2>;
 	qcom,wsa-devs = <&wsa881x_211_en>, <&wsa881x_212_en>,
 			<&wsa881x_213_en>, <&wsa881x_214_en>;
 	qcom,wsa-aux-dev-prefix = "SpkrLeft", "SpkrRight",
 				  "SpkrLeft", "SpkrRight";
-	*/
-	/* #else  CONFIG_MACH_REALME */
-	qcom,wsa-disable;
-	qcom,wsa-max-devs = <0>;
-	/* #endif CONFIG_MACH_REALME */
-
-	/* #ifdef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/23, Add for audio to use lpi gpio */
-	qcom,sec-mi2s-gpios = <&sec_mi2s_gpios>;
-	/* #endif CONFIG_MACH_REALME */
-
-	/* #ifdef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2017/01/23, Add for custom audio. */
-	oppo,headphone-pa = "akm";
-	oppo,speaker-pa = "nxp";
-	/* #endif CONFIG_MACH_REALME */
 };
 
 &soc {
 	wcd_usbc_analog_en1_gpio: msm_cdc_pinctrl_usbc_audio_en1 {
 		compatible = "qcom,msm-cdc-pinctrl";
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for not use TYPE-C headset */
-		/*
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&wcd_usbc_analog_en1_active>;
 		pinctrl-1 = <&wcd_usbc_analog_en1_idle>;
-		*/
-		/* #endif CONFIG_MACH_REALME */
 	};
 
 	cdc_pdm_gpios: cdc_pdm_pinctrl {
@@ -245,32 +198,13 @@
 	};
 
 	cdc_sdw_gpios: sdw_clk_data_pinctrl {
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-		status = "disabled";
-		/* #endif CONFIG_MACH_REALME */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&sdw_clk_active &sdw_data_active>;
 		pinctrl-1 = <&sdw_clk_sleep &sdw_data_sleep>;
 	};
 
-	/* #ifdef CONFIG_MACH_REALME */
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/23, Add for audio to use lpi gpio */
-	sec_mi2s_gpios: sec_pinctrl {
-		compatible = "qcom,msm-cdc-pinctrl";
-		pinctrl-names = "aud_active", "aud_sleep";
-		pinctrl-0 = <&sec_mi2s_bclk_active &sec_mi2s_ws_active &sec_mi2s_sd0_active>;
-		pinctrl-1 = <&sec_mi2s_bclk_sleep &sec_mi2s_ws_sleep &sec_mi2s_sd0_sleep>;
-		qcom,lpi-gpios;
-	};
-	/* #endif CONFIG_MACH_REALME */
-
 	wsa_spkr_en1: wsa_spkr_en1_pinctrl {
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-		status = "disabled";
-		/* #endif CONFIG_MACH_REALME */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&spkr_1_sd_n_active>;
@@ -278,10 +212,6 @@
 	};
 
 	wsa_spkr_en2: wsa_spkr_en2_pinctrl {
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-		status = "disabled";
-		/* #endif CONFIG_MACH_REALME */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&spkr_2_sd_n_active>;
@@ -289,12 +219,7 @@
 	};
 
 	msm_sdw_codec: msm-sdw-codec@62ec1000 {
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-		//status = "okay";
-		/* #else CONFIG_MACH_REALME */
-		status = "disabled";
-		/* #endif CONFIG_MACH_REALME */
+		status = "okay";
 		compatible = "qcom,msm-sdw-codec";
 		reg = <0x62ec1000 0x0>;
 		interrupts = <0 88 0>;
@@ -387,10 +312,6 @@
 	};
 
 	wdsp_mgr: qcom,wcd-dsp-mgr {
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-		status = "disabled";
-		/* #endif CONFIG_MACH_REALME */
 		compatible = "qcom,wcd-dsp-mgr";
 		qcom,wdsp-components = <&wcd934x_cdc 0>,
 				       <&wcd_spi_0 1>,
@@ -399,10 +320,6 @@
 	};
 
 	wdsp_glink: qcom,wcd-dsp-glink {
-		/* #ifndef CONFIG_MACH_REALME */
-		/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Delete for audio config */
-		status = "disabled";
-		/* #endif CONFIG_MACH_REALME */
 		compatible = "qcom,wcd-dsp-glink";
 	};
 
@@ -457,31 +374,6 @@
 		};
 	};
 };
-
-/* #ifdef CONFIG_MACH_REALME */
-/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine, 2018/04/18, Add for audio config */
-//for ak4376
-&dai_mi2s1 {
-	compatible = "qcom,msm-dai-q6-mi2s";
-	qcom,msm-dai-q6-mi2s-dev-id = <1>;
-	qcom,msm-mi2s-rx-lines = <1>;
-	qcom,msm-mi2s-tx-lines = <0>;
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&sec_mi2s_mclk_active>;
-	pinctrl-1 = <&sec_mi2s_mclk_sleep>;
-};
-
-//for tfa98xx
-&dai_mi2s2 {
-	compatible = "qcom,msm-dai-q6-mi2s";
-	qcom,msm-dai-q6-mi2s-dev-id = <2>;
-	qcom,msm-mi2s-rx-lines = <1>;
-	qcom,msm-mi2s-tx-lines = <2>;
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&ter_mi2s_active &ter_mi2s_sd0_active &ter_mi2s_sd1_active>;
-	pinctrl-1 = <&ter_mi2s_sleep &ter_mi2s_sd0_sleep &ter_mi2s_sd1_sleep>;
-};
-/* #endif CONFIG_MACH_REALME */
 
 &slim_aud {
 	wcd9335: tasha_codec {
