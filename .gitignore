@@ -131,5 +131,6 @@ gcc32/
 gcc32_2/
 gcc64/
 gcc64_2/
-AnyKernel3/
+AnyKernel3/parallax-kernel/image/*Image*
+AnyKernel3/*.zip*
 out/
