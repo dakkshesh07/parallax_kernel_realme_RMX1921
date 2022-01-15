@@ -9,6 +9,15 @@
 #include <linux/types.h>
 #include <linux/notifier.h>
 #include "../oppo_fp_common/oppo_fp_common.h"
+#include <soc/oppo/oppo_project.h>
+#include <net/sock.h>
+#if defined(CONFIG_OPPO_FINGERPRINT_GOODIX_SPI)
+#include <linux/spi/spi.h>
+#include <linux/spi/spidev.h>
+#elif defined(CONFIG_OPPO_FINGERPRINT_GOODIX_PLATFORM)
+#include <linux/platform_device.h>
+#endif
+
 
 /**********************************************************/
 enum FP_MODE{
@@ -108,6 +117,28 @@ struct gf_ioc_chip_info {
 #define GF_NET_EVENT_FB_BLACK 2
 #define GF_NET_EVENT_FB_UNBLACK 3
 #define NETLINK_TEST 25
+#define MAX_MSGSIZE 32
+
+static int pid = -1;
+struct sock *nl_sk = NULL;
+
+#if (!defined USED_GPIO_PWR) || (defined CONFIG_19081_PWR)
+struct vreg_config {
+    char *name;
+    unsigned long vmin;
+    unsigned long vmax;
+    int ua_load;
+};
+
+#ifdef CONFIG_19081_PWR
+static const struct vreg_config const vreg_conf[] = {
+    { "ldo7", 3300000UL, 3300000UL, 150000, },
+};
+#else
+static const struct vreg_config const vreg_conf[] = {
+    { "ldo5", 2960000UL, 2960000UL, 150000, },
+};
+#endif
 
 enum NETLINK_CMD {
     GF_NET_EVENT_TEST = 0,
@@ -146,16 +177,346 @@ struct gf_dev {
 };
 
 
-int gf_parse_dts(struct gf_dev* gf_dev);
-void gf_cleanup(struct gf_dev *gf_dev);
+static inline int gf_parse_dts(struct gf_dev* gf_dev)
+{
+	int rc = 0;
+	struct device *dev = gf_dev->dev;
+	struct device_node *np = dev->of_node;
 
-int gf_set_power(struct gf_dev *gf_dev, bool enabled);
+	gf_dev->reset_gpio = of_get_named_gpio(np, "goodix,gpio_reset", 0);
+	if (gf_dev->reset_gpio < 0) {
+		pr_err("falied to get reset gpio!\n");
+		return gf_dev->reset_gpio;
+	}
 
-int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms);
+	rc = devm_gpio_request(dev, gf_dev->reset_gpio, "goodix_reset");
+	if (rc) {
+		pr_err("failed to request reset gpio, rc = %d\n", rc);
+		goto err_reset;
+	}
+	gpio_direction_output(gf_dev->reset_gpio, 0);
 
-void sendnlmsg(char *msg);
-int netlink_init(void);
-void netlink_exit(void);
+	gf_dev->irq_gpio = of_get_named_gpio(np, "goodix,gpio_irq", 0);
+	if (gf_dev->irq_gpio < 0) {
+		pr_err("falied to get irq gpio!\n");
+		return gf_dev->irq_gpio;
+	}
+
+	rc = devm_gpio_request(dev, gf_dev->irq_gpio, "goodix_irq");
+	if (rc) {
+		pr_err("failed to request irq gpio, rc = %d\n", rc);
+		goto err_irq;
+	}
+	gpio_direction_input(gf_dev->irq_gpio);
+
+#if defined(USED_GPIO_PWR)
+
+    gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
+        pr_debug("end of_get_named_gpio  goodix_pwr!\n");
+    if (gf_dev->pwr_gpio < 0) {
+        pr_err("falied to get goodix_pwr gpio!\n");
+        return gf_dev->pwr_gpio;
+    }
+
+    rc = devm_gpio_request(dev, gf_dev->pwr_gpio, "goodix_pwr");
+    if (rc) {
+        pr_err("failed to request goodix_pwr gpio, rc = %d\n", rc);
+        goto err_pwr;
+    }
+    gpio_direction_output(gf_dev->pwr_gpio, 0);
+    pr_debug("set goodix_pwr output 0 \n");
+
+#elif defined(PROJECT_19651)
+	
+    if (is_project(OPPO_19651)) {
+		pr_debug("begin of_get_named_gpio  goodix_vdd for 19651!\n");
+        gf_dev->vdd_gpio = of_get_named_gpio(np, "goodix,goodix_vdd", 0);
+            pr_debug("end of_get_named_gpio  goodix_vdd for 19651!\n");
+        if (gf_dev->vdd_gpio < 0) {
+            pr_err("falied to get goodix_vdd gpio!\n");
+            return gf_dev->vdd_gpio;
+        }
+
+        rc = devm_gpio_request(dev, gf_dev->vdd_gpio, "goodix_vdd");
+        if (rc) {
+            pr_err("failed to request goodix_vdd gpio, rc = %d\n", rc);
+            devm_gpio_free(dev, gf_dev->vdd_gpio);
+        }
+        gpio_direction_output(gf_dev->vdd_gpio, 0);
+        pr_debug("set goodix_vdd output 0 \n");
+    }
+
+    if (is_project(OPPO_19651)) {
+        gf_dev->pwr_gpio = of_get_named_gpio(np, "goodix,goodix_pwr", 0);
+            pr_debug("end of_get_named_gpio  goodix_pwr for 19651!\n");
+        if (gf_dev->pwr_gpio < 0) {
+            pr_err("falied to get goodix_pwr gpio!\n");
+            return gf_dev->pwr_gpio;
+        }
+
+        rc = devm_gpio_request(dev, gf_dev->pwr_gpio, "goodix_pwr");
+        if (rc) {
+            pr_err("failed to request goodix_pwr gpio, rc = %d\n", rc);
+            devm_gpio_free(dev, gf_dev->pwr_gpio);
+        }
+        gpio_direction_output(gf_dev->pwr_gpio, 0);
+        pr_debug("set goodix_pwr output 0 \n");
+    }
+#endif
+
+pr_debug("end gf_parse_dts !\n");
+
+#if defined(USED_GPIO_PWR)
+err_pwr:
+    devm_gpio_free(dev, gf_dev->pwr_gpio);
+#endif
+
+err_irq:
+    devm_gpio_free(dev, gf_dev->reset_gpio);
+err_reset:
+    return rc;
+}
+
+static inline void gf_cleanup(struct gf_dev *gf_dev)
+{
+	pr_debug("[info] %s\n",__func__);
+	if (gpio_is_valid(gf_dev->irq_gpio))
+	{
+		gpio_free(gf_dev->irq_gpio);
+		pr_debug("remove irq_gpio success\n");
+	}
+	if (gpio_is_valid(gf_dev->reset_gpio))
+	{
+		gpio_free(gf_dev->reset_gpio);
+		pr_debug("remove reset_gpio success\n");
+	}
+#if defined(USED_GPIO_PWR)
+    if (gpio_is_valid(gf_dev->pwr_gpio))
+    {
+        gpio_free(gf_dev->pwr_gpio);
+        pr_debug("remove pwr_gpio success\n");
+    }
+
+#elif defined(PROJECT_19651)
+    if (is_project(OPPO_19651)) {
+	    if (gpio_is_valid(gf_dev->vdd_gpio))
+        {
+            gpio_free(gf_dev->vdd_gpio);
+            pr_debug("remove vdd_gpio success\n");
+        }
+        if (gpio_is_valid(gf_dev->pwr_gpio))
+        {
+            gpio_free(gf_dev->pwr_gpio);
+            pr_debug("remove pwr_gpio success\n");
+        }
+    }
+#endif
+}
+
+static inline int vreg_setup(struct gf_dev *goodix_fp, const char *name,
+    bool enable)
+{
+    size_t i;
+    int rc;
+    struct regulator *vreg;
+    struct device *dev = goodix_fp->dev;
+    if (NULL == name) {
+        pr_err("name is NULL\n");
+        return -EINVAL;
+    }
+    pr_debug("Regulator %s vreg_setup,enable=%d \n", name, enable);
+    for (i = 0; i < ARRAY_SIZE(goodix_fp->vreg); i++) {
+        const char *n = vreg_conf[i].name;
+        if (!strncmp(n, name, strlen(n)))
+            goto found;
+    }
+    pr_err("Regulator %s not found\n", name);
+    return -EINVAL;
+found:
+    vreg = goodix_fp->vreg[i];
+    if (enable) {
+        if (!vreg) {
+            vreg = regulator_get(dev, name);
+            if (IS_ERR(vreg)) {
+                pr_err("Unable to get  %s\n", name);
+                return PTR_ERR(vreg);
+            }
+        }
+        if (regulator_count_voltages(vreg) > 0) {
+            rc = regulator_set_voltage(vreg, vreg_conf[i].vmin,
+                    vreg_conf[i].vmax);
+            if (rc)
+                pr_err("Unable to set voltage on %s, %d\n",
+                    name, rc);
+        }
+        rc = regulator_set_load(vreg, vreg_conf[i].ua_load);
+        if (rc < 0)
+            pr_err("Unable to set current on %s, %d\n",
+                    name, rc);
+        rc = regulator_enable(vreg);
+        if (rc) {
+            pr_err("error enabling %s: %d\n", name, rc);
+            regulator_put(vreg);
+            vreg = NULL;
+        }
+        goodix_fp->vreg[i] = vreg;
+    } else {
+        if (vreg) {
+            if (regulator_is_enabled(vreg)) {
+                regulator_disable(vreg);
+                pr_debug("disabled %s\n", name);
+            }
+            regulator_put(vreg);
+            goodix_fp->vreg[i] = NULL;
+        }
+        pr_err("disable vreg is null \n");
+        rc = 0;
+    }
+    return rc;
+}
+#endif
+
+static inline int gf_set_power(struct gf_dev *gf_dev, bool enabled)
+{
+    int rc = 0;
+
+/*power on auto during boot, no need fp driver power on*/
+#if defined(AUTO_PWR)
+    pr_debug("[%s] power on auto, no need power on again\n", __func__);
+    return rc;
+#endif
+    pr_debug("---- power on ok ----\n");
+#if defined(USED_GPIO_PWR)
+    gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
+    pr_debug("set pwe_gpio 1\n");
+#elif defined(PROJECT_19651)
+    if (is_project(OPPO_19651)) {
+        gpio_set_value(gf_dev->pwr_gpio, enabled ? 1 : 0);
+        msleep(5);
+        gpio_set_value(gf_dev->vdd_gpio, enabled ? 1 : 0);
+        pr_debug("set pwe_gpio %s for 19651 \n",
+            enabled ? "1" : "0");
+    } else {
+        rc = vreg_setup(gf_dev, "ldo5", enabled);
+    }
+#else 
+	rc = vreg_setup(gf_dev, "ldo5", enabled);
+#endif
+#ifdef CONFIG_19081_PWR
+    rc = vreg_setup(gf_dev, "ldo7", enabled);
+#endif
+    msleep(30);
+    return rc;
+}
+
+static inline int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms)
+{
+	if(gf_dev == NULL) {
+		pr_info("Input buff is NULL.\n");
+		return -1;
+	}
+
+	if (gf_dev->vreg[0]) {
+		int voltage = regulator_get_voltage(gf_dev->vreg[0]);
+		int enable = regulator_is_enabled(gf_dev->vreg[0]);
+		if (enable) {
+			pr_debug("goodix fingerprint power LDO: %d mV, enable=%d\n", voltage/1000, enable);
+		} else {
+			pr_debug("goodix fingerprint power is disable.\n");
+			gf_set_power(gf_dev, true);
+		}
+	} else {
+		pr_debug("goodix fingerprint power is NULL.\n");
+		gf_set_power(gf_dev, true);
+	}
+
+	//gpio_direction_output(gf_dev->reset_gpio, 1);
+	gpio_set_value(gf_dev->reset_gpio, 0);
+	mdelay(5);
+	gpio_set_value(gf_dev->reset_gpio, 1);
+	mdelay(delay_ms);
+	return 0;
+}
+
+static inline void sendnlmsg(char *msg)
+{
+	struct sk_buff *skb_1;
+	struct nlmsghdr *nlh;
+	int len = NLMSG_SPACE(MAX_MSGSIZE);
+	int ret = 0;
+	if (!msg || !nl_sk || !pid) {
+		return ;
+	}
+	skb_1 = alloc_skb(len, GFP_KERNEL);
+	if (!skb_1) {
+		pr_err("alloc_skb error\n");
+		return;
+	}
+
+	nlh = nlmsg_put(skb_1, 0, 0, 0, MAX_MSGSIZE, 0);
+
+	NETLINK_CB(skb_1).portid = 0;
+	NETLINK_CB(skb_1).dst_group = 0;
+
+	if (nlh != NULL) {
+		memcpy(NLMSG_DATA(nlh), msg, sizeof(char));
+		pr_debug("send message: %d\n", *(char *)NLMSG_DATA(nlh));
+	}
+
+	ret = netlink_unicast(nl_sk, skb_1, pid, MSG_DONTWAIT);
+	if (!ret) {
+		pr_err("send msg from kernel to usespace failed ret 0x%x\n", ret);
+	}
+}
+
+static inline void nl_data_ready(struct sk_buff *__skb)
+{
+	struct sk_buff *skb;
+	struct nlmsghdr *nlh;
+	char str[100];
+	skb = skb_get (__skb);
+	if(skb->len >= NLMSG_SPACE(0))
+	{
+		nlh = nlmsg_hdr(skb);
+
+		if (nlh != NULL) {
+			memcpy(str, NLMSG_DATA(nlh), sizeof(str));
+			pid = nlh->nlmsg_pid;
+		}
+
+		kfree_skb(skb);
+	}
+
+}
+
+
+static inline int netlink_init(void)
+{
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_NETLINK
+	struct netlink_kernel_cfg cfg = {
+		.input = nl_data_ready,
+	};
+
+	nl_sk = netlink_kernel_create(&init_net, NETLINK_TEST, &cfg);
+
+	if(!nl_sk){
+		pr_err("goodix_fp: cannot create netlink socket\n");
+		return -EIO;
+	}
+#endif
+	return 0;
+}
+
+static inline void netlink_exit(void)
+{
+#ifdef CONFIG_OPPO_FINGERPRINT_GOODIX_NETLINK
+	if(nl_sk != NULL){
+		netlink_kernel_release(nl_sk);
+		nl_sk = NULL;
+	}
+#endif
+}
+
 int gf_opticalfp_irq_handler(struct fp_underscreen_info* tp_info);
 
 #endif /*__GF_SPI_H*/
