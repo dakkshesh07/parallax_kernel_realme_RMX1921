@@ -320,10 +320,10 @@ struct hap_chip {
 	u16				base;
 	int				play_irq;
 	int				sc_irq;
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 	int                             time_min;
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_MACH_REALME*/
 	struct pwm_param		pwm_data;
 	struct hap_lra_ares_param	ares_cfg;
 	struct regulator		*vcc_pon;
@@ -355,7 +355,7 @@ struct hap_chip {
 	u8				drive_period_code_min_var_pct;
 	ktime_t				last_sc_time;
 	u8				sc_count;
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 //tangshaoqing@RM.BSP.Kernel.Drv 2019/03/25, modify for the sc issue
 	bool				perm_disable;
 #endif
@@ -728,7 +728,7 @@ static int qpnp_haptics_play(struct hap_chip *chip, bool enable)
 {
 	int rc = 0, time_ms = chip->play_time_ms;
 
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 //tangshaoqing@RM.BSP.Kernel.Drv 2019/03/25, modify for the sc issue
 	if (chip->perm_disable && enable)
 		return 0;
@@ -765,12 +765,12 @@ static int qpnp_haptics_play(struct hap_chip *chip, bool enable)
 
 		if (chip->play_mode == HAP_BUFFER)
 			time_ms = get_buffer_mode_duration(chip);
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_MACH_REALME
 		//Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 		time_ms = time_ms < chip->time_min ?
 		chip->time_min : time_ms;
 		pr_err("vib on = %d, enable is %d\n", time_ms, enable);
-		#endif/*VENDOR_EDIT*/
+		#endif/*CONFIG_MACH_REALME*/
 		hrtimer_start(&chip->stop_timer,
 			ktime_set(time_ms / MSEC_PER_SEC,
 			(time_ms % MSEC_PER_SEC) * NSEC_PER_MSEC),
@@ -787,10 +787,10 @@ static int qpnp_haptics_play(struct hap_chip *chip, bool enable)
 				ktime_set(0, AUTO_RES_ERR_POLL_TIME_NS),
 				HRTIMER_MODE_REL);
 	} else {
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_MACH_REALME
 		//Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 		pr_err("vib enable is %d\n", enable);
-		#endif/*VENDOR_EDIT*/
+		#endif/*CONFIG_MACH_REALME*/
 		rc = qpnp_haptics_play_control(chip, HAP_STOP);
 		if (rc < 0) {
 			pr_err("Error in disabling play, rc=%d\n", rc);
@@ -855,7 +855,7 @@ static enum hrtimer_restart hap_stop_timer(struct hrtimer *timer)
 					stop_timer);
 
 	atomic_set(&chip->state, 0);
-    #ifdef VENDOR_EDIT
+    #ifdef CONFIG_MACH_REALME
 	// fangpan@Swdp.shanghai 2016/10/25, fix sometimes the vibrator shake long time issue
 	queue_work(system_unbound_wq, &chip->haptics_work);
 	#else
@@ -1399,7 +1399,7 @@ static irqreturn_t qpnp_haptics_sc_irq_handler(int irq, void *data)
 	if (rc < 0)
 		goto irq_handled;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //tangshaoqing@RM.BSP.Kernel.Drv 2019/03/25, modify for the sc issue
 	pr_debug("HAP_STATUS_1_REG:0x%x\n",val);
 #endif
@@ -1419,7 +1419,7 @@ static irqreturn_t qpnp_haptics_sc_irq_handler(int irq, void *data)
 	else
 		chip->sc_count++;
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //tangshaoqing@RM.BSP.Kernel.Drv 2019/03/25, modify for the sc issue
 	pr_debug("sc_count=0x%x\n",chip->sc_count);
 #endif
@@ -1439,7 +1439,7 @@ static irqreturn_t qpnp_haptics_sc_irq_handler(int irq, void *data)
 			pr_err("Error in disabling module, rc=%d\n", rc);
 			goto irq_handled;
 		}
-#ifndef VENDOR_EDIT
+#ifndef CONFIG_MACH_REALME
 //tangshaoqing@RM.BSP.Kernel.Drv 2019/03/25, modify for the sc issue
 		chip->perm_disable = true;
 #endif
@@ -1565,7 +1565,7 @@ static ssize_t qpnp_haptics_store_activate(struct device *dev,
 		cancel_work_sync(&chip->haptics_work);
 
 		atomic_set(&chip->state, 1);
-		#ifdef VENDOR_EDIT
+		#ifdef CONFIG_MACH_REALME
 		// fangpan@Swdp.shanghai 2016/10/25, fix sometimes the vibrator shake long time issue
 		queue_work(system_unbound_wq, &chip->haptics_work);
 		#else
@@ -2311,7 +2311,7 @@ static int qpnp_haptics_parse_dt(struct hap_chip *chip)
 		}
 	}
 
-#ifdef VENDOR_EDIT
+#ifdef CONFIG_MACH_REALME
 //Added by wanghao@Bsp.group.Tp for vib min time setting,2018/5/17
 	rc = of_property_read_u32(node,
 			"qcom,vib-timemin-ms", &temp);
@@ -2321,7 +2321,7 @@ static int qpnp_haptics_parse_dt(struct hap_chip *chip)
 		pr_err("Unable to read vib time_min, rc = %d\n", rc);
 		chip->time_min = 0;
 	}
-#endif/*VENDOR_EDIT*/
+#endif/*CONFIG_MACH_REALME*/
 
 	/* Read the following properties only for LRA */
 	if (chip->act_type == HAP_LRA) {

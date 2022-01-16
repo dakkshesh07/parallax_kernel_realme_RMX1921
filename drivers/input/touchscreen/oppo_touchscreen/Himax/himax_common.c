@@ -1,6 +1,6 @@
 /***************************************************
  * File:himax_common.c
- * VENDOR_EDIT
+ * CONFIG_MACH_REALME
  * Copyright (c)  2008- 2030  Oppo Mobile communication Corp.ltd.
  * Description:
  *             himax common driver
