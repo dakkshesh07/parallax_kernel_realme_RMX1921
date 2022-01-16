@@ -3868,15 +3868,6 @@ static int __init tfa98xx_i2c_init(void)
     int ret = 0;
     pr_info("TFA98XX driver version %s\n", TFA98XX_VERSION);
 
-    #ifdef CONFIG_MACH_REALME
-    //Kaiqin.Huang@RM.MM.AudioDriver.SmartPA, 2019/10/12, Modify for multi-project baseline
-    if (get_project() == 18041)
-    {
-        pr_err("tfa98xx not support the project:%d\n", get_project());
-        return -1;
-    }
-    #endif
-
     tfa_verbose(trace_level);
     tfa98xx_kmsg_regs = trace_level & 2;
     tfa98xx_ftrace_regs = trace_level & 4;

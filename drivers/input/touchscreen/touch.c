@@ -55,36 +55,28 @@ bool __init tp_judge_ic_match(char * tp_ic_name)
 	pr_err("[TP] tp_ic_name = %s \n", tp_ic_name);
 	//pr_err("[TP] boot_command_line = %s \n", boot_command_line);
 
-	switch(get_project()) {
-	case 18621:
-	case 19691:
-		if(strstr(tp_ic_name, "himax,hx83112a_nf")){
-			pr_err("[TP]Project use himax \n");
-			is_tp_type_got_in_match = true;
-
-			g_tp_dev_vendor = TP_DSJM;
-
-			g_tp_chip_name = kzalloc(sizeof(HX83112A_NF_CHIP_NAME), GFP_KERNEL);
-			g_tp_chip_name = HX83112A_NF_CHIP_NAME;
-			return true;
-		}else{
-			pr_err("[TP] Project not himax cannot support\n");
-			return false;
-		}
-	case 19651:
-	case 18041:
-		if(strstr(tp_ic_name, "synaptics-s3706")){
-			pr_err("[TP] Project Name use synaptics\n");
-			is_tp_type_got_in_match = true;
-			return true;
-		}else{
-			pr_err("[TP] Project not synaptics cannot support\n");
-			return false;
-		}
-	default:
-		pr_err("Invalid project\n");
-		break;
+#ifdef CONFIG_MACH_REALME_RMX1971
+	if(strstr(tp_ic_name, "himax,hx83112a_nf")){
+		pr_err("[TP]Project use himax \n");
+		is_tp_type_got_in_match = true;
+		g_tp_dev_vendor = TP_DSJM;
+		g_tp_chip_name = kzalloc(sizeof(HX83112A_NF_CHIP_NAME), GFP_KERNEL);
+		g_tp_chip_name = HX83112A_NF_CHIP_NAME;
+		return true;
+	}else{
+		pr_err("[TP] Project not himax cannot support\n");
+		return false;
 	}
+#elif CONFIG_MACH_REALME_RMX1921
+	if(strstr(tp_ic_name, "synaptics-s3706")){
+		pr_err("[TP] Project Name use synaptics\n");
+		is_tp_type_got_in_match = true;
+		return true;
+	}else{
+		pr_err("[TP] Project not synaptics cannot support\n");
+		return false;
+	}
+#endif
 	pr_err("Lcd module not found\n");
 	return false;
 }
@@ -154,17 +146,8 @@ int tp_util_get_vendor(struct hw_resource *hw_res, struct panel_info *panel_data
         vendor,
         panel_data->fw_name,
         panel_data->test_limit_name==NULL?"NO Limit":panel_data->test_limit_name);
-		
-	 switch(get_project()) {
-	    case OPPO_18621:
-	        panel_data->firmware_headfile.firmware_data = FW_18621_HX83112A_NF_DSJM;
-	        panel_data->firmware_headfile.firmware_size = sizeof(FW_18621_HX83112A_NF_DSJM);
-	        break;
-
-	    default:
-	        panel_data->firmware_headfile.firmware_data = NULL;
-	        panel_data->firmware_headfile.firmware_size = 0;
-    }
+        panel_data->firmware_headfile.firmware_data = NULL;
+        panel_data->firmware_headfile.firmware_size = 0;
     return 0;
 }
 

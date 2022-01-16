@@ -162,19 +162,7 @@ static int32_t cam_sensor_driver_get_dt_data(struct cam_sensor_ctrl_t *s_ctrl)
 
 #ifdef CONFIG_MACH_REALME
 	/*Jinshui.Liu@Camera.Driver, 2018/06/23, add for [tof watchdog]*/
-	/*Jinshui.Liu@Camera.Driver, 2018/08/20, modify for [distinguish 18181 EVT2 or after from before]*/
-	if (get_project() == OPPO_18181
-		&& (get_Modem_Version() == 7)) {
-		sensordata->watchdog_gpio = of_get_named_gpio(of_node, "watchdog-gpio", 0);
-		if (!gpio_is_valid(sensordata->watchdog_gpio)) {
-			CAM_ERR(CAM_SENSOR, "invalid watchdog_gpio %d", sensordata->watchdog_gpio);
-			sensordata->watchdog_gpio = -1;
-		} else {
-			CAM_INFO(CAM_SENSOR, "watchdog_gpio %d", sensordata->watchdog_gpio);
-		}
-	} else {
-		sensordata->watchdog_gpio = -1;
-	}
+	sensordata->watchdog_gpio = -1;
 #endif
 
 	if (of_property_read_u32(of_node, "sensor-position-pitch",

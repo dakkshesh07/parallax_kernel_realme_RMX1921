@@ -5424,40 +5424,16 @@ static void oppo_ccdetect_work(struct work_struct *work)
 								ccdetect_work.work);
 
 	level = gpio_get_value(chg->ccdetect_gpio);
-	#ifdef CONFIG_MACH_REALME
-	/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-	if(get_project() == 18621) {
-		if (oppo_get_otg_switch_status() == true){
-			check_otg_is_in();
-			oppo_ccdetect_enable();
-			oppo_set_dpdm_status(POWER_SUPPLY_TYPEC_PLUGIN);
-			if (oppo_usbtemp_check_is_support() == true)
-				wake_up_interruptible(&oppo_usbtemp_wq);
-		}
+	oppo_set_dpdm_status(POWER_SUPPLY_TYPEC_PLUGIN);
+
+	if (divider_in_auto_mode == false || (oppo_vooc_get_allow_reading() == false)) {
+		cancel_delayed_work_sync(&chg->divider_set_work);
+		schedule_delayed_work(&chg->divider_set_work, msecs_to_jiffies(2000));
 	}
-	#else
-	if (level != 1) {
-		oppo_ccdetect_enable();
-		oppo_set_dpdm_status(POWER_SUPPLY_TYPEC_PLUGIN);
-		if (oppo_usbtemp_check_is_support() == true)
-			wake_up_interruptible(&oppo_usbtemp_wq);
-	#endif /* CONFIG_MACH_REALME */
-	else {
-		oppo_set_dpdm_status(POWER_SUPPLY_TYPEC_PLUGIN);
-		#ifdef CONFIG_MACH_REALME
-		/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-		if(get_project() == 18621) {
-			check_otg_is_in();
-		}
-		#endif /* CONFIG_MACH_REALME */
-		if (divider_in_auto_mode == false || (oppo_vooc_get_allow_reading() == false)) {
-			cancel_delayed_work_sync(&chg->divider_set_work);
-			schedule_delayed_work(&chg->divider_set_work, msecs_to_jiffies(2000));
-		}
-		if (oppo_ccdetect_get_power_role() != POWER_SUPPLY_TYPEC_PR_SINK
-			&& oppo_get_otg_switch_status() == false)
-			oppo_ccdetect_disable();
-	}
+
+	if (oppo_ccdetect_get_power_role() != POWER_SUPPLY_TYPEC_PR_SINK
+		&& oppo_get_otg_switch_status() == false)
+		oppo_ccdetect_disable();
 
 	vote(chg->awake_votable, CCDETECT_VOTER, false, 0);
 }
@@ -6884,14 +6860,9 @@ static int oppo_ccdetect_gpio_init(struct oppo_chg_chip *chip)
 	if (chg->ccdetect_gpio > 0) {
 		gpio_direction_input(chg->ccdetect_gpio);
 	}
-	#ifdef CONFIG_MACH_REALME
-	/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-	if(get_project() == 18621) {
-		pinctrl_select_state(chg->ccdetect_pinctrl, chg->ccdetect_sleep);
-	} else {
-		pinctrl_select_state(chg->ccdetect_pinctrl, chg->ccdetect_active);
-	}
-	#endif /* CONFIG_MACH_REALME */
+#ifdef CONFIG_MACH_REALME /* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
+	pinctrl_select_state(chg->ccdetect_pinctrl, chg->ccdetect_active);
+#endif /* CONFIG_MACH_REALME */
 	return 0;
 }
 
@@ -7037,36 +7008,35 @@ static int oppo_usbtemp_init(struct oppo_chg_chip *chip)
 		chg_err("get normalchg_gpio.pinctrl fail\n");
 		return -EINVAL;
 	}
-    chip->normalchg_gpio.usb_temp_adc_suspend =
-			pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc_suspend");
+
+    chip->normalchg_gpio.usb_temp_adc_suspend = pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc_suspend");
 	if (IS_ERR_OR_NULL(chip->normalchg_gpio.usb_temp_adc_suspend)) {
 		chg_err("get usb_temp_adc_suspend fail\n");
 		return -EINVAL;
 	}
-    chip->normalchg_gpio.usb_temp_adc =
-			pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc");
+
+    chip->normalchg_gpio.usb_temp_adc = pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc");
 	if (IS_ERR_OR_NULL(chip->normalchg_gpio.usb_temp_adc)) {
 		chg_err("get usb_temp_adc fail\n");
 		return -EINVAL;
 	} else {
         pinctrl_select_state(chip->normalchg_gpio.pinctrl, chip->normalchg_gpio.usb_temp_adc);
     }
-    if(get_project() == 19691 ||get_project() == 19651){
-	chip->normalchg_gpio.usb_temp_adc_suspend_12=
-			   pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc_suspend_12");
-	   if (IS_ERR_OR_NULL(chip->normalchg_gpio.usb_temp_adc_suspend_12)) {
-		   chg_err("get usb_temp_adc_suspend_12 fail\n");
-		   return -EINVAL;
-	   }
-	   chip->normalchg_gpio.usb_temp_adc_12=
-			   pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc_12");
-	   if (IS_ERR_OR_NULL(chip->normalchg_gpio.usb_temp_adc_12)) {
-		   chg_err("get usb_temp_adc_12 fail\n");
-		   return -EINVAL;
-	   } else {
-		   pinctrl_select_state(chip->normalchg_gpio.pinctrl, chip->normalchg_gpio.usb_temp_adc_12);
-	   }
-       }
+
+#if defined(CONFIG_MACH_REALME_RMX1921) || defined(CONFIG_MACH_REALME_RMX1971)
+    chip->normalchg_gpio.usb_temp_adc_suspend_12 = pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc_suspend_12");
+    if (IS_ERR_OR_NULL(chip->normalchg_gpio.usb_temp_adc_suspend_12)) {
+    	chg_err("get usb_temp_adc_suspend_12 fail\n");
+    	return -EINVAL;
+    }
+    chip->normalchg_gpio.usb_temp_adc_12 = pinctrl_lookup_state(chip->normalchg_gpio.pinctrl, "usb_temp_adc_12");
+    if (IS_ERR_OR_NULL(chip->normalchg_gpio.usb_temp_adc_12)) {
+    	chg_err("get usb_temp_adc_12 fail\n");
+    	return -EINVAL;
+    } else {
+    	pinctrl_select_state(chip->normalchg_gpio.pinctrl, chip->normalchg_gpio.usb_temp_adc_12);
+    }
+#endif
 	return 0;
 }
 
@@ -7088,46 +7058,38 @@ static void oppo_get_usbtemp_volt(struct oppo_chg_chip *chip)
 		chg_err("usbtemp_vadc_dev NULL\n");
 		return;
 	}
-	if(get_project() == 19651) {
+#ifdef CONFIG_MACH_REALME_RMX1921
 	/* just for 19651 gpio,other project need change channal  */
-	rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX4_1_1, &results);
-	if (rc) {
-		chg_err("unable to read usbtemp_vadc_dev gpio03 rc = %d\n", rc);
-		return;
-	}
-	chip->usbtemp_volt_r = (int)results.physical / 1000;
-	rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX10_1_1, &results);
-	if (rc) {
-		chg_err("unable to read usbtemp_vadc_dev gpio12 rc = %d\n", rc);
+		rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX4_1_1, &results);
+		if (rc) {
+			chg_err("unable to read usbtemp_vadc_dev gpio03 rc = %d\n", rc);
+			return;
+		}
+		chip->usbtemp_volt_r = (int)results.physical / 1000;
+		rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX10_1_1, &results);
+		if (rc) {
+			chg_err("unable to read usbtemp_vadc_dev gpio12 rc = %d\n", rc);
 
-	}
-	if(!chip->usbtemp_volt_l)
-		chip->usbtemp_volt_l = chip->usbtemp_volt_r;//for T0
-	else 
-		chip->usbtemp_volt_l = (int)results.physical / 1000;//for evt and later
-	}
-	if(get_project() == 19691) {
+		}
+		if(!chip->usbtemp_volt_l)
+			chip->usbtemp_volt_l = chip->usbtemp_volt_r;//for T0
+		else 
+			chip->usbtemp_volt_l = (int)results.physical / 1000;//for evt and later
+#elif CONFIG_MACH_REALME_RMX1971
 	/* just for 19691 gpio,other project need change channal  */
-	rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX4_1_1, &results);
-	if (rc) {
-		chg_err("unable to read usbtemp_vadc_dev gpio03 rc = %d\n", rc);
-		return;
-	}
-	chip->usbtemp_volt_r = (int)results.physical / 1000;
-	rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX5_1_1, &results);
-	if (rc) {
-		chg_err("unable to read usbtemp_vadc_dev gpio12 rc = %d\n", rc);
+		rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX4_1_1, &results);
+		if (rc) {
+			chg_err("unable to read usbtemp_vadc_dev gpio03 rc = %d\n", rc);
+			return;
+		}
+		chip->usbtemp_volt_r = (int)results.physical / 1000;
+		rc = qpnp_vadc_read(chip->pmic_spmi.pm660_usbtemp_vadc_dev, P_MUX5_1_1, &results);
+		if (rc) {
+			chg_err("unable to read usbtemp_vadc_dev gpio12 rc = %d\n", rc);
 
-	}
-	//if(pcb_version >= 1)
+		}
 		chip->usbtemp_volt_l = (int)results.physical / 1000;//for evt and later
-	//else 
-	//	chip->usbtemp_volt_l = chip->usbtemp_volt_r;//for T0
-
-	//pr_err("%s:get_PCB_Version, pcb_version:%d\n", __func__,pcb_version);
-	//chg_err("usbtemp volt: %d, %d\n", chip->usbtemp_volt_r, chip->usbtemp_volt_l);
-	}
-	//chg_err("usbtemp volt: %d, %d\n", chip->usbtemp_volt_r, chip->usbtemp_volt_l);
+#endif
 }
 
 static int oppo_dischg_gpio_init(struct oppo_chg_chip *chip)
@@ -7869,35 +7831,18 @@ static void oppo_set_otg_switch_status(bool value)
 		return;
 	}
 	chg = &chip->pmic_spmi.smb2_chip->chg;
-#ifdef CONFIG_MACH_REALME//OuYangBaiLi@BSP.CHG.Basic 2019/03/05 modify for factory otg
 	if((qpnp_get_prop_charger_voltage_now()> 4000) && oppo_chg_is_usb_present() && (value == true)){
 		chip->otg_switch = false;
 		otg_count = true;
 		pr_err("%s: usbin when otg_switch charger_type = %d,value =%d \n", __FUNCTION__,chg->real_charger_type,value);
 		return;
 	}
-#endif /* CONFIG_MACH_REALME */
-	#ifdef CONFIG_MACH_REALME
-	/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-	if(get_project() != 18621) {
-		/*boot-up with newman OTG connected, android will set persist.sys.oppo.otg_support, so...*/
-		if (oppo_ccdetect_check_is_gpio(chip) == true) {
-			chip->otg_switch = !!value;
-			level = gpio_get_value(chg->ccdetect_gpio);
-			if (level != 1) {
-				printk(KERN_ERR "[OPPO_CHG][%s]: gpio[%s], should set, return\n", __func__, level ? "H" : "L");
-				return;
-			}
-		} else {
-      			 oppo_set_otg_switch_status_dwc3(value);
-        	return;
-    	}
-	} else {
-		level = gpio_get_value(chg->ccdetect_gpio);
-		if(chip->otg_switch == value)
+
+/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
+	level = gpio_get_value(chg->ccdetect_gpio);
+	if(chip->otg_switch == value)
 		return;
-	}
-	#endif /* CONFIG_MACH_REALME */
+
 	chip->otg_switch = !!value;
 	if (value) {
         oppo_set_dpdm_status(POWER_SUPPLY_TYPEC_PLUGIN);
@@ -7909,9 +7854,7 @@ static void oppo_set_otg_switch_status(bool value)
 	printk(KERN_ERR "[OPPO_CHG][%s]: otg_switch=%d, otg_online=%d\n",
 			__func__, chip->otg_switch, chip->otg_online);
 }
-#endif /* CONFIG_MACH_REALME */
 
-#ifdef CONFIG_MACH_REALME
 /* Jianchao.Shi@BSP.CHG.Basic, 2017/04/26, sjc Add for charging */
 static bool use_present_status = false;
 #endif
@@ -9393,14 +9336,7 @@ static void otg_enable_pmic_id_value (void)
 	}
 	printk(KERN_ERR "[OPPO_CHG][%s]: ccdetect_active\n", __func__);
 	chg = &chip->pmic_spmi.smb2_chip->chg;
-	#ifdef CONFIG_MACH_REALME
-	/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-	if(get_project() == 18621) {
-		pinctrl_select_state(chg->ccdetect_pinctrl, chg->ccdetect_active);
-		check_otg_is_in();
-		return;	
-	}
-	#endif /* CONFIG_MACH_REALME */
+
 	/* set DRP mode */
 	rc = smblib_masked_write(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
 			TYPEC_POWER_ROLE_CMD_MASK, 0x0);//bit[2:0]=0
@@ -9429,14 +9365,7 @@ static void otg_disable_pmic_id_value (void)
 	}
 	printk(KERN_ERR "[OPPO_CHG][%s]: ccdetect_sleep\n", __func__);
 	chg = &chip->pmic_spmi.smb2_chip->chg;
-	#ifdef CONFIG_MACH_REALME
-	/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-	if(get_project() == 18621) {
-		pinctrl_select_state(chg->ccdetect_pinctrl, chg->ccdetect_sleep);
-		check_otg_is_in();
-		return;	
-	}
-	#endif /* CONFIG_MACH_REALME */
+
 	/* set sink mode only */
 	rc = smblib_masked_write(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
 			TYPEC_POWER_ROLE_CMD_MASK, UFP_EN_CMD_BIT);//bit[2:0]=0x4
@@ -9883,14 +9812,7 @@ static int smb2_post_init(struct smb2 *chip)
             level = gpio_get_value(chg->ccdetect_gpio);
         }
         if (level <= 0) {
-            //oppo_ccdetect_enable();
-	#ifdef CONFIG_MACH_REALME
-	/* OuYangBaiLi@BSP.CHG.Basic,charging_bsp 2019/09/19,Add for charging_otg */
-	if(get_project() == 18621) 
-		otg_disable_pmic_id_value();
-	else 
-		otg_enable_pmic_id_value();
-	#endif /* CONFIG_MACH_REALME */
+        	otg_enable_pmic_id_value();
         }
     } else {
 	rc = smblib_masked_write(chg, TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
@@ -11436,22 +11358,24 @@ static int smb2_pm_resume(struct device *dev)
 
 	if (!g_oppo_chip)
 		return 0;
+
     if (oppo_usbtemp_check_is_support() == true) {
-        if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc)) {
-            chg_err("get usb_temp_adc fail\n");
-            return -EINVAL;
-        } else {
-            pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc);
-        }
-        if(get_project() == 19691 ||get_project() == 19651){
-        if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc_12)) {
-            chg_err("get usb_temp_adc_12 fail\n");
-            return -EINVAL;
-        } else {
-            pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc_12);
-        }
-        }
+    	if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc)) {
+    		chg_err("get usb_temp_adc fail\n");
+    		return -EINVAL;
+    	} else {
+    		pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc);
+    	}
+#if defined(CONFIG_MACH_REALME_RMX1921) || defined(CONFIG_MACH_REALME_RMX1971)
+		if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc_12)) {
+			chg_err("get usb_temp_adc_12 fail\n");
+			return -EINVAL;
+		} else {
+			pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc_12);
+		}
+#endif
     }
+
 	rc = get_current_time(&resume_tm_sec);
 	if (rc || suspend_tm_sec == -1) {
 		chg_err("RTC read failed\n");
@@ -11473,22 +11397,24 @@ static int smb2_pm_suspend(struct device *dev)
 {
 	if (!g_oppo_chip)
 		return 0;
+
     if (oppo_usbtemp_check_is_support() == true) {
-        if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend)) {
-            chg_err("get usb_temp_adc_suspend fail\n");
-            return -EINVAL;
-        } else {
-            pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend);
-        }
-        if(get_project() == 19691 ||get_project() == 19651){
-        if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend_12)) {
-            chg_err("get usb_temp_adc_suspend_12 fail\n");
-            return -EINVAL;
-        } else {
-            pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend_12);
-        }
-        }
+    	if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend)) {
+    		chg_err("get usb_temp_adc_suspend fail\n");
+    		return -EINVAL;
+    	} else {
+    		pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend);
+    	}
+#if defined(CONFIG_MACH_REALME_RMX1921) || defined(CONFIG_MACH_REALME_RMX1971)
+    	if (IS_ERR_OR_NULL(g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend_12)) {
+    		chg_err("get usb_temp_adc_suspend_12 fail\n");
+    		return -EINVAL;
+    	} else {
+    		pinctrl_select_state(g_oppo_chip->normalchg_gpio.pinctrl, g_oppo_chip->normalchg_gpio.usb_temp_adc_suspend_12);
+    	}
+#endif
     }
+
 	if (get_current_time(&suspend_tm_sec)) {
 		chg_err("RTC read failed\n");
 		suspend_tm_sec = -1;
