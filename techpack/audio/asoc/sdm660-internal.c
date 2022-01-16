@@ -1119,38 +1119,12 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 	#endif /* CONFIG_MACH_REALME */
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
-		#ifdef CONFIG_MACH_REALME
-		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-		if (is_project(OPPO_18097)) {
-			if (!dmic_active) {
-				if ((jiffies > clk_off_jiffies)
-					&& ((jiffies - clk_off_jiffies) < usecs_to_jiffies(clk_switch_us))) {
-					interval_us = jiffies_to_usecs(jiffies - clk_off_jiffies);
-					pr_warn("%s: clk off %d us, too short!\n", __func__, interval_us);
-					if (interval_us < clk_switch_us) {
-						usleep_range(clk_switch_us-interval_us, clk_switch_us-interval_us+50);
-						pr_warn("%s: before turn on clk, sleep %d us!\n",
-							__func__, clk_switch_us - interval_us);
-					}
-				}
-			}
-		}
-		#endif /* CONFIG_MACH_REALME */
 		ret = msm_cdc_pinctrl_select_active_state(pdata->dmic_gpio_p);
 		if (ret < 0) {
 			pr_err("%s: gpio set cannot be activated %sd",
 					__func__, "dmic_gpio");
 			return ret;
 		}
-		#ifdef CONFIG_MACH_REALME
-		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-		if (is_project(OPPO_18097)) {
-			if (!dmic_active) {
-				dmic_active = true;
-				clk_on_jiffies = jiffies;
-			}
-		}
-		#endif /* CONFIG_MACH_REALME */
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		ret = msm_cdc_pinctrl_select_sleep_state(pdata->dmic_gpio_p);
@@ -1159,14 +1133,6 @@ static int msm_dmic_event(struct snd_soc_dapm_widget *w,
 					__func__, "dmic_gpio");
 			return ret;
 		}
-		#ifdef CONFIG_MACH_REALME
-		/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-		if (is_project(OPPO_18097)) {
-			if (dmic_active) {
-				dmic_active = false;
-			}
-		}
-		#endif /* CONFIG_MACH_REALME */
 		break;
 	default:
 		pr_err("%s: invalid DAPM event %d\n", __func__, event);
@@ -1481,37 +1447,9 @@ static void msm_int_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 			substream->name, substream->stream);
 	#endif /* CONFIG_MACH_REALME */
 
-	#ifdef CONFIG_MACH_REALME
-	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-	if (is_project(OPPO_18097)) {
-		if (substream->stream == 1) {
-			if ((jiffies > clk_on_jiffies)
-				&&((jiffies - clk_on_jiffies) < usecs_to_jiffies(clk_switch_us))) {
-				interval_us = jiffies_to_usecs(jiffies - clk_on_jiffies);
-				pr_warn("%s: clk on %d us, too short!\n", __func__, interval_us);
-				if (interval_us < clk_switch_us) {
-					usleep_range(clk_switch_us - interval_us, clk_switch_us - interval_us + 50);
-					pr_warn("%s: before turn off clk, sleep %d us!\n",
-						__func__, clk_switch_us - interval_us);
-				}
-			}
-		}
-	}
-	#endif /* CONFIG_MACH_REALME */
-
 	ret = int_mi2s_set_sclk(substream, false);
 	if (ret < 0)
-		pr_err("%s:clock disable failed; ret=%d\n", __func__,
-				ret);
-
-	#ifdef CONFIG_MACH_REALME
-	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec.1911528, 2019/03/22, Add for make sure dmic clock stable>50ms*/
-	if (is_project(OPPO_18097)) {
-		if ((substream->stream == 1) && (ret >= 0)) {
-			clk_off_jiffies = jiffies;
-		}
-	}
-	#endif /* CONFIG_MACH_REALME */
+		pr_err("%s:clock disable failed; ret=%d\n", __func__, ret);
 }
 
 static void *def_msm_int_wcd_mbhc_cal(void)
@@ -3707,24 +3645,16 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 			for (i = 0; i < ARRAY_SIZE(msm_mi2s_be_dai_links); i++) {
 				temp_link = &msm_mi2s_be_dai_links[i];
 				if (temp_link->id == MSM_BACKEND_DAI_TERTIARY_MI2S_RX) {
+#if defined(CONFIG_MACH_REALME_RMX1921) || defined(CONFIG_MACH_REALME_RMX1971)
 					/* xiang.fei@PSW.MM.AudioDriver.SmartPA, 2019/02/25, Modify for tfa98xx */
-					if (!is_project(OPPO_18383)) {
-						if (!strcmp(product_name, "nxp")
-							&& soc_find_component(NULL, tfa98xx_be_dai_links[0].codec_name)) {
-							pr_info("%s: use nxp dailink replace\n", __func__);
-							memcpy(temp_link, &tfa98xx_be_dai_links[0],
-								sizeof(tfa98xx_be_dai_links[0]));
-							break;
-						}
-					} else {
-						if (!strcmp(product_name, "nxp")
-							&& soc_find_component(NULL, tfa98xx_be_dai_links_new[0].codec_name)) {
-							pr_info("%s: use nxp dailink_new replace\n", __func__);
-							memcpy(temp_link, &tfa98xx_be_dai_links_new[0],
-								sizeof(tfa98xx_be_dai_links_new[0]));
-							break;
-						}
+					if (!strcmp(product_name, "nxp")
+						&& soc_find_component(NULL, tfa98xx_be_dai_links[0].codec_name)) {
+						pr_info("%s: use nxp dailink replace\n", __func__);
+						memcpy(temp_link, &tfa98xx_be_dai_links[0],
+							sizeof(tfa98xx_be_dai_links[0]));
+						break;
 					}
+#endif
 				}
 			}
 		}
