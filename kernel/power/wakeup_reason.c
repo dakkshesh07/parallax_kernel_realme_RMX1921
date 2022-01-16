@@ -41,142 +41,6 @@ static ktime_t curr_monotime; /* monotonic time after last suspend */
 static ktime_t last_stime; /* monotonic boottime offset before last suspend */
 static ktime_t curr_stime; /* monotonic boottime offset after last suspend */
 
-#ifdef CONFIG_MACH_REALME
-//Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
-#include <linux/notifier.h>
-#include <linux/msm_drm_notify.h>
-#endif /* CONFIG_MACH_REALME */
-#ifdef CONFIG_MACH_REALME
-//Wenxian.zhen@Prd.BaseDrv, 2016/07/19, add for analysis power consumption
-void wakeup_src_clean(void);
-#endif /* CONFIG_MACH_REALME */
-#ifdef CONFIG_MACH_REALME
-//Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
-extern u64 wakeup_source_count_wifi;
-
-extern u64	wakeup_source_count_modem;
-
-extern u64 wakeup_source_count_pmic_rtc;
-extern u64 wakeup_source_count_kpdpwr;
-extern u64 wakeup_source_count_cdsp;
-extern u64 wakeup_source_count_adsp;
-
-extern u64 	alarm_count;
-extern u64	wakeup_source_count_rtc;
-
-
-static ssize_t ap_resume_reason_stastics_show(struct kobject *kobj, struct kobj_attribute *attr,
-		char *buf)
-{
-	int buf_offset = 0;
-
-	buf_offset += sprintf(buf + buf_offset, "wcnss_wlan");
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_wifi);
-	printk(KERN_WARNING "%s wakeup %lld times\n","wcnss_wlan",wakeup_source_count_wifi);
-
-	buf_offset += sprintf(buf + buf_offset, "modem");
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_modem);
-	printk(KERN_WARNING "%s wakeup %lld times\n","qcom,smd-modem",wakeup_source_count_modem);
-
-	buf_offset += sprintf(buf + buf_offset, "qpnp_rtc_alarm");
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_rtc);
-	printk(KERN_WARNING "%s wakeup %lld times\n","qpnp_rtc_alarm",wakeup_source_count_rtc);
-	
-	buf_offset += sprintf(buf + buf_offset, "power_key");
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_kpdpwr);
-	printk(KERN_WARNING "%s wakeup %lld times\n","power_key",wakeup_source_count_kpdpwr);
-
-	buf_offset += sprintf(buf + buf_offset, "cdsp");		
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_cdsp);
-	printk(KERN_WARNING "%s wakeup %lld times\n","cdsp",wakeup_source_count_cdsp);
-
-	buf_offset += sprintf(buf + buf_offset, "adsp");		
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_adsp);
-	printk(KERN_WARNING "%s wakeup %lld times\n","adsp",wakeup_source_count_adsp);
-
-	buf_offset += sprintf(buf + buf_offset, "alarm");		
-	buf_offset += sprintf(buf + buf_offset,  "%s",":");
-	buf_offset += sprintf(buf + buf_offset,  "%lld \n",wakeup_source_count_pmic_rtc);
-	printk(KERN_WARNING "%s wakeup %lld times\n","alarm",wakeup_source_count_pmic_rtc);
-	
-	return buf_offset;
-}
-#endif /* CONFIG_MACH_REALME */
-#ifdef CONFIG_MACH_REALME
-//Nanwei.Deng@BSP.Power.Basic, 2018/04/28 add for analysis power coumption.
-static void wakeup_reason_count_clear(void)
-{
-    printk(KERN_INFO  "ENTER %s\n", __func__);
-    alarm_count = 0;
-	wakeup_source_count_rtc = 0;
-	
-	wakeup_source_count_wifi = 0;
-	wakeup_source_count_modem = 0;
-	
-	wakeup_source_count_pmic_rtc = 0;
-	wakeup_source_count_kpdpwr = 0;
-	wakeup_source_count_cdsp = 0;
-	wakeup_source_count_adsp = 0;
-}
-
-static void wakeup_reason_count_out(void)
-{
-	printk(KERN_INFO   "%s wakeup %lld times\n","wcnss_wlan",wakeup_source_count_wifi);
-	printk(KERN_INFO   "%s wakeup %lld times\n","qcom,smd-modem",wakeup_source_count_modem);
-	printk(KERN_INFO   "%s wakeup %lld times\n","alarm",wakeup_source_count_pmic_rtc);
-	printk(KERN_INFO   "%s wakeup %lld times\n","qpnp_rtc_alarm",wakeup_source_count_rtc);
-	printk(KERN_INFO   "%s wakeup %lld times\n","power_key",wakeup_source_count_kpdpwr);
-	printk(KERN_INFO   "%s wakeup %lld times\n","cdsp",wakeup_source_count_cdsp);
-	printk(KERN_INFO   "%s wakeup %lld times\n","adsp",wakeup_source_count_adsp);
-	printk(KERN_INFO  "ENTER %s\n", __func__);	
-}
-
-void wakeup_src_clean(void)
-{		
-	wakeup_reason_count_clear();
-}
-EXPORT_SYMBOL(wakeup_src_clean);
-
-
-#ifdef CONFIG_DRM_MSM
-static int wakeup_src_msm_drm_notifier_callback(struct notifier_block *self,
-				 unsigned long event, void *data)
-{
-	struct msm_drm_notifier *evdata = data;
-	int *blank;
-
- 	if (evdata && evdata->data && event == MSM_DRM_EVENT_BLANK) 
-	{
-		blank = evdata->data;
-		if (*blank == MSM_DRM_BLANK_UNBLANK)
-		{
-			wakeup_reason_count_out();
-		}
-	}
-	else if (evdata && evdata->data && event == MSM_DRM_EARLY_EVENT_BLANK) 
-	{
-		blank = evdata->data;
-				
-		if (*blank == MSM_DRM_BLANK_POWERDOWN)
-		{
-			wakeup_src_clean();
-			pr_info("[wakeup_src_msm_drm_notifier_callback] wakeup_src_clean all wakeup\n");
-		}
-	}
-	return 0;
-}
-#endif /* CONFIG_DRM_MSM */
-
-static struct notifier_block wakeup_src_msm_drm_notif = {
-	.notifier_call = wakeup_src_msm_drm_notifier_callback,
-};
-#endif /* CONFIG_MACH_REALME */
 static ssize_t last_resume_reason_show(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf)
 {
@@ -228,51 +92,12 @@ static ssize_t last_suspend_time_show(struct kobject *kobj,
 				sleep_time.tv_sec, sleep_time.tv_nsec);
 }
 
-#ifdef CONFIG_MACH_REALME
-//Wenxian.Zhen@BSP.Power.Basic, 2018/11/17, Add for  clean wake up source  according to echo reset >   /sys/kernel/wakeup_reasons/wakeup_stastisc_reset
-static ssize_t  wakeup_stastisc_reset_store(struct kobject *kobj,
-		struct kobj_attribute *attr, const char *buf, size_t count)
-{
-	char reset_string[]="reset";
-	if(!((count == strlen(reset_string)) || ((count == strlen(reset_string) + 1) && (buf[count-1] == '\n')))) {
-		return count;
-       }
-
-	if (strncmp(buf, reset_string, strlen(reset_string)) != 0) {
-		return count;
-       }
-
-	wakeup_src_clean();
-	return count;
-}
-
-
-#endif /* CONFIG_MACH_REALME */
-
 static struct kobj_attribute resume_reason = __ATTR_RO(last_resume_reason);
 static struct kobj_attribute suspend_time = __ATTR_RO(last_suspend_time);
 
-#ifdef CONFIG_MACH_REALME
-//Wenxian.Zhen@BSP.Power.Basic, 2018/11/17, Add for  clean wake up source  according to echo reset >   /sys/kernel/wakeup_reasons/wakeup_stastisc_reset
-static struct kobj_attribute wakeup_stastisc_reset_sys =
-	__ATTR(wakeup_stastisc_reset, S_IWUSR|S_IRUGO, NULL, wakeup_stastisc_reset_store);
-#endif /* CONFIG_MACH_REALME */
-#ifdef CONFIG_MACH_REALME
-//Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
-static struct kobj_attribute ap_resume_reason_stastics = __ATTR_RO(ap_resume_reason_stastics);
-#endif /* CONFIG_MACH_REALME */
 static struct attribute *attrs[] = {
 	&resume_reason.attr,
 	&suspend_time.attr,
-	
-#ifdef CONFIG_MACH_REALME
-//Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.
-    &ap_resume_reason_stastics.attr,
-#endif /* CONFIG_MACH_REALME */
-#ifdef CONFIG_MACH_REALME
-//Wenxian.Zhen@BSP.Power.Basic, 2018/11/17, Add for  clean wake up source  according to echo reset >   /sys/kernel/wakeup_reasons/wakeup_stastisc_reset
-    &wakeup_stastisc_reset_sys.attr,
-#endif /* CONFIG_MACH_REALME */
 	NULL,
 };
 static struct attribute_group attr_group = {
@@ -394,12 +219,6 @@ int __init wakeup_reason_init(void)
 		printk(KERN_WARNING "[%s] failed to create a sysfs group %d\n",
 				__func__, retval);
 	}
-    #ifdef CONFIG_MACH_REALME
-    //Nanwei.Deng@BSP.Power.Basic, 2018/04/28, add for analysis power coumption.  
-#ifdef CONFIG_DRM_MSM
-	msm_drm_register_client(&wakeup_src_msm_drm_notif);
-#endif
-    #endif /* CONFIG_MACH_REALME */
 	return 0;
 }
 
