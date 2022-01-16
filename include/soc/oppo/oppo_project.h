@@ -110,11 +110,6 @@ enum OPPO_ENG_VERSION {
 /*#endif CONFIG_MACH_REALME*/
 
 #ifdef CONFIG_MACH_REALME_RMX1921
-static inline unsigned int is_project(OPPO_PROJECT project)
-{
-        return OPPO_19651 == project;
-}
-
 static inline unsigned int get_project(void)
 {
         return 19651;
@@ -123,11 +118,6 @@ static inline unsigned int get_project(void)
 static inline unsigned int get_project(void)
 {
         return 19691;
-}
-
-static inline unsigned int is_project(OPPO_PROJECT project)
-{
-        return OPPO_19691 == project;
 }
 #endif
 

@@ -876,13 +876,6 @@ int32_t cam_actuator_i2c_pkt_parse(struct cam_actuator_ctrl_t *a_ctrl,
 				return rc;
 			}
 			a_ctrl->cam_act_state = CAM_ACTUATOR_CONFIG;
-			#ifdef CONFIG_MACH_REALME
-			/*Added by Zhengrong.Zhang@Cam.Drv, 2018/11/08, for update ak7374 PID*/
-			if (is_project(OPPO_18181) && a_ctrl->is_check_firmware_update && a_ctrl->soc_info.index == 0) {
-				cam_actuator_write_firmware_ak7374(a_ctrl);
-				a_ctrl->is_check_firmware_update = 0;
-			}
-			#endif
 		}
 
 		rc = cam_actuator_apply_settings(a_ctrl,
