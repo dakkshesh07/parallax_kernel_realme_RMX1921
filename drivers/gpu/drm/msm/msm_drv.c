@@ -1774,16 +1774,6 @@ static int add_display_components(struct device *dev,
 			if (!node)
 				break;
 
-			#ifdef CONFIG_MACH_REALME
-			/*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 disable dp function for 18385 */
-			if (get_Operator_Version() == OPERATOR_FOREIGN &&
-			    get_project() == OPPO_18181 &&
-			    of_device_is_compatible(node, "qcom,dp-display")) {
-				pr_err("Disable dp function");
-				continue;
-			}
-			#endif /* CONFIG_MACH_REALME */
-
 			component_match_add(dev, matchptr, compare_of, node);
 		}
 

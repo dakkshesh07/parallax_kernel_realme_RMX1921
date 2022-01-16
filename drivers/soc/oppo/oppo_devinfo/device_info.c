@@ -398,63 +398,7 @@ sub_mainboard_set:
         speaker_mainboard_info.version ="Qcom";
         operator = get_Operator_Version();
         pcbVersion = get_PCB_Version();
-
-        switch (get_project()) {
-        case OPPO_18081:
-        case OPPO_18085:
-                pr_err("sub_mainboard_volt: %d\n", sub_mainboard_volt);
-                if ((sub_mainboard_volt > 0 && sub_mainboard_volt < 200) && (operator == OPERATOR_ALL_CHINA_CARRIER ||
-                        operator == OPERATOR_CHINA_MOBILE) && (pcbVersion == HW_VERSION__10)) {      //EVT1 china
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else if((sub_mainboard_volt > 250 && sub_mainboard_volt < 400) && (operator == OPERATOR_FOREIGN) &&
-                        (pcbVersion == HW_VERSION__11 || pcbVersion == HW_VERSION__12)) {      //EVT2 foreign and DVT
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else if ((sub_mainboard_volt > 500 && sub_mainboard_volt < 650) && (operator == OPERATOR_FOREIGN) &&
-                        (pcbVersion == HW_VERSION__10)) {    //EVT1 foreign
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else if ((sub_mainboard_volt > 850 && sub_mainboard_volt < 1000) && (operator == OPERATOR_FOREIGN) &&
-                        (pcbVersion == HW_VERSION__13)) {        //PVT foreign
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else if ((sub_mainboard_volt > 1650) && (operator == OPERATOR_ALL_CHINA_CARRIER ||
-                        operator == OPERATOR_CHINA_MOBILE) && (pcbVersion == HW_VERSION__11 || pcbVersion == HW_VERSION__12 || pcbVersion == HW_VERSION__13)) {        //EVT2 china, DVT and PVT
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else {
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-unmatch");
-                }
-                break;
-        case OPPO_18181:
-                pr_err("sub_mainboard_volt: %d\n", sub_mainboard_volt);
-                if ((sub_mainboard_volt > 0 && sub_mainboard_volt < 300) && (operator == OPERATOR_ALL_CHINA_CARRIER ||
-                        operator == OPERATOR_CHINA_MOBILE)) {
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else if ((sub_mainboard_volt > 300 && sub_mainboard_volt < 700) && (operator == OPERATOR_FOREIGN ||
-                        operator == OPERATOR_FOREIGN_EUROPE)) {
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                } else {
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-unmatch");
-                }
-                break;
-        case OPPO_18097:
-        case OPPO_18099:
-                pr_err("18097 sub_mainboard_volt: %d\n", sub_mainboard_volt);
-                snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-                break;
-        case OPPO_18041:
-               pr_err("18041 sub_hw_id1:%d sub_hw_id2:%d\n", sub_id1, sub_id2);
-               if ((sub_id1 == 1) && (sub_id2 == 1) && (operator == OPERATOR_FOREIGN)) {
-                   snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-               } else if ((sub_id1 == 0) && (sub_id2 == 1) && 
-			         ((operator == OPERATOR_ALL_CHINA_CARRIER) || (operator == OPERATOR_CHINA_MOBILE)) ){
-                   snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-match");
-               } else {
-                   snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "rf-unmatch");
-               }
-               break;
-        default:
-                snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "%d-%d", get_project(), get_Operator_Version());
-                break;
-        }
-
+        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "%d-%d", get_project(), get_Operator_Version());
         register_device_proc("audio_mainboard", mainboard_info.version, mainboard_info.manufacture);
 }
 
@@ -602,25 +546,8 @@ static void RF_resource_verify(struct devinfo_data *devinfo_data)
 	rf_resource_info.version = temp_manufacture2;
         operator_name = get_Operator_Version();
         pr_err("operator_name is %d\n", operator_name);
-
-	switch(get_project()) {
-                case OPPO_18181:
-                        if (gpio136_stu == 0 && (operator_name == OPERATOR_ALL_CHINA_CARRIER || operator_name == OPERATOR_CHINA_MOBILE)) {
-                                snprintf(rf_resource_info.manufacture, INFO_BUF_LEN, "Sboard-match");
-                                snprintf(rf_resource_info.version, INFO_BUF_LEN, "Qcom");
-                        } else if (gpio136_stu == 1 && (operator_name == OPERATOR_FOREIGN || operator_name == OPERATOR_FOREIGN_EUROPE)) {
-                                snprintf(rf_resource_info.manufacture, INFO_BUF_LEN, "Sboard-match");
-                                snprintf(rf_resource_info.version, INFO_BUF_LEN, "Qcom");
-                        } else {
-                                snprintf(rf_resource_info.manufacture, INFO_BUF_LEN, "Sboard-unmatch");
-                                snprintf(rf_resource_info.version, INFO_BUF_LEN, "Qcom");
-                        }
-                        break;
-		default:
-                        snprintf(rf_resource_info.manufacture, INFO_BUF_LEN, "Sboard-unmatch");
-                        snprintf(rf_resource_info.version, INFO_BUF_LEN, "Qcom");
-			break;
-	}
+        snprintf(rf_resource_info.manufacture, INFO_BUF_LEN, "Sboard-unmatch");
+        snprintf(rf_resource_info.version, INFO_BUF_LEN, "Qcom");
 
 	//pull down four gpio
 	if (!IS_ERR_OR_NULL(devinfo_data->Sboard_gpio_pulldown))
@@ -684,16 +611,10 @@ static void wlan_resource_verify(struct devinfo_data *devinfo_data)
 wlan_resource_set:
         mainboard_info.manufacture = temp_manufacture_wlan;
         mainboard_info.version ="Qcom";
-        switch (get_project()) {
-        default: {
-                        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "%d-%d", get_project(), get_Operator_Version());
-                        break;
-                }
-        }
+        snprintf(mainboard_info.manufacture, INFO_BUF_LEN, "%d-%d", get_project(), get_Operator_Version());
 
-        if (!IS_ERR_OR_NULL(devinfo_data->hw_wlan_gpio_sleep)) {
+        if (!IS_ERR_OR_NULL(devinfo_data->hw_wlan_gpio_sleep))
                 pinctrl_select_state(devinfo_data->pinctrl, devinfo_data->hw_wlan_gpio_sleep);
-                }
         register_device_proc("wlan_resource", mainboard_info.version, mainboard_info.manufacture);
 }
 
@@ -728,7 +649,6 @@ static int devinfo_probe(struct platform_device *pdev)
         int ret = 0;
         struct devinfo_data *devinfo_data = NULL;
         struct proc_dir_entry *pentry;
-        pr_err("this is project  %d \n", get_project());
         devinfo_data = kzalloc(sizeof(struct devinfo_data), GFP_KERNEL);
         if (devinfo_data == NULL) {
                 pr_err("devinfo_data kzalloc failed\n");

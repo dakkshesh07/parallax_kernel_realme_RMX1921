@@ -450,29 +450,20 @@ static void qusb_phy_get_tune1_param(struct qusb_phy *qphy)
 
 	qphy->tune_val = TUNE_VAL_MASK(qphy->tune_val,
 				qphy->efuse_bit_pos, bit_mask);
-	if((get_project() == 19691)){
-		if(dev_phy_tune1 != 0) {
-			dev_phy_tune1 = 0x40;
-			pr_err("%s: oppo get_tune1  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
-			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
-		}
+#ifdef CONFIG_MACH_REALME_RMX1971
+	if(dev_phy_tune1 != 0) {
+		dev_phy_tune1 = 0x40;
+		pr_err("%s: oppo get_tune1  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+		writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
 	}
-	if((get_project() == 19651)){
-		if(dev_phy_tune1 != 0) {
-			dev_phy_tune1 = 0x76;
-			pr_err("%s: oppo write_tune1_low4bits  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
-			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
-			pr_err("%s: tune1 high4bits get_real_efuse = [0x%x]\n", __func__,  qphy->tune_val);
-		}
+#elif CONFIG_MACH_REALME_RMX1921
+	if(dev_phy_tune1 != 0) {
+		dev_phy_tune1 = 0x76;
+		pr_err("%s: oppo write_tune1_low4bits  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+		writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
+		pr_err("%s: tune1 high4bits get_real_efuse = [0x%x]\n", __func__,  qphy->tune_val);
 	}
-	if((get_project() == 18621)){
-		if(dev_phy_tune1 != 0) {
-			//dev_phy_tune1 = 0x76;
-			pr_err("%s: oppo write_tune1_low4bits  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
-			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
-			pr_err("%s: tune1 high4bits get_real_efuse = [0x%x]\n", __func__,  qphy->tune_val);
-		}
-	}
+#endif
 	reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
 	if (qphy->tune_val) {
 		reg = reg & 0x0f;
@@ -699,48 +690,20 @@ static int qusb_phy_init(struct usb_phy *phy)
 		writel_relaxed(qphy->bias_ctrl2,
 				qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
 
-#ifdef CONFIG_MACH_REALME
-	/* tongfeng.Huang@BSP.CHG.Basic, 2018/09/06,  Add for 18181 usb eye diagram	*/
-	if((get_project() == 18181) || (get_project() == 19651)){
-		if(dev_phy_bias2 != 0) {
-			dev_phy_bias2 = 0x13;
-			dev_err(phy->dev, "%s: oppo rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
-			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
-		}
-	}
-	if((get_project() == 18097) || (get_project() == 18099) || (get_project() == 18041) || (get_project() == 18383)) {
-		if(dev_phy_tune1 != 0) {
-            dev_phy_tune1 = 0x77;
-			dev_err(phy->dev, "%s: oppo rewrite  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
-			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
-		}
-
+#ifdef CONFIG_MACH_REALME_RMX1921
 	if(dev_phy_bias2 != 0) {
-            dev_phy_bias2 = 0x20;
-			dev_err(phy->dev, "%s: oppo rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
-			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
-		}
+		dev_phy_bias2 = 0x13;
+		dev_err(phy->dev, "%s: oppo rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+		writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
 	}
-	if(get_project() == 18621) {
-		//if(dev_phy_bias2 != 0) {
-			//dev_phy_bias2 = 0x18;
-			reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
-			dev_err(phy->dev, "PORT_TUNE1:%x\n", reg);
-			dev_err(phy->dev, "%s: BIAS_CTRL_2 rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
-			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
-		//}
-	}
-	if(get_project() == 19691) {
-		//if(dev_phy_bias2 != 0) {
-			dev_phy_bias2 = 0x10;
-			reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
-			dev_err(phy->dev, "PORT_TUNE1:%x\n", reg);
-			dev_err(phy->dev, "%s: BIAS_CTRL_2 rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
-			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
-		//}
-	}
-
+#elif CONFIG_MACH_REALME_RMX1971
+		dev_phy_bias2 = 0x10;
+		reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
+		dev_err(phy->dev, "PORT_TUNE1:%x\n", reg);
+		dev_err(phy->dev, "%s: BIAS_CTRL_2 rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+		writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
 #endif
+
 	/* ensure above writes are completed before re-enabling PHY */
 	wmb();
 
