@@ -60,7 +60,7 @@
 			reg = <0x0 0x0>;
 			clock-frequency = <1708800000>;
 			enable-method = "psci";
-			efficiency = <1024>;
+			efficiency = <632>;
 			cache-size = <0x10000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_0>;
@@ -97,7 +97,7 @@
 			reg = <0x0 0x100>;
 			clock-frequency = <1708800000>;
 			enable-method = "psci";
-			efficiency = <1024>;
+			efficiency = <632>;
 			cache-size = <0x10000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_100>;
@@ -129,7 +129,7 @@
 			reg = <0x0 0x200>;
 			enable-method = "psci";
 			clock-frequency = <1708800000>;
-			efficiency = <1024>;
+			efficiency = <632>;
 			cache-size = <0x10000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_200>;
@@ -161,7 +161,7 @@
 			reg = <0x0 0x300>;
 			clock-frequency = <1708800000>;
 			enable-method = "psci";
-			efficiency = <1024>;
+			efficiency = <632>;
 			cache-size = <0x10000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_300>;
@@ -193,7 +193,7 @@
 			reg = <0x0 0x400>;
 			clock-frequency = <1708800000>;
 			enable-method = "psci";
-			efficiency = <1024>;
+			efficiency = <632>;
 			cache-size = <0x10000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_400>;
@@ -225,7 +225,7 @@
 			reg = <0x0 0x500>;
 			clock-frequency = <1708800000>;
 			enable-method = "psci";
-			efficiency = <1024>;
+			efficiency = <632>;
 			cache-size = <0x10000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_500>;
@@ -257,7 +257,7 @@
 			reg = <0x0 0x600>;
 			clock-frequency = <2208000000>;
 			enable-method = "psci";
-			efficiency = <1740>;
+			efficiency = <1024>;
 			cache-size = <0x20000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_600>;
@@ -289,7 +289,7 @@
 			reg = <0x0 0x700>;
 			clock-frequency = <2208000000>;
 			enable-method = "psci";
-			efficiency = <1740>;
+			efficiency = <1024>;
 			cache-size = <0x20000>;
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_700>;
@@ -358,47 +358,43 @@
 
 		CPU_COST_0: core-cost0 {
 			busy-cost-data = <
-				 300000    14
-				 576000    25
-				 748800    31
-				 998400    46
-				1209600    57
-				1324800    84
-				1516800    96
-				1612800   114
-				1708800   139
+				 300000    58
+				 576000    74
+				 748800    87
+				 998400   101
+				1209600   118
+				1324800   126
+				1516800   140
+				1612800   145
+				1708800   160
 			>;
 			idle-cost-data = <
 				12 10 8 6 4
 			>;
 		};
+
 		CPU_COST_1: core-cost1 {
 			busy-cost-data = <
-				 300000    256
-				 652800    307
-				 825600    332
-				 979200    382
-				1132800    408
-				1363200    448
-				1536000    586
-				1747200    641
-				1843200    659
-				1996800    696
-				2016000    865
-				2054400    876
-				2169600    900
-				2208000    924
-				2304000    940
-				2361600    948
-				2400000   1170
-				2457600   1200
-				2515200   1300
-				2611200   1400
+				 300000     86
+				 652800    131
+				 825600    153
+				 979200    182
+				1132800    217
+				1363200    271
+				1536000    322
+				1747200    422
+				1843200    440
+				1996800    508
+				2054400    547
+				2169600    627
+				2208000    658
+				2304000    694
 			>;
 			idle-cost-data = <
 				100 80 60 40 20
 			>;
 		};
+
 		CLUSTER_COST_0: cluster-cost0 {
 			busy-cost-data = <
 				 300000    6
@@ -415,6 +411,7 @@
 				5 4 3 2 1
 			>;
 		};
+
 		CLUSTER_COST_1: cluster-cost1 {
 			busy-cost-data = <
 				 300000    25
@@ -427,16 +424,10 @@
 				1747200    64
 				1843200    65
 				1996800    69
-				2016000    85
-				2054400    87
-				2169600    90
-				2208000    92
-				2304000    93
-				2361600    94
-				2400000   117
-				2457600   120
-				2515200   130
-				2611200   140
+				2054400    85
+				2169600    87
+				2208000    90
+				2304000    92
 			>;
 			idle-cost-data = <
 				5 4 3 2 1
