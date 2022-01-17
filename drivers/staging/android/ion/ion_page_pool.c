@@ -228,15 +228,15 @@ static bool ion_page_pool_isolate(struct page *page, isolate_mode_t mode)
 		return false;
 	pool = mapping->private_data;
 
-	mutex_lock(&pool->mutex);
+	spin_lock(&pool->lock);
 	/* could be removed from the cache pool and thus become unmovable */
 	if (!__PageMovable(page)) {
-		mutex_unlock(&pool->mutex);
+		spin_unlock(&pool->lock);
 		return false;
 	}
 
 	if (unlikely(!test_bit(ION_PAGE_CACHE, &page->private))) {
-		mutex_unlock(&pool->mutex);
+		spin_unlock(&pool->lock);
 		return false;
 	}
 
@@ -245,7 +245,7 @@ static bool ion_page_pool_isolate(struct page *page, isolate_mode_t mode)
 		pool->high_count--;
 	else
 		pool->low_count--;
-	mutex_unlock(&pool->mutex);
+	spin_unlock(&pool->lock);
 
 	return true;
 }
@@ -266,7 +266,7 @@ static int ion_page_pool_migrate(struct address_space *mapping,
 	__ClearPageMovable(page);
 	ClearPagePrivate(page);
 	unlock_page(page);
-	mutex_lock(&pool->mutex);
+	spin_lock(&pool->lock);
 	if (PageHighMem(newpage)) {
 		list_add_tail(&newpage->lru, &pool->high_items);
 		pool->high_count++;
@@ -274,7 +274,7 @@ static int ion_page_pool_migrate(struct address_space *mapping,
 		list_add_tail(&newpage->lru, &pool->low_items);
 		pool->low_count++;
 	}
-	mutex_unlock(&pool->mutex);
+	spin_unlock(&pool->lock);
 	put_page(page);
 	return 0;
 }
