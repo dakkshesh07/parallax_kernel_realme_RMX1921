@@ -5725,11 +5725,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	const struct of_device_id *match;
 	const char *usb_c_dt = "qcom,msm-mbhc-usbc-audio-supported";
 
-	#ifdef CONFIG_MACH_REALME
-	/* Jianfeng.Qiu@PSW.MM.AudioDriver.Machine,2017/09/21, Add for log*/
-	pr_info("%s: *** Enter\n", __func__);
-	#endif /* CONFIG_MACH_REALME */
-
 	pdata = devm_kzalloc(&pdev->dev,
 			     sizeof(struct msm_asoc_mach_data),
 			     GFP_KERNEL);

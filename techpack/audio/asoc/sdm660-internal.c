@@ -3597,13 +3597,11 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 		 */
 		if (!of_property_read_string(dev->of_node, oppo_headphone_type,
 				&product_name)) {
-			pr_info("%s: custom headphone product %s\n", __func__, product_name);
 			for (i = 0; i < ARRAY_SIZE(msm_mi2s_be_dai_links); i++) {
 				temp_link = &msm_mi2s_be_dai_links[i];
 				if (temp_link->id == MSM_BACKEND_DAI_SECONDARY_MI2S_RX) {
 					if (!strcmp(product_name, "akm")
 						&& soc_find_component(NULL, ak43xx_be_dai_links[0].codec_name)) {
-						pr_info("%s: use akm dailink replace\n", __func__);
 						memcpy(temp_link, &ak43xx_be_dai_links[0],
 							sizeof(ak43xx_be_dai_links[0]));
 						break;
@@ -3614,7 +3612,6 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 
 		if (!of_property_read_string(dev->of_node, oppo_speaker_type,
 				&product_name)) {
-			pr_info("%s: custom speaker product %s\n", __func__, product_name);
 			for (i = 0; i < ARRAY_SIZE(msm_mi2s_be_dai_links); i++) {
 				temp_link = &msm_mi2s_be_dai_links[i];
 				if (temp_link->id == MSM_BACKEND_DAI_TERTIARY_MI2S_RX) {
@@ -3622,7 +3619,6 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 					/* xiang.fei@PSW.MM.AudioDriver.SmartPA, 2019/02/25, Modify for tfa98xx */
 					if (!strcmp(product_name, "nxp")
 						&& soc_find_component(NULL, tfa98xx_be_dai_links[0].codec_name)) {
-						pr_info("%s: use nxp dailink replace\n", __func__);
 						memcpy(temp_link, &tfa98xx_be_dai_links[0],
 							sizeof(tfa98xx_be_dai_links[0]));
 						break;
@@ -3734,8 +3730,6 @@ static int msm_internal_init(struct platform_device *pdev,
 	mutex_init(&pdata->cdc_int_mclk0_mutex);
 	atomic_set(&pdata->int_mclk0_rsc_ref, 0);
 	atomic_set(&pdata->int_mclk0_enabled, false);
-
-	dev_info(&pdev->dev, "%s: default codec configured\n", __func__);
 
 	return 0;
 err:
