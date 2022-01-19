@@ -3156,7 +3156,6 @@ enum Tfa98xx_Error tfa_start(int next_profile, int *vstep)
 
         /* Check if we need coldstart or ACS is set */
         err = tfaRunSpeakerBoost(dev, 0, next_profile);
-        pr_info("tfa_start %d mOhms \n", handles_local[dev].mohm[0]);
         #ifdef CONFIG_MACH_REALME
         /*xiang.fei@PSW.MM.AudioDriver.FTM, 2017/02/15, Add for ringing*/
         if(ftm_mode == BOOT_MODE_FACTORY)
