@@ -627,6 +627,8 @@ config CFI_CLANG_SHADOW
 
 config LLVM_POLLY
 	bool "Enable LLVM's polyhedral loop optimizer (Polly)"
+	depends on CC_IS_CLANG && !CC_IS_GCC
+	default y
 	help
 	  This option enables LLVM's polyhedral loop optimizer known as Polly.
 	  Polly is able to optimize various loops throughout the kernel for
