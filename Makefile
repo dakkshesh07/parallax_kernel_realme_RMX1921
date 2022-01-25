@@ -846,7 +846,9 @@ KBUILD_LDFLAGS	+= --lto-O3
 endif
 
 ifdef CONFIG_CC_WERROR
+ifeq ($(cc-name),clang)
 KBUILD_CFLAGS	+= -Werror
+endif
 endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
