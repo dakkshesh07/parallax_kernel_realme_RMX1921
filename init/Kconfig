@@ -1313,6 +1313,8 @@ config LD_DEAD_CODE_DATA_ELIMINATION
 	  own risk.
 
 config GCC_GRAPHITE
+	default y if CC_IS_GCC
+	default n if CC_IS_CLANG
 	bool "Enable GCC Polyhedral Loop Optimization (Graphite)"
 
 config SYSCTL
