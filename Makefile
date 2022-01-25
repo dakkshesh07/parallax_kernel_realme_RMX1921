@@ -742,10 +742,14 @@ else
 OPT_FLAGS += -mllvm -polly-opt-fusion=max
 endif
 endif
+else
+OPT_FLAGS := -march=armv8.2-a+crypto+crc
+OPT_FLAGS += -mtune=cortex-a75.cortex-a55
+endif
+
 KBUILD_CFLAGS += -O3 $(OPT_FLAGS)
 KBUILD_AFLAGS += -O3 $(OPT_FLAGS)
 KBUILD_LDFLAGS += $(OPT_FLAGS)
-endif
 
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)

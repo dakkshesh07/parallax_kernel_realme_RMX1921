@@ -100,7 +100,11 @@ ifeq ($(CONFIG_COMPAT_VDSO), y)
 endif
 
 ifeq ($(CONFIG_ARCH_SDM670), y)
+ifeq ($(cc-name),clang)
 OPT_FLAGS := -O3 -march=armv8.2-a+crypto+crc+nodotprod -mtune=cortex-a75
+else
+OPT_FLAGS := -O3 -march=armv8.2-a+crypto+crc -mtune=cortex-a75.cortex-a55
+endif
 KBUILD_CFLAGS  += $(OPT_FLAGS)
 KBUILD_AFLAGS  += $(OPT_FLAGS)
 KBUILD_LDFLAGS += $(OPT_FLAGS)

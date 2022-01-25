@@ -93,8 +93,13 @@ VDSO_CFLAGS += -Wno-int-to-pointer-cast
 VDSO_AFLAGS := $(VDSO_CAFLAGS)
 VDSO_AFLAGS += -D__ASSEMBLY__
 
+ifeq ($(cc-name),clang)
 VDSO_CFLAGS += -mtune=cortex-a75 -march=armv8.2-a
 VDSO_AFLAGS += -mtune=cortex-a75 -march=armv8.2-a
+else
+VDSO_CFLAGS += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a
+VDSO_AFLAGS += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a
+endif
 
 # From arm vDSO Makefile
 VDSO_LDFLAGS += -Bsymbolic --no-undefined -soname=linux-vdso.so.1

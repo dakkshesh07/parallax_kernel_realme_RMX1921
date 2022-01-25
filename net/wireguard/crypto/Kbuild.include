@@ -56,5 +56,10 @@ ccflags-$(CONFIG_ZINC_ARCH_MIPS) += -DCONFIG_ZINC_ARCH_MIPS
 ccflags-$(CONFIG_ZINC_ARCH_MIPS64) += -DCONFIG_ZINC_ARCH_MIPS64
 ccflags-$(CONFIG_WIREGUARD_DEBUG) += -DCONFIG_ZINC_SELFTEST
 
+ifeq ($(cc-name),clang)
 ccflags-y += -mtune=cortex-a75 -march=armv8.2-a+crypto+crc
 asflags-y += -mtune=cortex-a75 -march=armv8.2-a+crypto+crc
+else
+ccflags-y += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a+crypto+crc
+asflags-y += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a+crypto+crc
+endif

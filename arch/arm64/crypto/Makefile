@@ -50,8 +50,13 @@ chacha20-neon-y := chacha20-neon-core.o chacha20-neon-glue.o
 obj-$(CONFIG_CRYPTO_AES_ARM64_BS) += aes-neon-bs.o
 aes-neon-bs-y := aes-neonbs-core.o aes-neonbs-glue.o
 
+ifeq ($(cc-name),clang)
 ccflags-y += -mtune=cortex-a75 -march=armv8.2-a+crypto+crc
 asflags-y += -mtune=cortex-a75 -march=armv8.2-a+crypto+crc
+else
+ccflags-y += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a+crypto+crc
+asflags-y += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a+crypto+crc
+endif
 
 AFLAGS_aes-ce.o		:= -DINTERLEAVE=4
 AFLAGS_aes-neon.o	:= -DINTERLEAVE=4
@@ -60,7 +65,11 @@ CFLAGS_aes-glue-ce.o	:= -DUSE_V8_CRYPTO_EXTENSIONS
 
 obj-$(CONFIG_CRYPTO_CRC32_ARM64) += crc32-arm64.o
 
+ifeq ($(cc-name),clang)
 CFLAGS_crc32-arm64.o	:= -mcpu=cortex-a75+crc
+else
+CFLAGS_crc32-arm64.o	:= -mcpu=cortex-a75.cortex-a55+crc
+endif
 
 $(obj)/aes-glue-%.o: $(src)/aes-glue.c FORCE
 	$(call if_changed_rule,cc_o_c)

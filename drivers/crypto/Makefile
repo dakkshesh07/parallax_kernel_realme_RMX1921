@@ -34,5 +34,11 @@ obj-$(CONFIG_CRYPTO_DEV_SUN4I_SS) += sunxi-ss/
 obj-$(CONFIG_CRYPTO_DEV_ROCKCHIP) += rockchip/
 obj-$(CONFIG_CRYPTO_DEV_CHELSIO) += chelsio/
 
+ifeq ($(cc-name),clang)
 ccflags-y += -mtune=cortex-a75 -march=armv8.2-a+crypto+crc
 asflags-y += -mtune=cortex-a75 -march=armv8.2-a+crypto+crc
+else
+ccflags-y += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a+crypto+crc
+asflags-y += -mtune=cortex-a75.cortex-a55 -march=armv8.2-a+crypto+crc
+endif
+
