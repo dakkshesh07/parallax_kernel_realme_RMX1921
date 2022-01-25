@@ -745,6 +745,9 @@ endif
 else
 OPT_FLAGS := -march=armv8.2-a+crypto+crc
 OPT_FLAGS += -mtune=cortex-a75.cortex-a55
+ifdef CONFIG_GCC_GRAPHITE
+OPT_FLAGS += -fgraphite-identity -floop-nest-optimize
+endif
 endif
 
 KBUILD_CFLAGS += -O3 $(OPT_FLAGS)
