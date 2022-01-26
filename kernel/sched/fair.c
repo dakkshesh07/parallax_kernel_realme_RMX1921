@@ -6293,12 +6293,14 @@ static inline bool task_fits_max(struct task_struct *p, int cpu)
 	unsigned long capacity = capacity_orig_of(cpu);
 	unsigned long max_capacity = cpu_rq(cpu)->rd->max_cpu_capacity.val;
 
-	if (capacity == max_capacity)
+	if (capacity == max_capacity) {
 		return true;
+	}
 
-		if ((task_boost_policy(p) == SCHED_BOOST_ON_BIG && 
-			is_min_capacity_cpu(cpu)) || uclamp_boosted(p) > 10)
+	if ((task_boost_policy(p) == SCHED_BOOST_ON_BIG && 
+		is_min_capacity_cpu(cpu)) || uclamp_boosted(p) > 0) {
 		return false;
+	}
 
 	return __task_fits(p, cpu, 0);
 }

@@ -337,13 +337,11 @@ static char nostring[]="Undefined string";
 static enum Tfa98xx_Error tfaContWriteVstep(int dev_idx,  nxpTfaVolumeStep2File_t *vp, int vstep)
 {
     enum Tfa98xx_Error err;
-    float voldB = 0.0;
     unsigned short vol;
 
     if (vstep < vp->vsteps) {
-        voldB = vp->vstep[vstep].attenuation;
         /* vol = (unsigned short)(voldB / (-0.5f)); */
-        vol = (unsigned short)(-2 * float_to_int(*((uint32_t *)&voldB)));
+        vol = (unsigned short)(-2 * float_to_int(*((uint32_t *)&vp->vstep[vstep].attenuation)));
         if (vol > 255)    /* restricted to 8 bits */
             vol = 255;
 

@@ -55,7 +55,9 @@
 #ifdef CONFIG_MACH_REALME
 /*YunRui.Chen@BSP.TP.Function, 2018/12/05, add for trigger load tp fw by lcd driver after lcd reset*/
 extern void lcd_queue_load_tp_fw(void);
+#ifdef CONFIG_MACH_REALME_RMX1971
 static int tp_black_power_on_ff_flag = 0;
+#endif
 #endif/*CONFIG_MACH_REALME*/
 
 enum dsi_dsc_ratio_type {

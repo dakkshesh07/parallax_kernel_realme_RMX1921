@@ -67,7 +67,6 @@ int tfa98xx_dsp_set_agc_gain_insert(struct tfa98xx *tfa98xx,
                     enum Tfa98xx_AgcGainInsert
                     agcGainInsert);
 
-int tfa98xx_set_volume(struct tfa98xx *tfa98xx, u32 voldB);
 int tfa98xx_mute(struct tfa98xx *tfa98xx);
 int tfa98xx_unmute(struct tfa98xx *tfa98xx);
 int tfa98xx_is_pwdn(struct tfa98xx *tfa98xx);

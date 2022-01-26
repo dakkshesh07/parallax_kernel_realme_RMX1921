@@ -347,8 +347,9 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	int error, last_dev;
 
     error = platform_suspend_prepare(state);
-    if (error)
+    if (error) {
         goto Platform_finish;
+    }
 
 	error = dpm_suspend_late(PMSG_SUSPEND);
 	if (error) {
@@ -360,8 +361,9 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		goto Platform_finish;
 	}
 	error = platform_suspend_prepare_late(state);
-    if (error)
+    if (error) {
         goto Devices_early_resume;
+    }
 
 	error = dpm_suspend_noirq(PMSG_SUSPEND);
 	if (error) {
@@ -373,8 +375,9 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		goto Platform_early_resume;
 	}
 	error = platform_suspend_prepare_noirq(state);
-    if (error)
+    if (error) {
         goto Platform_wake;
+    }
 
     if (suspend_test(TEST_PLATFORM))
         goto Platform_wake;
@@ -461,12 +464,14 @@ int suspend_devices_and_enter(suspend_state_t state)
 	int error;
 	bool wakeup = false;
 
-    if (!sleep_state_supported(state))
+    if (!sleep_state_supported(state)) {
         return -ENOSYS;
+    }
 
 	error = platform_suspend_begin(state);
-    if (error)
+    if (error) {
         goto Close;
+    }
 	suspend_console();
 	suspend_test_start();
 	error = dpm_suspend_start(PMSG_SUSPEND);
@@ -476,8 +481,9 @@ int suspend_devices_and_enter(suspend_state_t state)
 		goto Recover_platform;
 	}
 	suspend_test_finish("suspend devices");
-    if (suspend_test(TEST_DEVICES))
+    if (suspend_test(TEST_DEVICES)) {
         goto Recover_platform;
+    }
 	do {
 		error = suspend_enter(state, &wakeup);
 	} while (!error && !wakeup && platform_suspend_again(state));
@@ -535,11 +541,13 @@ static int enter_state(suspend_state_t state)
 	} else if (!valid_state(state)) {
         return -EINVAL;
     }
-    if (!mutex_trylock(&pm_mutex))
+    if (!mutex_trylock(&pm_mutex)) {
         return -EBUSY;
+    }
 
-	if (state == PM_SUSPEND_FREEZE)
+	if (state == PM_SUSPEND_FREEZE) {
 		freeze_begin();
+	}
 
 #ifndef CONFIG_SUSPEND_SKIP_SYNC
     trace_suspend_resume(TPS("sync_filesystems"), 0, true);
