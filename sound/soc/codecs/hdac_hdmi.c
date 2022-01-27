@@ -1150,7 +1150,7 @@ static void hdac_hdmi_present_sense(struct hdac_hdmi_pin *pin, int repoll)
 	 * more times to get correct pin sense and valid ELD.
 	 */
 	if ((!pin->eld.monitor_present || !pin->eld.eld_valid) && repoll)
-		schedule_delayed_work(&pin->work, msecs_to_jiffies(300));
+		queue_delayed_work(system_power_efficient_wq, &pin->work, msecs_to_jiffies(300));
 
 put_hdac_device:
 	pm_runtime_put_sync(&edev->hdac.dev);
