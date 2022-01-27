@@ -72,7 +72,7 @@ module_param(cluster_use_deepest_state, bool, 0664);
 static uint32_t bias_hyst;
 module_param_named(bias_hyst, bias_hyst, uint, 0664);
 
-static bool cluster_deepest_state_auto __read_mostly = false;
+static bool cluster_deepest_state_auto __read_mostly = true;
 module_param_named(cluster_deepest_state_auto, cluster_deepest_state_auto, bool,  0644);
 
 static short cluster_deepest_state_auto_timeout __read_mostly = 3000;
