@@ -1623,7 +1623,7 @@ static int bq27541_driver_probe(struct i2c_client *client,
 	bq27541_hw_config(fg_ic);
 /*
 	INIT_DELAYED_WORK(&fg_ic->hw_config, bq27541_hw_config);
-	schedule_delayed_work(&fg_ic->hw_config, 0);
+	queue_delayed_work(system_power_efficient_wq, &fg_ic->hw_config, 0);
 */
 	fg_ic->soc_pre = 50;
 	if(fg_ic->batt_bq28z610) {

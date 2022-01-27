@@ -1248,7 +1248,7 @@ static void mmi_adapter_in_work_func(struct work_struct *work)
 static void oppo_mmi_fastchg_in(struct oppo_chg_chip *chip)
 {
 	charger_xlog_printk(CHG_LOG_CRTI, "  call\n");
-	schedule_delayed_work(&chip->mmi_adapter_in_work,
+	queue_delayed_work(system_power_efficient_wq, &chip->mmi_adapter_in_work,
 	round_jiffies_relative(msecs_to_jiffies(2000)));
 }
 
@@ -1396,7 +1396,7 @@ int oppo_chg_init(struct oppo_chg_chip *chip)
 	/*ye.zhang@BSP.Sensor.Function, 2017-03-30, add interface for charging special feature in different projects*/
 	init_proc_charging_feature();
 	/*ye.zhang add end*/
-	schedule_delayed_work(&chip->update_work, OPPO_CHG_UPDATE_INIT_DELAY);
+	queue_delayed_work(system_power_efficient_wq, &chip->update_work, OPPO_CHG_UPDATE_INIT_DELAY);
 	INIT_DELAYED_WORK(&chip->mmi_adapter_in_work, mmi_adapter_in_work_func);
 	charger_xlog_printk(CHG_LOG_CRTI, " end\n");
 	return 0;
@@ -5570,7 +5570,7 @@ static void oppo_chg_update_work(struct work_struct *work)
 	oppo_chg_kpoc_power_off_check(chip);
 	oppo_chg_other_thing(chip);
 	/* run again after interval */
-	schedule_delayed_work(&chip->update_work, OPPO_CHG_UPDATE_INTERVAL);
+	queue_delayed_work(system_power_efficient_wq, &chip->update_work, OPPO_CHG_UPDATE_INTERVAL);
 }
 
 bool oppo_chg_wake_update_work(void)

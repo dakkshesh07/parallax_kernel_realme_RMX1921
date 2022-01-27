@@ -339,7 +339,7 @@ static int oppo_short_ic_driver_probe(struct i2c_client *client, const struct i2
         short_ic_chip = chip;
         INIT_DELAYED_WORK(&chip->oppo_short_ic_init_work, oppo_short_ic_init_work_func);
         msleep(80);
-        schedule_delayed_work(&chip->oppo_short_ic_init_work, 200);
+        queue_delayed_work(system_power_efficient_wq, &chip->oppo_short_ic_init_work, 200);
 
         chg_debug("oppo_short_ic success\n");
         return 0;

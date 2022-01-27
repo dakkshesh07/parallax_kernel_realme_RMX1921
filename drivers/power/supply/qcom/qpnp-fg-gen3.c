@@ -3331,7 +3331,7 @@ done:
 out:
 	chip->soc_reporting_ready = true;
 	vote(chip->awake_votable, ESR_FCC_VOTER, true, 0);
-	schedule_delayed_work(&chip->pl_enable_work, msecs_to_jiffies(5000));
+	queue_delayed_work(system_power_efficient_wq, &chip->pl_enable_work, msecs_to_jiffies(5000));
 	vote(chip->awake_votable, PROFILE_LOAD, false, 0);
 	if (!work_pending(&chip->status_change_work)) {
 		fg_stay_awake(chip, FG_STATUS_NOTIFY_WAKE);

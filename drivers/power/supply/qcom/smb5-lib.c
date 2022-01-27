@@ -3067,7 +3067,7 @@ irqreturn_t icl_change_irq_handler(int irq, void *data)
 			delay = 0;
 
 		cancel_delayed_work_sync(&chg->icl_change_work);
-		schedule_delayed_work(&chg->icl_change_work,
+		queue_delayed_work(system_power_efficient_wq, &chg->icl_change_work,
 						msecs_to_jiffies(delay));
 	}
 
@@ -3158,7 +3158,7 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 
 		/* Schedule work to enable parallel charger */
 		vote(chg->awake_votable, PL_DELAY_VOTER, true, 0);
-		schedule_delayed_work(&chg->pl_enable_work,
+		queue_delayed_work(system_power_efficient_wq, &chg->pl_enable_work,
 					msecs_to_jiffies(PL_DELAY_MS));
 	} else {
 		if (chg->wa_flags & BOOST_BACK_WA) {
@@ -3726,7 +3726,7 @@ irqreturn_t typec_or_rid_detection_change_irq_handler(int irq, void *data)
 		if (!chg->moisture_present) {
 			vote(chg->awake_votable, OTG_DELAY_VOTER, true, 0);
 			smblib_dbg(chg, PR_INTERRUPT, "Scheduling OTG work\n");
-			schedule_delayed_work(&chg->uusb_otg_work,
+			queue_delayed_work(system_power_efficient_wq, &chg->uusb_otg_work,
 					msecs_to_jiffies(chg->otg_delay_ms));
 		}
 
@@ -3841,7 +3841,7 @@ irqreturn_t high_duty_cycle_irq_handler(int irq, void *data)
 	if (chg->irq_info[HIGH_DUTY_CYCLE_IRQ].irq)
 		disable_irq_nosync(chg->irq_info[HIGH_DUTY_CYCLE_IRQ].irq);
 
-	schedule_delayed_work(&chg->clear_hdc_work, msecs_to_jiffies(60));
+	queue_delayed_work(system_power_efficient_wq, &chg->clear_hdc_work, msecs_to_jiffies(60));
 
 	return IRQ_HANDLED;
 }
@@ -3907,7 +3907,7 @@ irqreturn_t switcher_power_ok_irq_handler(int irq, void *data)
 			 * permanently suspending the input if the boost-back
 			 * condition is unintentionally hit.
 			 */
-			schedule_delayed_work(&chg->bb_removal_work,
+			queue_delayed_work(system_power_efficient_wq, &chg->bb_removal_work,
 				msecs_to_jiffies(BOOST_BACK_UNVOTE_DELAY_MS));
 		}
 	}
@@ -3964,7 +3964,7 @@ irqreturn_t usbin_ov_irq_handler(int irq, void *data)
 	if (stat & USBIN_OV_RT_STS_BIT) {
 		chg->dbc_usbov = true;
 		vote(chg->awake_votable, USBOV_DBC_VOTER, true, 0);
-		schedule_delayed_work(&chg->usbov_dbc_work,
+		queue_delayed_work(system_power_efficient_wq, &chg->usbov_dbc_work,
 				msecs_to_jiffies(1000));
 	} else {
 		cancel_delayed_work_sync(&chg->usbov_dbc_work);

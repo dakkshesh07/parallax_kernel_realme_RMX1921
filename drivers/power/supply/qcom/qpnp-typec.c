@@ -807,7 +807,7 @@ static int qpnp_typec_dr_set_property(struct dual_role_phy_instance *dual_role,
 		if (!rc && chip->in_force_mode) {
 			cancel_delayed_work_sync(&chip->role_reversal_check);
 			typec_stay_awake(&chip->role_reversal_wakeup_source);
-			schedule_delayed_work(&chip->role_reversal_check,
+			queue_delayed_work(system_power_efficient_wq, &chip->role_reversal_check,
 				msecs_to_jiffies(ROLE_REVERSAL_DELAY_MS));
 		}
 		break;
