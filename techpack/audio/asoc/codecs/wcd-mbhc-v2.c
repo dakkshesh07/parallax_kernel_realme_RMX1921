@@ -1025,7 +1025,7 @@ static void wcd_mbhc_swch_irq_handler(struct wcd_mbhc *mbhc)
 			mbhc->mbhc_fn->wcd_mbhc_detect_plug_type(mbhc);
 		#else /* CONFIG_MACH_REALME */
 		if (mbhc->mbhc_detection_logic == WCD_DETECTION_LEGACY) {
-			schedule_delayed_work(&mbhc->hp_detect_work, msecs_to_jiffies(HP_DETECT_WORK_DELAY_MS));
+			queue_delayed_work(system_power_efficient_wq, &mbhc->hp_detect_work, msecs_to_jiffies(HP_DETECT_WORK_DELAY_MS));
 		} else {
 			if (mbhc->mbhc_fn)
 				mbhc->mbhc_fn->wcd_mbhc_detect_plug_type(mbhc);
