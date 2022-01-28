@@ -121,8 +121,6 @@ void oppo_adapter_fw_update(void)
 {
 	struct oppo_adapter_chip *chip = g_adapter_chip ;
 	adapter_xlog_printk(CHG_LOG_CRTI, " call \n");
-	/*schedule_delayed_work_on(7, &chip->adapter_update_work, */
-	/*		        round_jiffies_relative(msecs_to_jiffies(ADAPTER_UPDATE_DELAY)));*/
 	queue_delayed_work(system_power_efficient_wq, &chip->adapter_update_work,
 	round_jiffies_relative(msecs_to_jiffies(ADAPTER_UPDATE_DELAY)));
 }
