@@ -130,3 +130,5 @@ clang/
 gcc32/
 gcc64/
 out/
+AnyKernel3/parallax-kernel/image/*Image*
+AnyKernel3/*.zip*
