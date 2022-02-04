@@ -707,8 +707,11 @@ ARCH_AFLAGS :=
 ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
+ifeq ($(cc-name),clang)
+OPT_FLAGS := $(call cc-option,-march=armv8.2-a+crypto+crc+nodotprod,-march=armv8.2-a+crypto+crc)
+OPT_FLAGS += -mtune=cortex-a75
 ifdef CONFIG_LLVM_POLLY
-OPT_FLAGS := -mllvm -polly \
+OPT_FLAGS += -mllvm -polly \
 		   -mllvm -polly-run-dce \
 		   -mllvm -polly-run-inliner \
 		   -mllvm -polly-ast-use-context \
@@ -723,7 +726,7 @@ OPT_FLAGS += -mllvm -polly-reschedule=1 \
 else
 OPT_FLAGS += -mllvm -polly-opt-fusion=max
 endif
-
+endif
 KBUILD_CFLAGS += $(OPT_FLAGS)
 KBUILD_AFLAGS += $(OPT_FLAGS)
 KBUILD_LDFLAGS += $(OPT_FLAGS)
