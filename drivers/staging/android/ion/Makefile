@@ -1,3 +1,5 @@
+ccflags-y += -mllvm -inline-threshold=15000
+ccflags-y += -mllvm -inlinehint-threshold=10000
 obj-$(CONFIG_ION) +=	ion.o ion_heap.o ion_page_pool.o ion_system_heap.o \
 			ion_carveout_heap.o ion_chunk_heap.o ion_system_secure_heap.o
 ifdef CONFIG_ION_MSM
@@ -10,5 +12,4 @@ endif
 obj-$(CONFIG_ION_DUMMY) += ion_dummy_driver.o
 obj-$(CONFIG_ION_TEGRA) += tegra/
 obj-$(CONFIG_ION_HISI) += hisilicon/
-
 obj-$(CONFIG_ION_MSM) += msm/
