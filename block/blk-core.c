@@ -34,6 +34,9 @@
 #include <linux/pm_runtime.h>
 #include <linux/blk-cgroup.h>
 #include <linux/psi.h>
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+#include "oppo_foreground_io_opt/oppo_foreground_io_opt.h"
+#endif /*VENDOR_EDIT*/
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/block.h>
@@ -42,6 +45,9 @@
 #include "blk-mq.h"
 
 #include <linux/math64.h>
+#if defined(OPLUS_FEATURE_UIFIRST) && defined(CONFIG_OPLUS_FEATURE_UXIO_FIRST)
+#include "uxio_first/uxio_first_opt.h"
+#endif
 
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_bio_remap);
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_rq_remap);
@@ -111,6 +117,9 @@ void blk_rq_init(struct request_queue *q, struct request *rq)
 	memset(rq, 0, sizeof(*rq));
 
 	INIT_LIST_HEAD(&rq->queuelist);
+#ifdef VENDOR_EDIT
+	INIT_LIST_HEAD(&rq->fg_list);
+#endif /*VENDOR_EDIT*/
 	INIT_LIST_HEAD(&rq->timeout_list);
 	rq->cpu = -1;
 	rq->q = q;
@@ -692,7 +701,9 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
 	q->backing_dev_info = bdi_alloc_node(gfp_mask, node_id);
 	if (!q->backing_dev_info)
 		goto fail_split;
-
+#ifdef VENDOR_EDIT
+	fg_bg_max_count_init(q);
+#endif /*VENDOR_EDIT*/
 	q->backing_dev_info->ra_pages =
 			(VM_MAX_READAHEAD * 1024) / PAGE_SIZE;
 	q->backing_dev_info->capabilities = BDI_CAP_CGROUP_WRITEBACK;
@@ -704,6 +715,9 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
 	setup_timer(&q->timeout, blk_rq_timed_out_timer, (unsigned long) q);
 	INIT_WORK(&q->timeout_work, NULL);
 	INIT_LIST_HEAD(&q->queue_head);
+#ifdef VENDOR_EDIT
+	INIT_LIST_HEAD(&q->fg_head);
+#endif /*VENDOR_EDIT*/
 	INIT_LIST_HEAD(&q->timeout_list);
 	INIT_LIST_HEAD(&q->icq_list);
 #ifdef CONFIG_BLK_CGROUP
@@ -2121,6 +2135,11 @@ blk_qc_t submit_bio(struct bio *bio)
 		}
 	}
 
+#if defined(OPLUS_FEATURE_UIFIRST) && defined(CONFIG_OPLUS_FEATURE_UXIO_FIRST)
+	if (high_prio_for_task(current))
+		bio->bi_opf |= REQ_FG;
+#endif
+
 	/*
 	 * If we're reading data that is part of the userspace
 	 * workingset, count submission time as memory stall. When the
@@ -2484,6 +2503,9 @@ void blk_dequeue_request(struct request *rq)
 	BUG_ON(ELV_ON_HASH(rq));
 
 	list_del_init(&rq->queuelist);
+#ifdef VENDOR_EDIT
+	list_del_init(&rq->fg_list);
+#endif /*VENDOR_EDIT*/
 
 	/*
 	 * the time frame between a request being removed from the lists

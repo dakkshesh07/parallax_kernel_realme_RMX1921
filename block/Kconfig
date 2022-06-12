@@ -131,3 +131,7 @@ config BLK_MQ_PCI
 	default y
 
 source block/Kconfig.iosched
+
+#ifdef VENDOR_EDIT
+source block/oppo_foreground_io_opt/Kconfig
+#endif /*VENDOR_EDIT*/
