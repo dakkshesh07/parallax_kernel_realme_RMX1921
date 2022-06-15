@@ -9,5 +9,7 @@ obj-$(CONFIG_SPECTRA_CAMERA) += cam_isp/
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_sensor_module/
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_icp/
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_jpeg/
+#ifdef VENDOR_EDIT
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_fd/
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_lrme/
+#endif
