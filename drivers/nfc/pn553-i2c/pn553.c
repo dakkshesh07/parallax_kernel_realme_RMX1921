@@ -200,7 +200,7 @@ static void pn544_disable_irq(struct pn544_dev *pn544_dev)
 }
 
 static bool isNFCVDD(void);
-static bool isNFCVDD()
+static bool isNFCVDD(void)
 {
     printk("%s : isProject(OPPO_19651): %d \n", __func__, is_project(OPPO_19651));
     return is_project(OPPO_19651);
@@ -211,7 +211,7 @@ static bool isNFCRefClockControlByExternalPin(void);
  *liushupei@RM.CN.NFC 2019/07/29
  * the function return true when the NFC ref clock is control by external pin ;otherwise return false
  */
-static bool isNFCRefClockControlByExternalPin()
+static bool isNFCRefClockControlByExternalPin(void)
 {
     if((is_project(OPPO_18097) || is_project(OPPO_18099)) && (get_PCB_Version() < HW_VERSION__13))
         return false;
