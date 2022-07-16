@@ -2715,17 +2715,7 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel,
 		panel->bl_config.type = DSI_BACKLIGHT_UNKNOWN;
 	}
 
-	data = of_get_property(of_node, "qcom,bl-update-flag", NULL);
-	if (!data) {
-		panel->bl_config.bl_update = BL_UPDATE_NONE;
-	} else if (!strcmp(data, "delay_until_first_frame")) {
-		panel->bl_config.bl_update = BL_UPDATE_DELAY_UNTIL_FIRST_FRAME;
-	} else {
-		pr_debug("[%s] No valid bl-update-flag: %s\n",
-						panel->name, data);
-		panel->bl_config.bl_update = BL_UPDATE_NONE;
-	}
-
+        panel->bl_config.bl_update = BL_UPDATE_NONE;
 	panel->bl_config.bl_scale = MAX_BL_SCALE_LEVEL;
 	panel->bl_config.bl_scale_ad = MAX_AD_BL_SCALE_LEVEL;
 
