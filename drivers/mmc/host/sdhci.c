@@ -47,6 +47,10 @@
 #define SDHCI_DBG_DUMP_RS_INTERVAL (10 * HZ)
 #define SDHCI_DBG_DUMP_RS_BURST 2
 
+#ifdef OPLUS_FEATURE_EMMC_SDCARD_OPTIMIZE
+#define MMC_CARD_REMOVED (1<<4)
+#endif
+
 static unsigned int debug_quirks = 0;
 static unsigned int debug_quirks2;
 
@@ -80,6 +84,14 @@ static void sdhci_dump_state(struct sdhci_host *host)
 
 static void sdhci_dumpregs(struct sdhci_host *host)
 {
+#ifdef CONFIG_EMMC_SDCARD_OPTIMIZE
+//yixue.ge@BSP.drv 2014-06-04 modify for disable sdcard log
+	static int flag = 0;
+	if(!flag)
+		    flag++;
+	else
+		    return;
+#endif
 	MMC_TRACE(host->mmc,
 		"%s: 0x04=0x%08x 0x06=0x%08x 0x0E=0x%08x 0x30=0x%08x 0x34=0x%08x 0x38=0x%08x\n",
 		__func__,
@@ -1250,6 +1262,10 @@ void sdhci_send_command(struct sdhci_host *host, struct mmc_command *cmd)
 			__func__);
 			sdhci_dumpregs(host);
 			cmd->error = -EIO;
+#ifdef OPLUS_FEATURE_EMMC_SDCARD_OPTIMIZE
+			if (host->mmc->card && mmc_card_sd(host->mmc->card))
+				host->mmc->card->state |= MMC_CARD_REMOVED;
+#endif
 			sdhci_finish_mrq(host, cmd->mrq);
 			return;
 		}
@@ -3117,6 +3133,15 @@ static void sdhci_data_irq(struct sdhci_host *host, u32 intmask)
 		 * above in sdhci_cmd_irq().
 		 */
 		if (data_cmd && (data_cmd->flags & MMC_RSP_BUSY)) {
+#ifdef OPLUS_FEATURE_EMMC_SDCARD_OPTIMIZE
+			if (intmask & SDHCI_INT_DATA_TIMEOUT) {
+				host->data_cmd = NULL;
+				data_cmd->error = -ETIMEDOUT;
+				host->mmc->err_stats[MMC_ERR_CMD_TIMEOUT]++;
+				sdhci_finish_mrq(host, data_cmd->mrq);
+				return;
+			}
+#endif		
 			if (intmask & SDHCI_INT_DATA_END) {
 				host->data_cmd = NULL;
 				/*

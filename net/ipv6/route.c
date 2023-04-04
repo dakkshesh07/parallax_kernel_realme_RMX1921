@@ -1368,8 +1368,15 @@ static void __ip6_rt_update_pmtu(struct dst_entry *dst, const struct sock *sk,
 	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
 	 * [see also comment in rt6_mtu_change_route()]
 	 */
-
 	dst_confirm(dst);
+
+#ifdef OPLUS_BUG_STABILITY
+        //ipv6 RFC8201 test
+        if (mtu < IPV6_MIN_MTU) {
+                return;
+        }
+#endif /* OPLUS_BUG_STABILITY */
+
 	mtu = max_t(u32, mtu, IPV6_MIN_MTU);
 	if (mtu >= dst_mtu(dst))
 		return;

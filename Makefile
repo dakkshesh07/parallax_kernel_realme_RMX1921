@@ -402,6 +402,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
+		   -w \
 		   -std=gnu89
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=
@@ -411,6 +412,25 @@ KBUILD_CFLAGS_MODULE  := -DMODULE
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 GCC_PLUGINS_CFLAGS :=
 CLANG_FLAGS :=
+
+#ifdef OPLUS_FEATURE_BUILD
+-include OplusKernelEnvConfig.mk
+#endif // OPLUS_FEATURE_BUILD
+
+#ifdef OPLUS_BUG_STABILITY
+ifeq ($(TARGET_BUILD_VARIANT), user)
+KBUILD_CFLAGS += -DCONFIG_OPPO_USER_BUILD
+else
+KBUILD_CFLAGS += -DCONFIG_OPPO_DEBUG_BUILD
+endif
+#endif OPLUS_BUG_STABILITY
+
+# ifdef VENDOR_EDIT
+KBUILD_CFLAGS +=   -DVENDOR_EDIT
+KBUILD_CPPFLAGS += -DVENDOR_EDIT
+CFLAGS_KERNEL +=   -DVENDOR_EDIT
+CFLAGS_MODULE +=   -DVENDOR_EDIT
+# endif
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
@@ -971,6 +991,11 @@ include scripts/Makefile.ubsan
 KBUILD_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
 KBUILD_AFLAGS   += $(ARCH_AFLAGS)   $(KAFLAGS)
 KBUILD_CFLAGS   += $(ARCH_CFLAGS)   $(KCFLAGS)
+
+#Used to projects without OplusKernelEnvConfig.mk.
+ifeq ($(OBSOLETE_KEEP_ADB_SECURE),1)
+KBUILD_CFLAGS += -DOPLUS_DISALLOW_KEY_INTERFACES
+endif
 
 # Use --build-id when available.
 LDFLAGS_BUILD_ID = $(patsubst -Wl$(comma)%,%,\

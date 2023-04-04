@@ -44,6 +44,57 @@
 
 #include "irq-gic-common.h"
 
+#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
+#include "../../drivers/soc/oplus/owakelock/oplus_wakelock_profiler_qcom.h"
+#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
+
+#ifdef VENDOR_EDIT
+//add for modem wake up source
+#define WAKEUP_SOURCE_MODEM 					60	//qcom,glink-smem-native-xprt-modem
+#define WAKEUP_SOURCE_MODEM_IPA					119 //ipa
+#define WAKEUP_SOURCE_ADSP						61  //qcom,glink-smem-native-xprt-adsp
+#define WAKEUP_SOURCE_CDSP						62	//qcom,glink-smem-native-xprt-cdsp
+
+extern u64 wakeup_source_count_adsp ;
+extern u64 wakeup_source_count_cdsp;
+extern u64 wakeup_source_count_modem;
+
+#define MODEM_WAKEUP_SRC_NUM 3
+#define MODEM_DIAG_WS_INDEX 0
+#define MODEM_IPA_WS_INDEX 1
+#define MODEM_QMI_WS_INDEX 2
+
+#define WAKEUP_SOURCE_INT_FIRST		1
+#define WAKEUP_SOURCE_INT_SECOND	2
+
+extern int modem_wakeup_src_count[MODEM_WAKEUP_SRC_NUM];
+extern char modem_wakeup_src_string[MODEM_WAKEUP_SRC_NUM][10];
+#endif /* VENDOR_EDIT */
+
+#ifdef VENDOR_EDIT
+//PengNan@BSP.Power.Basic,add for modifing the irq info. 2019/09/26
+static unsigned int glink_adsp_sirq = 0;
+#define GLINK_SMEM_NATIVE_ADSP_IRQ_NAME   "qcom,glink-smem-native-xprt-adsp"
+static unsigned int ipa_sirq = 0;
+#define IPA_IRQ_NAME   "ipa"
+#endif /*VENDOR_EDIT*/
+
+#ifdef VENDOR_EDIT
+#define WLAN_WAKEUP_IRQ_NUMBER	723
+
+#define WAKEUP_SOURCE_WIFI_1ST 123
+#define WAKEUP_SOURCE_WIFI_2ND 129
+#define WAKEUP_SOURCE_WIFI_3RD 131
+#define WAKEUP_SOURCE_WIFI_4TH 134
+extern u64 wakeup_source_count_wifi ;
+#endif /*VENDOR_EDIT*/
+
+#ifdef VENDOR_EDIT
+//Add irq of WiFi for SDM710
+static unsigned int wlan_sirq = 0;
+#define WLAN_DATA_IRQ_NAME   "WLAN_CE_2"
+#endif /*VENDOR_EDIT*/
+
 #define MAX_IRQ			1020U	/* Max number of SGI+PPI+SPI */
 #define SPI_START_IRQ		32	/* SPI start irq number */
 #define GICD_ICFGR_BITS		2	/* 2 bits per irq in GICD_ICFGR */
@@ -712,6 +763,10 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 	if (!msm_show_resume_irq_mask)
 		return;
 
+    #ifdef OPLUS_FEATURE_POWERINFO_STANDBY
+    wakeup_reasons_statics(IRQ_NAME_WAKE_SUM, WS_CNT_SUM);
+    #endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
+
 	for (i = 0; i * 32 < gic->irq_nr; i++) {
 		enabled = readl_relaxed(base + GICD_ICENABLER + i * 4);
 		pending[i] = readl_relaxed(base + GICD_ISPENDR + i * 4);
@@ -731,6 +786,67 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 			name = desc->action->name;
 
 		pr_warn("%s: %d triggered %s\n", __func__, irq, name);
+
+		#ifdef VENDOR_EDIT
+		//Add irq of WiFi for SDM710
+		if (wlan_sirq == 0 && (name != NULL) && strncmp(name, WLAN_DATA_IRQ_NAME, strlen(WLAN_DATA_IRQ_NAME)) == 0) {
+			wlan_sirq = irq;
+		}
+		#endif //VENDOR_EDIT
+
+		#ifdef VENDOR_EDIT
+		if((irq  >= WAKEUP_SOURCE_WIFI_1ST && irq  <= WAKEUP_SOURCE_WIFI_2ND) ||
+			(irq  >= WAKEUP_SOURCE_WIFI_3RD && irq  <= WAKEUP_SOURCE_WIFI_4TH)) {
+            wakeup_reasons_statics(IRQ_NAME_WLAN_IPCC_DATA, WS_CNT_MODEM|WS_CNT_WLAN|WS_CNT_ADSP|WS_CNT_CDSP|WS_CNT_SLPI);
+		}
+		if (irq == WLAN_WAKEUP_IRQ_NUMBER)
+	    {
+			// modem_wakeup_source = 0;
+			//schedule_work(&wakeup_reason_work);
+		}
+		#endif //VENDOR_EDIT
+		#ifdef VENDOR_EDIT
+		//Add irq of WiFi for SDM710
+		if (irq == wlan_sirq) {
+            wakeup_reasons_statics(IRQ_NAME_WLAN_IPCC_DATA, WS_CNT_MODEM|WS_CNT_WLAN|WS_CNT_ADSP|WS_CNT_CDSP|WS_CNT_SLPI);
+		}
+		#endif
+
+		#ifdef VENDOR_EDIT
+		//PengNan@BSP.Power.Basic,add for modifing the irqinfo, 2019/09/26
+		if (ipa_sirq == 0 && (name != NULL) && strncmp(name, IPA_IRQ_NAME, strlen(IPA_IRQ_NAME)) == 0) {
+            ipa_sirq = irq;
+        }
+		if (glink_adsp_sirq == 0 && (name != NULL) && strncmp(name, GLINK_SMEM_NATIVE_ADSP_IRQ_NAME, strlen(GLINK_SMEM_NATIVE_ADSP_IRQ_NAME)) == 0) {
+            glink_adsp_sirq = irq;
+        }
+		#endif /*VENDOR_EDIT*/
+
+		#ifdef VENDOR_EDIT
+        if ((WAKEUP_SOURCE_MODEM == irq ) || (ipa_sirq == irq))
+		{
+			if(WAKEUP_SOURCE_MODEM == irq)
+			{
+				wakeup_reasons_statics(IRQ_NAME_MODEM_QMI, WS_CNT_MODEM);
+				modem_wakeup_src_count[MODEM_QMI_WS_INDEX]++;
+			}else if (ipa_sirq == irq) {
+				wakeup_reasons_statics(IRQ_NAME_MODEM_IPA, WS_CNT_MODEM);
+				modem_wakeup_src_count[MODEM_IPA_WS_INDEX]++;
+				//modem_wakeup_source = 1;
+				//schedule_work(&wakeup_reason_work);
+			}
+		}
+		//Yongyao.Song add end
+		#endif /*VENDOR_EDIT*/
+
+		#ifdef VENDOR_EDIT
+        if(glink_adsp_sirq == irq) {
+            wakeup_reasons_statics(IRQ_NAME_ADSP, WS_CNT_MODEM|WS_CNT_WLAN|WS_CNT_ADSP|WS_CNT_CDSP|WS_CNT_SLPI);
+		}
+        if(WAKEUP_SOURCE_CDSP == irq) {
+            wakeup_reasons_statics(IRQ_NAME_CDSP, WS_CNT_MODEM|WS_CNT_WLAN|WS_CNT_ADSP|WS_CNT_CDSP|WS_CNT_SLPI);
+		}
+	    #endif
 	}
 }
 

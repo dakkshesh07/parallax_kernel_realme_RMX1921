@@ -139,6 +139,11 @@
 #include <linux/errqueue.h>
 #include <linux/hrtimer.h>
 #include <linux/netfilter_ingress.h>
+#include <linux/crash_dump.h>
+#ifdef OPLUS_FEATURE_WIFI_LIMMITBGSPEED
+#include <linux/imq.h>
+#endif /* OPLUS_FEATURE_WIFI_LIMMITBGSPEED */
+
 #include <linux/sctp.h>
 #include <linux/crash_dump.h>
 #include <linux/tcp.h>
@@ -2971,7 +2976,12 @@ static int xmit_one(struct sk_buff *skb, struct net_device *dev,
 	unsigned int len;
 	int rc;
 
+	#ifdef OPLUS_FEATURE_WIFI_LIMMITBGSPEED
+	if ((!list_empty(&ptype_all) || !list_empty(&dev->ptype_all)) &&
+		!(skb->imq_flags & IMQ_F_ENQUEUE))
+	#else /* OPLUS_FEATURE_WIFI_LIMMITBGSPEED */
 	if (!list_empty(&ptype_all) || !list_empty(&dev->ptype_all))
+	#endif /* OPLUS_FEATURE_WIFI_LIMMITBGSPEED */
 		dev_queue_xmit_nit(skb, dev);
 
 	len = skb->len;
@@ -3040,6 +3050,10 @@ out:
 	*ret = rc;
 	return skb;
 }
+#ifdef OPLUS_FEATURE_WIFI_LIMMITBGSPEED
+EXPORT_SYMBOL_GPL(dev_hard_start_xmit);
+#endif /* OPLUS_FEATURE_WIFI_LIMMITBGSPEED */
+
 
 struct sk_buff *dev_hard_start_xmit_list(struct sk_buff *first,
 					 struct net_device *dev,

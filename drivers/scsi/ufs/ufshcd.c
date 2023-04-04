@@ -49,6 +49,9 @@
 #include "ufs-debugfs.h"
 #include "ufs-qcom.h"
 
+#ifdef VENDOR_EDIT
+#include <soc/oppo/device_info.h>
+#endif
 #define CREATE_TRACE_POINTS
 #include <trace/events/ufs.h>
 
@@ -1586,7 +1589,9 @@ start:
 		 * If the timer was active but the callback was not running
 		 * we have nothing to do, just change state and return.
 		 */
-		if (hrtimer_try_to_cancel(&hba->clk_gating.gate_hrtimer) == 1) {
+		if ((hrtimer_try_to_cancel(&hba->clk_gating.gate_hrtimer) == 1)
+				&& !(work_pending(&hba->clk_gating.gate_work))
+				&& !hba->clk_gating.gate_wk_in_process) {
 			hba->clk_gating.state = CLKS_ON;
 			trace_ufshcd_clk_gating(dev_name(hba->dev),
 				hba->clk_gating.state);
@@ -1598,12 +1603,14 @@ start:
 		 * work and to enable clocks.
 		 */
 	case CLKS_OFF:
-		__ufshcd_scsi_block_requests(hba);
+		//__ufshcd_scsi_block_requests(hba);
 		hba->clk_gating.state = REQ_CLKS_ON;
 		trace_ufshcd_clk_gating(dev_name(hba->dev),
 			hba->clk_gating.state);
-		queue_work(hba->clk_gating.clk_gating_workq,
-				&hba->clk_gating.ungate_work);
+		if(queue_work(hba->clk_gating.clk_gating_workq,
+			   &hba->clk_gating.ungate_work)) {
+			__ufshcd_scsi_block_requests(hba);
+		}
 		/*
 		 * fall through to check if we should wait for this
 		 * work to be done or not.
@@ -1638,6 +1645,7 @@ static void ufshcd_gate_work(struct work_struct *work)
 						clk_gating.gate_work);
 	unsigned long flags;
 
+	hba->clk_gating.gate_wk_in_process = true;
 	spin_lock_irqsave(hba->host->host_lock, flags);
 	/*
 	 * In case you are here to cancel this work the gating state
@@ -1712,6 +1720,7 @@ static void ufshcd_gate_work(struct work_struct *work)
 rel_lock:
 	spin_unlock_irqrestore(hba->host->host_lock, flags);
 out:
+	hba->clk_gating.gate_wk_in_process = false;
 	return;
 }
 
@@ -1914,6 +1923,7 @@ static void ufshcd_init_clk_gating(struct ufs_hba *hba)
 		create_singlethread_workqueue(wq_name);
 
 	gating->is_enabled = true;
+	gating->gate_wk_in_process = false;
 
 	gating->delay_ms_pwr_save = UFSHCD_CLK_GATING_DELAY_MS_PWR_SAVE;
 	gating->delay_ms_perf = UFSHCD_CLK_GATING_DELAY_MS_PERF;
@@ -2435,6 +2445,9 @@ int ufshcd_send_command(struct ufs_hba *hba, unsigned int task_tag)
 	hba->lrb[task_tag].complete_time_stamp = ktime_set(0, 0);
 	ufshcd_clk_scaling_start_busy(hba);
 	__set_bit(task_tag, &hba->outstanding_reqs);
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+	recordRequestCnt(&hba->signalCtrl);
+#endif
 	ufshcd_writel(hba, 1 << task_tag, REG_UTP_TRANSFER_REQ_DOOR_BELL);
 	/* Make sure that doorbell is committed immediately */
 	wmb();
@@ -3920,6 +3933,11 @@ int ufshcd_map_desc_id_to_length(struct ufs_hba *hba,
 	case QUERY_DESC_IDN_RFU_1:
 		*desc_len = 0;
 		break;
+#ifdef VENDOR_EDIT
+	case QUERY_DESC_IDN_HEALTH:
+		*desc_len = hba->desc_size.hlth_desc;
+		break;
+#endif
 	default:
 		*desc_len = 0;
 		return -EINVAL;
@@ -4684,7 +4702,8 @@ static int ufshcd_link_recovery(struct ufs_hba *hba)
 	 */
 	hba->ufshcd_state = UFSHCD_STATE_ERROR;
 	hba->force_host_reset = true;
-	schedule_work(&hba->eh_work);
+	ufshcd_set_eh_in_progress(hba);
+        schedule_work(&hba->eh_work);
 
 	/* wait for the reset work to finish */
 	do {
@@ -5897,6 +5916,15 @@ static void __ufshcd_transfer_req_compl(struct ufs_hba *hba,
 						(rq_data_dir(req) == READ) ?
 						&hba->io_lat_read :
 						&hba->io_lat_write, delta_us);
+#ifdef VENDOR_EDIT
+                    if (delta_us > 2000)
+                    {
+                        trace_printk("ufs_io_latency:%06lld us, io_type:%s, LBA:%llu, size:%d\n",
+                            delta_us, (rq_data_dir(req) == READ) ? "R" : "W",
+                            (uint64_t)req->bio->bi_iter.bi_sector,
+                            cpu_to_be32(cmd->sdb.length));
+                    }
+#endif
 				}
 			}
 			/* Do not touch lrbp after scsi done */
@@ -6661,6 +6689,9 @@ static irqreturn_t ufshcd_update_uic_error(struct ufs_hba *hba)
 		 */
 		dev_dbg(hba->dev, "%s: UIC Lane error reported, reg 0x%x\n",
 				__func__, reg);
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, reg, UNIPRO_ERR_PA);
+#endif
 		ufshcd_update_uic_error_cnt(hba, reg, UFS_UIC_ERROR_PA);
 		ufshcd_update_uic_reg_hist(&hba->ufs_stats.pa_err, reg);
 
@@ -6688,6 +6719,9 @@ static irqreturn_t ufshcd_update_uic_error(struct ufs_hba *hba)
 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_DATA_LINK_LAYER);
 	if ((reg & UIC_DATA_LINK_LAYER_ERROR) &&
 	    (reg & UIC_DATA_LINK_LAYER_ERROR_CODE_MASK)) {
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, reg, UNIPRO_ERR_DL);
+#endif
 		ufshcd_update_uic_error_cnt(hba, reg, UFS_UIC_ERROR_DL);
 		ufshcd_update_uic_reg_hist(&hba->ufs_stats.dl_err, reg);
 
@@ -6710,6 +6744,9 @@ static irqreturn_t ufshcd_update_uic_error(struct ufs_hba *hba)
 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_NETWORK_LAYER);
 	if ((reg & UIC_NETWORK_LAYER_ERROR) &&
 	    (reg & UIC_NETWORK_LAYER_ERROR_CODE_MASK)) {
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, reg, UNIPRO_ERR_NL);
+#endif
 		ufshcd_update_uic_reg_hist(&hba->ufs_stats.nl_err, reg);
 		hba->uic_error |= UFSHCD_UIC_NL_ERROR;
 		retval |= IRQ_HANDLED;
@@ -6718,6 +6755,9 @@ static irqreturn_t ufshcd_update_uic_error(struct ufs_hba *hba)
 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_TRANSPORT_LAYER);
 	if ((reg & UIC_TRANSPORT_LAYER_ERROR) &&
 	    (reg & UIC_TRANSPORT_LAYER_ERROR_CODE_MASK)) {
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, reg, UNIPRO_ERR_TL);
+#endif
 		ufshcd_update_uic_reg_hist(&hba->ufs_stats.tl_err, reg);
 		hba->uic_error |= UFSHCD_UIC_TL_ERROR;
 		retval |= IRQ_HANDLED;
@@ -6726,6 +6766,9 @@ static irqreturn_t ufshcd_update_uic_error(struct ufs_hba *hba)
 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_DME);
 	if ((reg & UIC_DME_ERROR) &&
 	    (reg & UIC_DME_ERROR_CODE_MASK)) {
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, reg, UNIPRO_ERR_DME);
+#endif
 		ufshcd_update_uic_error_cnt(hba, reg, UFS_UIC_ERROR_DME);
 		ufshcd_update_uic_reg_hist(&hba->ufs_stats.dme_err, reg);
 		hba->uic_error |= UFSHCD_UIC_DME_ERROR;
@@ -6750,10 +6793,16 @@ static irqreturn_t ufshcd_check_errors(struct ufs_hba *hba)
 	bool queue_eh_work = false;
 	irqreturn_t retval = IRQ_NONE;
 
-	if (hba->errors & INT_FATAL_ERRORS || hba->ce_error)
+	if (hba->errors & INT_FATAL_ERRORS || hba->ce_error){
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, hba->errors, UNIPRO_ERR_FATAL);
+#endif
 		queue_eh_work = true;
-
+	}
 	if (hba->errors & UIC_LINK_LOST) {
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordUniproErr(&hba->signalCtrl, hba->errors, UNIPRO_ERR_LINK);
+#endif
 		dev_err(hba->dev, "%s: UIC_LINK_LOST received, errors 0x%x\n",
 					__func__, hba->errors);
 		queue_eh_work = true;
@@ -6987,6 +7036,9 @@ static int ufshcd_issue_tm_cmd(struct ufs_hba *hba, int lun_id, int task_id,
 	__set_bit(free_slot, &hba->outstanding_tasks);
 
 	/* Make sure descriptors are ready before ringing the task doorbell */
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+		recordRequestCnt(&hba->signalCtrl);
+#endif
 	wmb();
 
 	ufshcd_writel(hba, 1 << free_slot, REG_UTP_TASK_REQ_DOOR_BELL);
@@ -7592,14 +7644,24 @@ out:
  * Returns zero on success (all required W-LUs are added successfully),
  * non-zero error value on failure (if failed to add any of the required W-LU).
  */
+#ifdef VENDOR_EDIT
+int __attribute__((weak)) register_device_proc(char *name, char *version, char *vendor)
+{
+	return 0;
+}
+#endif
 static int ufshcd_scsi_add_wlus(struct ufs_hba *hba)
 {
 	int ret = 0;
 	struct scsi_device *sdev_rpmb = NULL;
 	struct scsi_device *sdev_boot = NULL;
-	bool is_bootable_dev = false;
-	bool is_embedded_dev = false;
-
+        bool is_bootable_dev = false;
+        bool is_embedded_dev = false;
+#ifdef VENDOR_EDIT
+	static char temp_version[5] = {0};
+	static char vendor[9] = {0};
+	static char model[17] = {0};
+#endif	
 	if ((hba->dev_info.b_device_sub_class == UFS_DEV_EMBEDDED_BOOTABLE) ||
 	    (hba->dev_info.b_device_sub_class == UFS_DEV_REMOVABLE_BOOTABLE))
 		is_bootable_dev = true;
@@ -7618,6 +7680,13 @@ static int ufshcd_scsi_add_wlus(struct ufs_hba *hba)
 		goto out;
 	}
 	scsi_device_put(hba->sdev_ufs_device);
+#ifdef VENDOR_EDIT
+	strncpy(temp_version, hba->sdev_ufs_device->rev, 4);
+	strncpy(vendor, hba->sdev_ufs_device->vendor, 8);
+	strncpy(model, hba->sdev_ufs_device->model, 16);
+	register_device_proc("ufs_version", temp_version, vendor);
+	register_device_proc("ufs", model, vendor);
+#endif
 
 	if (is_bootable_dev) {
 		sdev_boot = __scsi_add_device(hba->host, 0, 0,
@@ -7653,6 +7722,13 @@ remove_sdev_boot:
 remove_sdev_ufs_device:
 	scsi_remove_device(hba->sdev_ufs_device);
 out:
+#ifdef VENDOR_EDIT
+	strncpy(temp_version, hba->sdev_ufs_device->rev, 4);
+	strncpy(vendor, hba->sdev_ufs_device->vendor, 8);
+	strncpy(model, hba->sdev_ufs_device->model, 16);
+	register_device_proc("ufs_version", temp_version, vendor);
+	register_device_proc("ufs", model, vendor);
+#endif
 	return ret;
 }
 
@@ -8010,6 +8086,13 @@ static void ufshcd_init_desc_sizes(struct ufs_hba *hba)
 		&hba->desc_size.geom_desc);
 	if (err)
 		hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
+
+#ifdef VENDOR_EDIT
+	err = ufshcd_read_desc_length(hba, QUERY_DESC_IDN_HEALTH, 0,
+	    &hba->desc_size.hlth_desc);
+	if (err)
+        hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
+#endif
 }
 
 static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
@@ -8020,6 +8103,9 @@ static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
 	hba->desc_size.conf_desc = QUERY_DESC_CONFIGURATION_DEF_SIZE;
 	hba->desc_size.unit_desc = QUERY_DESC_UNIT_DEF_SIZE;
 	hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
+#ifdef VENDOR_EDIT
+	hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
+#endif
 }
 
 /**
@@ -8371,6 +8457,7 @@ static int ufshcd_query_ioctl(struct ufs_hba *hba, u8 lun, void __user *buffer)
 		case QUERY_DESC_IDN_CONFIGURAION:
 		case QUERY_DESC_IDN_INTERCONNECT:
 		case QUERY_DESC_IDN_GEOMETRY:
+		case QUERY_DESC_IDN_HEALTH:
 		case QUERY_DESC_IDN_POWER:
 			index = 0;
 			break;
@@ -8415,6 +8502,7 @@ static int ufshcd_query_ioctl(struct ufs_hba *hba, u8 lun, void __user *buffer)
 		case QUERY_ATTR_IDN_EE_CONTROL:
 		case QUERY_ATTR_IDN_EE_STATUS:
 		case QUERY_ATTR_IDN_SECONDS_PASSED:
+		case QUERY_ATTR_IDN_FFU_STATUS:
 			index = 0;
 			break;
 		case QUERY_ATTR_IDN_DYN_CAP_NEEDED:
@@ -10067,6 +10155,9 @@ ufshcd_exit_latency_hist(struct ufs_hba *hba)
  */
 void ufshcd_remove(struct ufs_hba *hba)
 {
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+	remove_signal_quality_proc(&hba->signalCtrl);
+#endif
 	scsi_remove_host(hba->host);
 	/* disable interrupts */
 	ufshcd_disable_intr(hba, hba->intr_mask);
@@ -10626,6 +10717,103 @@ static void ufshcd_init_lanes_per_dir(struct ufs_hba *hba)
 		hba->lanes_per_direction = UFSHCD_DEFAULT_LANES_PER_DIRECTION;
 	}
 }
+
+#ifdef VENDOR_EDIT
+#include <asm/unaligned.h>
+static ssize_t ufs_sysfs_read_desc_param(struct ufs_hba *hba,
+				  enum desc_idn desc_id,
+				  u8 desc_index,
+				  u8 param_offset,
+				  u8 *sysfs_buf,
+				  u8 param_size)
+{
+	u8 desc_buf[8] = {0};
+	int ret;
+
+	if (param_size > 8)
+		return -EINVAL;
+
+	ret = ufshcd_read_desc_param(hba, desc_id, desc_index,
+				param_offset, desc_buf, param_size);
+	if (ret)
+		return -EINVAL;
+	switch (param_size) {
+	case 1:
+		ret = sprintf(sysfs_buf, "0x%02X\n", *desc_buf);
+		break;
+	case 2:
+		ret = sprintf(sysfs_buf, "0x%04X\n",
+			get_unaligned_be16(desc_buf));
+		break;
+	case 4:
+		ret = sprintf(sysfs_buf, "0x%08X\n",
+			get_unaligned_be32(desc_buf));
+		break;
+	case 8:
+		ret = sprintf(sysfs_buf, "0x%016llX\n",
+			get_unaligned_be64(desc_buf));
+		break;
+	}
+
+	return ret;
+}
+
+#define UFS_DESC_PARAM(_name, _puname, _duname, _size)			\
+	static ssize_t _name##_show(struct device *dev, 			\
+		struct device_attribute *attr, char *buf)			\
+	{									\
+		struct ufs_hba *hba = dev_get_drvdata(dev); 		\
+		return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_##_duname, \
+			0, _duname##_DESC_PARAM##_puname, buf, _size);		\
+	}									\
+	static DEVICE_ATTR_RO(_name)
+
+#define UFS_HEALTH_DESC_PARAM(_name, _uname, _size)			\
+	UFS_DESC_PARAM(_name, _uname, HEALTH, _size)
+
+UFS_HEALTH_DESC_PARAM(len, _LEN, 1);
+UFS_HEALTH_DESC_PARAM(eol_info, _EOL_INFO, 1);
+UFS_HEALTH_DESC_PARAM(life_time_estimation_a, _LIFE_TIME_EST_A, 1);
+UFS_HEALTH_DESC_PARAM(life_time_estimation_b, _LIFE_TIME_EST_B, 1);
+
+static struct attribute *ufs_sysfs_health_descriptor[] = {
+	&dev_attr_len.attr,
+	&dev_attr_eol_info.attr,
+	&dev_attr_life_time_estimation_a.attr,
+	&dev_attr_life_time_estimation_b.attr,
+	NULL,
+};
+
+static const struct attribute_group ufs_sysfs_health_descriptor_group = {
+	.name = "health_descriptor",
+	.attrs = ufs_sysfs_health_descriptor,
+};
+
+#define UFS_POWER_DESC_PARAM(_name, _uname, _index)			\
+static ssize_t _name##_index##_show(struct device *dev,			\
+	struct device_attribute *attr, char *buf)			\
+{									\
+	struct ufs_hba *hba = dev_get_drvdata(dev);			\
+	return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_POWER, 0,	\
+		PWR_DESC##_uname##_0 + _index * 2, buf, 2);		\
+}									\
+static DEVICE_ATTR_RO(_name##_index)
+
+static const struct attribute_group *ufs_sysfs_groups[] = {
+	&ufs_sysfs_health_descriptor_group,
+	NULL,
+};
+
+void ufs_sysfs_add_nodes(struct device *dev)
+{
+	int ret;
+
+	ret = sysfs_create_groups(&dev->kobj, ufs_sysfs_groups);
+	if (ret)
+		dev_err(dev,"%s: sysfs groups creation failed (err = %d)\n", __func__, ret);
+}
+#endif
+
 /**
  * ufshcd_init - Driver initialization routine
  * @hba: per-adapter instance
@@ -10822,7 +11010,14 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
 
 	ufshcd_cmd_log_init(hba);
 
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+	create_signal_quality_proc(&hba->signalCtrl);
+#endif
 	async_schedule(ufshcd_async_scan, hba);
+
+#ifdef VENDOR_EDIT
+	ufs_sysfs_add_nodes(hba->dev);
+#endif
 
 	ufsdbg_add_debugfs(hba);
 

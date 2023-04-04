@@ -981,7 +981,12 @@ void __init setup_kmalloc_cache_index_table(void)
 static void __init new_kmalloc_cache(int idx, unsigned long flags)
 {
 	kmalloc_caches[idx] = create_kmalloc_cache(kmalloc_info[idx].name,
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+					kmalloc_info[idx].size, flags|SLAB_STORE_USER);
+#else
 					kmalloc_info[idx].size, flags);
+#endif
 }
 
 /*
@@ -1131,6 +1136,10 @@ static void print_slabinfo_header(struct seq_file *m)
 	seq_puts(m, " : globalstat <listallocs> <maxobjs> <grown> <reaped> <error> <maxfreeable> <nodeallocs> <remotefrees> <alienoverflow>");
 	seq_puts(m, " : cpustat <allochit> <allocmiss> <freehit> <freemiss>");
 #endif
+#if defined (VENDOR_EDIT) && defined(CONFIG_SLAB_STAT_DEBUG)
+	seq_puts(m, " <reclaim>");
+#endif
+
 	seq_putc(m, '\n');
 }
 
@@ -1186,8 +1195,14 @@ static void cache_show(struct kmem_cache *s, struct seq_file *m)
 
 	seq_printf(m, " : tunables %4u %4u %4u",
 		   sinfo.limit, sinfo.batchcount, sinfo.shared);
+#if defined (VENDOR_EDIT) && defined(CONFIG_SLAB_STAT_DEBUG)
+	seq_printf(m, " : slabdata %6lu %6lu %6lu %1d",
+		   sinfo.active_slabs, sinfo.num_slabs, sinfo.shared_avail,
+		   ((s->flags & SLAB_RECLAIM_ACCOUNT) == SLAB_RECLAIM_ACCOUNT) ? 1: 0);
+#else
 	seq_printf(m, " : slabdata %6lu %6lu %6lu",
 		   sinfo.active_slabs, sinfo.num_slabs, sinfo.shared_avail);
+#endif
 	slabinfo_show_stats(m, s);
 	seq_putc(m, '\n');
 }

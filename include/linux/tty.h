@@ -294,6 +294,10 @@ struct tty_struct {
 	char name[64];
 	struct pid *pgrp;		/* Protected by ctrl lock */
 	struct pid *session;
+        /*
+         * Writes protected by both ctrl lock and legacy mutex, readers must use
+         * at least one of them.
+         */
 	unsigned long flags;
 	int count;
 	struct winsize winsize;		/* winsize_mutex */

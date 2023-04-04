@@ -27,6 +27,10 @@
 #include <soc/qcom/scm.h>
 #include <soc/qcom/qseecomi.h>
 
+//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+#include <linux/proc_fs.h>
+#define TZDBG_DIR_NAME "tzdbg"
+//#endif
 /* QSEE_LOG_BUF_SIZE = 32K */
 #define QSEE_LOG_BUF_SIZE 0x8000
 
@@ -784,7 +788,12 @@ static ssize_t tzdbgfs_read(struct file *file, char __user *buf,
 	size_t count, loff_t *offp)
 {
 	int len = 0;
-	int *tz_id =  file->private_data;
+//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+	struct seq_file *seq = file->private_data;
+	int *tz_id = (int *)(seq->private);
+//else
+	//int *tz_id =  file->private_data;
+//#endif
 
 	if (*tz_id == TZDBG_BOOT || *tz_id == TZDBG_RESET ||
 		*tz_id == TZDBG_INTERRUPT || *tz_id == TZDBG_GENERAL ||
@@ -843,16 +852,35 @@ static ssize_t tzdbgfs_read(struct file *file, char __user *buf,
 				tzdbg.stat[(*tz_id)].data, len);
 }
 
+//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+static int tzdbg_proc_open(struct inode *inode, struct file *file)
+{
+    return single_open(file, NULL, PDE_DATA(inode));
+}
+
+/*
 static int tzdbgfs_open(struct inode *inode, struct file *pfile)
 {
 	pfile->private_data = inode->i_private;
 	return 0;
 }
+*/
+
+static int tzdbg_proc_release(struct inode *inode, struct file *file)
+{
+    return single_release(inode, file);
+}
+//#endif
 
 const struct file_operations tzdbg_fops = {
 	.owner   = THIS_MODULE,
 	.read    = tzdbgfs_read,
-	.open    = tzdbgfs_open,
+//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+	.open    = tzdbg_proc_open,
+	.release = tzdbg_proc_release,
+//else
+	//.open    = tzdbgfs_open,
+//#endif
 };
 
 static struct ion_client  *g_ion_clnt;
@@ -945,6 +973,65 @@ err1:
 	g_ion_clnt = NULL;
 }
 
+//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+//change tzdbg node to proc.
+static int  tzdbg_procfs_init(struct platform_device *pdev)
+{
+	int rc = 0;
+	int i;
+	struct proc_dir_entry           *dent_dir;
+	struct proc_dir_entry           *dent;
+
+	dent_dir = proc_mkdir(TZDBG_DIR_NAME, NULL);
+	if (dent_dir == NULL) {
+		dev_err(&pdev->dev, "tzdbg proc_mkdir failed\n");
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < TZDBG_STATS_MAX; i++) {
+		tzdbg.debug_tz[i] = i;
+		dent = proc_create_data(tzdbg.stat[i].name,
+				0444, dent_dir,
+				&tzdbg_fops, &tzdbg.debug_tz[i]);
+		if (dent == NULL) {
+			dev_err(&pdev->dev, "TZ proc_create_data failed\n");
+			rc = -ENOMEM;
+			goto err;
+		}
+	}
+	tzdbg.disp_buf = kzalloc(max(debug_rw_buf_size,
+			tzdbg.hyp_debug_rw_buf_size), GFP_KERNEL);
+	if (tzdbg.disp_buf == NULL)
+		goto err;
+	platform_set_drvdata(pdev, dent_dir);
+	return 0;
+err:
+	if(dent_dir){
+		remove_proc_entry(TZDBG_DIR_NAME, NULL);
+	}
+
+	return rc;
+}
+
+static void tzdbg_procfs_exit(struct platform_device *pdev)
+{
+	struct proc_dir_entry           *dent_dir;
+
+	kzfree(tzdbg.disp_buf);
+	dent_dir = platform_get_drvdata(pdev);
+	if(dent_dir){
+		remove_proc_entry(TZDBG_DIR_NAME, NULL);
+	}
+	if (g_ion_clnt != NULL) {
+		if (!IS_ERR_OR_NULL(g_ihandle)) {
+			ion_unmap_kernel(g_ion_clnt, g_ihandle);
+			ion_free(g_ion_clnt, g_ihandle);
+		}
+		ion_client_destroy(g_ion_clnt);
+	}
+}
+//else
+/*
 static int  tzdbgfs_init(struct platform_device *pdev)
 {
 	int rc = 0;
@@ -996,6 +1083,8 @@ static void tzdbgfs_exit(struct platform_device *pdev)
 		ion_client_destroy(g_ion_clnt);
 	}
 }
+*/
+//#endif
 
 static int __update_hypdbg_base(struct platform_device *pdev,
 			void __iomem *virt_iobase)
@@ -1148,7 +1237,11 @@ static int tz_log_probe(struct platform_device *pdev)
 
 	tzdbg.diag_buf = (struct tzdbg_t *)ptr;
 
-	if (tzdbgfs_init(pdev))
+//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+	if (tzdbg_procfs_init(pdev))
+//else
+	//if (tzdbgfs_init(pdev))
+//#endif
 		goto err;
 
 	tzdbg_register_qsee_log_buf();
@@ -1167,7 +1260,11 @@ static int tz_log_remove(struct platform_device *pdev)
 	kzfree(tzdbg.diag_buf);
 	if (tzdbg.hyp_diag_buf)
 		kzfree(tzdbg.hyp_diag_buf);
-	tzdbgfs_exit(pdev);
+	//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+	tzdbg_procfs_exit(pdev);
+	//else
+	//tzdbgfs_exit(pdev);
+	//#endif
 
 	return 0;
 }

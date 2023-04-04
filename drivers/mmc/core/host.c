@@ -720,6 +720,9 @@ again:
 	setup_timer(&host->retune_timer, mmc_retune_timer, (unsigned long)host);
 
 	mutex_init(&host->rpmb_req_mutex);
+#ifdef CONFIG_EMMC_SDCARD_OPTIMIZE
+	host->detect_change_retry = 5;
+#endif /* CONFIG_EMMC_SDCARD_OPTIMIZE */
 
 	/*
 	 * By default, hosts do not support SGIO or large requests.

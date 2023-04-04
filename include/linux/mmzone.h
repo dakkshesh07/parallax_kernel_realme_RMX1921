@@ -55,6 +55,9 @@ enum {
 	 */
 	MIGRATE_CMA,
 #endif
+#ifdef VENDOR_EDIT
+	MIGRATE_OPPO2,
+#endif /* VENDOR_EDIT */
 	MIGRATE_PCPTYPES, /* the number of types on the pcp lists */
 	MIGRATE_HIGHATOMIC = MIGRATE_PCPTYPES,
 #ifdef CONFIG_MEMORY_ISOLATION
@@ -95,6 +98,11 @@ extern int page_group_by_mobility_disabled;
 #define get_pageblock_migratetype(page)					\
 	get_pfnblock_flags_mask(page, page_to_pfn(page),		\
 			PB_migrate_end, MIGRATETYPE_MASK)
+
+#ifdef VENDOR_EDIT
+#define FREE_AREA_COUNTS 4
+#define HIGH_ORDER_TO_FLC 3
+#endif
 
 struct free_area {
 	struct list_head	free_list[MIGRATE_TYPES];
@@ -148,6 +156,13 @@ enum zone_stat_item {
 	NUMA_OTHER,		/* allocation from other node */
 #endif
 	NR_FREE_CMA_PAGES,
+	
+#ifdef VENDOR_EDIT
+	NR_FREE_OPPO2_PAGES,
+#endif /* VENDOR_EDIT */
+#ifdef VENDOR_EDIT
+	NR_IONCACHE_PAGES,
+#endif /* VENDOR_EDIT */
 	NR_VM_ZONE_STAT_ITEMS };
 
 enum node_stat_item {
@@ -352,6 +367,14 @@ enum zone_type {
 
 #ifndef __GENERATING_BOUNDS_H
 
+#ifdef VENDOR_EDIT
+struct page_label {
+    unsigned long label;
+    unsigned long segment;
+};
+#endif
+
+
 struct zone {
 	/* Read-mostly fields */
 
@@ -360,6 +383,9 @@ struct zone {
 
 	unsigned long nr_reserved_highatomic;
 
+#ifdef VENDOR_EDIT
+	unsigned long nr_migrate_oppo2_block;
+#endif /* VENDOR_EDIT */
 	/*
 	 * We don't know if the memory that we're going to allocate will be
 	 * freeable or/and it will be released eventually, so to avoid totally
@@ -436,7 +462,9 @@ struct zone {
 	unsigned long		managed_pages;
 	unsigned long		spanned_pages;
 	unsigned long		present_pages;
-
+#ifdef VENDOR_EDIT
+    	struct page_label zone_label[FREE_AREA_COUNTS];
+#endif
 	const char		*name;
 
 #ifdef CONFIG_MEMORY_ISOLATION
@@ -459,7 +487,11 @@ struct zone {
 	ZONE_PADDING(_pad1_)
 
 	/* free areas of different sizes */
+#ifdef VENDOR_EDIT
+	struct free_area	free_area[FREE_AREA_COUNTS][MAX_ORDER];
+#else
 	struct free_area	free_area[MAX_ORDER];
+#endif
 
 	/* zone flags, see below */
 	unsigned long		flags;

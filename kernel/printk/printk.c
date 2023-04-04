@@ -45,6 +45,7 @@
 #include <linux/utsname.h>
 #include <linux/ctype.h>
 #include <linux/uio.h>
+#include <linux/version.h>
 #include <soc/qcom/boot_stats.h>
 
 #include <asm/uaccess.h>
@@ -57,10 +58,25 @@
 #include "braille.h"
 #include "internal.h"
 
+#ifndef OPLUS_FEATURE_CHG_BASIC
+#define OPLUS_FEATURE_CHG_BASIC "OPLUS_FEATURE_CHG_BASIC"	//debug for bring up
+#endif
+#ifdef OPLUS_FEATURE_CHG_BASIC
+#include <soc/oppo/boot_mode.h>
+#endif
+
 #ifdef CONFIG_EARLY_PRINTK_DIRECT
 extern void printascii(char *);
 #endif
+#ifdef OPLUS_FEATURE_CHG_BASIC
+//Nanwei.Deng@BSP.CHG.Basic 2018/05/01,add for get disable uart value from cmdline
+bool printk_disable_uart = true;
 
+bool oem_get_uartlog_status(void)
+{
+	return !printk_disable_uart;
+}
+#endif /*OPLUS_FEATURE_CHG_BASIC*/
 int console_printk[4] = {
 	CONSOLE_LOGLEVEL_DEFAULT,	/* console_loglevel */
 	MESSAGE_LOGLEVEL_DEFAULT,	/* default_message_loglevel */
@@ -543,6 +559,19 @@ static int log_store(int facility, int level,
 	u32 size, pad_len;
 	u16 trunc_msg_len = 0;
 
+	#ifdef OPLUS_FEATURE_CHG_BASIC
+	//part 1/2: yixue.ge 2015-04-22 add for add cpu number and current id and current comm to kmsg
+	int this_cpu = smp_processor_id();
+	char tbuf[64];
+	unsigned tlen;
+	if (console_suspended == 0) {
+		tlen = snprintf(tbuf, sizeof(tbuf), " (%x)[%d:%s]",
+			this_cpu, current->pid, current->comm);
+	} else {
+		tlen = snprintf(tbuf, sizeof(tbuf), " %x)", this_cpu);
+	}
+	text_len += tlen;
+	#endif //add end part 1/3
 	/* number of '\0' padding bytes to next message */
 	size = msg_used_size(text_len, dict_len, &pad_len);
 
@@ -567,7 +596,13 @@ static int log_store(int facility, int level,
 
 	/* fill message */
 	msg = (struct printk_log *)(log_buf + log_next_idx);
+	#ifndef OPLUS_FEATURE_CHG_BASIC
+	//part 2/2: yixue.ge 2015-04-22 add for add cpu number and current id and current comm to kmsg
 	memcpy(log_text(msg), text, text_len);
+	#else
+	memcpy(log_text(msg), tbuf, tlen);
+	memcpy(log_text(msg) + tlen, text, text_len-tlen);
+	#endif //add end part 3/3
 	msg->text_len = text_len;
 	if (trunc_msg_len) {
 		memcpy(log_text(msg) + text_len, trunc_msg, trunc_msg_len);
@@ -1171,6 +1206,11 @@ static inline void boot_delay_msec(int level)
 static bool printk_time = IS_ENABLED(CONFIG_PRINTK_TIME);
 module_param_named(time, printk_time, bool, S_IRUGO | S_IWUSR);
 
+#ifdef OPLUS_FEATURE_CHG_BASIC
+/* Nanwei.Deng@BSP.CHG.Basic 2018/05/01,add for get disable uart value from cmdline */
+module_param_named(disable_uart, printk_disable_uart, bool, S_IRUGO | S_IWUSR);
+#endif /*OPLUS_FEATURE_CHG_BASIC*/
+
 static size_t print_time(u64 ts, char *buf)
 {
 	unsigned long rem_nsec;
@@ -1538,6 +1578,17 @@ static void call_console_drivers(int level,
 		return;
 
 	for_each_console(con) {
+#ifdef OPLUS_FEATURE_CHG_BASIC
+/* Nanwei.Deng@BSP.CHG.Basic 2018/05/01,add for disable uart print,this modify can reduce poweron time add ftm mode */
+		if(get_boot_mode() == MSM_BOOT_MODE__FACTORY
+		|| get_boot_mode() == MSM_BOOT_MODE__RF
+		|| get_boot_mode() == MSM_BOOT_MODE__WLAN)
+		{
+			printk_disable_uart = true;
+		}
+		if (printk_disable_uart&&(con->flags & CON_CONSDEV))
+			continue;
+#endif
 		if (exclusive_console && con != exclusive_console)
 			continue;
 		if (!(con->flags & CON_ENABLED))
@@ -3184,6 +3235,67 @@ out:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(kmsg_dump_get_buffer);
+
+#ifdef CONFIG_OPLUS_FEATURE_UBOOT_LOG
+#include <soc/oplus/system/uboot_utils.h>
+bool back_kmsg_dump_get_buffer(struct kmsg_dumper *dumper, bool syslog,
+			  char *buf, size_t size, size_t *len)
+{
+	unsigned long flags;
+	u64 seq;
+	u32 idx;
+	size_t l = 0;
+	bool ret = false;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+	logbuf_lock_irqsave(flags);
+#else
+	raw_spin_lock_irqsave(&logbuf_lock, flags);
+#endif
+	if (dumper->cur_seq < log_first_seq) {
+		l += scnprintf(buf + l,	size - l, "Lost some logs: cur_seq:%lld, log_first_seq:%lld\n", dumper->cur_seq, log_first_seq);
+		//messages are gone, move to first available one
+		dumper->cur_seq = log_first_seq;
+		dumper->cur_idx = log_first_idx;
+	}
+
+	// last entry
+	if (dumper->cur_seq >= dumper->next_seq) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+		logbuf_unlock_irqrestore(flags);
+#else
+		raw_spin_unlock_irqrestore(&logbuf_lock, flags);
+#endif
+		goto out;
+	}
+
+
+	// record log form cur_seq until the buf is full
+	seq = dumper->cur_seq;
+	idx = dumper->cur_idx;
+	while (l + LOG_LINE_MAX + PREFIX_MAX < size && seq < dumper->next_seq) {
+		struct printk_log *msg = log_from_idx(idx);
+
+		l += msg_print_text(msg, syslog, buf + l, size - l);
+		idx = log_next(idx);
+		seq++;
+	}
+	dumper->cur_seq = seq;
+	dumper->cur_idx = idx;
+
+	ret = true;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+	logbuf_unlock_irqrestore(flags);
+#else
+	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
+#endif
+out:
+	if (len)
+		*len = l;
+	return ret;
+}
+EXPORT_SYMBOL(back_kmsg_dump_get_buffer);
+#endif /*CONFIG_OPLUS_FEATURE_UBOOT_LOG*/
 
 /**
  * kmsg_dump_rewind_nolock - reset the interator (unlocked version)

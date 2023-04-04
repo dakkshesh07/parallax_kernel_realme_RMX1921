@@ -69,6 +69,7 @@
 
 #include <asm/uaccess.h>
 #include <asm/processor.h>
+#include <linux/kernel_stat.h>
 
 #ifdef CONFIG_X86
 #include <asm/nmi.h>
@@ -96,6 +97,9 @@
 #endif
 
 #if defined(CONFIG_SYSCTL)
+#if defined(CONFIG_OPLUS_FEATURE_HUNG_TASK_ENHANCE) && defined(CONFIG_OPLUS_FEATURE_DEATH_HEALER)
+#include <soc/oplus/system/hung_task_enhance.h>
+#endif
 
 /* External variables not in a header file. */
 extern int suid_dumpable;
@@ -129,10 +133,30 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_ZRAM_OPT)
+//yixue.ge@PSW.BSP.Kernel.Driver 20170720 add for add direct_vm_swappiness
+extern int direct_vm_swappiness;
+static int two_hundred = 200;
+#endif
+
 static int __maybe_unused one_thousand = 1000;
 #ifdef CONFIG_SCHED_WALT
 static int two_million = 2000000;
 #endif
+
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+unsigned int sysctl_fg_io_opt = 1;
+#endif
+
+#ifdef VENDOR_EDIT
+unsigned int sysctl_ext4_fsync_enable = 1;
+unsigned int ext4_fsync_enable_status = 0;
+#endif /*VENDOR_EDIT*/
+#ifdef VENDOR_EDIT
+unsigned long sysctl_blkdev_issue_flush_count = 0;
+#endif /*VENDOR_EDIT*/
+
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
 #endif
@@ -153,6 +177,9 @@ static const int cap_last_cap = CAP_LAST_CAP;
 /*this is needed for proc_doulongvec_minmax of sysctl_hung_task_timeout_secs */
 #ifdef CONFIG_DETECT_HUNG_TASK
 static unsigned long hung_task_timeout_max = (LONG_MAX/HZ);
+#if defined(VENDOR_EDIT) && defined(CONFIG_DEATH_HEALER)
+static int five = 5;
+#endif
 #endif
 
 #ifdef CONFIG_INOTIFY_USER
@@ -281,6 +308,32 @@ static int max_sched_tunable_scaling = SCHED_TUNABLESCALING_END-1;
 #endif /* CONFIG_SMP */
 #endif /* CONFIG_SCHED_DEBUG */
 
+#ifdef VENDOR_EDIT
+int sysctl_slide_boost_enabled = 0;
+int sysctl_boost_task_threshold = 51;
+#ifdef CONFIG_CAMERA_OPT
+int sysctl_camera_opt_enabled = 0;
+#endif
+int sysctl_frame_rate = 60;
+int sched_frame_rate_handler(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	int ret;
+
+	if (write && *ppos)
+		*ppos = 0;
+
+	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+
+	return ret;
+}
+#endif
+
+#ifdef OPLUS_FEATURE_UIFIRST
+int sysctl_uifirst_enabled = 1;
+int sysctl_launcher_boost_enabled = 0;
+int sysctl_animation_type = 0;
+#endif /* OPLUS_FEATURE_UIFIRST */
+
 #ifdef CONFIG_COMPACTION
 static int min_extfrag_threshold;
 static int max_extfrag_threshold = 1000;
@@ -294,6 +347,16 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
 	},
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+	{
+		.procname	= "fg_io_opt",
+		.data		= &sysctl_fg_io_opt,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec,
+	},
+#endif
+
 #if defined(CONFIG_PREEMPT_TRACER) || defined(CONFIG_IRQSOFF_TRACER)
 	{
 		.procname       = "preemptoff_tracing_threshold_ns",
@@ -393,6 +456,25 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= sched_updown_migrate_handler,
 	},
+
+#ifdef VENDOR_EDIT
+{
+		.procname	= "ext4_fsync_enable",
+		.data		= &sysctl_ext4_fsync_enable,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0666,
+		.proc_handler	= proc_dointvec,
+},
+#endif
+#ifdef VENDOR_EDIT
+{
+		.procname	= "blkdev_issue_flush_count",
+		.data		= &sysctl_blkdev_issue_flush_count,
+		.maxlen		= sizeof(unsigned long),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec,
+},
+#endif
 #ifdef CONFIG_SCHED_DEBUG
 	{
 		.procname	= "sched_min_granularity_ns",
@@ -1218,6 +1300,26 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &neg_one,
 	},
+	
+#if defined(VENDOR_EDIT) && defined(CONFIG_DEATH_HEALER)
+	{
+		.procname	= "hung_task_oppo_kill",
+		.data		= &sysctl_hung_task_oppo_kill,
+		.maxlen		= 128,
+		.mode		= 0666,
+		.proc_handler	= proc_dostring,
+	},
+#endif
+#if defined(VENDOR_EDIT) && defined(CONFIG_DEATH_HEALER)
+	{
+		.procname	= "hung_task_maxiowait_count",
+		.data		= &sysctl_hung_task_maxiowait_count,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &five,
+	},
+#endif
 	{
 		.procname	= "hung_task_selective_monitoring",
 		.data		= &sysctl_hung_task_selective_monitoring,
@@ -1227,7 +1329,25 @@ static struct ctl_table kern_table[] = {
 		.extra1		= &zero,
 		.extra2		= &one,
 	},
-
+#if defined(CONFIG_OPLUS_FEATURE_HUNG_TASK_ENHANCE) && defined(CONFIG_OPLUS_FEATURE_DEATH_HEALER)
+/* record the hung task killing */
+	{
+		.procname	= "hung_task_kill",
+		.data		= &sysctl_hung_task_oppo_kill,
+		.maxlen		= 128,
+		.mode		= 0666,
+		.proc_handler	= proc_dostring,
+	},
+/* Foreground background optimization,change max io count */
+	{
+		.procname	= "hung_task_maxiowait_count",
+		.data		= &sysctl_hung_task_maxiowait_count,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &five,
+	},
+#endif
 #endif
 #ifdef CONFIG_RT_MUTEXES
 	{
@@ -1378,6 +1498,67 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= proc_dointvec,
 	},
 #endif
+#ifdef VENDOR_EDIT
+	{
+		.procname	= "frame_rate",
+		.data		= &sysctl_frame_rate,
+		.maxlen 	= sizeof(int),
+		.mode		= 0666,
+		.proc_handler = sched_frame_rate_handler,
+	},
+#endif
+#ifdef OPLUS_FEATURE_UIFIRST
+    {
+        .procname   = "uifirst_enabled",
+        .data       = &sysctl_uifirst_enabled,
+        .maxlen     = sizeof(int),
+        .mode       = 0666,
+        .proc_handler = proc_dointvec,
+    },
+    {
+        .procname   = "launcher_boost_enabled",
+        .data       = &sysctl_launcher_boost_enabled,
+        .maxlen     = sizeof(int),
+        .mode       = 0666,
+        .proc_handler = proc_dointvec,
+    },
+    {
+	.procname	= "animation_type",
+	.data		= &sysctl_animation_type,
+	.maxlen		= sizeof(int),
+        .mode		= 0666,
+	.proc_handler = proc_dointvec,
+    },
+#ifdef CONFIG_CAMERA_OPT
+	{
+		.procname       = "camera_opt_enable",
+		.data           = &sysctl_camera_opt_enabled,
+		.maxlen         = sizeof(int),
+		.mode           = 0666,
+		.proc_handler = proc_dointvec,
+	},
+#endif
+#endif /* OPLUS_FEATURE_UIFIRST */
+#ifdef VENDOR_EDIT
+	{
+		.procname	= "task_cpustats_enable",
+		.data		= &sysctl_task_cpustats_enable,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0666,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &zero,
+		.extra2		= &one,
+	},
+#endif
+#ifdef VENDOR_EDIT
+	{
+		.procname	= "slide_boost_enabled",
+		.data		= &sysctl_slide_boost_enabled,
+		.maxlen 	= sizeof(int),
+		.mode		= 0666,
+		.proc_handler = proc_dointvec,
+	},
+#endif
 	{ }
 };
 
@@ -1512,8 +1693,26 @@ static struct ctl_table vm_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_ZRAM_OPT)
+//yixue.ge@PSW.BSP.Kernel.Driver 20170720 add for add direct_vm_swappiness
+		.extra2		= &two_hundred,
+#else
 		.extra2		= &one_hundred,
+#endif
 	},
+	
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_ZRAM_OPT)
+//yixue.ge@PSW.BSP.Kernel.Driver 20170720 add for add direct_vm_swappiness
+	{
+		.procname	= "direct_swappiness",
+		.data		= &direct_vm_swappiness,
+		.maxlen 	= sizeof(direct_vm_swappiness),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1 	= &zero,
+		.extra2 	= &two_hundred,
+	},
+#endif
 	{
 		.procname       = "want_old_faultaround_pte",
 		.data           = &want_old_faultaround_pte,
@@ -1583,7 +1782,11 @@ static struct ctl_table vm_table[] = {
 		.procname	= "compact_memory",
 		.data		= &sysctl_compact_memory,
 		.maxlen		= sizeof(int),
+#ifdef VENDOR_EDIT
+		.mode		= 0222,
+#else
 		.mode		= 0200,
+#endif /*VENDOR_EDIT*/
 		.proc_handler	= sysctl_compaction_handler,
 	},
 	{

@@ -30,6 +30,13 @@
 
 #include <trace/events/sched.h>
 
+#ifdef VENDOR_EDIT
+#include <linux/sched.h>
+extern u64 ux_task_load[];
+extern u64 ux_load_ts[];
+#define UX_LOAD_WINDOW 8000000
+#endif
+
 const char *task_event_names[] = {"PUT_PREV_TASK", "PICK_NEXT_TASK",
 				  "TASK_WAKE", "TASK_MIGRATE", "TASK_UPDATE",
 				"IRQ_UPDATE"};
@@ -247,6 +254,7 @@ static int __init set_sched_predl(char *str)
 }
 early_param("sched_predl", set_sched_predl);
 
+__read_mostly unsigned int walt_scale_demand_divisor;
 void inc_rq_walt_stats(struct rq *rq, struct task_struct *p)
 {
 	inc_nr_big_task(&rq->walt_stats, p);
@@ -544,7 +552,11 @@ u64 freq_policy_load(struct rq *rq)
 	u64 aggr_grp_load = cluster->aggr_grp_load;
 	u64 load, tt_load = 0;
 	u64 coloc_boost_load = cluster->coloc_boost_load;
-
+#ifdef VENDOR_EDIT
+	u64 wallclock = sched_ktime_clock();
+	u64 timeline = 0;
+	int cpu = cpu_of(rq);
+#endif
 	if (rq->ed_task != NULL) {
 		load = sched_ravg_window;
 		goto done;
@@ -571,7 +583,14 @@ u64 freq_policy_load(struct rq *rq)
 	default:
 		break;
 	}
-
+#ifdef VENDOR_EDIT
+	if (sysctl_uifirst_enabled && sysctl_slide_boost_enabled && ux_load_ts[cpu]) {
+		timeline = wallclock - ux_load_ts[cpu];
+		if  (timeline >= UX_LOAD_WINDOW)
+			ux_task_load[cpu] = 0;
+		load = max_t(u64, load, ux_task_load[cpu]);
+	}
+#endif
 done:
 	trace_sched_load_to_gov(rq, aggr_grp_load, tt_load, freq_aggr_thresh,
 				load, reporting_policy, walt_rotation_enabled,

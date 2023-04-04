@@ -308,6 +308,9 @@ static void __meminit grow_zone_span(struct zone *zone, unsigned long start_pfn,
 	zone->spanned_pages = max(old_zone_end_pfn, end_pfn) -
 				zone->zone_start_pfn;
 
+#ifdef VENDOR_EDIT
+        ajust_zone_label(zone);
+#endif
 	zone_span_writeunlock(zone);
 }
 
@@ -327,7 +330,9 @@ static void resize_zone(struct zone *zone, unsigned long start_pfn,
 		zone->zone_start_pfn = 0;
 		zone->spanned_pages = 0;
 	}
-
+#ifdef VENDOR_EDIT
+    ajust_zone_label(zone);
+#endif
 	zone_span_writeunlock(zone);
 }
 
@@ -665,6 +670,9 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
 			zone->spanned_pages = pfn - zone_start_pfn + 1;
 	}
 
+#ifdef VENDOR_EDIT
+    ajust_zone_label(zone);
+#endif
 	/*
 	 * The section is not biggest or smallest mem_section in the zone, it
 	 * only creates a hole in the zone. So in this case, we need not
@@ -693,6 +701,9 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
 	/* The zone has no valid section */
 	zone->zone_start_pfn = 0;
 	zone->spanned_pages = 0;
+#ifdef VENDOR_EDIT
+    ajust_zone_label(zone);
+#endif
 	zone_span_writeunlock(zone);
 }
 

@@ -38,6 +38,18 @@
 #include <trace/events/kmem.h>
 
 #include "internal.h"
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+/* Enalbe slabtrace:
+ * CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG=y
+ * Get more info disable Randomize_base
+ * CONFIG_RANDOMIZE_BASE=n
+ * after add the config, cat /proc/slabtrace to get slab userinfo
+ */
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+#ifndef CONFIG_RANDOMIZE_BASE
+#define COMPACT_OPLUS_SLUB_TRACK
+#endif
+#endif
 
 /*
  * Lock order:
@@ -197,11 +209,27 @@ static inline bool kmem_cache_has_cpu_partial(struct kmem_cache *s)
 /*
  * Tracking user of a slab.
  */
+#if defined(OPLUS_FEATURE_MEMLEAK_DETECT) && defined(CONFIG_KMALLOC_DEBUG) && !defined(CONFIG_MEMLEAK_DETECT_THREAD)
+#define TRACK_ADDRS_COUNT 12
+#else
 #define TRACK_ADDRS_COUNT 16
+#endif
 struct track {
 	unsigned long addr;	/* Called from address */
 #ifdef CONFIG_STACKTRACE
+#if defined(COMPACT_OPLUS_SLUB_TRACK)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+/* Store the offset after MODULES_VADDR for
+ * kernel module and kernel text address
+ */
+	u32 addrs[TRACK_ADDRS_COUNT];
+#else
 	unsigned long addrs[TRACK_ADDRS_COUNT];	/* Called from address */
+#endif
+#if defined(OPLUS_FEATURE_MEMLEAK_DETECT) && defined(CONFIG_KMALLOC_DEBUG)
+	u32 depth;
+	u32 hash;
+#endif
 #endif
 	int cpu;		/* Was running on cpu */
 	int pid;		/* Pid context */
@@ -372,6 +400,55 @@ static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page
 	return false;
 }
 
+#ifdef VENDOR_EDIT
+#if defined(CONFIG_SLUB_DEBUG) || defined(CONFIG_SLAB_STAT_DEBUG)
+/* Tracking of the number of slabs for debugging purposes */
+static inline unsigned long slabs_node(struct kmem_cache *s, int node)
+{
+	struct kmem_cache_node *n = get_node(s, node);
+
+	return atomic_long_read(&n->nr_slabs);
+}
+
+static inline unsigned long node_nr_slabs(struct kmem_cache_node *n)
+{
+	return atomic_long_read(&n->nr_slabs);
+}
+
+static inline void inc_slabs_node(struct kmem_cache *s, int node, int objects)
+{
+	struct kmem_cache_node *n = get_node(s, node);
+
+	/*
+	 * May be called early in order to allocate a slab for the
+	 * kmem_cache_node structure. Solve the chicken-egg
+	 * dilemma by deferring the increment of the count during
+	 * bootstrap (see early_kmem_cache_node_alloc).
+	 */
+	if (likely(n)) {
+		atomic_long_inc(&n->nr_slabs);
+		atomic_long_add(objects, &n->total_objects);
+	}
+}
+static inline void dec_slabs_node(struct kmem_cache *s, int node, int objects)
+{
+	struct kmem_cache_node *n = get_node(s, node);
+
+	atomic_long_dec(&n->nr_slabs);
+	atomic_long_sub(objects, &n->total_objects);
+}
+#else
+static inline unsigned long slabs_node(struct kmem_cache *s, int node)
+							{ return 0; }
+static inline unsigned long node_nr_slabs(struct kmem_cache_node *n)
+							{ return 0; }
+static inline void inc_slabs_node(struct kmem_cache *s, int node,
+							int objects) {}
+static inline void dec_slabs_node(struct kmem_cache *s, int node,
+							int objects) {}
+#endif /* CONFIG_SLUB_DEBUG || CONFIG_SLAB_STAT_DEBUG */
+#endif /* VENDOR_EDIT */
+
 static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
 		void *freelist_old, unsigned long counters_old,
 		void *freelist_new, unsigned long counters_new,
@@ -420,7 +497,13 @@ static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
  * Node listlock must be held to guarantee that the page does
  * not vanish from under us.
  */
-static void get_map(struct kmem_cache *s, struct page *page, unsigned long *map)
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+void
+#else
+static void
+#endif
+get_map(struct kmem_cache *s, struct page *page, unsigned long *map)
 {
 	void *p;
 	void *addr = page_address(page);
@@ -429,6 +512,10 @@ static void get_map(struct kmem_cache *s, struct page *page, unsigned long *map)
 		set_bit(slab_index(p, s, addr), map);
 }
 
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+EXPORT_SYMBOL(get_map);
+#endif
 static inline int size_from_object(struct kmem_cache *s)
 {
 	if (s->flags & SLAB_RED_ZONE)
@@ -525,6 +612,35 @@ static void set_track(struct kmem_cache *s, void *object,
 
 	if (addr) {
 #ifdef CONFIG_STACKTRACE
+#if defined(COMPACT_OPLUS_SLUB_TRACK)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+		unsigned long addrs[TRACK_ADDRS_COUNT];
+		struct stack_trace trace;
+		int i;
+
+		memset(addrs, 0, sizeof(addrs));
+		trace.nr_entries = 0;
+		trace.max_entries = TRACK_ADDRS_COUNT;
+
+		trace.entries = addrs;
+		trace.skip = 3;
+		save_stack_trace(&trace);
+
+		/* See rant in lockdep.c */
+		if (trace.nr_entries != 0 &&
+			trace.entries[trace.nr_entries - 1] == ULONG_MAX)
+			trace.nr_entries--;
+
+		for (i = trace.nr_entries; i < TRACK_ADDRS_COUNT; i++)
+			addrs[i] = 0;
+
+		for (i = 0; i < TRACK_ADDRS_COUNT; i++) {
+			if (addrs[i])
+				p->addrs[i] = addrs[i] - MODULES_VADDR;
+			else
+				p->addrs[i] = 0;
+		}
+#else
 		struct stack_trace trace;
 		int i;
 
@@ -544,6 +660,13 @@ static void set_track(struct kmem_cache *s, void *object,
 		for (i = trace.nr_entries; i < TRACK_ADDRS_COUNT; i++)
 			p->addrs[i] = 0;
 #endif
+#if defined(OPLUS_FEATURE_MEMLEAK_DETECT) && defined(CONFIG_KMALLOC_DEBUG)
+		p->depth = trace.nr_entries;
+		p->hash = jhash2((u32 *)p->addrs,
+			sizeof(p->addrs[0])/sizeof(u32)*trace.nr_entries,
+			0xabcd);
+#endif
+#endif
 		p->addr = addr;
 		p->cpu = smp_processor_id();
 		p->pid = current->pid;
@@ -557,7 +680,9 @@ static void init_tracking(struct kmem_cache *s, void *object)
 	if (!(s->flags & SLAB_STORE_USER))
 		return;
 
+#if !defined(OPLUS_FEATURE_MEMLEAK_DETECT) || !defined(CONFIG_KMALLOC_DEBUG) || defined(CONFIG_SLUB_DEBUG_ON) || defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
 	set_track(s, object, TRACK_FREE, 0UL);
+#endif
 	set_track(s, object, TRACK_ALLOC, 0UL);
 }
 
@@ -569,6 +694,29 @@ static void print_track(const char *s, struct track *t)
 	pr_err("INFO: %s in %pS age=%lu cpu=%u pid=%d\n",
 	       s, (void *)t->addr, jiffies - t->when, t->cpu, t->pid);
 #ifdef CONFIG_STACKTRACE
+#if defined(COMPACT_OPLUS_SLUB_TRACK)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+	{
+		int i;
+		unsigned long addrs[TRACK_ADDRS_COUNT];
+
+		/* we store the offset after MODULES_VADDR for
+		 * kernel module and kernel text address
+		 */
+		for (i = 0; i < TRACK_ADDRS_COUNT; i++) {
+			if (t->addrs[i])
+				addrs[i] =  MODULES_VADDR + t->addrs[i];
+			else
+				addrs[i] = 0;
+		}
+		for (i = 0; i < TRACK_ADDRS_COUNT; i++) {
+			if (addrs[i])
+				pr_err("\t%pS\n", (void *)addrs[i]);
+			else
+				break;
+		}
+	}
+#else
 	{
 		int i;
 		for (i = 0; i < TRACK_ADDRS_COUNT; i++)
@@ -578,6 +726,7 @@ static void print_track(const char *s, struct track *t)
 				break;
 	}
 #endif
+#endif
 }
 
 static void print_tracking(struct kmem_cache *s, void *object)
@@ -586,7 +735,9 @@ static void print_tracking(struct kmem_cache *s, void *object)
 		return;
 
 	print_track("Allocated", get_track(s, object, TRACK_ALLOC));
+#if !defined(OPLUS_FEATURE_MEMLEAK_DETECT) || !defined(CONFIG_KMALLOC_DEBUG) || defined(CONFIG_SLUB_DEBUG_ON) || defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
 	print_track("Freed", get_track(s, object, TRACK_FREE));
+#endif
 }
 
 static void print_page_info(struct page *page)
@@ -653,8 +804,13 @@ static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
 	else
 		off = s->inuse;
 
+#if !defined(OPLUS_FEATURE_MEMLEAK_DETECT) || !defined(CONFIG_KMALLOC_DEBUG) || defined(CONFIG_SLUB_DEBUG_ON) || defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
 	if (s->flags & SLAB_STORE_USER)
 		off += 2 * sizeof(struct track);
+#else
+	if (s->flags & SLAB_STORE_USER)
+		off += sizeof(struct track);
+#endif
 
 	off += kasan_metadata_size(s);
 
@@ -794,9 +950,15 @@ static int check_pad_bytes(struct kmem_cache *s, struct page *page, u8 *p)
 		/* Freepointer is placed after the object. */
 		off += sizeof(void *);
 
+#if !defined(OPLUS_FEATURE_MEMLEAK_DETECT) || !defined(CONFIG_KMALLOC_DEBUG) || defined(CONFIG_SLUB_DEBUG_ON) || defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
 	if (s->flags & SLAB_STORE_USER)
 		/* We also have user information there */
 		off += 2 * sizeof(struct track);
+#else
+	if (s->flags & SLAB_STORE_USER)
+		/* We also have user information there */
+		off += sizeof(struct track);
+#endif
 
 	off += kasan_metadata_size(s);
 
@@ -1017,6 +1179,8 @@ static void remove_full(struct kmem_cache *s, struct kmem_cache_node *n, struct 
 	list_del(&page->lru);
 }
 
+#ifndef VENDOR_EDIT
+
 /* Tracking of the number of slabs for debugging purposes */
 static inline unsigned long slabs_node(struct kmem_cache *s, int node)
 {
@@ -1052,7 +1216,7 @@ static inline void dec_slabs_node(struct kmem_cache *s, int node, int objects)
 	atomic_long_dec(&n->nr_slabs);
 	atomic_long_sub(objects, &n->total_objects);
 }
-
+#endif /* VENDOR_EDIT */
 /* Object debug checks for alloc/free paths */
 static void setup_object_debug(struct kmem_cache *s, struct page *page,
 								void *object)
@@ -1172,8 +1336,10 @@ next_object:
 			goto out;
 	}
 
+#if !defined(OPLUS_FEATURE_MEMLEAK_DETECT) || !defined(CONFIG_KMALLOC_DEBUG) || defined(CONFIG_SLUB_DEBUG_ON) || defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
 	if (s->flags & SLAB_STORE_USER)
 		set_track(s, object, TRACK_FREE, addr);
+#endif
 	trace(s, page, object, 0);
 	/* Freepointer not overwritten by init_object(), SLAB_POISON moved it */
 	init_object(s, object, SLUB_RED_INACTIVE);
@@ -1308,6 +1474,7 @@ unsigned long kmem_cache_flags(unsigned long object_size,
 
 #define disable_higher_order_debug 0
 
+#ifndef VENDOR_EDIT
 static inline unsigned long slabs_node(struct kmem_cache *s, int node)
 							{ return 0; }
 static inline unsigned long node_nr_slabs(struct kmem_cache_node *n)
@@ -1316,7 +1483,7 @@ static inline void inc_slabs_node(struct kmem_cache *s, int node,
 							int objects) {}
 static inline void dec_slabs_node(struct kmem_cache *s, int node,
 							int objects) {}
-
+#endif /* VENDOR_EDIT */
 #endif /* CONFIG_SLUB_DEBUG */
 
 /*
@@ -2313,11 +2480,21 @@ static bool has_cpu_slab(int cpu, void *info)
 	return c->page || c->partial;
 }
 
-static void flush_all(struct kmem_cache *s)
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+void
+#else
+static void
+#endif
+flush_all(struct kmem_cache *s)
 {
 	on_each_cpu_cond(has_cpu_slab, flush_cpu_slab, s, 1, GFP_ATOMIC);
 }
 
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+EXPORT_SYMBOL(flush_all);
+#endif
 /*
  * Use the cpu notifier to insure that the cpu slabs are flushed when
  * necessary.
@@ -2350,7 +2527,7 @@ static inline int node_match(struct page *page, int node)
 	return 1;
 }
 
-#ifdef CONFIG_SLUB_DEBUG
+#if defined(CONFIG_SLUB_DEBUG) || (defined(VENDOR_EDIT) && defined(CONFIG_SLAB_STAT_DEBUG))
 static int count_free(struct page *page)
 {
 	return page->objects - page->inuse;
@@ -3271,6 +3448,10 @@ static inline int calculate_order(int size, int reserved)
 	 * First we increase the acceptable waste in a slab. Then
 	 * we reduce the minimum objects required in a slab.
 	 */
+	 
+#ifdef VENDOR_EDIT
+	slub_min_objects = 10;
+#endif /*VENDOR_EDIT*/
 	min_objects = slub_min_objects;
 	if (!min_objects)
 		min_objects = 4 * (fls(nr_cpu_ids) + 1);
@@ -3312,7 +3493,8 @@ init_kmem_cache_node(struct kmem_cache_node *n)
 	n->nr_partial = 0;
 	spin_lock_init(&n->list_lock);
 	INIT_LIST_HEAD(&n->partial);
-#ifdef CONFIG_SLUB_DEBUG
+
+#if defined(CONFIG_SLUB_DEBUG) || (defined(VENDOR_EDIT) && defined(CONFIG_SLAB_STAT_DEBUG))
 	atomic_long_set(&n->nr_slabs, 0);
 	atomic_long_set(&n->total_objects, 0);
 	INIT_LIST_HEAD(&n->full);
@@ -3499,12 +3681,17 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
 	}
 
 #ifdef CONFIG_SLUB_DEBUG
+#if defined(OPLUS_FEATURE_MEMLEAK_DETECT) && defined(CONFIG_KMALLOC_DEBUG) && !defined(CONFIG_SLUB_DEBUG_ON) && !defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+	if (flags & SLAB_STORE_USER)
+		size += sizeof(struct track);
+#else
 	if (flags & SLAB_STORE_USER)
 		/*
 		 * Need to store information about allocs and frees after
 		 * the object.
 		 */
 		size += 2 * sizeof(struct track);
+#endif
 #endif
 
 	kasan_cache_create(s, &size, &s->flags);
@@ -4404,9 +4591,22 @@ static long validate_slab_cache(struct kmem_cache *s)
  * and freed.
  */
 
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+#define OPLUS_MEMCFG_SLABTRACE_CNT 4
+#if (OPLUS_MEMCFG_SLABTRACE_CNT > TRACK_ADDRS_COUNT)
+#error (OPLUS_MEMCFG_SLABTRACE_CNT > TRACK_ADDRS_COUNT)
+#endif
+#endif
 struct location {
 	unsigned long count;
 	unsigned long addr;
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+#ifdef CONFIG_STACKTRACE
+	unsigned long addrs[OPLUS_MEMCFG_SLABTRACE_CNT]; /* caller address */
+#endif
+#endif
 	long long sum_time;
 	long min_time;
 	long max_time;
@@ -4429,7 +4629,13 @@ static void free_loc_track(struct loc_track *t)
 			get_order(sizeof(struct location) * t->max));
 }
 
-static int alloc_loc_track(struct loc_track *t, unsigned long max, gfp_t flags)
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+int
+#else
+static int
+#endif
+alloc_loc_track(struct loc_track *t, unsigned long max, gfp_t flags)
 {
 	struct location *l;
 	int order;
@@ -4449,6 +4655,10 @@ static int alloc_loc_track(struct loc_track *t, unsigned long max, gfp_t flags)
 	return 1;
 }
 
+#if defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
+/* wen.luo@BSP.Kernel.Stability 2020-03-10, simple slabtrce for memleak analysis */
+EXPORT_SYMBOL(alloc_loc_track);
+#endif
 static int add_location(struct loc_track *t, struct kmem_cache *s,
 				const struct track *track)
 {
@@ -5200,7 +5410,12 @@ static ssize_t free_calls_show(struct kmem_cache *s, char *buf)
 {
 	if (!(s->flags & SLAB_STORE_USER))
 		return -ENOSYS;
+
+#if !defined(OPLUS_FEATURE_MEMLEAK_DETECT) || !defined(CONFIG_KMALLOC_DEBUG) || defined(CONFIG_SLUB_DEBUG_ON) || defined(CONFIG_OPLUS_FEATURE_SLABTRACE_DEBUG)
 	return list_locations(s, buf, TRACK_FREE);
+#else
+	return -ENOSYS;
+#endif
 }
 SLAB_ATTR_RO(free_calls);
 #endif /* CONFIG_SLUB_DEBUG */

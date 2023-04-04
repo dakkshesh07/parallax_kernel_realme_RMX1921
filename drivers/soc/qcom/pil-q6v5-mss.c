@@ -41,6 +41,13 @@
 
 #define subsys_to_drv(d) container_of(d, struct modem_data, subsys_desc)
 
+#ifdef OPLUS_FEATURE_MODEM_MINIDUMP
+//Add for customized subsystem ramdump to skip generate dump cause by SAU
+bool SKIP_GENERATE_RAMDUMP = false;
+extern void mdmreason_set(char * buf);
+#endif
+
+
 static void log_modem_sfr(void)
 {
 	u32 size;
@@ -59,6 +66,19 @@ static void log_modem_sfr(void)
 
 	strlcpy(reason, smem_reason, min(size, MAX_SSR_REASON_LEN));
 	pr_err("modem subsystem failure reason: %s.\n", reason);
+
+	#ifdef OPLUS_FEATURE_MODEM_MINIDUMP
+	//Add for customized subsystem ramdump to skip generate dump cause by SAU
+	mdmreason_set(reason);
+
+	pr_err("oppo debug modem subsystem failure reason: %s.\n", reason);
+
+	if(strstr(reason, "OPPO_MODEM_NO_RAMDUMP_EXPECTED") || strstr(reason, "oppomsg:go_to_error_fatal")){
+		pr_err("%s will subsys reset",__func__);
+		SKIP_GENERATE_RAMDUMP = true;
+	}
+	#endif
+
 }
 
 static void restart_modem(struct modem_data *drv)

@@ -287,6 +287,12 @@ extern int sysctl_tcp_use_userconfig;
 extern struct percpu_counter tcp_sockets_allocated;
 extern int tcp_memory_pressure;
 
+#ifdef VENDOR_EDIT
+//add for: When find TCP SYN-ACK Timestamp value error, just do not use Timestamp
+extern int sysctl_tcp_ts_control[2];
+#endif /* VENDOR_EDIT */
+
+
 /* optimized version of sk_under_memory_pressure() for TCP sockets */
 static inline bool tcp_under_memory_pressure(const struct sock *sk)
 {

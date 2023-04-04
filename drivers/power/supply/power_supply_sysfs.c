@@ -177,6 +177,26 @@ static ssize_t power_supply_store_property(struct device *dev,
 /* Must be in the same order as POWER_SUPPLY_PROP_* */
 static struct device_attribute power_supply_attrs[] = {
 	/* Properties of type `int' */
+#ifdef VENDOR_EDIT
+	POWER_SUPPLY_ATTR(charge_technology),
+	POWER_SUPPLY_ATTR(fastcharger),
+	POWER_SUPPLY_ATTR(mmi_charging_enable),
+	POWER_SUPPLY_ATTR(otg_switch),
+	POWER_SUPPLY_ATTR(otg_online),
+	POWER_SUPPLY_ATTR(fast_chg_type),
+	POWER_SUPPLY_ATTR(batt_fcc),
+	POWER_SUPPLY_ATTR(batt_soh),
+	POWER_SUPPLY_ATTR(batt_cc),
+	POWER_SUPPLY_ATTR(batt_rm),
+	POWER_SUPPLY_ATTR(batt_soc),
+	POWER_SUPPLY_ATTR(authenticate),
+	POWER_SUPPLY_ATTR(charge_timeout),
+	POWER_SUPPLY_ATTR(notify_code),
+	POWER_SUPPLY_ATTR(chip_soc),
+	POWER_SUPPLY_ATTR(usb_status),
+	POWER_SUPPLY_ATTR(usbtemp_volt_l),
+	POWER_SUPPLY_ATTR(usbtemp_volt_r),
+#endif  /* VENDOR_EDIT */
 	POWER_SUPPLY_ATTR(status),
 	POWER_SUPPLY_ATTR(charge_type),
 	POWER_SUPPLY_ATTR(health),
@@ -326,6 +346,20 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(min_icl),
 	POWER_SUPPLY_ATTR(moisture_detected),
 	POWER_SUPPLY_ATTR(batt_profile_version),
+#ifdef VENDOR_EDIT
+	POWER_SUPPLY_ATTR(adapter_fw_update),
+	POWER_SUPPLY_ATTR(voocchg_ing),
+	POWER_SUPPLY_ATTR(chargerid_volt),
+	POWER_SUPPLY_ATTR(ship_mode),
+#ifdef CONFIG_OPLUS_SHORT_USERSPACE
+	POWER_SUPPLY_ATTR(short_c_batt_limit_chg),
+	POWER_SUPPLY_ATTR(short_c_batt_limit_rechg),
+#else
+	POWER_SUPPLY_ATTR(short_c_batt_update_change),
+	POWER_SUPPLY_ATTR(short_c_batt_in_idle),
+	POWER_SUPPLY_ATTR(short_c_batt_cv_status),
+#endif /*CONFIG_OPLUS_SHORT_USERSPACE*/
+#endif /* VENDOR_EDIT */
 	POWER_SUPPLY_ATTR(batt_full_current),
 	POWER_SUPPLY_ATTR(recharge_soc),
 	POWER_SUPPLY_ATTR(toggle_stat),
@@ -346,12 +380,26 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(real_capacity),
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_ATTR(charge_counter_ext),
+#ifdef CONFIG_OPLUS_SHORT_HW_CHECK
+	POWER_SUPPLY_ATTR(short_c_hw_feature),
+	POWER_SUPPLY_ATTR(short_c_hw_status),
+#endif
+#ifdef CONFIG_OPLUS_SHORT_IC_CHECK
+	POWER_SUPPLY_ATTR(short_ic_otp_status),
+	POWER_SUPPLY_ATTR(short_ic_volt_thresh),
+	POWER_SUPPLY_ATTR(short_ic_otp_value),
+#endif
+
 	/* Properties of type `const char *' */
+#ifdef OPLUS_CHG_SUSPEND_UI_SOC_OPT
+	POWER_SUPPLY_ATTR(soc_ajust),
+#endif
 	POWER_SUPPLY_ATTR(model_name),
 	POWER_SUPPLY_ATTR(manufacturer),
 	POWER_SUPPLY_ATTR(serial_number),
 	POWER_SUPPLY_ATTR(battery_type),
 	POWER_SUPPLY_ATTR(cycle_counts),
+	POWER_SUPPLY_ATTR(cool_down),
 };
 
 static struct attribute *

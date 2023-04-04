@@ -69,6 +69,10 @@
 #include <asm/futex.h>
 
 #include "locking/rtmutex_common.h"
+#ifdef OPLUS_FEATURE_UIFIRST
+#include <linux/uifirst/uifirst_sched_futex.h>
+#include <linux/uifirst/uifirst_sched_common.h>
+#endif /* OPLUS_FEATURE_UIFIRST */
 
 /*
  * READ this before attempting to hack on futexes!
@@ -238,6 +242,10 @@ struct futex_q {
 	struct plist_node list;
 
 	struct task_struct *task;
+#ifdef OPLUS_FEATURE_UIFIRST
+	struct task_struct *wait_for;
+	atomic_t ux_waitings;
+#endif /* OPLUS_FEATURE_UIFIRST */
 	spinlock_t *lock_ptr;
 	union futex_key key;
 	struct futex_pi_state *pi_state;
@@ -1461,6 +1469,14 @@ futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
 			if (!(this->bitset & bitset))
 				continue;
 
+#ifdef OPLUS_FEATURE_UIFIRST
+			if (sysctl_uifirst_enabled) {
+				int ux_waitings = atomic_read(&(this->ux_waitings));
+				if (ux_waitings > 0) {
+					futex_unset_inherit_ux_refs(current, ux_waitings);
+				}
+			}
+#endif /* OPLUS_FEATURE_UIFIRST */
 			mark_wake_futex(&wake_q, this);
 			if (++ret >= nr_wake)
 				break;
@@ -2102,6 +2118,12 @@ static inline void queue_me(struct futex_q *q, struct futex_hash_bucket *hb)
 	 */
 	prio = min(current->normal_prio, MAX_RT_PRIO);
 
+#ifdef OPLUS_FEATURE_UIFIRST
+	if (sysctl_uifirst_enabled && test_task_ux(current)) {
+		prio = min(current->normal_prio, MAX_RT_PRIO - 1);
+	}
+#endif /* OPLUS_FEATURE_UIFIRST */
+
 	plist_node_init(&q->list, prio);
 	plist_add(&q->list, &hb->chain);
 	q->task = current;
@@ -2369,6 +2391,16 @@ static void futex_wait_queue_me(struct futex_hash_bucket *hb, struct futex_q *q,
 	 * access to the hash list and forcing another memory barrier.
 	 */
 	set_current_state(TASK_INTERRUPTIBLE);
+#ifdef OPLUS_FEATURE_UIFIRST
+	if (sysctl_uifirst_enabled) {
+		if (!timeout) {
+			futex_set_inherit_ux_refs(q->wait_for, current);
+			if (test_set_dynamic_ux(current)) {
+				atomic_inc(&(q->ux_waitings));
+			}
+		}
+	}
+#endif /* OPLUS_FEATURE_UIFIRST */
 	queue_me(q, hb);
 
 	/* Arm the timer */
@@ -2467,8 +2499,30 @@ out:
 	return ret;
 }
 
+#ifdef OPLUS_FEATURE_UIFIRST
+static struct task_struct* get_futex_owner_by_pid_local(u32 owner_tid) {
+	struct task_struct* futex_owner = NULL;
+
+	if (owner_tid > 0 && owner_tid <= PID_MAX_DEFAULT) {
+		rcu_read_lock();
+		futex_owner = find_task_by_vpid(owner_tid);
+		if (futex_owner) {
+			get_task_struct(futex_owner);
+		}
+		rcu_read_unlock();
+	}
+
+	return futex_owner;
+}
+#endif /* OPLUS_FEATURE_UIFIRST */
+
+#ifndef OPLUS_FEATURE_UIFIRST
 static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
 		      ktime_t *abs_time, u32 bitset)
+#else /* OPLUS_FEATURE_UIFIRST */
+static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
+		ktime_t *abs_time, u32 bitset, u32 owner_tid)
+#endif /* OPLUS_FEATURE_UIFIRST */
 {
 	struct hrtimer_sleeper timeout, *to = NULL;
 	struct restart_block *restart;
@@ -2479,6 +2533,18 @@ static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
 	if (!bitset)
 		return -EINVAL;
 	q.bitset = bitset;
+#ifdef OPLUS_FEATURE_UIFIRST
+	if (sysctl_uifirst_enabled && (bitset == FUTEX_BITSET_MATCH_ANY) && test_task_ux(current)) {
+		struct task_struct* owner_task = get_futex_owner_by_pid_local(owner_tid);
+		if (owner_task != NULL) {
+			if ((current->tgid == owner_task->tgid) || (flags & FLAGS_SHARED)) {
+				q.wait_for = owner_task;
+			} else {
+				put_task_struct(owner_task);
+			}
+		}
+	}
+#endif /* OPLUS_FEATURE_UIFIRST */
 
 	if (abs_time) {
 		to = &timeout;
@@ -2530,6 +2596,9 @@ retry:
 	restart->futex.time = abs_time->tv64;
 	restart->futex.bitset = bitset;
 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
+#ifdef OPLUS_FEATURE_UIFIRST
+	restart->futex.uaddr2 = (u32*)(long)owner_tid;
+#endif /* OPLUS_FEATURE_UIFIRST */
 
 	ret = -ERESTART_RESTARTBLOCK;
 
@@ -2538,6 +2607,10 @@ out:
 		hrtimer_cancel(&to->timer);
 		destroy_hrtimer_on_stack(&to->timer);
 	}
+#ifdef OPLUS_FEATURE_UIFIRST
+	if (q.wait_for)
+		put_task_struct(q.wait_for);
+#endif /* OPLUS_FEATURE_UIFIRST */
 	return ret;
 }
 
@@ -2553,8 +2626,13 @@ static long futex_wait_restart(struct restart_block *restart)
 	}
 	restart->fn = do_no_restart_syscall;
 
+#ifndef OPLUS_FEATURE_UIFIRST
 	return (long)futex_wait(uaddr, restart->futex.flags,
 				restart->futex.val, tp, restart->futex.bitset);
+#else /* OPLUS_FEATURE_UIFIRST */
+	return (long)futex_wait(uaddr, restart->futex.flags,
+				restart->futex.val, tp, restart->futex.bitset, (u32)(restart->futex.uaddr2));
+#endif /* OPLUS_FEATURE_UIFIRST */
 }
 
 
@@ -3291,7 +3369,11 @@ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 	case FUTEX_WAIT:
 		val3 = FUTEX_BITSET_MATCH_ANY;
 	case FUTEX_WAIT_BITSET:
+#ifndef OPLUS_FEATURE_UIFIRST
 		return futex_wait(uaddr, flags, val, timeout, val3);
+#else /* OPLUS_FEATURE_UIFIRST */
+		return futex_wait(uaddr, flags, val, timeout, val3, (u32)uaddr2);
+#endif /* OPLUS_FEATURE_UIFIRST */
 	case FUTEX_WAKE:
 		val3 = FUTEX_BITSET_MATCH_ANY;
 	case FUTEX_WAKE_BITSET:

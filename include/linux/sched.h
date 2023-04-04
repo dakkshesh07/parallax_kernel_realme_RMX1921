@@ -326,6 +326,21 @@ extern char ___assert_task_state[1 - 2*!!(
 
 #endif
 
+#ifdef OPLUS_FEATURE_UIFIRST
+extern int sysctl_uifirst_enabled;
+extern int sysctl_animation_type;
+extern int sysctl_launcher_boost_enabled;
+
+#define LAUNCHER_SI_START (4)
+#define LAUNCHER_SI_EXIT (5)
+#ifdef CONFIG_CAMERA_OPT
+extern int sysctl_camera_opt_enabled;
+#endif
+#endif /* OPLUS_FEATURE_UIFIRST */
+#ifdef VENDOR_EDIT
+extern int sysctl_slide_boost_enabled;
+extern int sysctl_boost_task_threshold;
+#endif
 /* Task command name length */
 #define TASK_COMM_LEN 16
 
@@ -1678,6 +1693,14 @@ struct tlbflush_unmap_batch {
 	bool writable;
 };
 
+#ifdef CONFIG_PROCESS_RECLAIM_ENHANCE
+/* Record process reclaim memory information */
+union reclaim_limit {
+	unsigned long stop_jiffies;
+	unsigned long stop_scan_addr;
+};
+#endif
+
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/*
@@ -2178,6 +2201,10 @@ struct task_struct {
 	/* number of pages to reclaim on returning to userland */
 	unsigned int memcg_nr_pages_over_high;
 #endif
+#ifdef CONFIG_PROCESS_RECLAIM_ENHANCE
+	/*  Record process reclaim infor  */
+	union reclaim_limit reclaim;
+#endif
 #ifdef CONFIG_UPROBES
 	struct uprobe_task *utask;
 #endif
@@ -2199,6 +2226,20 @@ struct task_struct {
 	/* A live task holds one reference. */
 	atomic_t stack_refcount;
 #endif
+#ifdef OPLUS_FEATURE_UIFIRST
+	int static_ux;
+	atomic64_t dynamic_ux;
+	struct list_head ux_entry;
+	int ux_depth;
+	u64 enqueue_time;
+	u64 dynamic_ux_start;
+#ifdef CONFIG_CAMERA_OPT
+        int camera_opt;
+#endif
+#endif /* OPLUS_FEATURE_UIFIRST */
+#ifdef CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT
+	struct fuse_package *fpack;
+#endif /* CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT */
 /* CPU-specific state of this task */
 	struct thread_struct thread;
 /*
@@ -2208,6 +2249,14 @@ struct task_struct {
  * Do not put anything below here!
  */
 };
+
+#ifdef CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT
+struct fuse_package {
+	bool fuse_open_req;
+	struct file *filp;
+	char *iname;
+};
+#endif /* CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT */
 
 #ifdef CONFIG_ARCH_WANTS_DYNAMIC_TASK_STRUCT
 extern int arch_task_struct_size __read_mostly;
@@ -2530,6 +2579,12 @@ extern void thread_group_cputime_adjusted(struct task_struct *p, cputime_t *ut, 
 #define PF_MUTEX_TESTER	0x20000000	/* Thread belongs to the rt mutex tester */
 #define PF_FREEZER_SKIP	0x40000000	/* Freezer should not count it as freezable */
 #define PF_SUSPEND_TASK 0x80000000      /* this thread called freeze_processes and should not be frozen */
+#ifdef CONFIG_PROCESS_RECLAIM_ENHANCE
+/* flag that current task is process reclaimer */
+#define PF_RECLAIM_SHRINK	0x02000000	/* Flag the task is memory compresser */
+
+#define current_is_reclaimer() (current->flags & PF_RECLAIM_SHRINK)
+#endif
 
 /*
  * Only the _current_ task can read/write to tsk->flags, but other
@@ -3307,10 +3362,16 @@ extern long do_fork(unsigned long, unsigned long, unsigned long, int __user *, i
 struct task_struct *fork_idle(int);
 extern pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
 
+#ifdef CONFIG_CAMERA_OPT
+extern void set_camera_opt(struct task_struct *tsk);
+#endif
 extern void __set_task_comm(struct task_struct *tsk, const char *from, bool exec);
 static inline void set_task_comm(struct task_struct *tsk, const char *from)
 {
 	__set_task_comm(tsk, from, false);
+#ifdef CONFIG_CAMERA_OPT
+        set_camera_opt(tsk);
+#endif
 }
 extern char *__get_task_comm(char *to, size_t len, struct task_struct *tsk);
 #define get_task_comm(buf, tsk) ({			\
@@ -3947,6 +4008,11 @@ static inline unsigned long rlimit_max(unsigned int limit)
 #define SCHED_CPUFREQ_PL	(1U << 5)
 #define SCHED_CPUFREQ_EARLY_DET	(1U << 6)
 #define SCHED_CPUFREQ_FORCE_UPDATE (1U << 7)
+
+#ifdef VENDOR_EDIT
+#define SCHED_CPUFREQ_RESET (1U << 7)
+#define SCHED_CPUFREQ_BOOST (1U << 9)
+#endif
 
 #define SCHED_CPUFREQ_RT_DL	(SCHED_CPUFREQ_RT | SCHED_CPUFREQ_DL)
 

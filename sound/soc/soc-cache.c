@@ -39,6 +39,10 @@ int snd_soc_cache_init(struct snd_soc_codec *codec)
 	return 0;
 }
 
+//#ifdef OPLUS_ARCH_EXTENDS
+EXPORT_SYMBOL(snd_soc_cache_init);
+//#endif /* OPLUS_ARCH_EXTENDS */
+
 /*
  * NOTE: keep in mind that this function might be called
  * multiple times.

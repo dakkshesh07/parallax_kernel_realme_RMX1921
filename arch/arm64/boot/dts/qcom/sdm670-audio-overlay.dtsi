@@ -16,6 +16,9 @@
 #include <dt-bindings/clock/qcom,audio-ext-clk.h>
 
 &tavil_snd {
+	/* #ifdef OPLUS_ARCH_EXTENDS */
+	status = "disabled";
+	/* #endif OPLUS_ARCH_EXTENDS */
 	qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
 	qcom,audio-routing =
 		"AIF4 VI", "MCLK",
@@ -61,6 +64,9 @@
 };
 
 &tasha_snd {
+	/* #ifdef OPLUS_ARCH_EXTENDS */
+	status = "disabled";
+	/* #endif OPLUS_ARCH_EXTENDS */
 	qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
 	qcom,audio-routing =
 		"AIF4 VI", "MCLK",
@@ -135,11 +141,24 @@
 		"ADC2_IN", "ADC2_OUT",
 		"ADC3_IN", "ADC3_OUT";
 
-	qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
+	/* #ifndef OPLUS_ARCH_EXTENDS */
+	//qcom,msm-mi2s-master = <1>, <1>, <1>, <1>, <1>;
+	/* #else  OPLUS_ARCH_EXTENDS */
+	qcom,msm-mi2s-master = <1>, <0>, <1>, <0>, <0>;
+	qcom,msm-mi2s-ext-mclk = <0>, <1>, <0>, <0>, <0>;
+	/* #endif OPLUS_ARCH_EXTENDS */
 	qcom,msm-mclk-freq = <9600000>;
 	qcom,msm-mbhc-hphl-swh = <1>;
+	/* #ifndef OPLUS_ARCH_EXTENDS */
+	/*
 	qcom,msm-mbhc-gnd-swh = <1>;
 	qcom,msm-micbias2-ext-cap;
+	*/
+	/* #else  OPLUS_ARCH_EXTENDS */
+	qcom,msm-mbhc-gnd-swh = <0>;
+	qcom,msm-micbias1-ext-cap;
+	qcom,msm-micbias2-ext-cap;
+	/* #endif OPLUS_ARCH_EXTENDS */
 	qcom,msm-hs-micbias-type = "external";
 	qcom,cdc-pdm-gpios = <&cdc_pdm_gpios>;
 	qcom,cdc-comp-gpios = <&cdc_comp_gpios>;
@@ -151,16 +170,29 @@
 	asoc-codec-names = "msm-stub-codec.1", "msm-dig-codec",
 			   "analog-codec", "msm_sdw_codec",
 			   "msm-ext-disp-audio-codec-rx";
-
+	/* #ifndef OPLUS_ARCH_EXTENDS */
+	/*
 	qcom,wsa-max-devs = <2>;
 	qcom,wsa-devs = <&wsa881x_211_en>, <&wsa881x_212_en>,
 			<&wsa881x_213_en>, <&wsa881x_214_en>;
 	qcom,wsa-aux-dev-prefix = "SpkrLeft", "SpkrRight",
 				  "SpkrLeft", "SpkrRight";
+	*/
+	/* #else  OPLUS_ARCH_EXTENDS */
+	qcom,wsa-disable;
+	qcom,wsa-max-devs = <0>;
+	/* #endif OPLUS_ARCH_EXTENDS */
+
+	/* #ifdef OPLUS_ARCH_EXTENDS */
+	oppo,speaker-pa = "nxp";
+	/* #endif OPLUS_ARCH_EXTENDS */
 };
 
 &soc {
 	wcd_usbc_analog_en1_gpio: msm_cdc_pinctrl_usbc_audio_en1 {
+		/* #ifdef OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&wcd_usbc_analog_en1_active>;
@@ -198,6 +230,9 @@
 	};
 
 	cdc_sdw_gpios: sdw_clk_data_pinctrl {
+		/* #ifndef OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&sdw_clk_active &sdw_data_active>;
@@ -205,6 +240,9 @@
 	};
 
 	wsa_spkr_en1: wsa_spkr_en1_pinctrl {
+		/* #ifndef OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&spkr_1_sd_n_active>;
@@ -212,6 +250,9 @@
 	};
 
 	wsa_spkr_en2: wsa_spkr_en2_pinctrl {
+		/* #ifndef OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,msm-cdc-pinctrl";
 		pinctrl-names = "aud_active", "aud_sleep";
 		pinctrl-0 = <&spkr_2_sd_n_active>;
@@ -219,7 +260,11 @@
 	};
 
 	msm_sdw_codec: msm-sdw-codec@62ec1000 {
-		status = "okay";
+		/* #ifndef OPLUS_ARCH_EXTENDS */
+		//status = "okay";
+		/* #else OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,msm-sdw-codec";
 		reg = <0x62ec1000 0x0>;
 		interrupts = <0 88 0>;
@@ -312,6 +357,9 @@
 	};
 
 	wdsp_mgr: qcom,wcd-dsp-mgr {
+		/* #ifndef OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,wcd-dsp-mgr";
 		qcom,wdsp-components = <&wcd934x_cdc 0>,
 				       <&wcd_spi_0 1>,
@@ -320,6 +368,9 @@
 	};
 
 	wdsp_glink: qcom,wcd-dsp-glink {
+		/* #ifndef OPLUS_ARCH_EXTENDS */
+		status = "disabled";
+		/* #endif OPLUS_ARCH_EXTENDS */
 		compatible = "qcom,wcd-dsp-glink";
 	};
 
@@ -374,6 +425,19 @@
 		};
 	};
 };
+
+/* #ifdef OPLUS_ARCH_EXTENDS */
+//for tfa98xx
+&dai_mi2s2 {
+	compatible = "qcom,msm-dai-q6-mi2s";
+	qcom,msm-dai-q6-mi2s-dev-id = <2>;
+	qcom,msm-mi2s-rx-lines = <1>;
+	qcom,msm-mi2s-tx-lines = <2>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&ter_mi2s_active &ter_mi2s_sd0_active &ter_mi2s_sd1_active>;
+	pinctrl-1 = <&ter_mi2s_sleep &ter_mi2s_sd0_sleep &ter_mi2s_sd1_sleep>;
+};
+/* #endif OPLUS_ARCH_EXTENDS */
 
 &slim_aud {
 	wcd9335: tasha_codec {

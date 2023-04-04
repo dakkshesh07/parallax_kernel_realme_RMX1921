@@ -47,6 +47,19 @@
 #include "ion.h"
 #include "ion_priv.h"
 #include "compat_ion.h"
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPLUS_HEALTHINFO) && defined (CONFIG_OPLUS_MEM_MONITOR)
+#include <linux/oplus_healthinfo/memory_monitor.h>
+#endif /*VENDOR_EDIT*/
+
+#ifdef VENDOR_EDIT
+#include <linux/oplus_healthinfo/ion.h>
+#endif
+
+#if IS_ENABLED(CONFIG_PROC_FS)
+#include <linux/proc_fs.h>
+#endif
+
+static struct ion_heap *sys_heap;
 
 /**
  * struct ion_device - the metadata of the ion device node
@@ -70,6 +83,11 @@ struct ion_device {
 	struct dentry *debug_root;
 	struct dentry *heaps_debug_root;
 	struct dentry *clients_debug_root;
+#if IS_ENABLED(CONFIG_PROC_FS)
+        struct proc_dir_entry *proc_root;
+        struct proc_dir_entry *heaps_proc_root;
+        struct proc_dir_entry *clients_proc_root;
+#endif
 };
 
 /**
@@ -182,6 +200,8 @@ static void ion_buffer_add(struct ion_device *dev,
 }
 
 /* this function should only be called while dev->lock is held */
+extern bool ion_cnt_enable;
+extern atomic_long_t ion_total_size;
 static struct ion_buffer *ion_buffer_create(struct ion_heap *heap,
 				     struct ion_device *dev,
 				     unsigned long len,
@@ -267,6 +287,12 @@ static struct ion_buffer *ion_buffer_create(struct ion_heap *heap,
 	ion_buffer_add(dev, buffer);
 	mutex_unlock(&dev->buffer_lock);
 	atomic_long_add(len, &heap->total_allocated);
+
+#ifdef VENDOR_EDIT
+	if (ion_cnt_enable)
+		atomic_long_add(buffer->size, &ion_total_size);
+#endif
+
 	return buffer;
 
 err:
@@ -285,6 +311,11 @@ void ion_buffer_destroy(struct ion_buffer *buffer)
 			     __func__);
 		buffer->heap->ops->unmap_kernel(buffer->heap, buffer);
 	}
+#ifdef VENDOR_EDIT
+	if (ion_cnt_enable)
+		atomic_long_sub(buffer->size, &ion_total_size);
+#endif /*VENDOR_EDIT*/
+
 	buffer->heap->ops->unmap_dma(buffer->heap, buffer);
 
 	atomic_long_sub(buffer->size, &buffer->heap->total_allocated);
@@ -1348,43 +1379,45 @@ static void ion_dma_buf_release(struct dma_buf *dmabuf)
 
 static void *ion_dma_buf_kmap(struct dma_buf *dmabuf, unsigned long offset)
 {
-	struct ion_buffer *buffer = dmabuf->priv;
+    struct ion_buffer *buffer = dmabuf->priv;
+    void *vaddr;
 
-	return buffer->vaddr + offset * PAGE_SIZE;
+    if (!buffer->heap->ops->map_kernel) {
+        pr_err("%s: map kernel is not implemented by this heap.\n",
+               __func__);
+        return ERR_PTR(-ENOTTY);
+    }
+    mutex_lock(&buffer->lock);
+    vaddr = ion_buffer_kmap_get(buffer);
+    mutex_unlock(&buffer->lock);
+
+    if (IS_ERR(vaddr))
+        return vaddr;
+
+    return vaddr + offset * PAGE_SIZE;
 }
 
 static void ion_dma_buf_kunmap(struct dma_buf *dmabuf, unsigned long offset,
 			       void *ptr)
 {
+    struct ion_buffer *buffer = dmabuf->priv;
+
+    if (buffer->heap->ops->map_kernel) {
+        mutex_lock(&buffer->lock);
+        ion_buffer_kmap_put(buffer);
+        mutex_unlock(&buffer->lock);
+        }
 }
 
 static int ion_dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
 					enum dma_data_direction direction)
 {
-	struct ion_buffer *buffer = dmabuf->priv;
-	void *vaddr;
-
-	if (!buffer->heap->ops->map_kernel) {
-		pr_err("%s: map kernel is not implemented by this heap.\n",
-		       __func__);
-		return -ENODEV;
-	}
-
-	mutex_lock(&buffer->lock);
-	vaddr = ion_buffer_kmap_get(buffer);
-	mutex_unlock(&buffer->lock);
-	return PTR_ERR_OR_ZERO(vaddr);
+    return 0;
 }
 
 static int ion_dma_buf_end_cpu_access(struct dma_buf *dmabuf,
 				      enum dma_data_direction direction)
 {
-	struct ion_buffer *buffer = dmabuf->priv;
-
-	mutex_lock(&buffer->lock);
-	ion_buffer_kmap_put(buffer);
-	mutex_unlock(&buffer->lock);
-
 	return 0;
 }
 
@@ -1884,6 +1917,78 @@ static void ion_heap_print_debug(struct seq_file *s, struct ion_heap *heap)
 	}
 }
 
+int lowmem_dbg_dump_ion(void )
+{
+	struct ion_heap *heap;
+	struct ion_device *dev;
+	struct rb_node *n;
+	size_t total_size = 0;
+	size_t total_orphaned_size = 0;
+
+	if (unlikely(!sys_heap)) {
+		pr_err("g_ion_device is null.\n");
+		return 0;
+	}
+
+	heap = sys_heap;
+	dev = heap->dev;
+
+	pr_info("%16s %16s %16s\n", "client", "pid", "size");
+	pr_info("----------------------------------------------------\n");
+	down_read(&dev->lock);
+	for (n = rb_first(&dev->clients); n; n = rb_next(n)) {
+		struct ion_client *client = rb_entry(n, struct ion_client,
+						     node);
+		size_t size = ion_debug_heap_total(client, heap->id);
+
+		if (!size)
+			continue;
+		if (client->task) {
+			char task_comm[TASK_COMM_LEN];
+
+			get_task_comm(task_comm, client->task);
+			pr_info("%16s %16u %16zu\n", task_comm,
+				client->pid, size);
+		} else {
+			pr_info("%16s %16u %16zu\n", client->name,
+				client->pid, size);
+		}
+	}
+	up_read(&dev->lock);
+
+	pr_info("----------------------------------------------------\n");
+	pr_info("orphaned allocations (info is from last known client):\n");
+	mutex_lock(&dev->buffer_lock);
+	for (n = rb_first(&dev->buffers); n; n = rb_next(n)) {
+		struct ion_buffer *buffer = rb_entry(n, struct ion_buffer,
+						     node);
+		if (buffer->heap->id != heap->id)
+			continue;
+		total_size += buffer->size;
+		if (!buffer->handle_count) {
+			pr_info("%16s %16u %16zu %d %d\n",
+				buffer->task_comm, buffer->pid,
+				buffer->size, buffer->kmap_cnt,
+				atomic_read(&buffer->ref.refcount));
+			total_orphaned_size += buffer->size;
+		}
+	}
+	mutex_unlock(&dev->buffer_lock);
+	pr_info("----------------------------------------------------\n");
+	pr_info("%16s %16zu\n", "total orphaned",
+		total_orphaned_size);
+	pr_info("%16s %16zu\n", "total ", total_size);
+	if (heap->flags & ION_HEAP_FLAG_DEFER_FREE)
+		pr_info("%16s %16zu\n", "deferred free",
+			heap->free_list_size);
+	pr_info("----------------------------------------------------\n");
+
+
+	return 0;
+
+}
+EXPORT_SYMBOL(lowmem_dbg_dump_ion);
+
 static int ion_debug_heap_show(struct seq_file *s, void *unused)
 {
 	struct ion_heap *heap = s->private;
@@ -1962,6 +2067,20 @@ static const struct file_operations debug_heap_fops = {
 	.release = single_release,
 };
 
+#if IS_ENABLED(CONFIG_PROC_FS)
+static int ion_proc_heap_open(struct inode *inode, struct file *file)
+{
+        return single_open(file, ion_debug_heap_show, PDE_DATA(inode));
+}
+
+static const struct file_operations proc_heap_fops = {
+        .open = ion_proc_heap_open,
+        .read = seq_read,
+        .llseek = seq_lseek,
+        .release = single_release,
+};
+#endif /* IS_ENABLED(CONFIG_PROC_FS) */
+
 void show_ion_usage(struct ion_device *dev)
 {
 	struct ion_heap *heap;
@@ -2023,6 +2142,9 @@ DEFINE_SIMPLE_ATTRIBUTE(debug_shrink_fops, debug_shrink_get,
 void ion_device_add_heap(struct ion_device *dev, struct ion_heap *heap)
 {
 	struct dentry *debug_file;
+#if IS_ENABLED(CONFIG_PROC_FS)
+        struct proc_dir_entry *proc_file;
+#endif
 
 	if (!heap->ops->allocate || !heap->ops->free || !heap->ops->map_dma ||
 	    !heap->ops->unmap_dma)
@@ -2073,6 +2195,20 @@ void ion_device_add_heap(struct ion_device *dev, struct ion_heap *heap)
 				path, debug_name);
 		}
 	}
+
+#if IS_ENABLED(CONFIG_PROC_FS)
+        proc_file = proc_create_data(heap->name,
+                                     0644,
+                                     dev->heaps_proc_root,
+                                     &proc_heap_fops,
+                                     heap);
+	if (!proc_file) {
+                pr_err("Failed to create heap procfs at /proc/ion/heaps/%s\n",
+		       heap->name);
+	}
+#endif
+	if (heap->name && !strcmp(heap->name, "system"))
+		sys_heap = heap;
 
 	up_write(&dev->lock);
 }
@@ -2139,6 +2275,20 @@ struct ion_device *ion_device_create(long (*custom_ioctl)
 						idev->debug_root);
 	if (!idev->clients_debug_root)
 		pr_err("ion: failed to create debugfs clients directory.\n");
+
+#if IS_ENABLED(CONFIG_PROC_FS)
+        idev->proc_root = proc_mkdir("ion", NULL);
+        if (!idev->proc_root) {
+                pr_err("ion: failed to create procfs root directory.\n");
+                goto procfs_done;
+        }
+        idev->heaps_proc_root = proc_mkdir("heaps", idev->proc_root);
+        if (!idev->heaps_proc_root) {
+                pr_err("ion: failed to create procfs heaps directory.\n");
+                goto procfs_done;
+        }
+procfs_done:
+#endif /* CONFIG_PROC_FS */
 
 debugfs_done:
 

@@ -720,6 +720,16 @@ static struct ctl_table ipv4_table[] = {
 		.extra1		= &tcp_use_userconfig_min,
 		.extra2		= &tcp_use_userconfig_max,
 	},
+	#ifdef VENDOR_EDIT
+	//add for: When find TCP SYN-ACK Timestamp value error, just do not use Timestamp
+	{
+		.procname	= "tcp_timestamps_control",
+		.data		= &sysctl_tcp_ts_control,
+		.maxlen		= sizeof(sysctl_tcp_ts_control),
+		.mode		= 0664,
+		.proc_handler	= proc_dointvec
+	},
+	#endif /* VENDOR_EDIT */
 
 	{ }
 };

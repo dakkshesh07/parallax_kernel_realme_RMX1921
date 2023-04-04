@@ -68,7 +68,9 @@
 
 #include <crypto/hash.h>
 #include <linux/scatterlist.h>
-
+//#ifdef OPLUS_FEATURE_NWPOWER
+#include <net/oplus_nwpower.h>
+//#endif /* OPLUS_FEATURE_NWPOWER */
 static void	tcp_v6_send_reset(const struct sock *sk, struct sk_buff *skb);
 static void	tcp_v6_reqsk_send_ack(const struct sock *sk, struct sk_buff *skb,
 				      struct request_sock *req);
@@ -1421,6 +1423,10 @@ lookup:
 	if (!sk)
 		goto no_tcp_socket;
 
+	//#ifdef OPLUS_FEATURE_NWPOWER
+	oplus_match_ipa_tcp_wakeup(OPLUS_TCP_TYPE_V6, sk);
+	//#endif /* OPLUS_FEATURE_NWPOWER */
+
 process:
 	if (sk->sk_state == TCP_TIME_WAIT)
 		goto do_time_wait;
@@ -1523,6 +1529,9 @@ bad_packet:
 	}
 
 discard_it:
+	//#ifdef OPLUS_FEATURE_NWPOWER
+	oplus_ipa_schedule_work();
+	//#endif /* OPLUS_FEATURE_NWPOWER */
 	kfree_skb(skb);
 	return 0;
 

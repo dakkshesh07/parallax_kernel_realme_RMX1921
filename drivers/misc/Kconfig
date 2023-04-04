@@ -856,6 +856,10 @@ source "drivers/misc/genwqe/Kconfig"
 source "drivers/misc/echo/Kconfig"
 source "drivers/misc/cxl/Kconfig"
 source "drivers/misc/fpr_FingerprintCard/Kconfig"
+#ifdef OPLUS_FEATURE_CHG_BASIC
+#PengNan@BSP.CHG.Misc 2019/04/07 add for oppo_motor.
+source "drivers/misc/oplus_motor/Kconfig"
+#endif /* OPLUS_FEATURE_CHG_BASIC */
 endmenu
 
 config OKL4_LINK_SHBUF

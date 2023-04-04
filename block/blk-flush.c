@@ -74,6 +74,9 @@
 #include "blk.h"
 #include "blk-mq.h"
 #include "blk-mq-tag.h"
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+#include "oppo_foreground_io_opt/oppo_foreground_io_opt.h"
+#endif /*VENDOR_EDIT*/
 
 /* FLUSH/FUA sequences */
 enum {
@@ -91,6 +94,10 @@ enum {
 	 */
 	FLUSH_PENDING_TIMEOUT	= 5 * HZ,
 };
+
+#ifdef CONFIG_OPLUS_FEATURE_PANIC_FLUSH
+extern unsigned long sysctl_blkdev_issue_flush_count;
+#endif
 
 static bool blk_kick_flush(struct request_queue *q,
 			   struct blk_flush_queue *fq);
@@ -144,6 +151,9 @@ static bool blk_flush_queue_rq(struct request *rq, bool add_front)
 			list_add(&rq->queuelist, &rq->q->queue_head);
 		else
 			list_add_tail(&rq->queuelist, &rq->q->queue_head);
+#ifdef VENDOR_EDIT
+		queue_throtl_add_request(rq->q, rq, add_front);
+#endif
 		return true;
 	}
 }
@@ -451,7 +461,14 @@ void blk_insert_flush(struct request *rq)
 		if (q->mq_ops) {
 			blk_mq_insert_request(rq, false, false, true);
 		} else
+#ifdef VENDOR_EDIT
+		{
 			list_add_tail(&rq->queuelist, &q->queue_head);
+			queue_throtl_add_request(q, rq, false);
+		}
+#else
+			list_add_tail(&rq->queuelist, &q->queue_head);
+#endif
 		return;
 	}
 
@@ -510,6 +527,10 @@ int blkdev_issue_flush(struct block_device *bdev, gfp_t gfp_mask,
 	 */
 	if (!q->make_request_fn)
 		return -ENXIO;
+
+#ifdef CONFIG_OPLUS_FEATURE_PANIC_FLUSH
+		sysctl_blkdev_issue_flush_count++;
+#endif
 
 	bio = bio_alloc(gfp_mask, 0);
 	bio->bi_bdev = bdev;

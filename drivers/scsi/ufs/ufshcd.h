@@ -72,6 +72,9 @@
 #include <linux/fault-inject.h>
 #include "ufs.h"
 #include "ufshci.h"
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+#include "ufs_signal_quality.h"
+#endif
 
 #define UFSHCD "ufshcd"
 #define UFSHCD_DRIVER_VERSION "0.3"
@@ -256,6 +259,9 @@ struct ufs_desc_size {
 	int interc_desc;
 	int unit_desc;
 	int conf_desc;
+#ifdef VENDOR_EDIT
+	int hlth_desc;
+#endif
 };
 
 /**
@@ -445,6 +451,7 @@ struct ufs_clk_gating {
 	struct device_attribute delay_perf_attr;
 	struct device_attribute enable_attr;
 	bool is_enabled;
+	bool gate_wk_in_process;
 	int active_reqs;
 	struct workqueue_struct *clk_gating_workq;
 };
@@ -996,6 +1003,9 @@ struct ufs_hba {
 	struct io_latency_state io_lat_write;
 	struct ufs_desc_size desc_size;
 	bool restore_needed;
+#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
+	struct unipro_signal_quality_ctrl signalCtrl;
+#endif
 };
 
 static inline void ufshcd_mark_shutdown_ongoing(struct ufs_hba *hba)

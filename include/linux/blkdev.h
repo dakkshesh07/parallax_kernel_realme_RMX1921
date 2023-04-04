@@ -87,6 +87,9 @@ enum rq_cmd_type_bits {
  */
 struct request {
 	struct list_head queuelist;
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+	struct list_head fg_list;
+#endif
 	union {
 		struct call_single_data csd;
 		u64 fifo_time;
@@ -306,6 +309,13 @@ struct request_queue {
 	 * Together with queue_head for cacheline sharing
 	 */
 	struct list_head	queue_head;
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+	struct list_head	fg_head;
+	int fg_count;
+	int both_count;
+	int fg_count_max;
+	int both_count_max;
+#endif
 	struct request		*last_merge;
 	struct elevator_queue	*elevator;
 	int			nr_rqs[2];	/* # allocated [a]sync rqs */
@@ -1750,6 +1760,15 @@ static const u_int64_t latency_x_axis_us[] = {
 	7000,
 	9000,
 	10000
+#ifdef VENDOR_EDIT
+	,20000
+	,40000
+	,60000
+	,80000
+	,100000
+	,150000
+	,200000
+#endif
 };
 
 #define BLK_IO_LAT_HIST_DISABLE         0

@@ -824,7 +824,9 @@ static int uas_slave_alloc(struct scsi_device *sdev)
 {
 	struct uas_dev_info *devinfo =
 		(struct uas_dev_info *)sdev->host->hostdata;
-
+	#ifndef OPLUS_FEATURE_CHG_BASIC
+		int maxp;
+	#endif
 	sdev->hostdata = devinfo;
 
 	/*
@@ -832,6 +834,10 @@ static int uas_slave_alloc(struct scsi_device *sdev)
 	 * Controllers may or may not have alignment restrictions.
 	 * As this is not exported, we use an extremely conservative guess.
 	 */
+	#ifndef OPLUS_FEATURE_CHG_BASIC
+		maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
+		blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
+	#endif
 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
 
 	if (devinfo->flags & US_FL_MAX_SECTORS_64)

@@ -42,6 +42,10 @@
 
 #include "peripheral-loader.h"
 
+#ifdef OPLUS_BUG_STABILITY
+#include <soc/oplus/system/oppo_project.h>
+#endif /*OPLUS_BUG_STABILITY */
+
 #define DISABLE_SSR 0x9889deed
 /* If set to 0x9889deed, call to subsystem_restart_dev() returns immediately */
 static uint disable_restart_work;
@@ -1741,6 +1745,12 @@ struct subsys_device *subsys_register(struct subsys_desc *desc)
 	subsys->dev.bus = &subsys_bus_type;
 	subsys->dev.release = subsys_device_release;
 	subsys->notif_state = -1;
+        #ifdef OPLUS_BUG_STABILITY
+	if(!oppo_daily_build() && !(get_eng_version() == AGING))
+		subsys->restart_level = RESET_SUBSYS_COUPLED;
+        #endif /*OPLUS_BUG_STABILITY */
+
+
 	subsys->desc->sysmon_pid = -1;
 	strlcpy(subsys->desc->fw_name, desc->name,
 			sizeof(subsys->desc->fw_name));

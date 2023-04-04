@@ -663,7 +663,12 @@ int pil_mss_reset_load_mba(struct pil_desc *pil)
 	const struct firmware *fw = NULL, *dp_fw = NULL;
 	char fw_name_legacy[10] = "mba.b00";
 	char fw_name[10] = "mba.mbn";
+	#ifndef OPLUS_FEATURE_MODEM_MINIDUMP
+	//Add for customized subsystem ramdump
 	char *dp_name = "msadp";
+	#else
+	char *dp_name = "msadp.mbn";
+	#endif
 	char *fw_name_p;
 	void *mba_dp_virt;
 	dma_addr_t mba_dp_phys, mba_dp_phys_end;
@@ -797,18 +802,25 @@ err_invalid_fw:
 int pil_mss_debug_reset(struct pil_desc *pil)
 {
 	struct q6v5_data *drv = container_of(pil, struct q6v5_data, desc);
-	u32 encryption_status;
+#ifndef OPLUS_FEATURE_MODEM_MINIDUMP
+    u32 encryption_status;
+#endif
 	int ret;
 
 
 	if (!pil->minidump_ss)
 		return 0;
 
+#ifndef OPLUS_FEATURE_MODEM_MINIDUMP
+	//Add for skip mini dump encryption
 	encryption_status = pil->minidump_ss->encryption_status;
 
 	if ((pil->minidump_ss->md_ss_enable_status != MD_SS_ENABLED) ||
 		encryption_status == MD_SS_ENCR_NOTREQ)
 		return 0;
+#else
+	return 0;
+#endif
 
 	/*
 	 * Bring subsystem out of reset and enable required

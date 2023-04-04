@@ -14,6 +14,9 @@
 #include <linux/cpumask.h>
 
 #include "internals.h"
+//#ifdef OPLUS_FEATURE_CHG_BASIC
+#include <soc/oplus/system/oppo_project.h>
+//#endif /* OPLUS_FEATURE_CHG_BASIC */
 
 static bool migrate_one_irq(struct irq_desc *desc)
 {
@@ -106,11 +109,17 @@ void irq_migrate_all_off_this_cpu(void)
 		raw_spin_lock(&desc->lock);
 		affinity_broken = migrate_one_irq(desc);
 		raw_spin_unlock(&desc->lock);
-
-		if (affinity_broken)
+//#ifndef OPLUS_FEATURE_CHG_BASIC
+/*		if (affinity_broken)
 			pr_warn_ratelimited("IRQ%u no longer affine to CPU%u\n",
+					    irq, smp_processor_id());*/
+//#else
+		if (oppo_daily_build() == true) {
+			if (affinity_broken)
+				pr_warn_ratelimited("IRQ%u no longer affine to CPU%u\n",
 					    irq, smp_processor_id());
+		}
+//#endif /*OPLUS_FEATURE_CHG_BASIC*/
 	}
-
 	local_irq_restore(flags);
 }
