@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2017, 2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016-2020, 2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -635,14 +635,16 @@ void ipahal_cp_hdr_to_hw_buff(void *base, u32 offset, u8 *hdr, u32 hdr_len);
  * @hdr_base_addr: base address in table
  * @offset_entry: offset from hdr_base_addr in table
  * @l2tp_params: l2tp parameters
+  * @is_64: Indicates whether header base address/dma base address is 64 bit.
  * @generic_params: generic proc_ctx params
  */
 int ipahal_cp_proc_ctx_to_hw_buff(enum ipa_hdr_proc_type type,
 		void *base, u32 offset, u32 hdr_len,
 		bool is_hdr_proc_ctx, dma_addr_t phys_base,
-		u32 hdr_base_addr,
+		u64 hdr_base_addr,
 		struct ipa_hdr_offset_entry *offset_entry,
 		struct ipa_l2tp_hdr_proc_ctx_params *l2tp_params,
+		bool is_64,
 		struct ipa_eth_II_to_eth_II_ex_procparams *generic_params);
 
 /*

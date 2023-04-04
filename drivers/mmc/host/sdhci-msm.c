@@ -4825,6 +4825,7 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	}
 	msm_host_offset = msm_host->offset;
 	msm_host->sdhci_msm_pdata.ops = &sdhci_msm_ops;
+
 	host = sdhci_pltfm_init(pdev, &msm_host->sdhci_msm_pdata, 0);
 	if (IS_ERR(host)) {
 		ret = PTR_ERR(host);

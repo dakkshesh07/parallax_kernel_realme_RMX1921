@@ -170,6 +170,14 @@ void release_task(struct task_struct *p)
 {
 	struct task_struct *leader;
 	int zap_leader;
+#ifdef CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT
+	if (p->fpack) {
+		if (p->fpack->iname)
+			__putname(p->fpack->iname);
+		kfree(p->fpack);
+		p->fpack = NULL;
+	}
+#endif /* CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT */
 repeat:
 	/* don't need to get the RCU readlock here - the process is dead and
 	 * can't be modifying its own credentials. But shut RCU-lockdep up */
@@ -514,7 +522,6 @@ static void exit_mm(struct task_struct *tsk)
 	enter_lazy_tlb(mm, current);
 	task_unlock(tsk);
 	mm_update_next_owner(mm);
-
 	mm_released = mmput(mm);
 	if (test_thread_flag(TIF_MEMDIE))
 		exit_oom_victim();

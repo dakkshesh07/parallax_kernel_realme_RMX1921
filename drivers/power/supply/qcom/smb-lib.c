@@ -3563,7 +3563,13 @@ void smblib_usb_plugin_hard_reset_locked(struct smb_charger *chg)
 	}
 
 	vbus_rising = (bool)(stat & USBIN_PLUGIN_RT_STS_BIT);
-
+	#ifdef VENDOR_EDIT
+	if (vbus_rising) {
+		switch_usb_state(1);
+	} else {
+		switch_usb_state(0);
+	}
+	#endif
 	if (vbus_rising) {
 		/* Remove FCC_STEPPER 1.5A init vote to allow FCC ramp up */
 		if (chg->fcc_stepper_enable)
@@ -3612,6 +3618,13 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 	}
 
 	vbus_rising = (bool)(stat & USBIN_PLUGIN_RT_STS_BIT);
+	#ifdef VENDOR_EDIT
+        if (vbus_rising) {
+                switch_usb_state(1);
+        } else {
+                switch_usb_state(0);
+        }
+	#endif
 	smblib_set_opt_freq_buck(chg, vbus_rising ? chg->chg_freq.freq_5V :
 						chg->chg_freq.freq_removal);
 

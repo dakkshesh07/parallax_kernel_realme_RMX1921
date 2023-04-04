@@ -811,7 +811,8 @@ static int pd_select_pdo(struct usbpd *pd, int pdo_pos, int uv, int ua)
 	if (pd->vconn_enabled && !pd->vconn_is_external &&
 			pd->requested_voltage > 5000000)
 		return -ENOTSUPP;
-
+	else
+		curr = 3000;
 	pd->requested_current = curr;
 	pd->requested_pdo = pdo_pos;
 

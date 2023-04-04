@@ -69,6 +69,7 @@
 
 #include <asm/uaccess.h>
 #include <asm/processor.h>
+#include <linux/kernel_stat.h>
 
 #ifdef CONFIG_X86
 #include <asm/nmi.h>
@@ -129,10 +130,20 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+
 static int __maybe_unused one_thousand = 1000;
 #ifdef CONFIG_SCHED_WALT
 static int two_million = 2000000;
 #endif
+
+#ifdef VENDOR_EDIT
+unsigned int sysctl_ext4_fsync_enable = 1;
+unsigned int ext4_fsync_enable_status = 0;
+#endif /*VENDOR_EDIT*/
+#ifdef VENDOR_EDIT
+unsigned long sysctl_blkdev_issue_flush_count = 0;
+#endif /*VENDOR_EDIT*/
+
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
 #endif
@@ -324,6 +335,7 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
 	},
+
 #if defined(CONFIG_PREEMPT_TRACER) || defined(CONFIG_IRQSOFF_TRACER)
 	{
 		.procname       = "preemptoff_tracing_threshold_ns",
@@ -423,6 +435,25 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= sched_updown_migrate_handler,
 	},
+
+#ifdef VENDOR_EDIT
+{
+		.procname	= "ext4_fsync_enable",
+		.data		= &sysctl_ext4_fsync_enable,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0666,
+		.proc_handler	= proc_dointvec,
+},
+#endif
+#ifdef VENDOR_EDIT
+{
+		.procname	= "blkdev_issue_flush_count",
+		.data		= &sysctl_blkdev_issue_flush_count,
+		.maxlen		= sizeof(unsigned long),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec,
+},
+#endif
 #ifdef CONFIG_SCHED_DEBUG
 	{
 		.procname	= "sched_min_granularity_ns",
@@ -1257,7 +1288,6 @@ static struct ctl_table kern_table[] = {
 		.extra1		= &zero,
 		.extra2		= &one,
 	},
-
 #endif
 #ifdef CONFIG_RT_MUTEXES
 	{
@@ -1543,6 +1573,7 @@ static struct ctl_table vm_table[] = {
 		.extra1		= &zero,
 		.extra2		= &one_hundred,
 	},
+
 	{
 		.procname       = "want_old_faultaround_pte",
 		.data           = &want_old_faultaround_pte,
@@ -1612,7 +1643,11 @@ static struct ctl_table vm_table[] = {
 		.procname	= "compact_memory",
 		.data		= &sysctl_compact_memory,
 		.maxlen		= sizeof(int),
+#ifdef VENDOR_EDIT
+		.mode		= 0222,
+#else
 		.mode		= 0200,
+#endif /*VENDOR_EDIT*/
 		.proc_handler	= sysctl_compaction_handler,
 	},
 	{

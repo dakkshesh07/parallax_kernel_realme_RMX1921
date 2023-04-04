@@ -1726,7 +1726,6 @@ static int do_execveat_common(int fd, struct filename *filename,
 	retval = PTR_ERR(file);
 	if (IS_ERR(file))
 		goto out_unmark;
-
 	sched_exec();
 
 	bprm->file = file;

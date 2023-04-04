@@ -33,6 +33,17 @@
 #include <linux/wakeup_reason.h>
 
 #include "power.h"
+#ifdef VENDOR_EDIT
+//Fei.Mo@BSP.Sensor 2018/06/25 modify for notify sensor suspend forward
+#include <linux/gpio.h>
+extern int slst_gpio_base_id;
+#define PROC_AWAKE_ID 12 /* 12th bit */
+#endif /* VENDOR_EDIT */
+#ifdef VENDOR_EDIT
+//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
+#include <soc/oppo/oppo_project.h>
+__attribute__((weak)) int check_touchirq_triggered(void) {return 0;}
+#endif /* VENDOR_EDIT */
 
 const char *pm_labels[] = { "mem", "standby", "freeze", NULL };
 const char *pm_states[PM_SUSPEND_MAX];
@@ -257,12 +268,12 @@ MODULE_PARM_DESC(pm_test_delay,
 static int suspend_test(int level)
 {
 #ifdef CONFIG_PM_DEBUG
-	if (pm_test_level == level) {
-		pr_info("suspend debug: Waiting for %d second(s).\n",
-				pm_test_delay);
-		mdelay(pm_test_delay * 1000);
-		return 1;
-	}
+    if (pm_test_level == level) {
+        pr_info("suspend debug: Waiting for %d second(s).\n",
+                pm_test_delay);             
+        mdelay(pm_test_delay * 1000);
+        return 1;
+    }
 #endif /* !CONFIG_PM_DEBUG */
 	return 0;
 }
@@ -327,9 +338,9 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	char suspend_abort[MAX_SUSPEND_ABORT_LEN];
 	int error, last_dev;
 
-	error = platform_suspend_prepare(state);
-	if (error)
-		goto Platform_finish;
+    error = platform_suspend_prepare(state);
+    if (error)
+        goto Platform_finish;
 
 	error = dpm_suspend_late(PMSG_SUSPEND);
 	if (error) {
@@ -341,8 +352,8 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		goto Platform_finish;
 	}
 	error = platform_suspend_prepare_late(state);
-	if (error)
-		goto Devices_early_resume;
+    if (error)
+        goto Devices_early_resume;
 
 	error = dpm_suspend_noirq(PMSG_SUSPEND);
 	if (error) {
@@ -354,12 +365,11 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		goto Platform_early_resume;
 	}
 	error = platform_suspend_prepare_noirq(state);
-	if (error)
-		goto Platform_wake;
+    if (error)
+        goto Platform_wake;
 
-	if (suspend_test(TEST_PLATFORM))
-		goto Platform_wake;
-
+    if (suspend_test(TEST_PLATFORM))
+        goto Platform_wake;
 	/*
 	 * PM_SUSPEND_FREEZE equals
 	 * frozen processes + suspended devices + idle processors.
@@ -370,7 +380,7 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		trace_suspend_resume(TPS("machine_suspend"), state, true);
 		freeze_enter();
 		trace_suspend_resume(TPS("machine_suspend"), state, false);
-		goto Platform_wake;
+        goto Platform_wake;
 	}
 
 	error = disable_nonboot_cpus();
@@ -381,6 +391,14 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 
 	arch_suspend_disable_irqs();
 	BUG_ON(!irqs_disabled());
+
+#ifdef VENDOR_EDIT
+//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
+    if (check_touchirq_triggered()) {
+        error = -EBUSY;
+        goto Enable_irqs;
+    }
+#endif /* VENDOR_EDIT */
 
 	error = syscore_suspend();
 	if (!error) {
@@ -401,6 +419,10 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		syscore_resume();
 	}
 
+#ifdef VENDOR_EDIT
+//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
+ Enable_irqs:
+#endif /* VENDOR_EDIT */
 	arch_suspend_enable_irqs();
 	BUG_ON(irqs_disabled());
 
@@ -431,12 +453,12 @@ int suspend_devices_and_enter(suspend_state_t state)
 	int error;
 	bool wakeup = false;
 
-	if (!sleep_state_supported(state))
-		return -ENOSYS;
+    if (!sleep_state_supported(state))
+        return -ENOSYS;
 
 	error = platform_suspend_begin(state);
-	if (error)
-		goto Close;
+    if (error)
+        goto Close;
 
 	suspend_console();
 	suspend_test_start();
@@ -447,9 +469,8 @@ int suspend_devices_and_enter(suspend_state_t state)
 		goto Recover_platform;
 	}
 	suspend_test_finish("suspend devices");
-	if (suspend_test(TEST_DEVICES))
-		goto Recover_platform;
-
+    if (suspend_test(TEST_DEVICES))
+        goto Recover_platform;
 	do {
 		error = suspend_enter(state, &wakeup);
 	} while (!error && !wakeup && platform_suspend_again(state));
@@ -505,30 +526,30 @@ static int enter_state(suspend_state_t state)
 		}
 #endif
 	} else if (!valid_state(state)) {
-		return -EINVAL;
-	}
-	if (!mutex_trylock(&pm_mutex))
-		return -EBUSY;
+        return -EINVAL;
+    }
+    if (!mutex_trylock(&pm_mutex))
+        return -EBUSY;
 
 	if (state == PM_SUSPEND_FREEZE)
 		freeze_begin();
 
 #ifndef CONFIG_SUSPEND_SKIP_SYNC
-	trace_suspend_resume(TPS("sync_filesystems"), 0, true);
-	pr_info("PM: Syncing filesystems ... ");
-	sys_sync();
-	pr_cont("done.\n");
-	trace_suspend_resume(TPS("sync_filesystems"), 0, false);
+    trace_suspend_resume(TPS("sync_filesystems"), 0, true);
+    pr_info("PM: Syncing filesystems ... ");
+    sys_sync();
+    pr_cont("done.\n");
+    trace_suspend_resume(TPS("sync_filesystems"), 0, false);
 #endif
 
 	pr_debug("PM: Preparing system for sleep (%s)\n", pm_states[state]);
 	pm_suspend_clear_flags();
 	error = suspend_prepare(state);
-	if (error)
-		goto Unlock;
+    if (error)
+        goto Unlock;
 
-	if (suspend_test(TEST_FREEZER))
-		goto Finish;
+    if (suspend_test(TEST_FREEZER))
+        goto Finish;
 
 	trace_suspend_resume(TPS("suspend_enter"), state, false);
 	pr_debug("PM: Suspending system (%s)\n", pm_states[state]);
@@ -551,9 +572,9 @@ static void pm_suspend_marker(char *annotation)
 
 	getnstimeofday(&ts);
 	rtc_time_to_tm(ts.tv_sec, &tm);
-	pr_info("PM: suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
-		annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+    pr_info("PM: suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+        annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+        tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
 }
 
 /**
@@ -571,7 +592,16 @@ int pm_suspend(suspend_state_t state)
 		return -EINVAL;
 
 	pm_suspend_marker("entry");
+#ifdef VENDOR_EDIT
+//Fei.Mo@BSP.Sensor 2018/06/25 modify for notify sensor suspend forward
+    gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 0);
+    pr_err("notify adsp suspend in the beging of pm suspend before file system.\n");
+#endif /* VENDOR_EDIT */
 	error = enter_state(state);
+#ifdef VENDOR_EDIT
+        gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 1);
+        pr_err("notify adsp resume in the end.\n");
+#endif /* VENDOR_EDIT */
 	if (error) {
 		suspend_stats.fail++;
 		dpm_save_failed_errno(error);

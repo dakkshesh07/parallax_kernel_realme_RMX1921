@@ -448,10 +448,11 @@ void blk_insert_flush(struct request *rq)
 	 */
 	if ((policy & REQ_FSEQ_DATA) &&
 	    !(policy & (REQ_FSEQ_PREFLUSH | REQ_FSEQ_POSTFLUSH))) {
-		if (q->mq_ops) {
+		if (q->mq_ops)
 			blk_mq_insert_request(rq, false, false, true);
-		} else
+		else
 			list_add_tail(&rq->queuelist, &q->queue_head);
+		
 		return;
 	}
 

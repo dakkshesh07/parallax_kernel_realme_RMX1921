@@ -255,6 +255,7 @@ void __show_regs(struct pt_regs *regs)
 	print_symbol("LR is at %s\n", lr);
 	printk("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\n",
 	       regs->pc, lr, regs->pstate);
+
 	printk("sp : %016llx\n", sp);
 
 	i = top_reg;

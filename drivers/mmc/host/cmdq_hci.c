@@ -840,6 +840,7 @@ ring_doorbell:
 		BUG_ON(1);
 	}
 	MMC_TRACE(mmc, "%s: tag: %d\n", __func__, tag);
+	
 	cmdq_writel(cq_host, 1 << tag, CQTDBR);
 	/* Commit the doorbell write immediately */
 	wmb();

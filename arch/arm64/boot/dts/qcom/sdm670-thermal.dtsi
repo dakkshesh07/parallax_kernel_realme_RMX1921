@@ -74,6 +74,18 @@
 			};
 		};
 	};
+	
+	shell_front {
+		compatible = "oplus,shell-temp";
+	};
+
+	shell_frame {
+		compatible = "oplus,shell-temp";
+	};
+
+	shell_back {
+		compatible = "oplus,shell-temp";
+	};
 };
 
 &thermal_zones {
@@ -717,35 +729,15 @@
 
 	vbat_adc {
 		cooling-maps {
-			vbat_map6 {
-				trip = <&pm660_vbat_adc>;
-				cooling-device =
-					<&CPU6 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
-			};
-			vbat_map7 {
-				trip = <&pm660_vbat_adc>;
-				cooling-device =
-					<&CPU7 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
-			};
+			/delete-node/ vbat_map6;
+			/delete-node/ vbat_map7;
 		};
 	};
 
 	soc {
 		cooling-maps {
-			soc_map6 {
-				trip = <&pm660_low_soc>;
-				cooling-device =
-					<&CPU6 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
-			};
-			soc_map7 {
-				trip = <&pm660_low_soc>;
-				cooling-device =
-					<&CPU7 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
-			};
+			/delete-node/ soc_map6;
+			/delete-node/ soc_map7;
 		};
 	};
 

@@ -27,7 +27,6 @@
 #include <linux/freezer.h>
 #include <linux/delay.h>
 
-
 /**
  * struct alarm_base - Alarm timer bases
  * @lock:		Lock for syncrhonized access to the base

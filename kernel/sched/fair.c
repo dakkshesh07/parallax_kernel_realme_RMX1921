@@ -962,6 +962,7 @@ update_stats_wait_end(struct cfs_rq *cfs_rq, struct sched_entity *se)
 			return;
 		}
 		trace_sched_stat_wait(p, delta);
+
 	}
 
 	schedstat_set(se->statistics.wait_max,
@@ -8688,7 +8689,6 @@ redo:
 		 * detaching up to loop_max tasks.
 		 */
 		load = max_t(unsigned long, task_h_load(p), 1);
-
 
 		if (sched_feat(LB_MIN) && load < 16 && !env->sd->nr_balance_failed)
 			goto next;

@@ -1,0 +1,80 @@
+# Copyright (C), 2008-2030, OPPO Mobile Comm Corp., Ltd
+### All rights reserved.
+###
+### File: - OplusKernelEnvConfig.mk
+### Description:
+###     you can get the oplus feature variables set in android side in this file
+###     this file will add global macro for common oplus added feature
+###     BSP team can do customzation by referring the feature variables
+### Version: 1.0
+### Date: 2020-03-18
+### Author: Liang.Sun
+###
+### ------------------------------- Revision History: ----------------------------
+### <author>                        <date>       <version>   <desc>
+### ------------------------------------------------------------------------------
+### Liang.Sun@TECH.Build              2020-03-18   1.0         Create this moudle
+##################################################################################
+
+-include ./oplus_native_features.mk
+
+###ifdef OPLUS_ARCH_INJECT
+OPLUS_CONNECTIVITY_NATIVE_FEATURE_SET :=
+
+
+ifeq ($(OPLUS_FEATURE_WIFI_MTUDETECT), yes)
+OPLUS_CONNECTIVITY_NATIVE_FEATURE_SET += OPLUS_FEATURE_WIFI_MTUDETECT
+endif
+
+ifeq ($(OPLUS_FEATURE_WIFI_LIMMITBGSPEED), yes)
+OPLUS_CONNECTIVITY_NATIVE_FEATURE_SET += OPLUS_FEATURE_WIFI_LIMMITBGSPEED
+endif
+
+
+$(foreach myfeature,$(OPLUS_CONNECTIVITY_NATIVE_FEATURE_SET),\
+    $( \
+        $(eval KBUILD_CFLAGS += -D$(myfeature)) \
+        $(eval KBUILD_CPPFLAGS += -D$(myfeature)) \
+        $(eval CFLAGS_KERNEL += -D$(myfeature)) \
+        $(eval CFLAGS_MODULE += -D$(myfeature)) \
+    ) \
+)
+###endif OPLUS_ARCH_INJECT
+
+ALLOWED_MCROS := OPLUS_FEATURE_DATA_EVAL  \
+OPLUS_FEATURE_DUMPDEVICE  \
+OPLUS_FEATURE_SAU  \
+OPLUS_BUG_COMPATIBILITY \
+OPLUS_BUG_STABILITY \
+OPLUS_ARCH_INJECT \
+OPLUS_ARCH_EXTENDS \
+OPLUS_FEATURE_AUDIO_FTM \
+OPLUS_FEATURE_KTV \
+OPLUS_FEATURE_SPEAKER_MUTE \
+VENDOR_EDIT \
+COLOROS_EDIT \
+OPLUS_FEATURE_CHG_BASIC  \
+OPLUS_FEATURE_DUMPDEVICE
+
+
+$(foreach myfeature,$(ALLOWED_MCROS),\
+         $(eval KBUILD_CFLAGS += -D$(myfeature)) \
+         $(eval KBUILD_CPPFLAGS += -D$(myfeature)) \
+         $(eval CFLAGS_KERNEL += -D$(myfeature)) \
+         $(eval CFLAGS_MODULE += -D$(myfeature)) \
+)
+
+ifeq ($(OPLUS_FEATURE_DUMPDEVICE),yes)
+export CONFIG_OPLUS_FEATURE_DUMP_DEVICE_INFO=y
+KBUILD_CFLAGS += -DCONFIG_OPLUS_FEATURE_DUMP_DEVICE_INFO
+endif
+
+ifeq ($(OPLUS_FEATURE_BRAND_SHOW_FLAG),realme)
+export CONFIG_BRAND_SHOW_FLAG=realme
+KBUILD_CFLAGS += -DCONFIG_BRAND_SHOW_FLAG
+endif
+
+ifeq ($(OPLUS_FEATURE_SHIPPING_API_LEVEL),28)
+export CONFIG_SHIPPING_API_LEVEL=28
+KBUILD_CFLAGS += -DCONFIG_SHIPPING_API_LEVEL
+endif

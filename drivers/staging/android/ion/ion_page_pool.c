@@ -58,6 +58,7 @@ static void ion_page_pool_free_pages(struct ion_page_pool *pool,
 static int ion_page_pool_add(struct ion_page_pool *pool, struct page *page)
 {
 	mutex_lock(&pool->mutex);
+
 	if (PageHighMem(page)) {
 		list_add_tail(&page->lru, &pool->high_items);
 		pool->high_count++;

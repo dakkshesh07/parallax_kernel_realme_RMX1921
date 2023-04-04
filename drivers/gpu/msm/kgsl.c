@@ -44,7 +44,6 @@
 #include "kgsl_sync.h"
 #include "kgsl_compat.h"
 #include "kgsl_pool.h"
-
 #undef MODULE_PARAM_PREFIX
 #define MODULE_PARAM_PREFIX "kgsl."
 
@@ -4529,7 +4528,6 @@ kgsl_get_unmapped_area(struct file *file, unsigned long addr,
 				current->mm->mmap_base, addr,
 				pgoff, len, (int) val);
 	}
-
 put:
 	kgsl_mem_entry_put(entry);
 	return val;

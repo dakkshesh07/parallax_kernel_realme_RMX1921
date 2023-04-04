@@ -186,7 +186,8 @@ static inline unsigned int work_static(struct work_struct *work)
 	return *work_data_bits(work) & WORK_STRUCT_STATIC;
 }
 #else
-static inline void __init_work(struct work_struct *work, int onstack) { }
+static inline void __init_work(struct work_struct *work, int onstack) {
+}
 static inline void destroy_work_on_stack(struct work_struct *work) { }
 static inline void destroy_delayed_work_on_stack(struct delayed_work *work) { }
 static inline unsigned int work_static(struct work_struct *work) { return 0; }

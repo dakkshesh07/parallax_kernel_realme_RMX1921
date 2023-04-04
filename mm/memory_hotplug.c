@@ -327,7 +327,6 @@ static void resize_zone(struct zone *zone, unsigned long start_pfn,
 		zone->zone_start_pfn = 0;
 		zone->spanned_pages = 0;
 	}
-
 	zone_span_writeunlock(zone);
 }
 

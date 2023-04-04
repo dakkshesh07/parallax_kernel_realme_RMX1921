@@ -1996,7 +1996,6 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
 	length = info->length + info->align_mask;
 	if (length < info->length)
 		return -ENOMEM;
-
 	/*
 	 * Adjust search limits by the desired length.
 	 * See implementation comment at top of unmapped_area().
@@ -2183,7 +2182,6 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 		info.high_limit = TASK_SIZE;
 		addr = vm_unmapped_area(&info);
 	}
-
 	return addr;
 }
 #endif

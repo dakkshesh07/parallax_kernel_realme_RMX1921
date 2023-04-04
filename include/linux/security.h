@@ -1737,6 +1737,9 @@ static inline char *alloc_secdata(void)
 static inline void free_secdata(void *secdata)
 { }
 #endif /* CONFIG_SECURITY */
-
+static inline int get_current_security_context(char **context, u32 *context_len)
+{
+	return -EOPNOTSUPP;
+}
 #endif /* ! __LINUX_SECURITY_H */
 

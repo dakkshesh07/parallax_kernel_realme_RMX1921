@@ -96,7 +96,6 @@
 #include "fd.h"
 
 #include "../../lib/kstrtox.h"
-
 /* NOTE:
  *	Implementing inode permission operations in /proc is almost
  *	certainly an error.  Permission checks need to happen during
@@ -1995,6 +1994,7 @@ int pid_revalidate(struct dentry *dentry, unsigned int flags)
 		}
 		inode->i_mode &= ~(S_ISUID | S_ISGID);
 		security_task_to_inode(task, inode);
+		
 		put_task_struct(task);
 		return 1;
 	}

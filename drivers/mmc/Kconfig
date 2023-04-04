@@ -35,4 +35,9 @@ source "drivers/mmc/card/Kconfig"
 
 source "drivers/mmc/host/Kconfig"
 
+config EMMC_SDCARD_OPTIMIZE
+	tristate "emmc sdcard optimize"
+	default n
+	help
+	  emmc sdcard optimize.
 endif # MMC

@@ -1472,13 +1472,19 @@ int mmc_attach_sd(struct mmc_host *host)
 {
 	int err;
 	u32 ocr, rocr;
-#ifdef CONFIG_MMC_PARANOID_SD_INIT
+#if defined(CONFIG_MMC_PARANOID_SD_INIT) || defined(CONFIG_EMMC_SDCARD_OPTIMIZE)
 	int retries;
 #endif
 
 	BUG_ON(!host);
 	WARN_ON(!host->claimed);
 
+#ifdef CONFIG_EMMC_SDCARD_OPTIMIZE
+	if (!host->detect_change_retry) {
+        pr_err("%s have init error 5 times\n", __func__);
+        return -ETIMEDOUT;
+    }
+#endif /* CONFIG_EMMC_SDCARD_OPTIMIZE */
 	err = mmc_send_app_op_cond(host, 0, &ocr);
 	if (err)
 		return err;
@@ -1518,7 +1524,12 @@ int mmc_attach_sd(struct mmc_host *host)
 	 * Detect and init the card.
 	 */
 #ifdef CONFIG_MMC_PARANOID_SD_INIT
-	retries = 5;
+#ifdef CONFIG_EMMC_SDCARD_OPTIMIZE
+    if (host->detect_change_retry < 5)
+        retries = 1;
+    else
+        retries = 5;
+#endif /* CONFIG_EMMC_SDCARD_OPTIMIZE */
 	while (retries) {
 		err = mmc_sd_init_card(host, rocr, NULL);
 		if (err) {
@@ -1565,6 +1576,10 @@ remove_card:
 err:
 	mmc_detach_bus(host);
 
+#ifdef CONFIG_EMMC_SDCARD_OPTIMIZE
+    		host->detect_change_retry--;
+    	pr_err("detect_change_retry = %d !!!,err = %d\n", host->detect_change_retry,err);
+#endif /* CONFIG_EMMC_SDCARD_OPTIMIZE */
 	pr_err("%s: error %d whilst initialising SD card\n",
 		mmc_hostname(host), err);
 

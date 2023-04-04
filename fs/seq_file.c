@@ -26,6 +26,9 @@ static void seq_set_overflow(struct seq_file *m)
 static void *seq_buf_alloc(unsigned long size)
 {
 	void *buf;
+	if (unlikely(size > MAX_RW_COUNT))
+		return NULL;
+
 	gfp_t gfp = GFP_KERNEL;
 
 	if (unlikely(size > MAX_RW_COUNT))

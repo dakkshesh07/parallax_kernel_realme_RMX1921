@@ -1778,6 +1778,15 @@ static const u_int64_t latency_x_axis_us[] = {
 	7000,
 	9000,
 	10000
+#ifdef VENDOR_EDIT
+	,20000
+	,40000
+	,60000
+	,80000
+	,100000
+	,150000
+	,200000
+#endif
 };
 
 #define BLK_IO_LAT_HIST_DISABLE         0

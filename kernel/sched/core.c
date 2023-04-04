@@ -26,6 +26,7 @@
  *              Thomas Gleixner, Mike Kravetz
  */
 
+#include <linux/sched.h>
 #include <linux/kasan.h>
 #include <linux/mm.h>
 #include <linux/module.h>
@@ -8169,7 +8170,6 @@ void __init sched_init_smp(void)
 	cpumask_copy(&current->cpus_requested, cpu_possible_mask);
 	sched_init_granularity();
 	free_cpumask_var(non_isolated_cpus);
-
 	init_sched_rt_class();
 	init_sched_dl_class();
 	sched_smp_initialized = true;

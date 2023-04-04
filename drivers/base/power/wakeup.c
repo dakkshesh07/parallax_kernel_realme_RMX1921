@@ -22,6 +22,8 @@
 
 #include "power.h"
 
+#include <linux/proc_fs.h>
+
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
  * if wakeup events are registered during or immediately before the transition.
@@ -679,8 +681,9 @@ static void wakeup_source_deactivate(struct wakeup_source *ws)
 	trace_wakeup_source_deactivate(ws->name, cec);
 
 	split_counters(&cnt, &inpr);
-	if (!inpr && waitqueue_active(&wakeup_count_wait_queue))
+	if (!inpr && waitqueue_active(&wakeup_count_wait_queue)) {
 		wake_up(&wakeup_count_wait_queue);
+	}
 }
 
 /**
@@ -826,8 +829,8 @@ void pm_get_active_wakeup_sources(char *pending_wakeup_source, size_t max)
 			if (!active)
 				len += scnprintf(pending_wakeup_source, max,
 						"Pending Wakeup Sources: ");
-			len += scnprintf(pending_wakeup_source + len, max - len,
-				"%s ", ws->name);
+            len += scnprintf(pending_wakeup_source + len, max - len,
+                "%s ", ws->name);
 			active = true;
 		} else if (!active &&
 			   (!last_active_ws ||
@@ -837,9 +840,9 @@ void pm_get_active_wakeup_sources(char *pending_wakeup_source, size_t max)
 		}
 	}
 	if (!active && last_active_ws) {
-		scnprintf(pending_wakeup_source, max,
-				"Last active Wakeup Source: %s",
-				last_active_ws->name);
+        scnprintf(pending_wakeup_source, max,
+                "Last active Wakeup Source: %s",
+                last_active_ws->name);
 	}
 	srcu_read_unlock(&wakeup_srcu, srcuidx);
 }
@@ -854,7 +857,7 @@ void pm_print_active_wakeup_sources(void)
 	srcuidx = srcu_read_lock(&wakeup_srcu);
 	list_for_each_entry_rcu(ws, &wakeup_sources, entry) {
 		if (ws->active) {
-			pr_info("active wakeup source: %s\n", ws->name);
+            pr_debug("active wakeup source: %s\n", ws->name);
 			active = 1;
 		} else if (!active &&
 			   (!last_activity_ws ||
@@ -864,9 +867,10 @@ void pm_print_active_wakeup_sources(void)
 		}
 	}
 
-	if (!active && last_activity_ws)
-		pr_info("last active wakeup source: %s\n",
-			last_activity_ws->name);
+	if (!active && last_activity_ws) {
+        pr_debug("last active wakeup source: %s\n",
+            last_activity_ws->name);
+	}
 	srcu_read_unlock(&wakeup_srcu, srcuidx);
 }
 EXPORT_SYMBOL_GPL(pm_print_active_wakeup_sources);
@@ -895,7 +899,7 @@ bool pm_wakeup_pending(void)
 	spin_unlock_irqrestore(&events_lock, flags);
 
 	if (ret) {
-		pr_info("PM: Wakeup pending, aborting suspend\n");
+        pr_debug("PM: Wakeup pending, aborting suspend\n");
 		pm_print_active_wakeup_sources();
 	}
 
@@ -930,7 +934,6 @@ void pm_system_irq_wakeup(unsigned int irq_number)
 
 			pr_warn("%s: %d triggered %s\n", __func__,
 					irq_number, name);
-
 		}
 		pm_wakeup_irq = irq_number;
 		pm_system_wakeup();
@@ -1118,6 +1121,9 @@ static int __init wakeup_sources_debugfs_init(void)
 {
 	wakeup_sources_stats_dentry = debugfs_create_file("wakeup_sources",
 			S_IRUGO, NULL, NULL, &wakeup_sources_stats_fops);
+
+    proc_create_data("wakeup_sources", 0444, NULL, &wakeup_sources_stats_fops, NULL);
+    
 	return 0;
 }
 

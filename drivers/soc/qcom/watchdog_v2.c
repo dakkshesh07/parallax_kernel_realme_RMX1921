@@ -54,7 +54,7 @@
 #define MAX_CPU_SCANDUMP_SIZE	0x10100
 
 static struct msm_watchdog_data *wdog_data;
-
+/*use self-defined utils*/
 static int cpu_idle_pc_state[NR_CPUS];
 
 /*
@@ -389,10 +389,10 @@ static void keep_alive_response(void *info)
 static void ping_other_cpus(struct msm_watchdog_data *wdog_dd)
 {
 	int cpu;
-
 	cpumask_clear(&wdog_dd->alive_mask);
 	/* Make sure alive mask is cleared and set in order */
 	smp_mb();
+/* only ping cpu need ping */
 	for_each_cpu(cpu, cpu_online_mask) {
 		if (!cpu_idle_pc_state[cpu] && !cpu_isolated(cpu))
 			smp_call_function_single(cpu, keep_alive_response,
@@ -528,7 +528,6 @@ static irqreturn_t wdog_bark_handler(int irq, void *dev_id)
 	if (wdog_dd->do_ipi_ping)
 		dump_cpu_alive_mask(wdog_dd);
 	msm_trigger_wdog_bite();
-	panic("Failed to cause a watchdog bite! - Falling back to kernel panic!");
 	return IRQ_HANDLED;
 }
 

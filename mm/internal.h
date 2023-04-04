@@ -530,5 +530,4 @@ static inline void flush_tlb_batched_pending(struct mm_struct *mm)
 extern const struct trace_print_flags pageflag_names[];
 extern const struct trace_print_flags vmaflag_names[];
 extern const struct trace_print_flags gfpflag_names[];
-
 #endif	/* __MM_INTERNAL_H */

@@ -842,21 +842,21 @@ static void fill_contig_page_info(struct zone *zone,
 	info->free_blocks_total = 0;
 	info->free_blocks_suitable = 0;
 
-	for (order = 0; order < MAX_ORDER; order++) {
-		unsigned long blocks;
+    for (order = 0; order < MAX_ORDER; order++) {
+        unsigned long blocks;
 
-		/* Count number of free blocks */
-		blocks = zone->free_area[order].nr_free;
-		info->free_blocks_total += blocks;
+        /* Count number of free blocks */
+        blocks = zone->free_area[order].nr_free;
+        info->free_blocks_total += blocks;
 
-		/* Count free base pages */
-		info->free_pages += blocks << order;
+        /* Count free base pages */
+        info->free_pages += blocks << order;
 
-		/* Count the suitable free blocks */
-		if (order >= suitable_order)
-			info->free_blocks_suitable += blocks <<
-						(order - suitable_order);
-	}
+        /* Count the suitable free blocks */
+        if (order >= suitable_order)
+            info->free_blocks_suitable += blocks <<
+                        (order - suitable_order);
+    }
 }
 
 /*
@@ -1797,6 +1797,7 @@ static int __init setup_vmstat(void)
 	proc_create("vmstat", S_IRUGO, NULL, &proc_vmstat_file_operations);
 	proc_create("zoneinfo", S_IRUGO, NULL, &proc_zoneinfo_file_operations);
 #endif
+
 	return 0;
 }
 module_init(setup_vmstat)

@@ -1645,6 +1645,23 @@ static int send_stop(struct mmc_card *card, unsigned int timeout_ms,
 #define ERR_ABORT	1
 #define ERR_CONTINUE	0
 
+#define TIME_ERROR_COUNT_MAX 30
+static int timeout_err_cnt = 0;
+
+static bool mmc_blk_remove_card(struct mmc_card *card, int error, u32 status)
+{
+	if (error == -ETIMEDOUT) timeout_err_cnt++;
+		if (timeout_err_cnt>=TIME_ERROR_COUNT_MAX && mmc_card_sd(card)) {
+			mmc_card_set_removed(card);
+			timeout_err_cnt = 0;
+			pr_err("%s: error: 0x%x, card status: 0x%x\n",
+			__func__, error, status);
+	return true;
+	}
+
+	return false;
+}
+
 static int mmc_blk_cmd_error(struct request *req, const char *name, int error,
 	bool status_valid, u32 status)
 {
@@ -1797,9 +1814,10 @@ static int mmc_blk_cmd_recovery(struct mmc_card *card, struct request *req,
 				prev_cmd_status_valid, status);
 
 	/* Check for r/w command errors */
-	if (brq->cmd.error)
-		return mmc_blk_cmd_error(req, "r/w cmd", brq->cmd.error,
-				prev_cmd_status_valid, status);
+	if (brq->cmd.error){
+		if (mmc_blk_remove_card(card, brq->cmd.error, status))
+			return ERR_NOMEDIUM;
+	}
 
 	/* Data errors */
 	if (!brq->stop.error)
@@ -4776,12 +4794,14 @@ static int mmc_blk_probe(struct mmc_card *card)
 {
 	struct mmc_blk_data *md, *part_md;
 	char cap_str[10];
-
+	
 	/*
 	 * Check that the card supports the command class(es) we need.
 	 */
+#ifndef VENDOR_EDIT
 	if (!(card->csd.cmdclass & CCC_BLOCK_READ))
 		return -ENODEV;
+#endif
 
 	mmc_fixup_device(card, blk_fixups);
 

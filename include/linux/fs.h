@@ -72,6 +72,9 @@ extern int sysctl_protected_symlinks;
 extern int sysctl_protected_hardlinks;
 extern int sysctl_protected_fifos;
 extern int sysctl_protected_regular;
+#ifdef CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT
+extern char *inode_name(struct inode *ino);
+#endif /* CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT */
 
 struct buffer_head;
 typedef int (get_block_t)(struct inode *inode, sector_t iblock,

@@ -48,6 +48,8 @@
 #include "ion_priv.h"
 #include "compat_ion.h"
 
+static struct ion_heap *sys_heap;
+
 /**
  * struct ion_device - the metadata of the ion device node
  * @dev:		the actual misc device
@@ -267,6 +269,7 @@ static struct ion_buffer *ion_buffer_create(struct ion_heap *heap,
 	ion_buffer_add(dev, buffer);
 	mutex_unlock(&dev->buffer_lock);
 	atomic_long_add(len, &heap->total_allocated);
+
 	return buffer;
 
 err:
@@ -285,6 +288,7 @@ void ion_buffer_destroy(struct ion_buffer *buffer)
 			     __func__);
 		buffer->heap->ops->unmap_kernel(buffer->heap, buffer);
 	}
+
 	buffer->heap->ops->unmap_dma(buffer->heap, buffer);
 
 	atomic_long_sub(buffer->size, &buffer->heap->total_allocated);
@@ -2083,6 +2087,8 @@ void ion_device_add_heap(struct ion_device *dev, struct ion_heap *heap)
 				path, debug_name);
 		}
 	}
+	if (heap->name && !strcmp(heap->name, "system"))
+		sys_heap = heap;
 
 	up_write(&dev->lock);
 }

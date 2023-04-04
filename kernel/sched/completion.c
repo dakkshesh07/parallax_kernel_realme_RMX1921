@@ -13,7 +13,6 @@
 
 #include <linux/sched.h>
 #include <linux/completion.h>
-
 /**
  * complete: - signals a single thread waiting on this completion
  * @x:  holds the state of this particular completion

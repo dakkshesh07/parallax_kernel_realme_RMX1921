@@ -2258,7 +2258,9 @@ static int elf_core_dump(struct coredump_params *cprm)
 
 	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
 
+
 	vma_filesz = kmalloc_array(segs - 1, sizeof(*vma_filesz), GFP_KERNEL);
+
 	if (!vma_filesz)
 		goto end_coredump;
 
@@ -2366,7 +2368,9 @@ end_coredump:
 cleanup:
 	free_note_info(&info);
 	kfree(shdr4extnum);
+
 	kfree(vma_filesz);
+
 	kfree(phdr4note);
 	kfree(elf);
 out:
@@ -2377,12 +2381,14 @@ out:
 
 static int __init init_elf_binfmt(void)
 {
+
 	register_binfmt(&elf_format);
 	return 0;
 }
 
 static void __exit exit_elf_binfmt(void)
 {
+
 	/* Remove the COFF and ELF loaders. */
 	unregister_binfmt(&elf_format);
 }

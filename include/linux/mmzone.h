@@ -436,7 +436,6 @@ struct zone {
 	unsigned long		managed_pages;
 	unsigned long		spanned_pages;
 	unsigned long		present_pages;
-
 	const char		*name;
 
 #ifdef CONFIG_MEMORY_ISOLATION

@@ -1,0 +1,24 @@
+menuconfig OPPO_FINGERPRINT
+	bool "OPLUS fingerprint"
+	depends on SPI_MASTER
+	help
+	  Say Y here to enable OPLUS fingerprint support
+
+if OPPO_FINGERPRINT
+### platform config
+config OPPO_FINGERPRINT_QCOM
+       default n
+       tristate "Fingerprint base on QCOM"
+
+### fingerprint sensor config
+
+config OPPO_FINGERPRINT_GOODIX_OPTICAL
+       default n
+       tristate "Fingerprint base on goodix optical chip"
+
+### fingerprint feature config
+config OPPO_FINGERPRINT_NAVIGATION_ENABLE
+       default n
+       tristate "Fingerprint navigation function"
+
+endif #OPPO_FINGERPRINT

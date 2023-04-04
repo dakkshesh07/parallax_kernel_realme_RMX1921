@@ -30,6 +30,9 @@
 #include <linux/pm_opp.h>
 #include <linux/regulator/consumer.h>
 
+#include <soc/oppo/oppo_project.h>
+
+
 #include "clk.h"
 
 #if defined(CONFIG_COMMON_CLK)
@@ -3053,7 +3056,6 @@ void clock_debug_print_enabled(bool print_parent)
 {
 	if (likely(!debug_suspend))
 		return;
-
 	if (print_parent)
 		clock_debug_print_enabled_clocks(NULL);
 	else
@@ -4050,6 +4052,7 @@ int clk_notifier_unregister(struct clk *clk, struct notifier_block *nb)
 EXPORT_SYMBOL_GPL(clk_notifier_unregister);
 
 #endif /* CONFIG_COMMON_CLK */
+
 
 #ifdef CONFIG_OF
 /**

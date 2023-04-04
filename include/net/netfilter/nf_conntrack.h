@@ -120,7 +120,7 @@ struct nf_conn {
 	/* all members below initialized via memset */
 	struct { } __nfct_init_offset;
 
-	/* If we were expected by an expectation, this will be it */
+    /* If we were expected by an expectation, this will be it */
 	struct nf_conn *master;
 
 #if defined(CONFIG_NF_CONNTRACK_MARK)

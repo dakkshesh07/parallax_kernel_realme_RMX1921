@@ -40,18 +40,3 @@ endif
 #Kaiqin.Huang@RM.MM.AudioDriver.Codec, 2019/10/12, Add for tfa9890 codec
 include $(MY_LOCAL_PATH)/asoc/codecs/tfa98xx/Android.mk
 #endif
-
-#ifdef OPLUS_ARCH_EXTENDS
-#Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2021/03/19, add for tfa98xx driver build
-include $(MY_LOCAL_PATH)/asoc/codecs/tfa98xx-v6/Android.mk
-#endif
-
-
-#ifdef OPLUS_ARCH_EXTENDS
-#Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2018/04/20, add for ak4376 driver build
-include $(MY_LOCAL_PATH)/asoc/codecs/ak4376/Android.mk
-#endif /* OPLUS_ARCH_EXTENDS */
-#ifdef OPLUS_ARCH_EXTENDS
-#xiang.fei@Multimedia.AudioDriver.Codec, 2018/10/29, Add for dbmdx
-include $(MY_LOCAL_PATH)/asoc/codecs/dbmdx/Android.mk
-#endif /* OPLUS_ARCH_EXTENDS */

@@ -298,6 +298,10 @@ struct tty_struct {
 	 * at least one of them.
 	 */
 	struct pid *session;
+        /*
+         * Writes protected by both ctrl lock and legacy mutex, readers must use
+         * at least one of them.
+         */
 	unsigned long flags;
 	int count;
 	struct winsize winsize;		/* winsize_mutex */

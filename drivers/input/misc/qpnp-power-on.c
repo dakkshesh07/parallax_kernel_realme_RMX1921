@@ -1,14 +1,3 @@
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 and
- * only version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -206,6 +195,11 @@ struct qpnp_pon {
 	struct delayed_work	bark_work;
 	struct dentry		*debugfs;
 	struct device_node      *pbs_dev_node;
+#ifdef VENDOR_EDIT 
+	struct task_struct 	*wd_task;
+	struct mutex		wd_task_mutex;
+	unsigned int		pmicwd_state;//|reserver|rst type|timeout|enable|
+#endif
 	int			pon_trigger_reason;
 	int			pon_power_off_reason;
 	int			num_pon_reg;
@@ -244,6 +238,7 @@ module_param_named(
 );
 
 static struct qpnp_pon *sys_reset_dev;
+
 static DEFINE_SPINLOCK(spon_list_slock);
 static LIST_HEAD(spon_dev_list);
 
@@ -2149,6 +2144,12 @@ static int pon_register_twm_notifier(struct qpnp_pon *pon)
 	return rc;
 }
 
+#ifdef OPLUS_BUG_STABILITY
+extern char pon_reason[];
+extern char poff_reason[];
+int preason_initialized;
+#endif /*OPLUS_BUG_STABILITY*/
+
 static int qpnp_pon_probe(struct platform_device *pdev)
 {
 	struct qpnp_pon *pon;
@@ -2186,7 +2187,6 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	}
 
 	pon->pdev = pdev;
-
 	rc = of_property_read_u32(pdev->dev.of_node, "reg", &base);
 	if (rc < 0) {
 		dev_err(&pdev->dev,
@@ -2284,6 +2284,12 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		dev_err(&pon->pdev->dev,
 			"Unable to read PON_RESASON1 reg rc: %d\n",
 			rc);
+#ifdef OPLUS_BUG_STABILITY
+		if (!preason_initialized) {
+			snprintf(pon_reason, 128, "Unable to read PON_RESASON1 reg rc: %d\n", rc);
+			preason_initialized = 1;
+		}
+#endif /*OPLUS_BUG_STABILITY*/
 		goto err_out;
 	}
 
@@ -2297,6 +2303,10 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 			"PMIC@SID%d Power-on reason: Unknown and '%s' boot\n",
 			to_spmi_device(pon->pdev->dev.parent)->usid,
 			 cold_boot ? "cold" : "warm");
+#ifdef OPLUS_BUG_STABILITY
+		if (!preason_initialized)
+			 snprintf(pon_reason, 128, "Unknown[0x%02X] and '%s' boot\n", pon_sts, cold_boot ? "cold" : "warm");
+#endif /*OPLUS_BUG_STABILITY*/
 	} else {
 		pon->pon_trigger_reason = index;
 		dev_info(&pon->pdev->dev,
@@ -2304,6 +2314,11 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 			to_spmi_device(pon->pdev->dev.parent)->usid,
 			 qpnp_pon_reason[index],
 			cold_boot ? "cold" : "warm");
+#ifdef OPLUS_BUG_STABILITY
+		if (!preason_initialized)
+			snprintf(pon_reason, 128, "[0x%02X]%s and '%s' boot\n", pon_sts,
+				qpnp_pon_reason[index],	cold_boot ? "cold" : "warm");
+#endif /*OPLUS_BUG_STABILITY*/
 	}
 
 	/* POFF reason */
@@ -2318,6 +2333,12 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		if (rc) {
 			dev_err(&pon->pdev->dev, "Unable to read POFF_REASON regs rc:%d\n",
 				rc);
+#ifdef OPLUS_BUG_STABILITY
+                    if (!preason_initialized) {
+                            snprintf(poff_reason, 128, "Unable to read POFF_RESASON regs rc:%d\n", rc);
+                            preason_initialized = 1;
+                    }
+#endif /*OPLUS_BUG_STABILITY*/
 			goto err_out;
 		}
 		poff_sts = buf[0] | (buf[1] << 8);
@@ -2327,12 +2348,24 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		dev_info(&pon->pdev->dev,
 				"PMIC@SID%d: Unknown power-off reason\n",
 				to_spmi_device(pon->pdev->dev.parent)->usid);
+#ifdef OPLUS_BUG_STABILITY
+		if (!preason_initialized) {
+			snprintf(poff_reason, 128, "Unknown[0x%4X]\n", poff_sts);
+			preason_initialized = 1;
+		}
+#endif /*OPLUS_BUG_STABILITY*/
 	} else {
 		pon->pon_power_off_reason = index;
 		dev_info(&pon->pdev->dev,
 				"PMIC@SID%d: Power-off reason: %s\n",
 				to_spmi_device(pon->pdev->dev.parent)->usid,
 				qpnp_poff_reason[index]);
+#ifdef OPLUS_BUG_STABILITY
+		if (!preason_initialized) {
+			snprintf(poff_reason, 128, "[0x%04X]%s\n", poff_sts, qpnp_poff_reason[index]);
+			preason_initialized = 1;
+		}
+#endif /*OPLUS_BUG_STABILITY*/
 	}
 
 	if (pon->pon_trigger_reason == PON_SMPL ||

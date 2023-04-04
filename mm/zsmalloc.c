@@ -70,6 +70,7 @@
  * pages. ZS_MAX_ZSPAGE_ORDER defines upper limit on N.
  */
 #define ZS_MAX_ZSPAGE_ORDER 2
+
 #define ZS_MAX_PAGES_PER_ZSPAGE (_AC(1, UL) << ZS_MAX_ZSPAGE_ORDER)
 
 #define ZS_HANDLE_SIZE (sizeof(unsigned long))
@@ -282,6 +283,7 @@ struct zs_pool {
 #define FULLNESS_BITS	2
 #define CLASS_BITS	8
 #define ISOLATED_BITS	3
+
 #define MAGIC_VAL_BITS	8
 
 struct zspage {

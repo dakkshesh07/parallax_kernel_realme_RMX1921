@@ -313,8 +313,8 @@ static int lmk_vmpressure_notifier(struct notifier_block *nb,
 			global_node_page_state(NR_SHMEM) -
 			total_swapcache_pages();
 		other_free = global_page_state(NR_FREE_PAGES);
-
 		atomic_set(&shift_adj, 1);
+
 		trace_almk_vmpressure(pressure, other_free, other_file);
 	} else if (pressure >= 90) {
 		if (lowmem_adj_size < array_size)
@@ -327,12 +327,12 @@ static int lmk_vmpressure_notifier(struct notifier_block *nb,
 			total_swapcache_pages();
 
 		other_free = global_page_state(NR_FREE_PAGES);
-
 		if ((other_free < lowmem_minfree[array_size - 1]) &&
 		    (other_file < vmpressure_file_min)) {
 			atomic_set(&shift_adj, 1);
 			trace_almk_vmpressure(pressure, other_free, other_file);
 		}
+
 	} else if (atomic_read(&shift_adj)) {
 		other_file = global_node_page_state(NR_FILE_PAGES) -
 			global_node_page_state(NR_SHMEM) -

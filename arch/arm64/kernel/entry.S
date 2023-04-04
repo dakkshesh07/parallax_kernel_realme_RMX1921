@@ -957,7 +957,7 @@ __sys_trace:
 	ldp	x2, x3, [sp, #S_X2]
 	ldp	x4, x5, [sp, #S_X4]
 	ldp	x6, x7, [sp, #S_X6]
-	ldr	x16, [stbl, scno, lsl #3]	// address in the syscall table
+	ldr	x16, [stbl, scno, lsl #3]	// address in the syscall table	
 	blr	x16				// call sys_* routine
 
 __sys_trace_return:

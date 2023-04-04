@@ -249,7 +249,9 @@ static int dp_parser_gpio(struct dp_parser *parser)
 
 		if (!gpio_is_valid(mp->gpio_config[i].gpio)) {
 			pr_err("%s gpio not specified\n", dp_gpios[i]);
+			#ifndef VENDOR_EDIT
 			return -EINVAL;
+			#endif /* VENDOR_EDIT */
 		}
 
 		strlcpy(mp->gpio_config[i].gpio_name, dp_gpios[i],

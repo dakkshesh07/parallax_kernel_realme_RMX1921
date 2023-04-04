@@ -220,6 +220,7 @@ static int do_fsync(unsigned int fd, int datasync)
 		fdput(f);
 		inc_syscfs(current);
 	}
+
 	return ret;
 }
 

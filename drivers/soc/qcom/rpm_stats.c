@@ -91,7 +91,6 @@ static inline int msm_rpmstats_append_data_to_buf(char *buf,
 	u64 time_in_last_mode;
 	u64 time_since_last_mode;
 	u64 actual_last_sleep;
-
 	stat_type[4] = 0;
 	memcpy(stat_type, &data->stat_type, sizeof(u32));
 
@@ -278,7 +277,6 @@ static int msm_rpmstats_probe(struct platform_device *pdev)
 		pdata->num_records = RPM_STATS_NUM_REC;
 
 	msm_rpmstats_create_sysfs(pdev, pdata);
-
 	return 0;
 }
 

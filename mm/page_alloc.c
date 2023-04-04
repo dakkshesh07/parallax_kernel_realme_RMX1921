@@ -912,7 +912,6 @@ done_merging:
 			goto out;
 		}
 	}
-
 	list_add(&page->lru, &zone->free_area[order].free_list[migratetype]);
 out:
 	zone->free_area[order].nr_free++;
@@ -1682,7 +1681,6 @@ static inline void expand(struct zone *zone, struct page *page,
 		 */
 		if (set_page_guard(zone, &page[size], high, migratetype))
 			continue;
-
 		list_add(&page[size].lru, &area->free_list[migratetype]);
 		area->nr_free++;
 		set_page_order(&page[size], high);
@@ -1821,7 +1819,6 @@ struct page *__rmqueue_smallest(struct zone *zone, unsigned int order,
 	unsigned int current_order;
 	struct free_area *area;
 	struct page *page;
-
 	/* Find a page of the appropriate size in the preferred list */
 	for (current_order = order; current_order < MAX_ORDER; ++current_order) {
 		area = &(zone->free_area[current_order]);
@@ -1836,7 +1833,6 @@ struct page *__rmqueue_smallest(struct zone *zone, unsigned int order,
 		set_pcppage_migratetype(page, migratetype);
 		return page;
 	}
-
 	return NULL;
 }
 
@@ -2082,7 +2078,7 @@ static void reserve_highatomic_pageblock(struct page *page, struct zone *zone,
 		goto out_unlock;
 
 	/* Yoink! */
-	mt = get_pageblock_migratetype(page);
+	mt = get_pageblock_migratetype(page);	
 	if (mt != MIGRATE_HIGHATOMIC &&
 			!is_migrate_isolate(mt) && !is_migrate_cma(mt)) {
 		zone->nr_reserved_highatomic += pageblock_nr_pages;
@@ -2192,6 +2188,7 @@ __rmqueue_fallback(struct zone *zone, unsigned int order, int start_migratetype)
 				current_order >= order && current_order <= MAX_ORDER-1;
 				--current_order) {
 		area = &(zone->free_area[current_order]);
+
 		fallback_mt = find_suitable_fallback(area, current_order,
 				start_migratetype, false, order, &can_steal);
 		if (fallback_mt == -1)
@@ -2644,6 +2641,7 @@ int __isolate_free_page(struct page *page, unsigned int order)
 	/* Remove page from free list */
 	list_del(&page->lru);
 	zone->free_area[order].nr_free--;
+
 	rmv_page_order(page);
 
 	/*
@@ -2654,7 +2652,7 @@ int __isolate_free_page(struct page *page, unsigned int order)
 		struct page *endpage = page + (1 << order) - 1;
 		for (; page < endpage; page += pageblock_nr_pages) {
 			int mt = get_pageblock_migratetype(page);
-			if (!is_migrate_isolate(mt) && !is_migrate_cma(mt)
+			if (!is_migrate_isolate(mt) && !is_migrate_cma(mt)			
 				&& mt != MIGRATE_HIGHATOMIC)
 				set_pageblock_migratetype(page,
 							  MIGRATE_MOVABLE);
@@ -2760,7 +2758,6 @@ struct page *buffered_rmqueue(struct zone *preferred_zone,
 			if (!page)
 				page = __rmqueue(zone, order, migratetype);
 		} while (page && check_new_pages(page, order));
-
 		spin_unlock(&zone->lock);
 		if (!page)
 			goto failed;
@@ -2871,7 +2868,6 @@ bool __zone_watermark_ok(struct zone *z, unsigned int order, unsigned long mark,
 	long min = mark;
 	int o;
 	const bool alloc_harder = (alloc_flags & ALLOC_HARDER);
-
 	/* free_pages may go negative - that's OK */
 	free_pages -= (1 << order) - 1;
 
@@ -3689,6 +3685,8 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
 	enum compact_result compact_result;
 	int compaction_retries;
 	int no_progress_loops;
+	unsigned long alloc_start = jiffies;
+	unsigned int stall_timeout = 10 * HZ;
 	unsigned int cpuset_mems_cookie;
 
 	/*
@@ -3860,7 +3858,14 @@ retry:
 	 */
 	if (order > PAGE_ALLOC_COSTLY_ORDER && !(gfp_mask & __GFP_REPEAT))
 		goto nopage;
-
+	
+	if (time_after(jiffies, alloc_start + stall_timeout)) {
+		warn_alloc(gfp_mask,
+			"page allocation stalls for %ums, order:%u",
+			jiffies_to_msecs(jiffies-alloc_start), order);
+		stall_timeout += 10 * HZ;
+	}
+	
 	if (should_reclaim_retry(gfp_mask, order, ac, alloc_flags,
 				 did_some_progress > 0, &no_progress_loops))
 		goto retry;
@@ -4624,7 +4629,7 @@ void show_free_areas(unsigned int filter)
 
 		spin_lock_irqsave(&zone->lock, flags);
 		for (order = 0; order < MAX_ORDER; order++) {
-			struct free_area *area = &zone->free_area[order];
+        struct free_area *area = &zone->free_area[order];
 			int type;
 
 			nr[order] = area->nr_free;

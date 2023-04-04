@@ -17,6 +17,9 @@
 #include <linux/seq_file.h>
 
 #include "power.h"
+#ifdef VENDOR_EDIT
+#include "oppo_attr_custom.h"
+#endif /*VENDOR_EDIT*/
 
 DEFINE_MUTEX(pm_mutex);
 
@@ -410,13 +413,13 @@ power_attr(state);
  * is allowed to write to 'state', but the transition will be aborted if there
  * are any wakeup events detected after 'wakeup_count' was written to.
  */
-
+ 
 static ssize_t wakeup_count_show(struct kobject *kobj,
 				struct kobj_attribute *attr,
 				char *buf)
 {
 	unsigned int val;
-
+    
 	return pm_get_wakeup_count(&val, true) ?
 		sprintf(buf, "%u\n", val) : -EINTR;
 }
@@ -620,6 +623,16 @@ static struct attribute * g[] = {
 #ifdef CONFIG_FREEZER
 	&pm_freeze_timeout_attr.attr,
 #endif
+#ifdef VENDOR_EDIT
+/* OPPO 2012-11-05 heiwei Modify begin for add interface start reason and boot_mode begin */
+	&app_boot_attr.attr,
+	&startup_mode_attr.attr,
+/* OPPO 2012-11-05 heiwei Modify begin for add interface start reason and boot_mode end */
+#endif //VENDOR_EDIT
+#ifdef OPLUS_BUG_STABILITY
+	&pon_reason_attr.attr,
+	&poff_reason_attr.attr,
+#endif /*OPLUS_BUG_STABILITY*/
 	NULL,
 };
 

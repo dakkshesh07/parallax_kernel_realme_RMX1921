@@ -586,7 +586,6 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
 			if (ret)
 				goto err;
 		}
-
 		__set_task_state(task, state);
 
 		/* didn't get the lock, go to sleep: */
@@ -751,7 +750,6 @@ __mutex_unlock_common_slowpath(struct mutex *lock, int nested)
 	spin_lock_mutex(&lock->wait_lock, flags);
 	mutex_release(&lock->dep_map, nested, _RET_IP_);
 	debug_mutex_unlock(lock);
-
 	if (!list_empty(&lock->wait_list)) {
 		/* get the first entry from the wait-list: */
 		struct mutex_waiter *waiter =

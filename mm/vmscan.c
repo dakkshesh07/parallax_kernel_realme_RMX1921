@@ -117,6 +117,7 @@ struct scan_control {
 	 * on memory until last task zap it.
 	 */
 	struct vm_area_struct *target_vma;
+
 };
 
 #ifdef ARCH_HAS_PREFETCH
@@ -151,6 +152,7 @@ struct scan_control {
  * From 0 .. 100.  Higher means more swappy.
  */
 int vm_swappiness = 60;
+
 /*
  * The total number of pages which are beyond the high watermark within all
  * zones.
@@ -974,7 +976,6 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 		bool dirty, writeback;
 		bool lazyfree = false;
 		int ret = SWAP_SUCCESS;
-
 		cond_resched();
 
 		page = lru_to_page(page_list);
@@ -2432,7 +2433,6 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 					nr[LRU_INACTIVE_FILE]) {
 		unsigned long nr_anon, nr_file, percentage;
 		unsigned long nr_scanned;
-
 		for_each_evictable_lru(lru) {
 			if (nr[lru]) {
 				nr_to_scan = min(nr[lru], SWAP_CLUSTER_MAX);
@@ -2442,7 +2442,6 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 							    lruvec, sc);
 			}
 		}
-
 		cond_resched();
 
 		if (nr_reclaimed < nr_to_reclaim || scan_adjusted)
@@ -3469,7 +3468,6 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
 		 * allocation of the requested order possible.
 		 */
 		wakeup_kcompactd(pgdat, alloc_order, classzone_idx);
-
 		remaining = schedule_timeout(HZ/10);
 
 		/*
