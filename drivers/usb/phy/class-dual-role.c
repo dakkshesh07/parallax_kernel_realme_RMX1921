@@ -23,6 +23,7 @@
 #include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/types.h>
+#include <soc/oplus/system/oppo_project.h>
 
 #define DUAL_ROLE_NOTIFICATION_TIMEOUT 2000
 
@@ -509,6 +510,10 @@ out:
 
 static int __init dual_role_class_init(void)
 {
+	if (get_project() == 18621 || get_project() == 18637) {
+		pr_info("micro usb project no need to dual_role_usb init\n");
+		return 0;
+	}
 	dual_role_class = class_create(THIS_MODULE, "dual_role_usb");
 
 	if (IS_ERR(dual_role_class))

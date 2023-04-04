@@ -556,6 +556,10 @@ struct mmc_host {
 
 	struct delayed_work	detect;
 	int			detect_change;	/* card detect flag */
+#ifdef CONFIG_EMMC_SDCARD_OPTIMIZE
+	int detect_change_retry;
+#endif
+
 	struct mmc_slot		slot;
 
 	const struct mmc_bus_ops *bus_ops;	/* current bus driver */

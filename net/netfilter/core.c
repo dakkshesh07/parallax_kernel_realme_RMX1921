@@ -360,8 +360,19 @@ next_hook:
 		ret = NF_DROP_GETERR(verdict);
 		if (ret == 0)
 			ret = -EPERM;
-	} else if ((verdict & NF_VERDICT_MASK) == NF_QUEUE) {
+#ifdef OPLUS_FEATURE_WIFI_LIMMITBGSPEED
+//Add for limit speed function
+	} else if ((verdict & NF_VERDICT_MASK) == NF_IMQ_QUEUE) {
 		ret = nf_queue(skb, state, &entry, verdict);
+	} else if ((verdict & NF_VERDICT_MASK) == NF_QUEUE) {
+#endif /* OPLUS_FEATURE_WIFI_LIMMITBGSPEED */
+		ret = nf_queue(skb, state, &entry, verdict);
+
+#ifdef OPLUS_FEATURE_WIFI_LIMMITBGSPEED
+//Add for limit speed function
+		if (ret == -ECANCELED)
+			goto next_hook;
+#endif /* OPLUS_FEATURE_WIFI_LIMMITBGSPEED */
 		if (ret == 1 && entry)
 			goto next_hook;
 	} else {

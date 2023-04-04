@@ -1065,6 +1065,9 @@ early_param("core_ctl_disable_cpumask", core_ctl_disable_setup);
 
 static bool should_skip(const struct cpumask *mask)
 {
+#ifdef VENDOR_EDIT
+	return false;
+#else
 	if (!core_ctl_disable_cpumask_present)
 		return false;
 
@@ -1074,6 +1077,7 @@ static bool should_skip(const struct cpumask *mask)
 	 * core_ctl_disable_cpumask
 	 */
 	return cpumask_subset(mask, core_ctl_disable_cpumask);
+#endif
 }
 
 static struct cluster_data *find_cluster_by_first_cpu(unsigned int first_cpu)

@@ -10,6 +10,16 @@
 
 struct net;
 
+//#ifdef OPLUS_FEATURE_NWPOWER
+#define NETLINK_OPLUS_NWPOWERSTATE	36	/*OPLUS NW PowerState*/
+//#endif /* OPLUS_FEATURE_NWPOWER */
+#define NETLINK_MAX_COOKIE_LEN	20
+struct netlink_ext_ack {
+	const char *_msg;
+	const struct nlattr *bad_attr;
+	u8 cookie[NETLINK_MAX_COOKIE_LEN];
+	u8 cookie_len;
+};
 static inline struct nlmsghdr *nlmsg_hdr(const struct sk_buff *skb)
 {
 	return (struct nlmsghdr *)skb->data;

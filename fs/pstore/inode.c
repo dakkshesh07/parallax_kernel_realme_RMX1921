@@ -367,6 +367,11 @@ int pstore_mkfile(enum pstore_type_id type, char *psname, u64 id, int count,
 	case PSTORE_TYPE_PPC_OPAL:
 		sprintf(name, "powerpc-opal-%s-%lld", psname, id);
 		break;
+#ifdef OPLUS_FEATURE_DUMPDEVICE
+	case PSTORE_TYPE_DEVICE_INFO:
+		scnprintf(name, sizeof(name), "device-info-%s-%lld", psname, id);
+		break;
+#endif
 	case PSTORE_TYPE_UNKNOWN:
 		scnprintf(name, sizeof(name), "unknown-%s-%lld", psname, id);
 		break;

@@ -47,6 +47,10 @@
 # include <asm/mutex.h>
 #endif
 
+#ifdef CONFIG_OPLUS_FEATURE_HUNG_TASK_ENHANCE
+#include <soc/oplus/system/oplus_signal.h>
+#endif
+
 void
 __mutex_init(struct mutex *lock, const char *name, struct lock_class_key *key)
 {
@@ -57,6 +61,9 @@ __mutex_init(struct mutex *lock, const char *name, struct lock_class_key *key)
 #ifdef CONFIG_MUTEX_SPIN_ON_OWNER
 	osq_lock_init(&lock->osq);
 #endif
+#ifdef OPLUS_FEATURE_UIFIRST
+	lock->ux_dep_task = NULL;
+#endif /* OPLUS_FEATURE_UIFIRST */
 
 	debug_mutex_init(lock, name, key);
 }
@@ -576,7 +583,12 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
 		 * got a signal? (This code gets eliminated in the
 		 * TASK_UNINTERRUPTIBLE case.)
 		 */
+#ifdef CONFIG_OPLUS_FEATURE_HUNG_TASK_ENHANCE
+		if (unlikely(signal_pending_state(state, task))
+			|| hung_long_and_fatal_signal_pending(task)) {
+#else
 		if (unlikely(signal_pending_state(state, task))) {
+#endif
 			ret = -EINTR;
 			goto err;
 		}
@@ -586,7 +598,11 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
 			if (ret)
 				goto err;
 		}
-
+#ifdef OPLUS_FEATURE_UIFIRST
+		if (sysctl_uifirst_enabled) {
+			mutex_set_inherit_ux(lock, current);
+		}
+#endif /* OPLUS_FEATURE_UIFIRST */
 		__set_task_state(task, state);
 
 		/* didn't get the lock, go to sleep: */
@@ -751,7 +767,11 @@ __mutex_unlock_common_slowpath(struct mutex *lock, int nested)
 	spin_lock_mutex(&lock->wait_lock, flags);
 	mutex_release(&lock->dep_map, nested, _RET_IP_);
 	debug_mutex_unlock(lock);
-
+#ifdef OPLUS_FEATURE_UIFIRST
+	if (sysctl_uifirst_enabled) {
+		mutex_unset_inherit_ux(lock, current);
+	}
+#endif /* OPLUS_FEATURE_UIFIRST */
 	if (!list_empty(&lock->wait_list)) {
 		/* get the first entry from the wait-list: */
 		struct mutex_waiter *waiter =

@@ -66,3 +66,7 @@ obj-$(CONFIG_VDSO32)			+= vdso32/
 obj-m					+= $(arm64-obj-m)
 head-y					:= head.o
 extra-y					+= $(head-y) vmlinux.lds
+#ifdef CONFIG_OPLUS_SECURE_GUARD
+obj-$(CONFIG_OPLUS_SECURE_GUARD)		+=  rootguard/
+obj-$(CONFIG_OPLUS_SECURE_GUARD)                +=  oplus_root.o
+#endif /* CONFIG_OPLUS_SECURE_GUARD */

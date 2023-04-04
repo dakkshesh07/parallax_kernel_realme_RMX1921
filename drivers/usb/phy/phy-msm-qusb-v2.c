@@ -29,6 +29,9 @@
 #include <linux/nvmem-consumer.h>
 #include <linux/debugfs.h>
 #include <linux/hrtimer.h>
+#ifdef VENDOR_EDIT
+#include <soc/oplus/system/oppo_project.h>
+#endif
 
 /* QUSB2PHY_PWR_CTRL1 register related bits */
 #define PWR_CTRL1_POWR_DOWN		BIT(0)
@@ -414,6 +417,14 @@ done:
 	mutex_unlock(&qphy->lock);
 	return ret;
 }
+#ifdef OPLUS_FEATURE_CHG_BASIC
+unsigned int dev_phy_tune1 = 0x43;
+module_param(dev_phy_tune1, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(dev_phy_tune1, "QUSB PHY v2 TUNE1");
+unsigned int dev_phy_bias2 = 0x1b;
+module_param(dev_phy_bias2, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(dev_phy_bias2, "QUSB PHY v2 TUNE2");
+#endif /* OPLUS_FEATURE_CHG_BASIC */
 
 static void qusb_phy_get_tune1_param(struct qusb_phy *qphy)
 {
@@ -437,6 +448,29 @@ static void qusb_phy_get_tune1_param(struct qusb_phy *qphy)
 
 	qphy->tune_val = TUNE_VAL_MASK(qphy->tune_val,
 				qphy->efuse_bit_pos, bit_mask);
+	if((get_project() == 19691)) {
+		if(dev_phy_tune1 != 0) {
+			dev_phy_tune1 = 0x40;
+			pr_err("%s:get_tune1  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
+		}
+	}
+	if((get_project() == 19651)) {
+		if(dev_phy_tune1 != 0) {
+			dev_phy_tune1 = 0x76;
+			pr_err("%s:write_tune1_low4bits  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
+			pr_err("%s: tune1 high4bits get_real_efuse = [0x%x]\n", __func__,  qphy->tune_val);
+		}
+	}
+	if((get_project() == 18621)) {
+		if(dev_phy_tune1 != 0) {
+			dev_phy_tune1 = 0x37;
+			pr_err("%s:write_tune1_low4bits  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
+			pr_err("%s: tune1 high4bits get_real_efuse = [0x%x]\n", __func__,  qphy->tune_val);
+		}
+	}
 	reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
 	if (qphy->tune_val) {
 		reg = reg & 0x0f;
@@ -444,6 +478,7 @@ static void qusb_phy_get_tune1_param(struct qusb_phy *qphy)
 	}
 
 	qphy->tune_val = reg;
+	pr_err("%s: get_tune1_final  tune1 = [0x%x], tune_val[0x%x]\n", __func__, dev_phy_tune1, qphy->tune_val);
 }
 
 static void qusb_phy_write_seq(void __iomem *base, u32 *seq, int cnt,
@@ -576,6 +611,7 @@ static void qusb_phy_host_init(struct usb_phy *phy)
 	}
 }
 
+
 static int qusb_phy_init(struct usb_phy *phy)
 {
 	struct qusb_phy *qphy = container_of(phy, struct qusb_phy, phy);
@@ -634,8 +670,16 @@ static int qusb_phy_init(struct usb_phy *phy)
 
 		pr_debug("%s(): Programming TUNE1 parameter as:%x\n", __func__,
 				qphy->tune_val);
+#ifndef OPLUS_FEATURE_CHG_BASIC
 		writel_relaxed(qphy->tune_val,
 				qphy->base + qphy->phy_reg[PORT_TUNE1]);
+#else
+		if((get_project() == 18621) || (get_project() == 19691) || (get_project() == 19651)) {
+			qusb_phy_get_tune1_param(qphy);
+			writel_relaxed(qphy->tune_val,
+					qphy->base + qphy->phy_reg[PORT_TUNE1]);
+		}
+#endif /* OPLUS_FEATURE_CHG_BASIC */
 	}
 
 	/* if debugfs based tunex params are set, use that value. */
@@ -654,6 +698,58 @@ static int qusb_phy_init(struct usb_phy *phy)
 	if (qphy->bias_ctrl2)
 		writel_relaxed(qphy->bias_ctrl2,
 				qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
+
+#ifdef VENDOR_EDIT
+	if((get_project() == 18181) || (get_project() == 18385)) {
+		if(dev_phy_tune1 != 0) {
+			dev_err(phy->dev, "%s: oplus rewrite  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
+		}
+
+		if(dev_phy_bias2 != 0) {
+			dev_err(phy->dev, "%s: oplus rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
+		}
+	}
+	if((get_project() == 18097) || (get_project() == 18397) || (get_project() == 18099) || (get_project() == 18041) || (get_project() == 18383)) {
+		if(dev_phy_tune1 != 0) {
+			dev_phy_tune1 = 0x77;
+			dev_err(phy->dev, "%s: oplus rewrite  tune1 = [0x%x], reg[0x%x]\n", __func__, dev_phy_tune1, qphy->phy_reg[PORT_TUNE1]);
+			writel_relaxed(dev_phy_tune1, qphy->base + qphy->phy_reg[PORT_TUNE1]);
+		}
+
+		if(dev_phy_bias2 != 0) {
+			dev_phy_bias2 = 0x20;
+			dev_err(phy->dev, "%s: oplus rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
+		}
+	}
+	if(get_project() == 18621) {
+		/*if(dev_phy_bias2 != 0) {*/
+			dev_phy_bias2 = 0x18;
+			reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
+			dev_err(phy->dev, "PORT_TUNE1:%x\n", reg);
+			dev_err(phy->dev, "%s: BIAS_CTRL_2 rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
+		/*}*/
+	}
+	if(get_project() == 19691) {
+		/*if(dev_phy_bias2 != 0) {*/
+			dev_phy_bias2 = 0x10;
+			reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
+			dev_err(phy->dev, "PORT_TUNE1:%x\n", reg);
+			dev_err(phy->dev, "%s: BIAS_CTRL_2 rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
+		/*}*/
+	}
+	if(get_project() == 19651) {
+		/*if(dev_phy_bias2 != 0) {*/
+			dev_phy_bias2 = 0x13;
+			dev_err(phy->dev, "%s:rewrite  bias2 = [0x%x], reg[0x%x]\n", __func__, dev_phy_bias2, qphy->phy_reg[BIAS_CTRL_2]);
+			writel_relaxed(dev_phy_bias2, qphy->base + qphy->phy_reg[BIAS_CTRL_2]);
+		/*}*/
+	}
+#endif
 
 	/* ensure above writes are completed before re-enabling PHY */
 	wmb();

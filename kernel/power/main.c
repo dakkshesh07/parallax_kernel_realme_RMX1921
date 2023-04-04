@@ -16,7 +16,14 @@
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
 
+#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
+#include <linux/rtc.h>
+#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
+
 #include "power.h"
+#ifdef VENDOR_EDIT
+#include "oppo_attr_custom.h"
+#endif /*VENDOR_EDIT*/
 
 DEFINE_MUTEX(pm_mutex);
 
@@ -134,6 +141,11 @@ static ssize_t pm_test_store(struct kobject *kobj, struct kobj_attribute *attr,
 		}
 
 	unlock_system_sleep();
+#ifdef VENDOR_EDIT
+//Fuchun.Liao@BSP.CHG.Basic 2017/04/05 add for power debug
+	pr_info("%s buf:%s, pm_test_level:%d,level:%d\n", __func__, buf,
+		pm_test_level, level);
+#endif /* VENDOR_EDIT */
 
 	return error ? error : n;
 }
@@ -410,16 +422,47 @@ power_attr(state);
  * is allowed to write to 'state', but the transition will be aborted if there
  * are any wakeup events detected after 'wakeup_count' was written to.
  */
+ 
+#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
+static void pm_wakeup_count_marker(char *annotation)
+{
+	struct timespec ts;
+	struct rtc_time tm;
 
+	getnstimeofday(&ts);
+	rtc_time_to_tm(ts.tv_sec, &tm);
+	pr_info("PM: wakeup_count %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+		annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+}
+
+static ssize_t wakeup_count_show(struct kobject *kobj,
+				struct kobj_attribute *attr,
+				char *buf)
+{
+	unsigned int val, error;
+
+	pm_wakeup_count_marker("read enter");
+	error = pm_get_wakeup_count(&val, true);
+	pm_wakeup_count_marker("read exit");
+
+	return error ? sprintf(buf, "%u\n", val) : -EINTR;
+}
+#else
 static ssize_t wakeup_count_show(struct kobject *kobj,
 				struct kobj_attribute *attr,
 				char *buf)
 {
 	unsigned int val;
 
+	#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
+	pm_wakeup_count_marker("store");
+	#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
+    
 	return pm_get_wakeup_count(&val, true) ?
 		sprintf(buf, "%u\n", val) : -EINTR;
 }
+#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
 
 static ssize_t wakeup_count_store(struct kobject *kobj,
 				struct kobj_attribute *attr,
@@ -620,6 +663,16 @@ static struct attribute * g[] = {
 #ifdef CONFIG_FREEZER
 	&pm_freeze_timeout_attr.attr,
 #endif
+#ifdef VENDOR_EDIT
+/* OPPO 2012-11-05 heiwei Modify begin for add interface start reason and boot_mode begin */
+	&app_boot_attr.attr,
+	&startup_mode_attr.attr,
+/* OPPO 2012-11-05 heiwei Modify begin for add interface start reason and boot_mode end */
+#endif //VENDOR_EDIT
+#ifdef OPLUS_BUG_STABILITY
+	&pon_reason_attr.attr,
+	&poff_reason_attr.attr,
+#endif /*OPLUS_BUG_STABILITY*/
 	NULL,
 };
 

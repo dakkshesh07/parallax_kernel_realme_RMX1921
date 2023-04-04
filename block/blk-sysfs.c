@@ -13,6 +13,9 @@
 
 #include "blk.h"
 #include "blk-mq.h"
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_FG_IO_OPT)
+#include "oppo_foreground_io_opt/oppo_foreground_io_opt.h"
+#endif /*VENDOR_EDIT*/
 
 struct queue_sysfs_entry {
 	struct attribute attr;
@@ -396,7 +399,27 @@ static struct queue_sysfs_entry queue_ra_entry = {
 	.show = queue_ra_show,
 	.store = queue_ra_store,
 };
+#ifdef VENDOR_EDIT
+static struct queue_sysfs_entry queue_fgio_max_entry = {
+	.attr = {.name = "fg_io_cnt_max", .mode = S_IRUGO | S_IWUSR },
+	.show = queue_fg_count_max_show,
+	.store = queue_fg_count_max_store,
+};
+static struct queue_sysfs_entry queue_bothio_max_entry = {
+	.attr = {.name = "both_io_cnt_max", .mode = S_IRUGO | S_IWUSR },
+	.show = queue_both_count_max_show,
+	.store = queue_both_count_max_store,
+};
+static struct queue_sysfs_entry queue_fgio_entry = {
+	.attr = {.name = "fg_io_cnt", .mode = S_IRUGO },
+	.show = queue_fg_count_show,
+};
+static struct queue_sysfs_entry queue_bothio_entry = {
+	.attr = {.name = "both_io_cnt", .mode = S_IRUGO },
+	.show = queue_both_count_show,
+};
 
+#endif /*VENDOR_EDIT*/
 static struct queue_sysfs_entry queue_max_sectors_entry = {
 	.attr = {.name = "max_sectors_kb", .mode = S_IRUGO | S_IWUSR },
 	.show = queue_max_sectors_show,
@@ -530,6 +553,12 @@ static struct queue_sysfs_entry queue_dax_entry = {
 static struct attribute *default_attrs[] = {
 	&queue_requests_entry.attr,
 	&queue_ra_entry.attr,
+#ifdef VENDOR_EDIT
+	&queue_fgio_max_entry.attr,
+	&queue_bothio_max_entry.attr,
+	&queue_fgio_entry.attr,
+	&queue_bothio_entry.attr,
+#endif /*VENDOR_EDIT*/
 	&queue_max_hw_sectors_entry.attr,
 	&queue_max_sectors_entry.attr,
 	&queue_max_segments_entry.attr,

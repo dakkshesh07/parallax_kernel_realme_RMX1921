@@ -2169,6 +2169,11 @@ static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
 	shdr4extnum->sh_info = segs;
 }
 
+#ifdef OPLUS_BUG_STABILITY
+static elf_addr_t *oppo_coredump_addr = NULL;
+#define PREALLOC_DUMPMEM_SIZE 64 * 1024
+#endif /* OPLUS_BUG_STABILITY */
+
 /*
  * Actual dumper
  *
@@ -2258,7 +2263,19 @@ static int elf_core_dump(struct coredump_params *cprm)
 
 	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
 
+
+#ifdef OPLUS_BUG_STABILITY
+	/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
+	 * will alloc failed and the coredump can't format success 2019/01/14
+	 */
+	if(oppo_coredump_addr && (((segs - 1) * sizeof(*vma_filesz)) <= PREALLOC_DUMPMEM_SIZE))
+		vma_filesz = oppo_coredump_addr;
+	else
+		vma_filesz = kmalloc_array(segs - 1, sizeof(*vma_filesz), GFP_KERNEL);
+#else
 	vma_filesz = kmalloc_array(segs - 1, sizeof(*vma_filesz), GFP_KERNEL);
+#endif /* OPLUS_BUG_STABILITY end */
+
 	if (!vma_filesz)
 		goto end_coredump;
 
@@ -2366,7 +2383,19 @@ end_coredump:
 cleanup:
 	free_note_info(&info);
 	kfree(shdr4extnum);
+
+#ifdef OPLUS_BUG_STABILITY
+/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
+* will alloc failed and the coredump can't format success 2019/01/14
+*/
+	if ((oppo_coredump_addr != NULL) && (vma_filesz == oppo_coredump_addr))
+		memset(oppo_coredump_addr, 0, PREALLOC_DUMPMEM_SIZE);
+	else
+		kfree(vma_filesz);
+#else
 	kfree(vma_filesz);
+#endif /* OPLUS_BUG_STABILITY end */
+
 	kfree(phdr4note);
 	kfree(elf);
 out:
@@ -2377,12 +2406,29 @@ out:
 
 static int __init init_elf_binfmt(void)
 {
+
+#ifdef OPLUS_BUG_STABILITY
+/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
+* will alloc failed and the coredump can't format success 2019/01/14
+*/
+	oppo_coredump_addr = kmalloc(PREALLOC_DUMPMEM_SIZE, GFP_KERNEL);;
+#endif /* OPLUS_BUG_STABILITY end */
+
 	register_binfmt(&elf_format);
 	return 0;
 }
 
 static void __exit exit_elf_binfmt(void)
 {
+
+#ifdef OPLUS_BUG_STABILITY
+/* yanghao@PSW.Kernel.stability add for the lowmomery or not have order 4 page size
+* will alloc failed and the coredump can't format success 2019/01/14
+*/
+	if(oppo_coredump_addr)
+		kfree(oppo_coredump_addr);
+#endif /* OPLUS_BUG_STABILITY end */
+
 	/* Remove the COFF and ELF loaders. */
 	unregister_binfmt(&elf_format);
 }

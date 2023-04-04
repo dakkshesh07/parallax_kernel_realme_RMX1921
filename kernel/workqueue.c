@@ -503,6 +503,9 @@ static inline void debug_work_deactivate(struct work_struct *work)
 
 void __init_work(struct work_struct *work, int onstack)
 {
+#ifdef OPLUS_FEATURE_UIFIRST
+	work->ux_work = 0;
+#endif
 	if (onstack)
 		debug_object_init_on_stack(work, &work_debug_descr);
 	else
@@ -1328,7 +1331,15 @@ static void insert_work(struct pool_workqueue *pwq, struct work_struct *work,
 
 	/* we own @work, set data and link */
 	set_work_pwq(work, pwq, extra_flags);
+#ifdef OPLUS_FEATURE_UIFIRST
+	if(is_uxwork(work)){
+		list_add(&work->entry, head);
+	}else{
+		list_add_tail(&work->entry, head);
+	}
+#else
 	list_add_tail(&work->entry, head);
+#endif
 	get_pwq(pwq);
 
 	/*
@@ -2050,6 +2061,9 @@ __acquires(&pool->lock)
 	bool cpu_intensive = pwq->wq->flags & WQ_CPU_INTENSIVE;
 	int work_color;
 	struct worker *collision;
+#ifdef OPLUS_FEATURE_UIFIRST
+	bool is_uxworker = false;
+#endif
 #ifdef CONFIG_LOCKDEP
 	/*
 	 * It is permissible to free the struct work_struct from
@@ -2119,8 +2133,18 @@ __acquires(&pool->lock)
 
 	lock_map_acquire_read(&pwq->wq->lockdep_map);
 	lock_map_acquire(&lockdep_map);
+#ifdef OPLUS_FEATURE_UIFIRST
+	if(is_uxwork(work)){
+		set_ux_worker_task(worker->task);
+		is_uxworker = true;
+	}
+#endif
 	trace_workqueue_execute_start(work);
 	worker->current_func(work);
+#ifdef OPLUS_FEATURE_UIFIRST
+	if(sysctl_uifirst_enabled && is_uxworker)
+		reset_ux_worker_task(worker->task);
+#endif
 	/*
 	 * While we must be careful to not use "work" after this, the trace
 	 * point will only record its address.

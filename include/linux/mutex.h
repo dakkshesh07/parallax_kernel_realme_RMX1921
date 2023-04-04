@@ -64,6 +64,9 @@ struct mutex {
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	struct lockdep_map	dep_map;
 #endif
+#ifdef OPLUS_FEATURE_UIFIRST
+	struct task_struct *ux_dep_task;
+#endif /* OPLUS_FEATURE_UIFIRST */
 };
 
 /*
@@ -77,6 +80,10 @@ struct mutex_waiter {
 	void			*magic;
 #endif
 };
+
+#ifdef OPLUS_FEATURE_UIFIRST
+#include <linux/uifirst/uifirst_sched_mutex.h>
+#endif /* OPLUS_FEATURE_UIFIRST */
 
 #ifdef CONFIG_DEBUG_MUTEXES
 # include <linux/mutex-debug.h>
@@ -106,12 +113,23 @@ static inline void mutex_destroy(struct mutex *lock) {}
 # define __DEP_MAP_MUTEX_INITIALIZER(lockname)
 #endif
 
+#ifndef OPLUS_FEATURE_UIFIRST
 #define __MUTEX_INITIALIZER(lockname) \
 		{ .count = ATOMIC_INIT(1) \
 		, .wait_lock = __SPIN_LOCK_UNLOCKED(lockname.wait_lock) \
 		, .wait_list = LIST_HEAD_INIT(lockname.wait_list) \
 		__DEBUG_MUTEX_INITIALIZER(lockname) \
 		__DEP_MAP_MUTEX_INITIALIZER(lockname) }
+#else /* OPLUS_FEATURE_UIFIRST */
+#define __MUTEX_INITIALIZER(lockname) \
+		{ .count = ATOMIC_INIT(1) \
+		, .wait_lock = __SPIN_LOCK_UNLOCKED(lockname.wait_lock) \
+		, .wait_list = LIST_HEAD_INIT(lockname.wait_list) \
+		, .ux_dep_task = NULL \
+		__DEBUG_MUTEX_INITIALIZER(lockname) \
+		__DEP_MAP_MUTEX_INITIALIZER(lockname) }
+#endif /* OPLUS_FEATURE_UIFIRST */
+
 
 #define DEFINE_MUTEX(mutexname) \
 	struct mutex mutexname = __MUTEX_INITIALIZER(mutexname)

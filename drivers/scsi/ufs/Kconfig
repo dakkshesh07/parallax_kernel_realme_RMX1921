@@ -126,3 +126,9 @@ config SCSI_UFSHCD_CMD_LOGGING
 
 	  Select this if you want above mentioned debug information captured.
 	  If unsure, say N.
+
+config OPLUS_FEATURE_PADL_STATISTICS
+	bool "Add padl monitoring node function"
+	default y
+	help
+		Add record and record_upload in /proc/ufs_signal_quality, counts the number of padl.

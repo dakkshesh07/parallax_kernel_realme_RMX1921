@@ -44,6 +44,7 @@
 #include <linux/hardirq.h>
 #include <linux/jiffies.h>
 #include <linux/workqueue.h>
+#include <linux/version.h>
 
 #include "internal.h"
 
@@ -592,6 +593,63 @@ static void pstore_console_write(struct console *con, const char *s, unsigned c)
 	}
 }
 
+#ifdef OPLUS_FEATURE_DUMPDEVICE
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+static void  pstore_console_init(void )
+{
+	size_t oldsize;
+	size_t size =0;
+	struct ramoops_context *cxt = NULL;
+	struct pstore_record record;
+
+	if (psinfo == NULL)
+		return;
+
+	cxt = psinfo->data;
+	size = cxt->console_size;
+
+	pstore_record_init(&record, psinfo);
+	record.type = PSTORE_TYPE_CONSOLE;
+	record.buf = psinfo->buf;
+	record.size = size;
+
+	oldsize = psinfo->bufsize;
+
+	if (size > psinfo->bufsize)
+		size = psinfo->bufsize;
+	memset(record.buf, ' ', size);
+
+	psinfo->write(&record);
+
+	psinfo->bufsize = oldsize ;
+}
+#else
+static void  pstore_console_init(void )
+{
+        size_t oldsize;
+        size_t size =0;
+        struct ramoops_context *cxt = NULL;
+	u64 id;
+
+        if (psinfo == NULL)
+                return;
+
+	cxt = psinfo->data;
+        size = cxt->console_size;
+
+	oldsize = psinfo->bufsize;
+
+        if (size > psinfo->bufsize)
+		size = psinfo->bufsize;
+
+	memset(psinfo->buf, ' ', size);
+
+	psinfo->write_buf(PSTORE_TYPE_CONSOLE, 0, &id, 0, psinfo->buf, 0, size, psinfo);
+
+	psinfo->bufsize = oldsize ;
+}
+#endif
+#endif
 static struct console pstore_console = {
 	.name	= "pstore",
 	.write	= pstore_console_write,
@@ -601,6 +659,10 @@ static struct console pstore_console = {
 
 static void pstore_register_console(void)
 {
+#ifdef OPLUS_FEATURE_DUMPDEVICE
+	/*pstore memset befor use*/
+	pstore_console_init();
+#endif
 	register_console(&pstore_console);
 }
 

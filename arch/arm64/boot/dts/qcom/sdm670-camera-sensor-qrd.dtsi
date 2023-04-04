@@ -66,7 +66,10 @@
 		regulator-max-microvolt = <1200000>;
 		regulator-enable-ramp-delay = <233>;
 		enable-active-high;
-		gpio = <&pm660l_gpios 4 0>;
+		/* #ifndef VENDOR_EDIT */
+		/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
+		//gpio = <&pm660l_gpios 4 0>;
+		/* #endif VENDOR_EDIT */
 		vin-supply = <&pm660_s6>;
 	};
 
@@ -102,7 +105,10 @@
 		regulator-max-microvolt = <1200000>;
 		regulator-enable-ramp-delay = <233>;
 		enable-active-high;
-		gpio = <&pm660l_gpios 3 0>;
+		/* #ifndef VENDOR_EDIT */
+		/* wenjie.Liu@PSW.CN.NFC.BASIC.Hardware.1084025,Delete for NFC use this gpio 2018/4/02*/
+		//gpio = <&pm660l_gpios 3 0>;
+		/* #endif VENDOR_EDIT */
 		vin-supply = <&pm660_s6>;
 	};
 };
