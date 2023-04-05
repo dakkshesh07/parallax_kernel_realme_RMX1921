@@ -78,7 +78,6 @@ OPLUS_FEATURE_DUMPDEVICE
 
 
 $(foreach myfeature,$(ALLOWED_MCROS),\
-         $(warning make $(myfeature) to be a macro here) \
          $(eval KBUILD_CFLAGS += -D$(myfeature)) \
          $(eval KBUILD_CPPFLAGS += -D$(myfeature)) \
          $(eval CFLAGS_KERNEL += -D$(myfeature)) \
