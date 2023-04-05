@@ -32,7 +32,14 @@
 
 #define MAX_NUM_IRQS 14
 #define NUM_IRQ_REGS 2
-#define WCD9XXX_SYSTEM_RESUME_TIMEOUT_MS 700
+//#ifndef OPLUS_ARCH_EXTENDS
+/* Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2017/03/30,
+ * Modify for headphone detect issue on suspend/resume.
+ */
+//#define WCD9XXX_SYSTEM_RESUME_TIMEOUT_MS 700
+//#else /* OPLUS_ARCH_EXTENDS */
+#define WCD9XXX_SYSTEM_RESUME_TIMEOUT_MS 2000
+//#endif /* OPLUS_ARCH_EXTENDS */
 
 #define BYTE_BIT_MASK(nr) (1UL << ((nr) % BITS_PER_BYTE))
 #define BIT_BYTE(nr) ((nr) / BITS_PER_BYTE)
@@ -179,14 +186,27 @@ static int get_irq_bit(int linux_irq)
 	return i;
 }
 
-static int get_order_irq(int  i)
+//#ifndef OPLUS_ARCH_EXTENDS
+/*Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2016/09/30,
+ *Delete for qcom patch to solve headset undetect issue
+ */
+/*static int get_order_irq(int  i)
 {
 	return order[i];
-}
+}*/
+//#endif /* OPLUS_ARCH_EXTENDS */
 
 static irqreturn_t wcd9xxx_spmi_irq_handler(int linux_irq, void *data)
 {
-	int irq, i, j;
+	//#ifndef OPLUS_ARCH_EXTENDS
+	/*Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2016/09/30,
+	 *Modify for qcom patch to solve headset undetect issue
+	 */
+	//int irq, i, j;
+	//#else /* OPLUS_ARCH_EXTENDS */
+	int irq = 0;
+	int i = 0;
+	//#endif /* OPLUS_ARCH_EXTENDS */
 	unsigned long status[NUM_IRQ_REGS] = {0};
 
 	if (unlikely(wcd9xxx_spmi_lock_sleep() == false)) {
@@ -205,7 +225,11 @@ static irqreturn_t wcd9xxx_spmi_irq_handler(int linux_irq, void *data)
 			MSM89XX_PMIC_DIGITAL_INT_LATCHED_STS);
 		status[i] &= ~map.mask[i];
 	}
-	for (i = 0; i < MAX_NUM_IRQS; i++) {
+	//#ifndef OPLUS_ARCH_EXTENDS
+	/*Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet, 2016/09/30,
+	 *Modify for qcom patch to solve headset undetect issue
+	 */
+	/*for (i = 0; i < MAX_NUM_IRQS; i++) {
 		j = get_order_irq(i);
 		if ((status[BIT_BYTE(j)] & BYTE_BIT_MASK(j)) &&
 			((map.handled[BIT_BYTE(j)] &
@@ -214,7 +238,10 @@ static irqreturn_t wcd9xxx_spmi_irq_handler(int linux_irq, void *data)
 			map.handled[BIT_BYTE(j)] |=
 					BYTE_BIT_MASK(j);
 		}
-	}
+	}*/
+	//#else /* OPLUS_ARCH_EXTENDS */
+	map.handler[irq](irq, data);
+	//#endif /* OPLUS_ARCH_EXTENDS */
 	map.handled[BIT_BYTE(irq)] &= ~BYTE_BIT_MASK(irq);
 	wcd9xxx_spmi_unlock_sleep();
 

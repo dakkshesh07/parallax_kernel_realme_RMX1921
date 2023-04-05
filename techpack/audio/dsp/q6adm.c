@@ -26,6 +26,7 @@
 #include <dsp/q6core.h>
 #include <dsp/audio_cal_utils.h>
 #include <ipc/apr.h>
+#include <dsp/q6common.h>
 #include "adsp_err.h"
 
 #define TIMEOUT_MS 1000
@@ -817,7 +818,12 @@ int adm_programable_channel_mixer(int port_id, int copp_idx, int session_id,
 	}
 	ret = adm_populate_channel_weight(&adm_pspd_params[index],
 					ch_mixer, channel_index);
+#ifndef OPLUS_ARCH_EXTENDS
+//Nan.Zhong@PSW.MM.AudioDriver.Codec, 2019/07/05, Modify for aec problem
 	if (ret) {
+#else /* OPLUS_ARCH_EXTENDS */
+    if (!ret) {
+#endif /* OPLUS_ARCH_EXTENDS */
 		pr_err("%s: fail to get channel weight with error %d\n",
 			__func__, ret);
 		goto fail_cmd;
@@ -871,6 +877,138 @@ fail_cmd:
 	return ret;
 }
 EXPORT_SYMBOL(adm_programable_channel_mixer);
+
+/*
+ * With pre-packed data, only the opcode differes from V5 and V6.
+ * Use q6common_pack_pp_params to pack the data correctly.
+ */
+int adm_set_pp_params(int port_id, int copp_idx,
+		      struct mem_mapping_hdr *mem_hdr, u8 *param_data,
+		      u32 param_size)
+{
+	struct adm_cmd_set_pp_params *adm_set_params = NULL;
+	int size = 0;
+	int port_idx = 0;
+	atomic_t *copp_stat = NULL;
+	int ret = 0;
+
+	port_id = afe_convert_virtual_to_portid(port_id);
+	port_idx = adm_validate_and_get_port_index(port_id);
+	if (port_idx < 0 || port_idx >= AFE_MAX_PORTS) {
+		pr_err("%s: Invalid port_idx 0x%x\n", __func__, port_idx);
+		return -EINVAL;
+	} else if (copp_idx < 0 || copp_idx >= MAX_COPPS_PER_PORT) {
+		pr_err("%s: Invalid copp_idx 0x%x\n", __func__, copp_idx);
+		return -EINVAL;
+	}
+
+	/* Only add params_size in inband case */
+	size = sizeof(struct adm_cmd_set_pp_params);
+	if (param_data != NULL)
+		size += param_size;
+	adm_set_params = kzalloc(size, GFP_KERNEL);
+	if (!adm_set_params)
+		return -ENOMEM;
+
+	adm_set_params->apr_hdr.hdr_field =
+		APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD, APR_HDR_LEN(APR_HDR_SIZE),
+			      APR_PKT_VER);
+	adm_set_params->apr_hdr.pkt_size = size;
+	adm_set_params->apr_hdr.src_svc = APR_SVC_ADM;
+	adm_set_params->apr_hdr.src_domain = APR_DOMAIN_APPS;
+	adm_set_params->apr_hdr.src_port = port_id;
+	adm_set_params->apr_hdr.dest_svc = APR_SVC_ADM;
+	adm_set_params->apr_hdr.dest_domain = APR_DOMAIN_ADSP;
+	adm_set_params->apr_hdr.dest_port =
+		atomic_read(&this_adm.copp.id[port_idx][copp_idx]);
+	adm_set_params->apr_hdr.token = port_idx << 16 | copp_idx;
+
+	if (q6common_is_instance_id_supported())
+		adm_set_params->apr_hdr.opcode = ADM_CMD_SET_PP_PARAMS_V6;
+	else
+		adm_set_params->apr_hdr.opcode = ADM_CMD_SET_PP_PARAMS_V5;
+
+	adm_set_params->payload_size = param_size;
+
+	if (mem_hdr != NULL) {
+		/* Out of Band Case */
+		adm_set_params->mem_hdr = *mem_hdr;
+	} else if (param_data != NULL) {
+		/*
+		 * In band case. Parameter data must be pre-packed with its
+		 * header before calling this function. Use
+		 * q6common_pack_pp_params to pack parameter data and header
+		 * correctly.
+		 */
+		memcpy(&adm_set_params->param_data, param_data, param_size);
+	} else {
+		pr_err("%s: Received NULL pointers for both memory header and param data\n",
+		       __func__);
+		ret = -EINVAL;
+		goto done;
+	}
+
+	copp_stat = &this_adm.copp.stat[port_idx][copp_idx];
+	atomic_set(copp_stat, -1);
+	ret = apr_send_pkt(this_adm.apr, (uint32_t *) adm_set_params);
+	if (ret < 0) {
+		pr_err("%s: Set params APR send failed port = 0x%x ret %d\n",
+		       __func__, port_id, ret);
+		goto done;
+	}
+	ret = wait_event_timeout(this_adm.copp.wait[port_idx][copp_idx],
+				 atomic_read(copp_stat) >= 0,
+				 msecs_to_jiffies(TIMEOUT_MS));
+	if (!ret) {
+		pr_err("%s: Set params timed out port = 0x%x\n", __func__,
+		       port_id);
+		ret = -ETIMEDOUT;
+		goto done;
+	}
+	if (atomic_read(copp_stat) > 0) {
+		pr_err("%s: DSP returned error[%s]\n", __func__,
+		       adsp_err_get_err_str(atomic_read(copp_stat)));
+		ret = adsp_err_get_lnx_err_code(atomic_read(copp_stat));
+		goto done;
+	}
+
+	ret = 0;
+done:
+	kfree(adm_set_params);
+	return ret;
+}
+EXPORT_SYMBOL(adm_set_pp_params);
+
+int adm_pack_and_set_one_pp_param(int port_id, int copp_idx,
+				  struct param_hdr_v3 param_hdr, u8 *param_data)
+{
+	u8 *packed_data = NULL;
+	u32 total_size = 0;
+	int ret = 0;
+
+	total_size = sizeof(union param_hdrs) + param_hdr.param_size;
+	packed_data = kzalloc(total_size, GFP_KERNEL);
+	if (!packed_data)
+		return -ENOMEM;
+
+	ret = q6common_pack_pp_params(packed_data, &param_hdr, param_data,
+				      &total_size);
+	if (ret) {
+		pr_err("%s: Failed to pack parameter data, error %d\n",
+		       __func__, ret);
+		goto done;
+	}
+
+	ret = adm_set_pp_params(port_id, copp_idx, NULL, packed_data,
+				total_size);
+	if (ret)
+		pr_err("%s: Failed to set parameter data, error %d\n", __func__,
+		       ret);
+done:
+	kfree(packed_data);
+	return ret;
+}
+EXPORT_SYMBOL(adm_pack_and_set_one_pp_param);
 
 /**
  * adm_set_stereo_to_custom_stereo -
@@ -2956,6 +3094,21 @@ static int adm_arrange_mch_ep2_map_v8(
  *
  * Returns 0 on success or error on failure
  */
+
+#ifdef OPLUS_FEATURE_KTV
+/*Haoyun.luo@MULTIMEDIA.AUDIODRIVER.FEATURE, 2021/04/06,
+*Add for KTV 2.0 not support sample_rate issue.
+*/
+#define AUDIO_TOPOLOGY_KTV    0x10001080
+#endif /* OPLUS_FEATURE_KTV */
+
+#ifdef OPLUS_ARCH_EXTENDS
+/*Jianfeng.Qiu@PSW.MM.AudioDriver.Platform.1859584, 2019/02/27,
+ *Add for fix lvimfq not support sample_rate issue.
+ */
+#define VOICE_TOPOLOGY_LVIMFQ_TX_DM    0x1000BFF5
+#endif /* OPLUS_ARCH_EXTENDS */
+
 int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 	     int perf_mode, uint16_t bit_width, int app_type, int acdb_id,
 	     int session_type)
@@ -3030,6 +3183,30 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 	    (topology == VPM_TX_DM_FLUENCE_COPP_TOPOLOGY) ||
 	    (topology == VPM_TX_DM_RFECNS_COPP_TOPOLOGY))
 		rate = 16000;
+
+#ifdef OPLUS_FEATURE_KTV
+/*Haoyun.luo@MULTIMEDIA.AUDIODRIVER.FEATURE, 2021/04/06,
+*Add for for KTV 2.0 not support sample_rate issue.
+*/
+     if ((topology == AUDIO_TOPOLOGY_KTV)
+             && (rate != ADM_CMD_COPP_OPEN_SAMPLE_RATE_48K)) {
+             pr_info("%s: Change rate %d to 48K for copp 0x%x",
+                       __func__, rate, topology);
+             rate = 48000;
+     }
+#endif /* OPLUS_FEATURE_KTV */
+
+	#ifdef OPLUS_ARCH_EXTENDS
+	/*Jianfeng.Qiu@PSW.MM.AudioDriver.Platform.1859584, 2019/02/27,
+	 *Add for fix lvimfq not support sample_rate issue.
+	 */
+	if ((topology == VOICE_TOPOLOGY_LVIMFQ_TX_DM)
+		&& (rate != ADM_CMD_COPP_OPEN_SAMPLE_RATE_48K)) {
+		pr_info("%s: Change rate %d to 48K for copp 0x%x",
+			__func__, rate, topology);
+		rate = 48000;
+	}
+	#endif /* OPLUS_ARCH_EXTENDS */
 
 	/*
 	 * Routing driver reuses the same adm for streams with the same
@@ -4396,6 +4573,54 @@ fail_cmd:
 }
 EXPORT_SYMBOL(adm_set_volume);
 
+#ifdef OPLUS_FEATURE_KTV
+// Haoyun.luo@MULTIMEDIA.AUDIODRIVER.FEATURE, 2021/04/06, Add for ktv2.0
+int  adm_set_reverb_param(int port_id, int copp_idx, int32_t* params)
+{
+	struct audproc_revert_param audproc_param;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s, portid %d, copp idx %d\n", __func__, port_id, copp_idx);
+
+	memset(&audproc_param, 0, sizeof(audproc_param));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = 0x10001081;
+	param_hdr.instance_id = 0x8000;
+	param_hdr.param_id = 0x10001082;
+	param_hdr.param_size = sizeof(audproc_param);
+
+	audproc_param.mode = params[0];
+	audproc_param.volume = params[1];
+	audproc_param.peg = params[2];
+	audproc_param.pitchange = params[3];
+	audproc_param.reverbparam= params[4];
+	audproc_param.enabled= params[5];
+	audproc_param.reverved0 = params[6];
+	audproc_param.reverved1 = params[7];
+	audproc_param.reverved2 = params[8];
+	audproc_param.reverved3 = params[9];
+	audproc_param.reverved4 = params[10];
+	audproc_param.reverved5 = params[11];
+	audproc_param.reverved6 = params[12];
+	audproc_param.reverved7 = params[13];
+	audproc_param.reverved8 = params[14];
+	audproc_param.reverved9 = params[15];
+	audproc_param.reverved10 = params[16];
+	audproc_param.reverved11 = params[17];
+	audproc_param.reverved12 = params[18];
+	audproc_param.reverved13 = params[19];
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_param);
+	if (rc)
+		pr_err("%s: Failed to set volume, err %d\n", __func__, rc);
+
+	return rc;
+}
+
+EXPORT_SYMBOL(adm_set_reverb_param);
+#endif /* OPLUS_FEATURE_KTV */
 /**
  * adm_set_softvolume -
  *        command to set softvolume

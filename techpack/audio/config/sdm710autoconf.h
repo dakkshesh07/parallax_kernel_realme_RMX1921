@@ -61,3 +61,20 @@
 #define CONFIG_SND_SOC_DIGITAL_CDC 1
 #define CONFIG_SND_SOC_MSM_SDW 1
 #define CONFIG_SND_SOC_MSM_HDMI_CODEC_RX 1
+
+//ifdef OPLUS_ARCH_EXTENDS
+//Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2018/04/20, Add for tfa9894 codec
+#define CONFIG_SND_SOC_TFA98XX 1
+//endif
+
+//#ifdef OPLUS_ARCH_EXTENDS
+/*Jianfeng.Qiu@PSW.MM.AudioDriver.Codec, 2018/04/20, Add for ak43xx codec*/
+#define CONFIG_SND_SOC_AK4376 1
+//#endif
+#ifdef OPLUS_ARCH_EXTENDS
+/*xiang.fei@MULTIMEDIA.AudioDriver.Codec, 2018/10/29, Add for dbmdx*/
+#define CONFIG_SND_SOC_DBMDX 1
+#define CONFIG_SND_SOC_DBMDX_MODULE 1
+#define CONFIG_SND_SOC_DBMDX_SND_CAPTURE 1
+#define CONFIG_SND_SOC_DBMD4_SPI 1
+#endif /* OPLUS_ARCH_EXTENDS */
