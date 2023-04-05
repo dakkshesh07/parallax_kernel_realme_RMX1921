@@ -10,9 +10,6 @@
 
 struct net;
 
-//#ifdef OPLUS_FEATURE_NWPOWER
-#define NETLINK_OPLUS_NWPOWERSTATE	36	/*OPLUS NW PowerState*/
-//#endif /* OPLUS_FEATURE_NWPOWER */
 #define NETLINK_MAX_COOKIE_LEN	20
 struct netlink_ext_ack {
 	const char *_msg;

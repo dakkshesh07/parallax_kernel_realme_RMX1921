@@ -68,7 +68,7 @@ extern void mt_power_off(void);
 
 #include "../oplus_vooc.h"
 #include "../oplus_gauge.h"
-#include <oplus_da9313.h>
+#include "oplus_da9313.h"
 #include <linux/proc_fs.h>
 
 static struct chip_da9313 *the_chip = NULL;

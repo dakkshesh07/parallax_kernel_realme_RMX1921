@@ -1040,11 +1040,6 @@ struct posix_acl;
 struct posix_acl *fuse_get_acl(struct inode *inode, int type);
 int fuse_set_acl(struct inode *inode, struct posix_acl *acl, int type);
 
-#ifdef CONFIG_OPLUS_FEATURE_ACM
-void acm_fuse_init_cache(void);
-void acm_fuse_free_cache(void);
-#endif
-
 #ifdef CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT
 extern int sct_mode;
 #endif /* CONFIG_OPLUS_FEATURE_FUSE_FS_SHORTCIRCUIT */

@@ -820,18 +820,6 @@ config ARCH_NO_COHERENT_DMA_MMAP
 
 #Used to projects without OplusKernelEnvConfig.mk.
 
-config OPLUS_MOUNT_BLOCK
-	def_bool y
-
-config OPLUS_EXECVE_BLOCK
-	def_bool y
-
-config OPLUS_KEVENT_UPLOAD
-	def_bool y
-
-config OPLUS_SECURE_GUARD
-	def_bool y
-
 config CPU_NO_EFFICIENT_FFS
 	def_bool n
 

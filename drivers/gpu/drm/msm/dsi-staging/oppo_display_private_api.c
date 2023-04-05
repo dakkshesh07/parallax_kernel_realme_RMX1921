@@ -20,7 +20,6 @@
 #include <linux/msm_drm_notify.h>
 #include <linux/notifier.h>
 #include <soc/oplus/system/oppo_project.h>
-#include <linux/oppo_mm_kevent_fb.h>
 #include <soc/oppo/device_info.h>
 extern int msm_drm_notifier_call_chain(unsigned long val, void *v);
 

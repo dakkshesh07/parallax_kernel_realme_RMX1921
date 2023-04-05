@@ -83,9 +83,7 @@
 
 #include <crypto/hash.h>
 #include <linux/scatterlist.h>
-//#ifdef OPLUS_FEATURE_NWPOWER
-#include <net/oplus_nwpower.h>
-//#endif /* OPLUS_FEATURE_NWPOWER */
+
 int sysctl_tcp_tw_reuse __read_mostly;
 int sysctl_tcp_low_latency __read_mostly;
 
@@ -1672,10 +1670,6 @@ lookup:
 	if (!sk)
 		goto no_tcp_socket;
 
-	//#ifdef OPLUS_FEATURE_NWPOWER
-	oplus_match_ipa_tcp_wakeup(OPLUS_TCP_TYPE_V4, sk);
-	//#endif /* OPLUS_FEATURE_NWPOWER */
-
 process:
 	if (sk->sk_state == TCP_TIME_WAIT)
 		goto do_time_wait;
@@ -1778,9 +1772,6 @@ bad_packet:
 	}
 
 discard_it:
-	//#ifdef OPLUS_FEATURE_NWPOWER
-	oplus_ipa_schedule_work();
-	//#endif /* OPLUS_FEATURE_NWPOWER */
 	/* Discard frame. */
 	kfree_skb(skb);
 	return 0;

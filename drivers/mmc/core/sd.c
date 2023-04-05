@@ -26,45 +26,6 @@
 #include "mmc_ops.h"
 #include "sd.h"
 #include "sd_ops.h"
-#ifdef VENDOR_EDIT
-struct menfinfo {
-	unsigned int manfid;
-	char *manfstring;
-};
-
-struct menfinfo manufacturers[] = {
-	{0x41, "KINGSTONE"},
-	{0x1b, "SAMSUNG"},
-	{0x03, "SANDISK"},
-	{0x02, "TOSHIBA"}
-};
-#define MANFINFS_SIZE (sizeof(manufacturers)/sizeof(struct menfinfo))
-
-const char *string_class[] = {
-	"Class 0",
-	"Class 2",
-	"Class 4",
-	"Class 6",
-	"Class 10"
-};
-#define CLASS_TYPE_SIZE (sizeof(string_class)/sizeof(const char*))
-
-struct card_blk_data {
-	spinlock_t	lock;
-	struct gendisk	*disk;
-};
-
-#define STR_OTHER	"other"
-#define STR_UNKNOW	"unknown"
-#define STR_TYPE_SDXC	"SDXC"
-#define STR_TYPE_SDHC	"SDHC"
-#define STR_TYPE_SD	"SD"
-
-#define STR_SPEED_UHS	"ultra high speed "
-#define STR_SPEED_HS	"high speed "
-
-#endif
-
 
 #define UHS_SDR104_MIN_DTR	(100 * 1000 * 1000)
 #define UHS_DDR50_MIN_DTR	(50 * 1000 * 1000)
@@ -137,10 +98,6 @@ void mmc_decode_cid(struct mmc_card *card)
 	card->cid.month			= UNSTUFF_BITS(resp, 8, 4);
 
 	card->cid.year += 2000; /* SD cards year offset */
-	
-#ifdef VENDOR_EDIT
-	pr_info("name:%s,manfid:%x,oemid:%x\n", card->cid.prod_name, card->cid.manfid, card->cid.oemid);
-#endif
 }
 
 /*

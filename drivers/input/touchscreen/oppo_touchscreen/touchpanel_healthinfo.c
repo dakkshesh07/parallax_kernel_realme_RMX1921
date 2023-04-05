@@ -19,9 +19,6 @@
 
 #include "touchpanel_common.h"
 #include "touchpanel_prevention.h"
-#ifdef CONFIG_OPLUS_FEATURE_FEEDBACK
-#include <soc/oplus/system/kernel_fb.h>
-#endif /* CONFIG_OPLUS_FEATURE_FEEDBACK */
 
 #define TPD_DEVICE "touchpanel"
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
@@ -36,27 +33,6 @@
         if (LEVEL_BASIC != tp_debug)\
             pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
     }while(0)
-
-#ifdef CONFIG_OPLUS_FEATURE_FEEDBACK
-static DEFINE_MUTEX(touchpanel_kevent_lock);
-
-int upload_touchpanel_kevent_data(unsigned char *payload)
-{
-    mutex_lock(&touchpanel_kevent_lock);
-
-    oplus_kevent_fb(FB_TP, KEVENT_EVENT_ID, payload);
-    TPD_DETAIL("%s Proactively report to user:%s\n", payload);
-
-    mutex_unlock(&touchpanel_kevent_lock);
-
-    return 0;
-}
-#else
-int upload_touchpanel_kevent_data(unsigned char *payload)
-{
-    return 0;
-}
-#endif /* CONFIG_OPLUS_FEATURE_FEEDBACK */
 
 void reset_healthinfo_time_counter(u64 *time_counter)
 {
@@ -735,16 +711,6 @@ int tp_touch_healthinfo_handle(struct monitor_data_v2 *monitor_data, int obj_att
                         TPD_DETAIL("lanscape stuck point:[%d %d]\n", points[i].x, points[i].y);
                     }
                     catch_delta_data(monitor_data, monitor_data->stuck_point_delta_data);//coordinate not change over 15s, catch delta data
-                    /*
-                    report = kzalloc(DEFAULT_REPORT_STR_LEN, GFP_KERNEL);
-                    if (report) {
-                        snprintf(report, DEFAULT_REPORT_STR_LEN, "StuckPoint$$Count@@%d$$Coor@@[%d %d]", monitor_data->stuck_points.count, points[i].x, points[i].y);
-                        upload_touchpanel_kevent_data(report);
-                        kfree(report);
-                    } else {
-                        TPD_INFO("alloc report kzalloc failed.\n");
-                    }
-                    */
                     monitor_data->points_state[i].is_down_handled = true;
                 }
                 if (!monitor_data->kernel_grip_support) {
@@ -1113,7 +1079,6 @@ int tp_bus_err_healthinfo_handle(struct monitor_data_v2 *monitor_data, int errno
         report = kzalloc(DEFAULT_REPORT_STR_LEN + strlen(buff_part) + 1, GFP_KERNEL);
         if (report) {
             snprintf(report, DEFAULT_REPORT_STR_LEN, "BusErr$$Errno@@%d$$Buff@@%s", errno, buff_part);
-            upload_touchpanel_kevent_data(report);
             kfree(report);
         } else {
             TPD_INFO("alloc report kzalloc failed.\n");
@@ -1170,7 +1135,6 @@ int tp_alloc_healthinfo_handle(struct monitor_data_v2 *monitor_data, long alloc_
         if (report) {
             TPD_INFO("%pS alloc %ld failed\n", (void *)frame.pc, alloc_size);
             snprintf(report, DEFAULT_REPORT_STR_LEN, "AllocErr$$Func@@%pS$$Size@@%ld", (void *)frame.pc, alloc_size);
-            upload_touchpanel_kevent_data(report);
 
             func = kzalloc(DEFAULT_REPORT_STR_LEN, GFP_KERNEL);
             if (func) {
@@ -1204,7 +1168,6 @@ int tp_fw_update_healthinfo_handle(struct monitor_data_v2 *monitor_data, char *r
         report = kzalloc(DEFAULT_REPORT_STR_LEN, GFP_KERNEL);
         if (report) {
             snprintf(report, DEFAULT_REPORT_STR_LEN, "FwUpdateErr$$ErrMsg@@%s", result);
-            upload_touchpanel_kevent_data(report);
             kfree(report);
         }
     }

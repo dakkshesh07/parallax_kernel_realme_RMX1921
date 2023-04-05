@@ -29,8 +29,6 @@ static void *seq_buf_alloc(unsigned long size)
 	if (unlikely(size > MAX_RW_COUNT))
 		return NULL;
 
-#ifndef VENDOR_EDIT
-/*huacai.zhou@PSW.BSP.Kernel.MM 2018/07/18 optimize for high order alloc
 	gfp_t gfp = GFP_KERNEL;
 
 	if (unlikely(size > MAX_RW_COUNT))
@@ -48,13 +46,6 @@ static void *seq_buf_alloc(unsigned long size)
 	if (!buf && size > PAGE_SIZE)
 		buf = vmalloc(size);
 	return buf;
-#else
-	if (size > PAGE_SIZE)
-		buf = vmalloc(size);
-	else
-		buf = kmalloc(size, GFP_KERNEL | __GFP_NOWARN);
-	return buf;
-#endif
 }
 
 /**

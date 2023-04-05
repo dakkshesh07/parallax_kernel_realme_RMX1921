@@ -1206,9 +1206,6 @@ static int fuse_fill_super(struct super_block *sb, void *data, int silent)
 	fput(file);
 
 	fuse_send_init(fc, init_req);
-#ifdef CONFIG_OPLUS_FEATURE_ACM
-	acm_fuse_init_cache();
-#endif
 
 	return 0;
 
@@ -1242,9 +1239,6 @@ static void fuse_sb_destroy(struct super_block *sb)
 	struct fuse_conn *fc = get_fuse_conn_super(sb);
 
 	if (fc) {
-#ifdef CONFIG_OPLUS_FEATURE_ACM
-		acm_fuse_free_cache();
-#endif
 		fuse_send_destroy(fc);
 
 		fuse_abort_conn(fc);

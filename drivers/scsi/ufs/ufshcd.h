@@ -72,9 +72,6 @@
 #include <linux/fault-inject.h>
 #include "ufs.h"
 #include "ufshci.h"
-#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
-#include "ufs_signal_quality.h"
-#endif
 
 #define UFSHCD "ufshcd"
 #define UFSHCD_DRIVER_VERSION "0.3"
@@ -1003,9 +1000,6 @@ struct ufs_hba {
 	struct io_latency_state io_lat_write;
 	struct ufs_desc_size desc_size;
 	bool restore_needed;
-#if defined(CONFIG_OPLUS_FEATURE_PADL_STATISTICS)
-	struct unipro_signal_quality_ctrl signalCtrl;
-#endif
 };
 
 static inline void ufshcd_mark_shutdown_ongoing(struct ufs_hba *hba)

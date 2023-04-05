@@ -1764,93 +1764,8 @@ static void msm_pinctrl_setup_pm_reset(struct msm_pinctrl *pctrl)
 }
 
 #ifdef CONFIG_PM
-#ifdef VENDOR_EDIT
-static unsigned short enable_gpio_debug = 0;
-
-static ssize_t gpio_debug_show(struct kobject *kobj, struct kobj_attribute *attr,
-                        char *buf)
-{
-	return sprintf(buf, "%hu\n", enable_gpio_debug);
-}
-
-static ssize_t gpio_debug_store(struct kobject *kobj, struct kobj_attribute *attr,
-                         const char * buf, size_t n)
-{
-	unsigned short value;
-	if (sscanf(buf, "%hu", &value) != 1 ||
-	   (value != 0 && value != 1)){
-		pr_err("gpio_debug_store: Invalid value\n");
-		return -EINVAL;
-	}
-	enable_gpio_debug = value;
-	return n;
-}
-
-static struct kobj_attribute gpio_debug_attr =
-       __ATTR(sleep_gpio_debug, 0644, gpio_debug_show, gpio_debug_store);
-
-static void msm_gpio_debug(void)
-{
-	const struct msm_pingroup *g;
-	struct msm_pinctrl *pctrl = msm_pinctrl_data;
-	struct gpio_chip *chip = &pctrl->chip;
-	unsigned func;
-	int is_out;
-	int drive;
-	int pull;
-	u32 ctl_reg;
-	int in_value;
-	int out_value;
-	int intr_enable;
-	int intr_polarity;
-	int intr_detection;
-	u32 io_reg;
-	u32 intr_cfg_reg;
-	int i = 0;
-
-	static const char * const pulls[] = {
-		"no pull",
-		"pull down",
-		"keeper",
-		"pull up"
-	};
-
-	for (i = 0; i < chip->ngpio; i++) {
-		if (!gpio_check_is_valid(i))
-			continue;
-		g = &pctrl->soc->groups[i];
-		ctl_reg = readl(pctrl->regs + g->ctl_reg);
-
-		is_out = !!(ctl_reg & BIT(g->oe_bit));
-		func = (ctl_reg >> g->mux_bit) & 7;
-		drive = (ctl_reg >> g->drv_bit) & 7;
-		pull = (ctl_reg >> g->pull_bit) & 3;
-
-		io_reg = readl(pctrl->regs + g->io_reg);
-		intr_cfg_reg = readl(pctrl->regs + g->intr_cfg_reg);
-
-		in_value = !!(io_reg & BIT(g->in_bit));
-		out_value = !!(io_reg & BIT(g->out_bit));
-		intr_enable = (intr_cfg_reg >> g->intr_enable_bit) & 1;
-		intr_polarity = (intr_cfg_reg >> g->intr_polarity_bit) & 1;
-		intr_detection = (intr_cfg_reg >> g->intr_detection_bit) & 3;
-
-		pr_info(" %-8s: %d %s(%-4s) %dmA %-9s %-11s %s%s", g->name, func,
-			is_out ? "out" : "in",
-			is_out ? values[out_value] : values[in_value],
-			msm_regval_to_drive(drive),
-			pulls[pull],
-			intr_enables[intr_enable],
-			intr_polaritys[intr_polarity], intr_detections[intr_detection]);
-	}
-}
-#endif
 static int msm_pinctrl_suspend(void)
 {
-#ifdef VENDOR_EDIT
-	if (enable_gpio_debug)
-		msm_gpio_debug();
-#endif
 	return 0;
 }
 
@@ -1957,13 +1872,6 @@ int msm_pinctrl_probe(struct platform_device *pdev,
 
 	register_syscore_ops(&msm_pinctrl_pm_ops);
 	dev_dbg(&pdev->dev, "Probed Qualcomm pinctrl driver\n");
-#ifdef VENDOR_EDIT
-	ret = sysfs_create_file(power_kobj, &gpio_debug_attr.attr);
-	if (ret) {
-		pr_err("sysfs_create_file gpio debug failed: %d\n", ret);
-		return ret;
-	}
-#endif
 
 	return 0;
 }

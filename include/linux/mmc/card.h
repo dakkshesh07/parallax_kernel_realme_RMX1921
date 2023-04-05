@@ -159,9 +159,6 @@ struct sd_ssr {
 	unsigned int		au;			/* In sectors */
 	unsigned int		erase_timeout;		/* In milliseconds */
 	unsigned int		erase_offset;		/* In milliseconds */
-#ifdef VENDOR_EDIT
-	unsigned int		speed_class;		/* speed_class */
-#endif
 
 };
 

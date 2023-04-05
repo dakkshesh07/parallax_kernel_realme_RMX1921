@@ -139,14 +139,6 @@ int main(void)
   DEFINE(TRAMP_VALIAS,		TRAMP_VALIAS);
 #endif
 
-#ifdef CONFIG_OPLUS_SECURE_GUARD
-#ifdef CONFIG_THREAD_INFO_IN_TASK
-  DEFINE(PROOT_THREAD_ADDR_LIMIT,	offsetof(struct task_struct, thread_info.addr_limit));
-#else
-  DEFINE(PROOT_THREAD_TSK,	offsetof(struct thread_info,task));
-  DEFINE(PROOT_THREAD_ADDR_LIMIT,	offsetof(struct thread_info, addr_limit));
-#endif
-#endif /* CONFIG_OPLUS_SECURE_GUARD */
 #ifdef CONFIG_ARM_SDE_INTERFACE
   DEFINE(SDEI_EVENT_INTREGS,	offsetof(struct sdei_registered_event, interrupted_regs));
   DEFINE(SDEI_EVENT_PRIORITY,	offsetof(struct sdei_registered_event, priority));
