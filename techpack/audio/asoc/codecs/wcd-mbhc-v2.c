@@ -577,14 +577,6 @@ void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 				enum snd_jack_types jack_type)
 {
 	struct snd_soc_codec *codec = mbhc->codec;
-	//#ifndef OPLUS_ARCH_EXTENDS
-	/*Jianfeng.Qiu@PSW.MM.AudioDriver.HeadsetDet.1379744, 2018/05/13,
-	 *Delete for headphone detect.
-	 */
-	bool is_pa_on = false;
-	u8 fsm_en = 0;
-	//#endif /* OPLUS_ARCH_EXTENDS */
-
 	WCD_MBHC_RSC_ASSERT_LOCKED(mbhc);
 
 	pr_debug("%s: enter insertion %d hph_status %x\n",
