@@ -2792,10 +2792,6 @@ static void tfa98xx_container_loaded(const struct firmware *cont, void *context)
 
 static int tfa98xx_load_container(struct tfa98xx *tfa98xx)
 {
-#ifdef OPLUS_ARCH_EXTENDS
-/*Kaiqin.Huang@RM.MM.AudioDriver.SmartPA, 2019/10/03, Add for sharing software image*/
-    unsigned int prj = get_project();
-#endif /* OPLUS_ARCH_EXTENDS */
 
     tfa98xx->dsp_fw_state = TFA98XX_DSP_FW_PENDING;
 
