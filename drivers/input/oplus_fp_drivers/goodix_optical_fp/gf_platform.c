@@ -82,10 +82,7 @@ static int vreg_setup(struct gf_dev *goodix_fp, fp_power_info_t *pwr_info,
 
 void gf_cleanup_pwr_list(struct gf_dev* gf_dev) {
     unsigned index = 0;
-    int ret = 0;
     int vdd_flag = 0;
-    struct device *dev = &gf_dev->spi->dev;
-    struct device_node *np = dev->of_node;
     pr_err("%s cleanup", __func__);
     for (index = 0; index < gf_dev->power_num; index++) {
         if (gf_dev->pwr_list[index].pwr_type == FP_POWER_MODE_GPIO) {
