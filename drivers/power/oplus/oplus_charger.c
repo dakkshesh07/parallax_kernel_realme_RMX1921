@@ -1228,7 +1228,6 @@ static int init_charger_proc(struct oplus_chg_chip *chip)
 {
 	int ret = 0;
 	struct proc_dir_entry *prEntry_da = NULL;
-	struct proc_dir_entry *prEntry_tmp = NULL;
 
 	prEntry_da = proc_mkdir("charger", NULL);
 	if (prEntry_da == NULL) {
