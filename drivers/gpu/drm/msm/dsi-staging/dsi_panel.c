@@ -2695,7 +2695,6 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel,
 {
 	int rc = 0;
 	const char *bl_type;
-	const char *data;
 	u32 val = 0;
 
 	bl_type = of_get_property(of_node,
