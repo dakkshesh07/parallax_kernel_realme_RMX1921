@@ -134,7 +134,7 @@ static void  pstore_device_info_init(void)
 }
 #endif
 
-static void board_soc_info_init()
+static void board_soc_info_init(void)
 {
 
         scnprintf(pcb_version, sizeof(pcb_version), "%x", get_PCB_Version()); 
