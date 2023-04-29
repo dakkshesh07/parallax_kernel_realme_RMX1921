@@ -440,8 +440,8 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
     TPD_INFO("detect %s gesture\n", gesture_info_temp.gesture_type == DouTap ? "double tap" :
              gesture_info_temp.gesture_type == UpVee ? "up vee" :
              gesture_info_temp.gesture_type == DownVee ? "down vee" :
-             gesture_info_temp.gesture_type == LeftVee ? "(<)" :
-             gesture_info_temp.gesture_type == RightVee ? "(>)" :
+             gesture_info_temp.gesture_type == LeftVee ? "(>)" :
+             gesture_info_temp.gesture_type == RightVee ? "(<)" :
              gesture_info_temp.gesture_type == Circle ? "circle" :
              gesture_info_temp.gesture_type == DouSwip ? "(||)" :
              gesture_info_temp.gesture_type == Left2RightSwip ? "(-->)" :
@@ -462,19 +462,19 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
 			break;
 		case UpVee:
 		        enabled = gesture_enable;
-			key = KEY_GESTURE_DOWN_ARROW;
+			key = KEY_GESTURE_UP_ARROW;
 			break;
 		case DownVee:
                         enabled = gesture_enable;
-			key = KEY_GESTURE_UP_ARROW;
+			key = KEY_GESTURE_DOWN_ARROW;
 			break;
 		case LeftVee:
                         enabled = gesture_enable;
-			key = KEY_GESTURE_RIGHT_ARROW;
+			key = KEY_GESTURE_LEFT_ARROW;
 			break;
 		case RightVee:
                         enabled = gesture_enable;
-			key = KEY_GESTURE_LEFT_ARROW;
+			key = KEY_GESTURE_RIGHT_ARROW;
 			break;
 		case Circle:
                         enabled = gesture_enable;
@@ -486,19 +486,19 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
 			break;
 		case Left2RightSwip:
                         enabled = gesture_enable ;
-			key = KEY_GESTURE_SWIPE_RIGHT;
+			key = KEY_GESTURE_SWIPE_LEFT;
 			break;
 		case Right2LeftSwip:
                         enabled = gesture_enable ;
-			key = KEY_GESTURE_SWIPE_LEFT;
+			key = KEY_GESTURE_SWIPE_RIGHT;
 			break;
 		case Up2DownSwip:
                         enabled = gesture_enable;
-			key = KEY_GESTURE_SWIPE_DOWN;
+			key = KEY_GESTURE_SWIPE_UP;
 			break;
 		case Down2UpSwip:
                         enabled = gesture_enable;
-			key = KEY_GESTURE_SWIPE_UP;
+			key = KEY_GESTURE_SWIPE_DOWN;
 			break;
 		case Mgestrue:
                         enabled = gesture_enable;
