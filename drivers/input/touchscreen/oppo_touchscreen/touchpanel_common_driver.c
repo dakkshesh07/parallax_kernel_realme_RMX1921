@@ -1623,68 +1623,6 @@ void switch_headset_state(int headset_state)
 }
 EXPORT_SYMBOL(switch_headset_state);
 
-/*
- *    gesture_enable = 0 : disable gesture
- *    gesture_enable = 1 : enable gesture when ps is far away
- *    gesture_enable = 2 : disable gesture when ps is near
- *    gesture_enable = 3 : enable single tap gesture when ps is far away
- */
-static ssize_t proc_gesture_control_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-{
-    int value = 0;
-    char buf[4] = {0};
-    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
-
-    if (count > 2)
-        return count;
-    if (!ts)
-        return count;
-
-    if (copy_from_user(buf, buffer, count)) {
-        TPD_INFO("%s: read proc input error.\n", __func__);
-        return count;
-    }
-    sscanf(buf, "%d", &value);
-    if (value > 3 || (ts->gesture_test_support && ts->gesture_test.flag))
-        return count;
-
-    mutex_lock(&ts->mutex);
-    if (ts->gesture_enable != value) {
-        ts->gesture_enable = value;
-        TPD_INFO("%s: gesture_enable = %d, is_suspended = %d\n", __func__, ts->gesture_enable, ts->is_suspended);
-        if (ts->is_incell_panel && (ts->suspend_state == TP_RESUME_EARLY_EVENT || ts->disable_gesture_ctrl) && (ts->tp_resume_order == LCD_TP_RESUME)) {
-            TPD_INFO("tp will resume, no need mode_switch in incell panel\n"); /*avoid i2c error or tp rst pulled down in lcd resume*/
-        } else if (ts->is_suspended) {
-            if (ts->fingerprint_underscreen_support && ts->fp_enable && ts->ts_ops->enable_gesture_mask) {
-                ts->ts_ops->enable_gesture_mask(ts->chip_data, (ts->gesture_enable & 0x01) == 1);
-            } else {
-                operate_mode_switch(ts);
-            }
-        }
-    } else {
-        TPD_INFO("%s: do not do same operator :%d\n", __func__, value);
-    }
-    mutex_unlock(&ts->mutex);
-
-    return count;
-}
-
-static ssize_t proc_gesture_control_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
-{
-    int ret = 0;
-    char page[PAGESIZE] = {0};
-    struct touchpanel_data *ts = PDE_DATA(file_inode(file));
-
-    if (!ts)
-        return 0;
-
-    TPD_DEBUG("double tap enable is: %d\n", ts->gesture_enable);
-    ret = snprintf(page, PAGESIZE - 1, "%d", ts->gesture_enable);
-    ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
-
-    return ret;
-}
-
 static ssize_t proc_coordinate_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
 {
     int ret = 0;
