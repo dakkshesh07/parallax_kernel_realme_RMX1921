@@ -1196,7 +1196,6 @@ CONFIG_RFKILL_LEDS=y
 # CONFIG_CAIF is not set
 # CONFIG_CEPH_LIB is not set
 # CONFIG_NFC is not set
-CONFIG_OPLUS_NFC=y
 # CONFIG_NFC_NQ is not set
 # CONFIG_LWTUNNEL is not set
 CONFIG_DST_CACHE=y
