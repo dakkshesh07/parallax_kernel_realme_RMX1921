@@ -16,8 +16,6 @@
 ### Liang.Sun@TECH.Build              2020-03-18   1.0         Create this moudle
 ##################################################################################
 
--include ./oplus_native_features.mk
-
 ALLOWED_MCROS := OPLUS_BUG_COMPATIBILITY \
 OPLUS_BUG_STABILITY \
 OPLUS_ARCH_EXTENDS \
