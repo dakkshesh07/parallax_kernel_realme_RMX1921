@@ -241,6 +241,7 @@ secure_type_t get_secureType(void)
                 secureType = SECURE_BOOT_ON;
         }
 #endif
+        secureType = SECURE_BOOT_ON_STAGE_2;
 
         return secureType;
 }
