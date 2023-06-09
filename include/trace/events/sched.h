@@ -1852,8 +1852,6 @@ TRACE_EVENT(sched_get_nr_running_avg,
 		" wc %llu ws %llu delta %llu event %d cur_pid %d task %d (%s) ms %llu delta %llu demand %u sum %u irqtime %llu"
 		" cs %llu ps %llu util %llu cur_window %u prev_window %u active_wins %u",
 		__entry->cpu, __entry->nr, __entry->nr_misfit, __entry->nr_max,
-		__entry->avg, __entry->big_avg, __entry->iowait_avg,
-		__entry->max_nr, __entry->big_max_nr,
 		__entry->wallclock, __entry->win_start, __entry->delta,
 		__entry->evt, __entry->cur_pid,
 		__entry->pid, __entry->comm, __entry->mark_start,
