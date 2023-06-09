@@ -16,7 +16,7 @@
 **************************************************************************************/
 #include <linux/delay.h>
 #include <linux/errno.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>

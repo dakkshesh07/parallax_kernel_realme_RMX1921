@@ -19,7 +19,7 @@
 #include "himax_platform.h"
 
 #include <asm/segment.h>
-/*#include <asm/uaccess.h>*/
+/*#include <linux/uaccess.h>*/
 /*#include <asm/atomic.h>*/
 #include <linux/uaccess.h>
 #include <linux/atomic.h>

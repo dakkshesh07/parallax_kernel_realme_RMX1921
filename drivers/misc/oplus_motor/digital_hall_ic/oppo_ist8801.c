@@ -27,7 +27,7 @@
 #include <linux/slab.h>
 #include <linux/workqueue.h>
 #include <linux/miscdevice.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/gpio.h>
 #include <linux/irq.h>
 #include <linux/interrupt.h>
