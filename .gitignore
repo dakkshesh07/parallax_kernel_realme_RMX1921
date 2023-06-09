@@ -127,3 +127,5 @@ Android.bp
 # My Stuff
 AnyKernel3/
 out/
+build.sh
+regen.sh
