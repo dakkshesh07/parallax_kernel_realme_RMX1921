@@ -311,27 +311,7 @@ extern char *saved_command_line;
 
 bool oppo_daily_build(void)
 {
-    static int daily_build = -1;
-    int eng_version = 0;
-
-    if (daily_build != -1)
-        return daily_build;
-
-    if (strstr(saved_command_line, "buildvariant=userdebug") ||
-        strstr(saved_command_line, "buildvariant=eng")) {
-        daily_build = true;
-    } else {
-        daily_build = false;
-    }
-
-    eng_version = get_eng_version();
-    if ((ALL_NET_CMCC_TEST == eng_version) || (ALL_NET_CMCC_FIELD == eng_version) ||
-        (ALL_NET_CU_TEST == eng_version) || (ALL_NET_CU_FIELD == eng_version) ||
-        (ALL_NET_CT_TEST == eng_version) || (ALL_NET_CT_FIELD == eng_version)){
-        daily_build = false;
-    }
-
-    return daily_build;
+    return false;
 }
 EXPORT_SYMBOL(oppo_daily_build);
 
