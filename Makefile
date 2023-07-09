@@ -304,6 +304,7 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 ifneq ($(LLVM),)
 HOSTCC       = clang
 HOSTCXX      = clang++
+HOSTLD       = ld.lld
 else
 HOSTCC       = gcc
 HOSTCXX      = g++
