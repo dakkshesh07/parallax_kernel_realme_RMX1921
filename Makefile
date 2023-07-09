@@ -21,6 +21,11 @@ LC_COLLATE=C
 LC_NUMERIC=C
 export LC_COLLATE LC_NUMERIC
 
+# Force full LLVM build
+LLVM := 1
+LLVM_IAS := 1
+export LLVM LLVM_IAS
+
 # Avoid interference with shell env settings
 unexport GREP_OPTIONS
 
