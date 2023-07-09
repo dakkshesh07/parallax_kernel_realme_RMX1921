@@ -1080,9 +1080,11 @@ endif
 
 ifeq ($(CONFIG_RELR),y)
 LDFLAGS_vmlinux	+= --pack-dyn-relocs=relr
+ifneq ($(LLVM),1)
 OBJCOPY	:= $(LLVMOBJCOPY)
 NM	:= $(LLVMNM)
 export OBJCOPY NM
+endif
 endif
 
 # Default kernel image to build when no specific target is given.
