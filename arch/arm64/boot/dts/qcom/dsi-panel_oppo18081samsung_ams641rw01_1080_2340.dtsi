@@ -46,11 +46,8 @@
 		qcom,mdss-dsi-te-using-te-pin;
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
 		qcom,mdss-dsi-bl-min-level = <1>;
-		qcom,mdss-dsi-bl-max-level = <2047>;
-		qcom,mdss-dsi-bl-default-level = <500>;
-		qcom,mdss-brightness-max-level = <2047>;
-		qcom,mdss-dsi-bl-normal-max-level = <1023>;
-		qcom,mdss-brightness-normal-max-level = <1023>;
+		qcom,mdss-dsi-bl-max-level = <1023>;
+		qcom,mdss-brightness-max-level = <1023>;
 		qcom,mdss-dsi-panel-jitter = <0x4 0x1>;
 
 		qcom,esd-check-enabled;
