@@ -133,7 +133,6 @@ static struct ion_heap_desc ion_heap_meta[] = {
 static int msm_ion_lowmem_notifier(struct notifier_block *nb,
 				   unsigned long action, void *data)
 {
-	show_ion_usage(idev);
 	return 0;
 }
 

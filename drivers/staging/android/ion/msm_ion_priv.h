@@ -99,5 +99,4 @@ bool is_secure_vmid_valid(int vmid);
 int ion_system_secure_heap_unassign_sg(struct sg_table *sgt, int source_vmid);
 int ion_system_secure_heap_assign_sg(struct sg_table *sgt, int dest_vmid);
 
-void show_ion_usage(struct ion_device *dev);
 #endif /* _MSM_ION_PRIV_H */
