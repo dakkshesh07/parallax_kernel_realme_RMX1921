@@ -5,7 +5,7 @@
 
 #define __LSE_PREAMBLE	".arch_extension lse\n"
 
-#include <linux/compiler_types.h>
+#include <linux/compiler.h>
 #include <linux/export.h>
 #include <linux/stringify.h>
 #include <asm/alternative.h>
