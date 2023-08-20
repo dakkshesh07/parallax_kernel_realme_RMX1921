@@ -3278,7 +3278,7 @@ static int kp_mode_notifier_callback(struct notifier_block *nb, unsigned long ev
 			sched_group_upmigrate = pct_to_min_scaled(85);
 			sched_group_downmigrate = pct_to_min_scaled(70);
 			sched_init_task_load_windows =
-				div64_u64((u64)25 *
+				div64_u64((u64)20 *
 					(u64)sched_ravg_window, 100);
 			sched_init_task_load_windows_scaled =
 				scale_demand(sched_init_task_load_windows);
