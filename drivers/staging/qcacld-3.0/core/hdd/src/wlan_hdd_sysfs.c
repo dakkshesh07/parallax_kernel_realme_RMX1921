@@ -760,13 +760,7 @@ static inline int hdd_sysfs_create_bcn_reception_interface(struct hdd_adapter
 {
 	return 0;
 }
-
-static inline void hdd_sysfs_create_adapter_root_obj(struct hdd_adapter *adapter)
-{}
-
 static inline void hdd_sysfs_destroy_bcn_reception_interface(struct hdd_adapter
 						      *adapter)
-{}
-static inline void hdd_sysfs_destroy_adapter_root_obj(struct hdd_adapter *adapter)
 {}
 #endif
