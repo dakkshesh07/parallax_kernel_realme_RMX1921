@@ -1429,7 +1429,7 @@ static void oplus_chg_show_ui_soc_decimal(struct work_struct *work)
 
 //	if(chip->calculate_decimal_time<= MAX_UI_DECIMAL_TIME) {
 		chip->calculate_decimal_time++;
-		schedule_delayed_work(&chip->ui_soc_decimal_work, msecs_to_jiffies(UPDATE_TIME * 1000));
+		queue_delayed_work(system_power_efficient_wq, &chip->ui_soc_decimal_work, msecs_to_jiffies(UPDATE_TIME * 1000));
 //	} else {
 //		oplus_chg_ui_soc_decimal_deinit();
 //	}
@@ -1547,7 +1547,7 @@ static void mmi_adapter_in_work_func(struct work_struct *work)
 static void oplus_mmi_fastchg_in(struct oplus_chg_chip *chip)
 {
 	charger_xlog_printk(CHG_LOG_CRTI, "  call\n");
-	schedule_delayed_work(&chip->mmi_adapter_in_work,
+	queue_delayed_work(system_power_efficient_wq, &chip->mmi_adapter_in_work,
 	round_jiffies_relative(msecs_to_jiffies(2000)));
 }
 
@@ -1701,7 +1701,7 @@ int oplus_chg_init(struct oplus_chg_chip *chip)
 	rc = init_ui_soc_decimal_proc(chip);
 	rc = init_charger_proc(chip);
 	/*ye.zhang add end*/
-	schedule_delayed_work(&chip->update_work, OPLUS_CHG_UPDATE_INIT_DELAY);
+	queue_delayed_work(system_power_efficient_wq, &chip->update_work, OPLUS_CHG_UPDATE_INIT_DELAY);
 	INIT_DELAYED_WORK(&chip->mmi_adapter_in_work, mmi_adapter_in_work_func);
 	charger_xlog_printk(CHG_LOG_CRTI, " end\n");
 	return 0;
@@ -6589,7 +6589,7 @@ static void oplus_chg_update_work(struct work_struct *work)
 	oplus_chg_kpoc_power_off_check(chip);
 	oplus_chg_other_thing(chip);
 	/* run again after interval */
-	schedule_delayed_work(&chip->update_work, OPLUS_CHG_UPDATE_INTERVAL);
+	queue_delayed_work(system_power_efficient_wq, &chip->update_work, OPLUS_CHG_UPDATE_INTERVAL);
 }
 
 bool oplus_chg_wake_update_work(void)

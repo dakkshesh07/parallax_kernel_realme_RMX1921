@@ -690,7 +690,7 @@ static void status_change_work(struct work_struct *work)
 	if (reschedule_us == 0)
 		goto exit_work;
 	else
-		schedule_delayed_work(&chip->status_change_work,
+		queue_delayed_work(system_power_efficient_wq, &chip->status_change_work,
 				usecs_to_jiffies(reschedule_us));
 	return;
 

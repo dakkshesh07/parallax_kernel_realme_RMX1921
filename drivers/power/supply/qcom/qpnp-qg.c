@@ -3683,7 +3683,7 @@ static int process_resume(struct qpnp_qg *chip)
 		pr_err("Failed to write sdam seq, rc=%d\n", rc);
 		return rc;
 	}
-	schedule_delayed_work(&chip->ttf->ttf_work, 0);
+	queue_delayed_work(system_power_efficient_wq, &chip->ttf->ttf_work, 0);
 
 	return rc;
 }
@@ -3871,7 +3871,7 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 			pr_err("Error in restoring cycle_count, rc=%d\n", rc);
 			return rc;
 		}
-		schedule_delayed_work(&chip->ttf->ttf_work, 10000);
+		queue_delayed_work(system_power_efficient_wq, &chip->ttf->ttf_work, 10000);
 	}
 
 	rc = qg_determine_pon_soc(chip);
