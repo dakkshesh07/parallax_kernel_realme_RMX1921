@@ -127,7 +127,7 @@ static void rt5514_spi_copy_work(struct work_struct *work)
 	snd_pcm_period_elapsed(rt5514_dsp->substream);
 
 	if (rt5514_dsp->dsp_offset < rt5514_dsp->buf_size)
-		schedule_delayed_work(&rt5514_dsp->copy_work, 5);
+		queue_delayed_work(system_power_efficient_wq, &rt5514_dsp->copy_work, 5);
 done:
 	mutex_unlock(&rt5514_dsp->dma_lock);
 }
@@ -219,7 +219,7 @@ static int rt5514_spi_trigger(struct snd_pcm_substream *substream, int cmd)
 	if (cmd == SNDRV_PCM_TRIGGER_START) {
 		if (rt5514_dsp->buf_base && rt5514_dsp->buf_limit &&
 			rt5514_dsp->buf_rp && rt5514_dsp->buf_size)
-			schedule_delayed_work(&rt5514_dsp->copy_work, 0);
+			queue_delayed_work(system_power_efficient_wq, &rt5514_dsp->copy_work, 0);
 	}
 
 	return 0;
