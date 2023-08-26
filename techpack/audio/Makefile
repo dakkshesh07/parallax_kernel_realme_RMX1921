@@ -39,5 +39,3 @@ obj-y += asoc/
 obj-y += dsp/
 obj-y += ipc/
 obj-y += soc/
-
-ccflags-y := -Os
