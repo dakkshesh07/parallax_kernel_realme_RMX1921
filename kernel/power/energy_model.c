@@ -156,9 +156,6 @@ static struct em_perf_domain *em_create_pd(cpumask_t *span, int nr_states,
 				(table[i].power > table[i - 1].power)) {
 			table[i].cost = table[i - 1].cost;
 		}
-		pr_info("pd%d (%*pbl): <freq=%ld, power=%ld, cost=%ld>\n",
-				cpu, cpumask_pr_args(span), table[i].frequency,
-				table[i].power, table[i].cost);
 	}
 
 	pd->table = table;
