@@ -47,26 +47,11 @@
 /*******Part0:LOG TAG Declear************************/
 #define TPD_PRINT_POINT_NUM 150
 #define TPD_DEVICE "touchpanel"
-#define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
-#define TPD_DEBUG(a, arg...)\
-    do{\
-        if (LEVEL_DEBUG == tp_debug)\
-            pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
-    }while(0)
+#define TPD_INFO(a, arg...)  pr_info("[TP]"TPD_DEVICE ": " a, ##arg)
 
-#define TPD_DETAIL(a, arg...)\
-    do{\
-        if (LEVEL_BASIC != tp_debug)\
-            pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
-    }while(0)
-
-#define TPD_SPECIFIC_PRINT(count, a, arg...)\
-    do{\
-        if (count++ == TPD_PRINT_POINT_NUM || LEVEL_DEBUG == tp_debug) {\
-            TPD_INFO(TPD_DEVICE ": " a, ##arg);\
-            count = 0;\
-        }\
-    }while(0)
+#define TPD_DEBUG(a, arg...) do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#define TPD_SPECIFIC_PRINT(count, a, arg...) do {} while(0)
 
 /*******Part1:Global variables Area********************/
 unsigned int tp_debug = 0;
@@ -390,7 +375,6 @@ static void tp_exception_handle(struct touchpanel_data *ts)
 
 static void tp_fw_auto_reset_handle(struct touchpanel_data *ts)
 {
-    TPD_INFO("%s\n", __func__);
 
     if(ts->ts_ops->write_ps_status) {
         ts->ts_ops->write_ps_status(ts->chip_data, ts->ps_status);
