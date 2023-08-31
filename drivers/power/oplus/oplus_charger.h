@@ -157,8 +157,7 @@
 #define SMART_NORMAL_CHARGER_2000MA     0X400
 #define SMART_NORMAL_CHARGER_9V1500mA	0X800
 
-#define chg_debug(fmt, ...) \
-        printk(KERN_NOTICE "[OPLUS_CHG][%s]"fmt, __func__, ##__VA_ARGS__)
+#define chg_debug(fmt, ...)
 
 #define chg_err(fmt, ...) \
         printk(KERN_ERR "[OPLUS_CHG][%s]"fmt, __func__, ##__VA_ARGS__)
