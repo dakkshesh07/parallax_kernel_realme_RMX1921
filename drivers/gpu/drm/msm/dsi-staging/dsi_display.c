@@ -176,7 +176,6 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 	}
 
 	#ifdef VENDOR_EDIT
-	pr_err("backlight level change to %d\n", bl_lvl);
 
 	if (panel->need_power_on_backlight && panel->type != EXT_BRIDGE) {
 		panel->need_power_on_backlight = false;
