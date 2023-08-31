@@ -7631,13 +7631,6 @@ static int ufshcd_scsi_add_wlus(struct ufs_hba *hba)
 		goto out;
 	}
 	scsi_device_put(hba->sdev_ufs_device);
-#ifdef VENDOR_EDIT
-	strncpy(temp_version, hba->sdev_ufs_device->rev, 4);
-	strncpy(vendor, hba->sdev_ufs_device->vendor, 8);
-	strncpy(model, hba->sdev_ufs_device->model, 16);
-	register_device_proc("ufs_version", temp_version, vendor);
-	register_device_proc("ufs", model, vendor);
-#endif
 
 	if (is_bootable_dev) {
 		sdev_boot = __scsi_add_device(hba->host, 0, 0,
