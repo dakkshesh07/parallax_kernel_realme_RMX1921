@@ -1175,11 +1175,7 @@ static struct i2c_driver bq25882_i2c_driver;
 
 static int bq25882_driver_remove(struct i2c_client *client)
 {
-
-    int ret=0;
-
     //ret = i2c_del_driver(&bq25882_i2c_driver);
-    chg_debug( "  ret = %d\n", ret);
     return 0;
 }
 

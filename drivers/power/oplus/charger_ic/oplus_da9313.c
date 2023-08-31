@@ -431,9 +431,6 @@ static struct i2c_driver da9313_i2c_driver;
 
 static int da9313_driver_remove(struct i2c_client *client)
 {
-    int ret=0;
-
-    chg_debug( "  ret = %d\n", ret);
     return 0;
 }
 
