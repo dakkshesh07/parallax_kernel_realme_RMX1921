@@ -251,7 +251,6 @@ void operate_mode_switch(struct touchpanel_data *ts)
 static void tp_touch_down(struct touchpanel_data *ts, struct point_info points, int touch_report_num, int id)
 {
     static int last_width_major;
-    static int point_num = 0;
 
     if (ts->input_dev == NULL)
         return;
