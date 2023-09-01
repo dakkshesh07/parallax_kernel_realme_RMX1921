@@ -1924,6 +1924,7 @@ static int __drm_mode_atomic_ioctl(struct drm_device *dev, void *data,
 		//5000ms covers long scrolls after input boosting is no longer used
 		if (time_before(jiffies, last_input_time + msecs_to_jiffies(5000))) {
 			devfreq_boost_kick(DEVFREQ_MSM_CPUBW);
+			cpu_input_boost_kick();
 		}
 	}
 
