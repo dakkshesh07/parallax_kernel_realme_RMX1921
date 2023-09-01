@@ -81,6 +81,8 @@
 #include <linux/sched/loadavg.h>
 #include <linux/cgroup-defs.h>
 #include <linux/mutex.h>
+#include <linux/cpu_input_boost.h>
+#include <linux/devfreq_boost.h>
 
 #include <asm/switch_to.h>
 #include <asm/tlb.h>
