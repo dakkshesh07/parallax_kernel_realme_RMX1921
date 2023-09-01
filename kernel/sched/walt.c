@@ -3258,7 +3258,7 @@ static int kp_mode_notifier_callback(struct notifier_block *nb, unsigned long ev
 {
 	struct rq *rq;
 	unsigned long flags;
-	unsigned int profile_mode = (unsigned int)data;
+	unsigned int profile_mode = (unsigned int)(uintptr_t)data;
 	if (event == KP_MODE_CHANGE) {
 		rq = cpu_rq(cpumask_first(cpu_possible_mask));
 		//sufficient for atomic updates of tunables
