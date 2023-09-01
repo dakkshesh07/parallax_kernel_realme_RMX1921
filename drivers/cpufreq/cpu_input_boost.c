@@ -58,6 +58,9 @@ module_param(wake_boost_duration, short, 0644);
 unsigned long last_input_time;
 #endif
 
+/* Kprofiles */
+extern int kp_active_mode(void);
+
 /* Available bits for boost state */
 enum {
 	SCREEN_OFF,
@@ -115,7 +118,7 @@ static unsigned int get_min_freq(struct cpufreq_policy *policy)
 	struct boost_drv *b = &boost_drv_g;
 	unsigned int freq;
 
-	if (test_bit(SCREEN_OFF, &b->state)) {
+	if (test_bit(SCREEN_OFF, &b->state) || kp_active_mode() == 1) {
 		if (cpumask_test_cpu(policy->cpu, cpu_lp_mask))
 			freq = idle_min_freq_lp;
 		else
@@ -144,7 +147,7 @@ static void update_online_cpu_policy(void)
 
 static void __cpu_input_boost_kick(struct boost_drv *b)
 {
-	if (test_bit(SCREEN_OFF, &b->state))
+	if (test_bit(SCREEN_OFF, &b->state) || kp_active_mode() == 1)
 		return;
 
 	if (!input_boost_duration)
@@ -169,7 +172,7 @@ static void __cpu_input_boost_kick_max(struct boost_drv *b,
 	unsigned long boost_jiffies = msecs_to_jiffies(duration_ms);
 	unsigned long curr_expires, new_expires;
 
-	if (test_bit(SCREEN_OFF, &b->state))
+	if (test_bit(SCREEN_OFF, &b->state) || kp_active_mode() == 1)
 		return;
 
 	do {
@@ -251,7 +254,7 @@ static int cpu_notifier_cb(struct notifier_block *nb, unsigned long action,
 		return NOTIFY_OK;
 
 	/* Unboost when the screen is off */
-	if (test_bit(SCREEN_OFF, &b->state)) {
+	if (test_bit(SCREEN_OFF, &b->state) || kp_active_mode() == 1) {
 		policy->min = get_min_freq(policy);
 		return NOTIFY_OK;
 	}
