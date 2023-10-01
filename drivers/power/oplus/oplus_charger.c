@@ -87,7 +87,6 @@ static struct oplus_chg_chip *g_charger_chip = NULL;
 
 #define OPLUS_CHG_DEFAULT_CHARGING_CURRENT	512
 
-int enable_charger_log = 0;
 int charger_abnormal_log = 0;
 int tbatt_pwroff_enable = 1;
 #ifdef OPLUS_CHG_SUSPEND_UI_SOC_OPT
@@ -95,12 +94,7 @@ static u8 soc_store[4]= {0};
 static u8 night_count = 0;
 #endif
 
-#define charger_xlog_printk(num, fmt, ...) \
-		do { \
-			if (enable_charger_log >= (int)num) { \
-				printk(KERN_NOTICE pr_fmt("[OPLUS_CHG][%s]"fmt), __func__, ##__VA_ARGS__); \
-			} \
-		} while (0)
+#define charger_xlog_printk(num, ...) chg_debug(__VA_ARGS__)
 
 void oplus_chg_turn_off_charging(struct oplus_chg_chip *chip);
 void oplus_chg_turn_on_charging(struct oplus_chg_chip *chip);
@@ -923,22 +917,6 @@ static int init_proc_tbatt_pwroff(void)
 static ssize_t chg_log_write(struct file *filp,
 		const char __user *buff, size_t len, loff_t *data)
 {
-	char write_data[32] = {0};
-
-	if (copy_from_user(&write_data, buff, len)) {
-		chg_err("bat_log_write error.\n");
-		return -EFAULT;
-	}
-	if (write_data[0] == '1') {
-		charger_xlog_printk(CHG_LOG_CRTI, "enable battery driver log system\n");
-		enable_charger_log = 1;
-	} else if ((write_data[0] >= '2') &&(write_data[0] <= '9')) {
-		charger_xlog_printk(CHG_LOG_CRTI, "enable battery driver log system:2\n");
-		enable_charger_log = 2;
-	} else {
-		charger_xlog_printk(CHG_LOG_CRTI, "Disable battery driver log system\n");
-		enable_charger_log = 0;
-	}
 	return len;
 }
 
@@ -949,13 +927,7 @@ static ssize_t chg_log_read(struct file *filp,
 	char read_data[32] = {0};
 	int len = 0;
 
-	if (enable_charger_log == 1) {
-		read_data[0] = '1';
-	} else if (enable_charger_log == 2) {
-		read_data[0] = '2';
-	} else {
-		read_data[0] = '0';
-	}
+	read_data[0] = '0';
 	len = sprintf(page, "%s", read_data);
 	if (len > *off) {
 		len -= *off;
@@ -6067,56 +6039,8 @@ static void oplus_chg_kpoc_power_off_check(struct oplus_chg_chip *chip)
 #endif
 }
 
-static void oplus_chg_print_log(struct oplus_chg_chip *chip)
-{
-	if(chip->vbatt_num == 1){
-		charger_xlog_printk(CHG_LOG_CRTI,
-			" CHGR[ %d / %d / %d / %d / %d ], "
-			"BAT[ %d / %d / %d / %d / %d / %d ], "
-			"GAUGE[ %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d / %d /], "
-			"STATUS[ 0x%x / %d / %d / %d / %d / 0x%x ], OTHER[ %d / %d / %d / %d / %d/ %d ]\n",
-			chip->charger_exist, chip->charger_type, chip->charger_volt,
-			chip->prop_status, chip->boot_mode,
-			chip->batt_exist, chip->batt_full, chip->chging_on, chip->in_rechging,
-			chip->charging_state, chip->total_time,
-			chip->temperature, chip->batt_volt, chip->batt_volt_min, chip->icharging,
-			chip->ibus, chip->soc, chip->ui_soc, chip->soc_load, chip->batt_rm,
-			oplus_gauge_get_batt_fc(),oplus_gauge_get_batt_qm(),
-			oplus_gauge_get_batt_pd(),oplus_gauge_get_batt_rcu(),
-			oplus_gauge_get_batt_rcf(),oplus_gauge_get_batt_fcu(),
-			oplus_gauge_get_batt_fcf(),oplus_gauge_get_batt_sou(),
-			oplus_gauge_get_batt_do0(),oplus_gauge_get_batt_doe(),
-			oplus_gauge_get_batt_trm(),oplus_gauge_get_batt_pc(),
-			oplus_gauge_get_batt_qs(),
-			chip->vbatt_over, chip->chging_over_time, chip->vchg_status,
-			chip->tbatt_status, chip->stop_voter, chip->notify_code,
-			chip->otg_switch, chip->mmi_chg, chip->boot_reason, chip->boot_mode,
-			chip->chargerid_volt, chip->chargerid_volt_got);
-	}else{
-		charger_xlog_printk(CHG_LOG_CRTI,
-			" CHGR[ %d / %d / %d / %d / %d ], \
-			BAT[ %d / %d / %d / %d / %d / %d ], \
-			GAUGE[ %d / %d / %d / %d / %d / %d / %d / %d / %d ], "
-			"STATUS[ 0x%x / %d / %d / %d / %d / 0x%x ], \
-			OTHER[ %d / %d / %d / %d / %d/ %d ]\n",
-			chip->charger_exist, chip->charger_type, chip->charger_volt,
-			chip->prop_status, chip->boot_mode,
-			chip->batt_exist, chip->batt_full, chip->chging_on, chip->in_rechging,
-			chip->charging_state, chip->total_time,
-			chip->temperature, chip->batt_volt, chip->batt_volt_min, chip->icharging,
-			chip->ibus, chip->soc, chip->ui_soc, chip->soc_load, chip->batt_rm,
-			chip->vbatt_over, chip->chging_over_time, chip->vchg_status,
-			chip->tbatt_status, chip->stop_voter, chip->notify_code,
-			chip->otg_switch, chip->mmi_chg, chip->boot_reason, chip->boot_mode,
-			chip->chargerid_volt, chip->chargerid_volt_got);
-	}
-
-#ifdef CONFIG_OPLUS_CHARGER_MTK
-	if (chip->charger_type == POWER_SUPPLY_TYPE_USB_DCP) {
-		oplus_vooc_print_log();
-	}
-#endif
-}
+static inline void oplus_chg_print_log(struct oplus_chg_chip *chip)
+{}
 
 #define CHARGER_ABNORMAL_DETECT_TIME	24
 
