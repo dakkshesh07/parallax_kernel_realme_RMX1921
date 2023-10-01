@@ -18,7 +18,9 @@
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
 
+#ifdef CONFIG_KSU
 extern int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags);
+#endif
 
 void generic_fillattr(struct inode *inode, struct kstat *stat)
 {
@@ -97,7 +99,9 @@ int vfs_fstatat(int dfd, const char __user *filename, struct kstat *stat,
 	unsigned int lookup_flags = 0;
 
 
+#ifdef CONFIG_KSU
 	ksu_handle_stat(&dfd, &filename, &flag);
+#endif
 
 	if ((flag & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
 		      AT_EMPTY_PATH)) != 0)
