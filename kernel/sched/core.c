@@ -944,37 +944,27 @@ static void uclamp_sync_util_min_rt_default(void)
 
 extern int kp_active_mode(void);
 
-static inline void uclamp_boost_write(struct task_struct *p)
-{
-	struct cgroup_subsys_state *css;
-
-	css = task_css(p, cpu_cgrp_id);
+static inline void uclamp_boost_write(struct task_struct *p) {
+	struct cgroup_subsys_state *css = task_css(p, cpu_cgrp_id);
+	int boost_value = 102;
+	int min_value = 0;
+	int max_value = 0;
+	int latency_sensitive = 0;
 
 	//top-app min clamp input boost
 	if (strcmp(css->cgroup->kn->name, "top-app") == 0) {
-		if (kp_active_mode() == 3) {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 650;
-			return;
-		}
-		if (time_before(jiffies, last_input_time + msecs_to_jiffies(800))) {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 650;
-			return;
+		if (kp_active_mode() == 3 || time_before(jiffies, last_input_time + msecs_to_jiffies(800))) {
+			boost_value = 650;
 		} else if (time_before(jiffies, last_input_time + msecs_to_jiffies(1600))) {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 560;
-			return;
+			boost_value = 560;
 		} else if (time_before(jiffies, last_input_time + msecs_to_jiffies(3000))) {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 410;
-			return;
+			boost_value = 410;
 		} else if (time_before(jiffies, last_input_time + msecs_to_jiffies(6000))) {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 307;
-			return;
+			boost_value = 307;
 		} else if (time_before(jiffies, last_input_time + msecs_to_jiffies(9000))) {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 205;
-			return;
-		} else {
-			task_group(p)->uclamp[UCLAMP_MIN].value = 102;
-			return;
+			boost_value = 205;
 		}
+		task_group(p)->uclamp[UCLAMP_MIN].value = boost_value;
 	}
 }
 
