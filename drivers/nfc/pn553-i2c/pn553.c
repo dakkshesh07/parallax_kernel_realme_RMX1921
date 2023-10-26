@@ -62,6 +62,7 @@
 #include <linux/signal.h>
 #include <linux/workqueue.h>
 #include <linux/clk.h>
+#include <linux/moduleparam.h>
 
 //#ifdef VENDOR_EDIT
 //Weiwei.Deng@CN.NFC.Basic.Hardware, 2018/12/03,
@@ -77,6 +78,11 @@
 
 #include <linux/timer.h>
 #include "pn553.h"
+
+#include "../oplus_nfc/oplus_nfc.h"
+
+static int sku_support_nfc = 0;
+module_param(sku_support_nfc, int, 0664);
 
 #define NEXUS5x    0
 #define HWINFO     0
@@ -1510,6 +1516,11 @@ static int pn544_parse_dt(struct device *dev,
 }
 #endif
 
+static int nfc_support_check(void) {
+    CHECK_NFC_CHIP(PN557);
+    return 0;
+}
+
 static int pn544_probe(struct i2c_client *client,
         const struct i2c_device_id *id)
 {
@@ -1521,6 +1532,11 @@ static int pn544_probe(struct i2c_client *client,
     platform_data = client->dev.platform_data;
 #else
     struct device_node *node = client->dev.of_node;
+
+    ret = nfc_support_check();
+    if (ret)
+        return -ENOMEM;
+    sku_support_nfc = 1;
 
     if (node) {
         platform_data = devm_kzalloc(&client->dev,
