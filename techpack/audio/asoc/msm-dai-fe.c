@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2669,7 +2669,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 			.channels_min = 1,
 			.channels_max = 32,
 			.rate_min =     8000,
-			.rate_max = 384000,
+			.rate_max =	384000,
 		},
 		.capture = {
 			.stream_name = "MultiMedia31 Capture",
@@ -2683,7 +2683,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 			.channels_min = 1,
 			.channels_max = 32,
 			.rate_min =     8000,
-			.rate_max = 48000,
+			.rate_max =	48000,
 		},
 		.ops = &msm_fe_Multimedia_dai_ops,
 		.name = "MultiMedia31",
@@ -2702,7 +2702,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 			.channels_min = 1,
 			.channels_max = 32,
 			.rate_min =     8000,
-			.rate_max = 384000,
+			.rate_max =	384000,
 		},
 		.capture = {
 			.stream_name = "MultiMedia32 Capture",
@@ -2716,7 +2716,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 			.channels_min = 1,
 			.channels_max = 32,
 			.rate_min =     8000,
-			.rate_max = 48000,
+			.rate_max =	48000,
 		},
 		.ops = &msm_fe_Multimedia_dai_ops,
 		.name = "MultiMedia32",
@@ -2735,7 +2735,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 			.channels_min = 1,
 			.channels_max = 32,
 			.rate_min =     8000,
-			.rate_max = 384000,
+			.rate_max =	384000,
 		},
 		.capture = {
 			.stream_name = "MultiMedia33 Capture",
@@ -2749,7 +2749,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 			.channels_min = 1,
 			.channels_max = 32,
 			.rate_min =     8000,
-			.rate_max = 48000,
+			.rate_max =	48000,
 		},
 		.ops = &msm_fe_Multimedia_dai_ops,
 		.name = "MultiMedia33",

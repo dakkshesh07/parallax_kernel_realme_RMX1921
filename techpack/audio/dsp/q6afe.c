@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -535,6 +535,8 @@ int afe_get_port_type(u16 port_id)
 	case VOICE_PLAYBACK_TX:
 	case VOICE2_PLAYBACK_TX:
 	case RT_PROXY_PORT_001_RX:
+	case RT_PROXY_PORT_002_RX:
+	case RT_PROXY_PORT_002_TX:
 	case AUDIO_PORT_ID_I2S_RX:
 	case AFE_PORT_ID_PRIMARY_MI2S_RX:
 	case AFE_PORT_ID_SECONDARY_MI2S_RX:
@@ -3274,15 +3276,6 @@ static int q6afe_send_enc_config(u16 port_id,
 		config.port.enc_blk_param.enc_cfg_blk_size =
 				sizeof(config.port.enc_blk_param.enc_blk_config)
 					- sizeof(struct afe_abr_enc_cfg_t);
-	} else if (format == ASM_MEDIA_FMT_AAC_V2) {
-		config.param.payload_size = payload_size
-				+ sizeof(config.port.enc_blk_param)
-				- sizeof(struct asm_aac_frame_size_control_t);
-		config.pdata.param_size = sizeof(config.port.enc_blk_param)
-				- sizeof(struct asm_aac_frame_size_control_t);
-		config.port.enc_blk_param.enc_cfg_blk_size =
-				sizeof(config.port.enc_blk_param.enc_blk_config)
-				- sizeof(struct asm_aac_frame_size_control_t);
 	} else {
 		config.param.payload_size = payload_size
 					+ sizeof(config.port.enc_blk_param);
@@ -3299,33 +3292,6 @@ static int q6afe_send_enc_config(u16 port_id,
 		pr_err("%s: AFE_ENCODER_PARAM_ID_ENC_CFG_BLK for port 0x%x failed %d\n",
 			__func__, port_id, ret);
 		goto exit;
-	}
-
-	if (format == ASM_MEDIA_FMT_AAC_V2) {
-		uint32_t frame_size_ctl_value = config.port.enc_blk_param.
-				enc_blk_config.aac_config.frame_ctl.ctl_value;
-		if (frame_size_ctl_value > 0) {
-			config.param.payload_size =
-				payload_size +
-				sizeof(config.port.frame_ctl_param);
-			config.pdata.param_id =
-				AFE_PARAM_ID_AAC_FRM_SIZE_CONTROL;
-			config.pdata.param_size =
-				sizeof(config.port.frame_ctl_param);
-			config.port.frame_ctl_param.ctl_type =
-				config.port.enc_blk_param.enc_blk_config.
-					aac_config.frame_ctl.ctl_type;
-			config.port.frame_ctl_param.ctl_value =
-				frame_size_ctl_value;
-			pr_debug("%s: send AFE_PARAM_ID_AAC_FRM_SIZE_CONTROL\n",
-				  __func__);
-			ret = afe_apr_send_pkt(&config, &this_afe.wait[index]);
-			if (ret) {
-				pr_err("%s: AAC_FRM_SIZE_CONTROL failed %d\n",
-					__func__, ret);
-				goto exit;
-			}
-		}
 	}
 
 	if (format == ASM_MEDIA_FMT_APTX) {
@@ -3738,6 +3704,8 @@ static int __afe_port_start(u16 port_id, union afe_port_config *afe_config,
 		break;
 	case RT_PROXY_PORT_001_RX:
 	case RT_PROXY_PORT_001_TX:
+	case RT_PROXY_PORT_002_RX:
+	case RT_PROXY_PORT_002_TX:
 		cfg_type = AFE_PARAM_ID_RT_PROXY_CONFIG;
 		break;
 	case INT_BT_SCO_RX:
@@ -4171,6 +4139,10 @@ int afe_get_port_index(u16 port_id)
 		return IDX_AFE_PORT_ID_INT6_MI2S_TX;
 	case AFE_LOOPBACK_TX:
 		return IDX_AFE_LOOPBACK_TX;
+	case RT_PROXY_PORT_002_RX:
+		return IDX_RT_PROXY_PORT_002_RX;
+	case RT_PROXY_PORT_002_TX:
+		return IDX_RT_PROXY_PORT_002_TX;
 	default:
 		pr_err("%s: port 0x%x\n", __func__, port_id);
 		return -EINVAL;
@@ -6248,6 +6220,8 @@ int afe_validate_port(u16 port_id)
 	case AFE_PORT_ID_INT4_MI2S_TX:
 	case AFE_PORT_ID_INT5_MI2S_TX:
 	case AFE_PORT_ID_INT6_MI2S_TX:
+	case RT_PROXY_PORT_002_RX:
+	case RT_PROXY_PORT_002_TX:
 	{
 		ret = 0;
 		break;
@@ -6402,7 +6376,6 @@ int afe_close(int port_id)
 		pr_debug("%s: Not a MAD port\n", __func__);
 	}
 
-	mutex_lock(&this_afe.afe_cmd_lock);
 	port_index = afe_get_port_index(port_id);
 	if ((port_index >= 0) && (port_index < AFE_MAX_PORTS)) {
 		this_afe.afe_sample_rates[port_index] = 0;
@@ -6445,7 +6418,6 @@ int afe_close(int port_id)
 		pr_err("%s: AFE close failed %d\n", __func__, ret);
 
 fail_cmd:
-	mutex_unlock(&this_afe.afe_cmd_lock);
 	return ret;
 }
 EXPORT_SYMBOL(afe_close);

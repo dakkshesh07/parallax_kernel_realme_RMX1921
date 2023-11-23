@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2018, 2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -3501,6 +3501,7 @@ static int msm_compr_dec_params_put(struct snd_kcontrol *kcontrol,
 			pr_err("%s: invalid num of params:: %d\n", __func__,
 				ddp->params_length);
 			rc = -EINVAL;
+			mutex_unlock(&pdata->lock);
 			goto end;
 		}
 		for (cnt = 0; cnt < ddp->params_length; cnt++) {
@@ -3516,9 +3517,9 @@ static int msm_compr_dec_params_put(struct snd_kcontrol *kcontrol,
 	default:
 		break;
 	}
+	mutex_unlock(&pdata->lock);
 end:
 	pr_debug("%s: ret %d\n", __func__, rc);
-	mutex_unlock(&pdata->lock);
 	return rc;
 }
 
@@ -3706,25 +3707,28 @@ static int msm_compr_adsp_stream_cmd_put(struct snd_kcontrol *kcontrol,
 	struct msm_adsp_event_data *event_data = NULL;
 	uint64_t actual_payload_len = 0;
 
+	mutex_lock(&pdata->lock);
 	if (fe_id >= MSM_FRONTEND_DAI_MAX) {
 		pr_err("%s Received invalid fe_id %lu\n",
 			__func__, fe_id);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
 	cstream = pdata->cstream[fe_id];
 	if (cstream == NULL) {
 		pr_err("%s cstream is null\n", __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
 	prtd = cstream->runtime->private_data;
 	if (!prtd) {
 		pr_err("%s: prtd is null\n", __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
-	mutex_lock(&pdata->lock);
 	if (prtd->audio_client == NULL) {
 		pr_err("%s: audio_client is null\n", __func__);
 		ret = -EINVAL;
@@ -3778,25 +3782,28 @@ static int msm_compr_ion_fd_map_put(struct snd_kcontrol *kcontrol,
 	int fd;
 	int ret = 0;
 
+	mutex_lock(&pdata->lock);
 	if (fe_id >= MSM_FRONTEND_DAI_MAX) {
 		pr_err("%s Received out of bounds invalid fe_id %lu\n",
 			__func__, fe_id);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
 	cstream = pdata->cstream[fe_id];
 	if (cstream == NULL) {
 		pr_err("%s cstream is null\n", __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
 	prtd = cstream->runtime->private_data;
 	if (!prtd) {
 		pr_err("%s: prtd is null\n", __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
-	mutex_lock(&pdata->lock);
 	if (prtd->audio_client == NULL) {
 		pr_err("%s: audio_client is null\n", __func__);
 		ret = -EINVAL;
@@ -3824,13 +3831,14 @@ static int msm_compr_rtic_event_ack_put(struct snd_kcontrol *kcontrol,
 	int ret = 0;
 	int param_length = 0;
 
+	mutex_lock(&pdata->lock);
 	if (fe_id >= MSM_FRONTEND_DAI_MAX) {
 		pr_err("%s Received invalid fe_id %lu\n",
 			__func__, fe_id);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto done;
 	}
 
-	mutex_lock(&pdata->lock);
 	cstream = pdata->cstream[fe_id];
 	if (cstream == NULL) {
 		pr_err("%s cstream is null\n", __func__);
@@ -3917,6 +3925,7 @@ static int msm_compr_probe(struct snd_soc_platform *platform)
 	if (!pdata)
 		return -ENOMEM;
 
+	mutex_init(&pdata->lock);
 	snd_soc_platform_set_drvdata(platform, pdata);
 
 	for (i = 0; i < MSM_FRONTEND_DAI_MAX; i++) {
@@ -3950,7 +3959,6 @@ static int msm_compr_probe(struct snd_soc_platform *platform)
 	 * Gapless is disabled by default.
 	 */
 	pdata->use_dsp_gapless_mode = false;
-	mutex_init(&pdata->lock);
 	return 0;
 }
 
@@ -3961,7 +3969,8 @@ static int msm_compr_chmix_cfg_ctl_info(struct snd_kcontrol *kcontrol,
 	uinfo->count = 128;
 	uinfo->value.integer.min = 0;
 	uinfo->value.integer.max = 0xFFFFFFFF;
-	return 0;
+
+        return 0;
 }
 
 static int msm_compr_remove(struct snd_soc_platform *platform)
@@ -3973,6 +3982,7 @@ static int msm_compr_remove(struct snd_soc_platform *platform)
 		pr_err("%s pdata is null\n", __func__);
 		return -ENOMEM;
 	}
+
 	mutex_destroy(&pdata->lock);
 	kfree(pdata);
 

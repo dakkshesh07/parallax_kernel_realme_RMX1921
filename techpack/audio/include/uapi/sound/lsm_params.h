@@ -7,7 +7,7 @@
 #include <linux/types.h>
 #include <sound/asound.h>
 
-#define SNDRV_LSM_VERSION SNDRV_PROTOCOL_VERSION(0, 3, 0)
+#define SNDRV_LSM_VERSION SNDRV_PROTOCOL_VERSION(0, 1, 0)
 
 #define LSM_OUT_FORMAT_PCM (0)
 #define LSM_OUT_FORMAT_ADPCM (1 << 0)
@@ -29,26 +29,10 @@
 #define LSM_DEREG_SND_MODEL (5)
 #define LSM_CUSTOM_PARAMS (6)
 #define LSM_POLLING_ENABLE (7)
-#define LSM_DET_EVENT_TYPE (8)
-#define LSM_PARAMS_MAX (LSM_DET_EVENT_TYPE + 1)
+#define LSM_PARAMS_MAX (LSM_POLLING_ENABLE + 1)
 
 #define LSM_EVENT_NON_TIME_STAMP_MODE (0)
 #define LSM_EVENT_TIME_STAMP_MODE (1)
-
-#define LSM_DET_EVENT_TYPE_LEGACY (0)
-#define LSM_DET_EVENT_TYPE_GENERIC (1)
-
-/* Valid sample rates for input hw_params */
-#define LSM_INPUT_SAMPLE_RATE_16K 16000
-#define LSM_INPUT_SAMPLE_RATE_48K 48000
-
-/* Valid bit-widths for input hw_params */
-#define LSM_INPUT_BIT_WIDTH_16	16
-#define LSM_INPUT_BIT_WIDTH_24	24
-
-/* Min and Max channels for input hw_params */
-#define LSM_INPUT_NUM_CHANNELS_MIN	1
-#define LSM_INPUT_NUM_CHANNELS_MAX	9
 
 enum lsm_app_id {
 	LSM_VOICE_WAKEUP_APP_ID = 1,
@@ -103,15 +87,6 @@ struct snd_lsm_poll_enable {
 	bool poll_en;
 };
 
-/*
- * Data for LSM_DET_EVENT_TYPE param_type
- * @event_type: LSM_DET_EVENT_TYPE_LEGACY or LSM_DET_EVENT_TYPE_GENERIC
- * @mode: Type of information in detection event payload
- */
-struct snd_lsm_det_event_type {
-	__u32 event_type;
-	__u32 mode;
-};
 
 struct snd_lsm_sound_model_v2 {
 	__u8 __user *data;
@@ -201,22 +176,6 @@ struct snd_lsm_output_format_cfg {
 	__u8 mode;
 };
 
-/*
- * Data passed to SNDRV_LSM_SET_INPUT_HW_PARAMS ioctl
- *
- * @sample_rate: Sample rate of input to lsm.
- *		 valid values are 16000 and 48000
- * @bit_width: Bit width of audio samples input to lsm.
- *	       valid values are 16 and 24
- * @num_channels: Number of channels input to lsm.
- *		  valid values are range from 1 to 16
- */
-struct snd_lsm_input_hw_params {
-	__u32 sample_rate;
-	__u16 bit_width;
-	__u16 num_channels;
-} __packed;
-
 #define SNDRV_LSM_DEREG_SND_MODEL _IOW('U', 0x01, int)
 #define SNDRV_LSM_EVENT_STATUS	_IOW('U', 0x02, struct snd_lsm_event_status)
 #define SNDRV_LSM_ABORT_EVENT	_IOW('U', 0x03, int)
@@ -237,8 +196,5 @@ struct snd_lsm_input_hw_params {
 #define SNDRV_LSM_SET_FWK_MODE_CONFIG	_IOW('U', 0x0E, uint32_t)
 #define SNDRV_LSM_EVENT_STATUS_V3	_IOW('U', 0x0F, \
 					struct snd_lsm_event_status_v3)
-#define SNDRV_LSM_GENERIC_DET_EVENT	_IOW('U', 0x10, struct snd_lsm_event_status)
-#define SNDRV_LSM_SET_INPUT_HW_PARAMS	_IOW('U', 0x11,	\
-					     struct snd_lsm_input_hw_params)
 
 #endif

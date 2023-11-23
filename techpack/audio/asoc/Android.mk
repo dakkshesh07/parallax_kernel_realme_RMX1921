@@ -25,6 +25,11 @@ AUDIO_SELECT  += CONFIG_SND_SOC_BG_8909=m
 AUDIO_SELECT  += CONFIG_SND_SOC_8909_DIG_CDC=m
 endif
 
+ifeq ($(strip $(TARGET_ROARING_LIONUS)),true)
+TARGET := msm8909
+AUDIO_SELECT  += CONFIG_MSM_8905=m
+endif
+
 AUDIO_CHIPSET := audio
 # Build/Package only in case of supported target
 ifeq ($(call is-board-platform-in-list,msm8909 msm8953 msm8937 sdm845 sdm710 qcs605),true)
@@ -42,10 +47,6 @@ ifeq ($(AUDIO_FEATURE_ENABLED_DLKM_8909W),true)
 DLKM_DIR := $(TOP)/device/qcom/msm8909w/common/dlkm
 else
 DLKM_DIR := $(TOP)/device/qcom/common/dlkm
-endif
-
-ifeq ($(TARGET_SUPPORTS_WEARABLES),true)
-DLKM_DIR := $(BOARD_COMMON_DIR)/dlkm
 endif
 
 # Build audio.ko as $(AUDIO_CHIPSET)_audio.ko
@@ -106,6 +107,16 @@ ifeq ($(call is-board-platform-in-list,msm8953 msm8937),true)
 include $(CLEAR_VARS)
 LOCAL_MODULE              := $(AUDIO_CHIPSET)_machine_ext_$(TARGET).ko
 LOCAL_MODULE_KBUILD_NAME  := machine_ext_dlkm.ko
+LOCAL_MODULE_TAGS         := optional
+LOCAL_MODULE_DEBUG_ENABLE := true
+LOCAL_MODULE_PATH         := $(KERNEL_MODULES_OUT)
+include $(DLKM_DIR)/AndroidKernelModule.mk
+endif
+###########################################################
+ifeq ($(strip $(TARGET_ROARING_LIONUS)),true)
+include $(CLEAR_VARS)
+LOCAL_MODULE              := $(AUDIO_CHIPSET)_machine_int_$(TARGET).ko
+LOCAL_MODULE_KBUILD_NAME  := machine_int_dlkm.ko
 LOCAL_MODULE_TAGS         := optional
 LOCAL_MODULE_DEBUG_ENABLE := true
 LOCAL_MODULE_PATH         := $(KERNEL_MODULES_OUT)

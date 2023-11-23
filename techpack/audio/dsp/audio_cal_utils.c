@@ -1077,7 +1077,6 @@ int __init cal_utils_init(void)
  *
  * @cal_block: pointer to cal block
  *
- *
  * Returns true if cal block is stale, false otherwise
  */
 bool cal_utils_is_cal_stale(struct cal_block_data *cal_block)

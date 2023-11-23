@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2019, 2021, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1279,7 +1279,7 @@ struct adm_cmd_connect_afe_port_v5 {
 #define AFE_PORT_ID_SLIMBUS_RANGE_SIZE	0xA
 
 /* Size of the range of port IDs for real-time proxy ports. */
-#define  AFE_PORT_ID_RT_PROXY_PORT_RANGE_SIZE	0x2
+#define  AFE_PORT_ID_RT_PROXY_PORT_RANGE_SIZE	0x4
 
 /* Size of the range of port IDs for pseudoports. */
 #define AFE_PORT_ID_PSEUDOPORT_RANGE_SIZE	0x5
@@ -1474,6 +1474,16 @@ struct adm_cmd_connect_afe_port_v5 {
  */
 #define AFE_PORT_ID_VOICE2_PLAYBACK_TX  0x8002
 #define AFE_PORT_ID_VOICE_PLAYBACK_TX   0x8005
+
+/*
+ * Proxyport used for voice call data processing.
+ * In cases like call-screening feature, where user can communicate
+ * with caller with the help of "call screen" mode, and without
+ * connecting the call with any HW input/output devices in the phon,
+ * voice call can use Pseudo port to start voice data processing.
+ */
+#define RT_PROXY_PORT_002_TX  0x2003
+#define RT_PROXY_PORT_002_RX  0x2002
 
 #define AFE_PORT_ID_PRIMARY_TDM_RX \
 	(AFE_PORT_ID_TDM_PORT_RANGE_START + 0x00)
@@ -3599,12 +3609,6 @@ struct aptx_channel_mode_param_t {
 #define AFE_SB_DATA_FORMAT_GENERIC_COMPRESSED    0x3
 
 /*
- * Parameter to send frame control size
- * to DSP for AAC encoder in AFE.
- */
-#define AFE_PARAM_ID_AAC_FRM_SIZE_CONTROL 0x000132EA
-
-/*
  * ID for AFE port module. This will be used to define port properties.
  * This module supports following parameter IDs:
  * #AFE_PARAM_ID_PORT_MEDIA_TYPE
@@ -3772,23 +3776,6 @@ struct asm_aac_enc_cfg_v2_t {
 	 * The sampling rate must not change during encoding.
 	 */
 	uint32_t     sample_rate;
-} __packed;
-
-/* Structure to control frame size of AAC encoded frames. */
-struct asm_aac_frame_size_control_t {
-	/* Type of frame size control: MTU_SIZE / PEAK_BIT_RATE*/
-	uint32_t ctl_type;
-	/*
-	 * Control value
-	 * MTU_SIZE: MTU size in bytes
-	 * PEAK_BIT_RATE: Peak bitrate in bits per second.
-	 */
-	uint32_t ctl_value;
-} __packed;
-
-struct asm_aac_enc_cfg_t {
-	struct asm_aac_enc_cfg_v2_t aac_cfg;
-	struct asm_aac_frame_size_control_t frame_ctl;
 } __packed;
 
 /* FMT ID for apt-X Classic */
@@ -3985,7 +3972,7 @@ struct afe_port_media_type_t {
 
 union afe_enc_config_data {
 	struct asm_sbc_enc_cfg_t sbc_config;
-	struct asm_aac_enc_cfg_t aac_config;
+	struct asm_aac_enc_cfg_v2_t aac_config;
 	struct asm_custom_enc_cfg_t  custom_config;
 	struct asm_celt_enc_cfg_t  celt_config;
 	struct asm_aptx_enc_cfg_t  aptx_config;
@@ -4095,7 +4082,6 @@ union afe_port_config {
 	struct afe_param_id_tdm_cfg               tdm;
 	struct afe_param_id_usb_audio_cfg         usb_audio;
 	struct afe_param_id_aptx_sync_mode        sync_mode_param;
-	struct asm_aac_frame_size_control_t       frame_ctl_param;
 	struct afe_enc_fmt_id_param_t             enc_fmt;
 	struct afe_port_media_type_t              media_type;
 	struct afe_enc_cfg_blk_param_t            enc_blk_param;
@@ -10223,7 +10209,6 @@ struct avcs_fwk_ver_info {
 #define LSM_SESSION_CMD_CLOSE_TX			(0x00012A88)
 #define LSM_SESSION_CMD_SET_PARAMS			(0x00012A83)
 #define LSM_SESSION_CMD_SET_PARAMS_V2			(0x00012A8F)
-#define LSM_SESSION_CMD_SET_PARAMS_V3                   (0x00012A92)
 #define LSM_SESSION_CMD_REGISTER_SOUND_MODEL		(0x00012A84)
 #define LSM_SESSION_CMD_DEREGISTER_SOUND_MODEL		(0x00012A85)
 #define LSM_SESSION_CMD_START				(0x00012A86)
@@ -10238,7 +10223,6 @@ struct avcs_fwk_ver_info {
 #define LSM_DATA_EVENT_READ_DONE			(0x00012B02)
 #define LSM_DATA_EVENT_STATUS				(0x00012B03)
 #define LSM_SESSION_EVENT_DETECTION_STATUS_V3		(0x00012B04)
-#define LSM_SESSION_DETECTION_ENGINE_GENERIC_EVENT	(0x00012B06)
 
 #define LSM_MODULE_ID_VOICE_WAKEUP			(0x00012C00)
 #define LSM_PARAM_ID_ENDPOINT_DETECT_THRESHOLD		(0x00012C01)
@@ -10257,8 +10241,6 @@ struct avcs_fwk_ver_info {
 #define LSM_PARAM_ID_POLLING_ENABLE			(0x00012C1B)
 #define LSM_PARAM_ID_MEDIA_FMT				(0x00012C1E)
 #define LSM_PARAM_ID_FWK_MODE_CONFIG			(0x00012C27)
-#define LSM_PARAM_ID_MEDIA_FMT_V2			(0x00012C32)
-#define LSM_PARAM_ID_LAB_OUTPUT_CHANNEL_CONFIG		(0x00012C2D)
 
 /* HW MAD specific */
 #define AFE_MODULE_HW_MAD				(0x00010230)

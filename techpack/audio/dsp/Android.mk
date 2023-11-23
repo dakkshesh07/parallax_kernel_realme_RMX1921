@@ -15,9 +15,13 @@ ifeq ($(call is-board-platform-in-list,msm8953 msm8937),true)
 AUDIO_SELECT  := CONFIG_SND_SOC_SDM450=m
 endif
 
-ifeq ($(call is-board-platform-in-list,msm8909),true)
+ifeq ($(strip $(AUDIO_FEATURE_ENABLED_DLKM_8909W)),true)
 AUDIO_SELECT  := CONFIG_SND_SOC_BG_8909=m
 AUDIO_SELECT  += CONFIG_SND_SOC_8909_DIG_CDC=m
+endif
+
+ifeq ($(strip $(TARGET_ROARING_LIONUS)),true)
+AUDIO_SELECT  += CONFIG_MSM_8905=m
 endif
 
 AUDIO_CHIPSET := audio
@@ -37,10 +41,6 @@ ifeq ($(AUDIO_FEATURE_ENABLED_DLKM_8909W),true)
 DLKM_DIR := $(TOP)/device/qcom/msm8909w/common/dlkm
 else
 DLKM_DIR := $(TOP)/device/qcom/common/dlkm
-endif
-
-ifeq ($(TARGET_SUPPORTS_WEARABLES),true)
-DLKM_DIR := $(BOARD_COMMON_DIR)/dlkm
 endif
 
 # Build audio.ko as $(AUDIO_CHIPSET)_audio.ko

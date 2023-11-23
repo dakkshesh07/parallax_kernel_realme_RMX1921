@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -3312,20 +3312,6 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 			open_v8.endpoint_id_2 = 0xFFFF;
 			open_v8.endpoint_id_3 = 0xFFFF;
 
-			if (((this_adm.ec_ref_rx & AFE_PORT_INVALID) !=
-				AFE_PORT_INVALID) &&
-				(path != ADM_PATH_PLAYBACK)) {
-				if (this_adm.num_ec_ref_rx_chans != 0) {
-					open_v8.endpoint_id_2 =
-						this_adm.ec_ref_rx;
-					this_adm.ec_ref_rx = -1;
-				} else {
-					pr_err("%s: EC channels not set %d\n",
-						__func__,
-						this_adm.num_ec_ref_rx_chans);
-					return -EINVAL;
-				}
-			}
 
 			open_v8.topology_id = topology;
 			open_v8.reserved = 0;
@@ -3356,8 +3342,11 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 			if ((this_adm.num_ec_ref_rx_chans != 0)
 				&& (path != ADM_PATH_PLAYBACK)
 				&& (open_v8.endpoint_id_2 != 0xFFFF)) {
+				open_v8.endpoint_id_2 = this_adm.ec_ref_rx;
+				this_adm.ec_ref_rx = -1;
 				ep2_payload.dev_num_channel =
 					this_adm.num_ec_ref_rx_chans;
+				this_adm.num_ec_ref_rx_chans = 0;
 
 				if (this_adm.ec_ref_rx_bit_width != 0) {
 					ep2_payload.bit_width =
