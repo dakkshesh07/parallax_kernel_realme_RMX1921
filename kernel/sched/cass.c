@@ -97,9 +97,7 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync)
 	int cidx = 0, cpu;
 
 	/* Get the utilization for this task */
-	p_util = clamp(task_util(p),
-		       uclamp_eff_value(p, UCLAMP_MIN),
-		       uclamp_eff_value(p, UCLAMP_MAX));
+	p_util = boosted_task_util(p);
 
 	/*
 	 * Find the best CPU to wake @p on. The RCU read lock is needed for
