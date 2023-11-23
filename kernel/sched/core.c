@@ -946,9 +946,6 @@ extern int kp_active_mode(void);
 
 static inline void uclamp_boost_write(struct task_struct *p) {
 	struct cgroup_subsys_state *css = task_css(p, cpu_cgrp_id);
-	int min_value = 0;
-	int max_value = 0;
-	int latency_sensitive = 0;
 
 	//top-app min clamp input boost
 	if (strcmp(css->cgroup->kn->name, "top-app") == 0) {
@@ -2693,11 +2690,8 @@ void scheduler_ipi(void)
 		return;
 #endif
 
-	if (got_boost_kick()) {
-		struct rq *rq = cpu_rq(cpu);
-
+	if (got_boost_kick())
 		clear_boost_kick(cpu);
-	}
 
 	/*
 	 * Not all reschedule IPI handlers call irq_enter/irq_exit, since
