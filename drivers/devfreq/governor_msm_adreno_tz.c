@@ -30,7 +30,7 @@ static DEFINE_SPINLOCK(tz_lock);
  * FLOOR is 5msec to capture up to 3 re-draws
  * per frame for 60fps content.
  */
-#define FLOOR		        5000
+#define FLOOR		        3350
 /*
  * MIN_BUSY is 1 msec for the sample to be sent
  */
@@ -41,7 +41,12 @@ static DEFINE_SPINLOCK(tz_lock);
  * CEILING is 50msec, larger than any standard
  * frame length, but less than the idle timer.
  */
-#define CEILING			50000
+#define CEILING			33500
+/*
+ * optimized ceiling to benefit gpu processing with quick drops in utilization
+ * example being gpu accelerated encoding
+ */
+#define CEILING_OPT		25125
 #define TZ_RESET_ID		0x3
 #define TZ_UPDATE_ID		0x4
 #define TZ_INIT_ID		0x6
@@ -350,6 +355,7 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq, u32 
 	int val, level = 0;
 	unsigned int scm_data[4];
 	int context_count = 0;
+	unsigned int ceiling = CEILING_OPT;
 
 	/* keeps stats.private_data == NULL   */
 	result = devfreq->profile->get_dev_status(devfreq->dev.parent, &stats);
@@ -385,12 +391,15 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq, u32 
 		return level;
 	}
 
+	if (kp_active_mode() == 1)
+		ceiling = CEILING;
+
 	/*
 	 * If there is an extended block of busy processing,
 	 * increase frequency.  Otherwise run the normal algorithm.
 	 */
 	if (!priv->disable_busy_time_burst &&
-			priv->bin.busy_time > CEILING) {
+			priv->bin.busy_time > ceiling) {
 		val = -1 * level;
 	} else {
 		unsigned int multi;
