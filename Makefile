@@ -749,7 +749,7 @@ ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
 ifeq ($(cc-name),clang)
-OPT_FLAGS := -march=armv8.2-a+crypto+crc+nodotprod
+OPT_FLAGS := -march=armv8.2-a+crypto+crc+nodotprod+lse+fp16
 OPT_FLAGS += -mtune=cortex-a75
 ifdef CONFIG_LLVM_POLLY
 OPT_FLAGS += -mllvm -polly \
@@ -760,12 +760,25 @@ OPT_FLAGS += -mllvm -polly \
 		   -mllvm -polly-invariant-load-hoisting
 
 ifeq ($(call clang-ifversion, -ge, 1400, y), y)
-OPT_FLAGS += -mllvm -polly-reschedule=1 \
-	-mllvm -polly-loopfusion-greedy=1 \
-	-mllvm -polly-postopts=1
+OPT_FLAGS += -mllvm -polly-reschedule \
+	-mllvm -polly-loopfusion-greedy \
+	-mllvm -polly-postopts \
+	-mllvm -polly-dependences-analysis-type=value-based \
+	-mllvm -polly-dependences-computeout=0 \
+	-mllvm -polly-enable-delicm \
+	-mllvm -polly-num-threads=0 \
+	-mllvm -polly-omp-backend=LLVM \
+	-mllvm -polly-optimizer=isl \
+	-mllvm -polly-parallel \
+	-mllvm -polly-reschedule \
+	-mllvm -polly-scheduling-chunksize=1 \
+	-mllvm -polly-scheduling=dynamic \
+	-mllvm -polly-tiling
 else
 OPT_FLAGS += -mllvm -polly-opt-fusion=max
 endif
+
+OPT_FLAGS += -ffp-contract=fast -mllvm -regalloc-enable-advisor=release -mllvm -hot-cold-split=true
 
 KBUILD_CFLAGS += $(OPT_FLAGS)
 KBUILD_AFLAGS += $(OPT_FLAGS)
@@ -788,6 +801,7 @@ endif
 
 ifdef CONFIG_LTO_CLANG
 ifdef CONFIG_THINLTO
+lto-clang-flags	:= -funified-lto
 lto-clang-flags	:= -flto=thin -fsplit-lto-unit
 KBUILD_LDFLAGS	+= --thinlto-cache-dir=$(extmod-prefix).thinlto-cache --lto-O3
 else
