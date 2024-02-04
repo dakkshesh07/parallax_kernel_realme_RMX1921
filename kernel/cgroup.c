@@ -65,6 +65,7 @@
 #include <linux/psi.h>
 #include <linux/binfmts.h>
 #include <linux/cpu_input_boost.h>
+#include <linux/devfreq_boost.h>
 #include <net/sock.h>
 
 #define CREATE_TRACE_POINTS
@@ -2988,8 +2989,10 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
 	/* This covers boosting for app launches and app transitions */
 	if (!ret && !threadgroup &&
 	    !strcmp(of->kn->parent->name, "top-app") &&
-	    task_is_zygote(tsk->parent))
-		cpu_input_boost_kick_max(1000);
+	    task_is_zygote(tsk->parent)) {
+		cpu_input_boost_kick_max(100);
+		devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 100);
+	}
 
 	put_task_struct(tsk);
 	goto out_unlock_threadgroup;
