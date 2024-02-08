@@ -1679,11 +1679,8 @@ static void adm_reset_data(void)
 	 * for Source Tracking
 	 */
 	if (this_adm.sourceTrackingData.memmap.paddr != 0) {
-		msm_audio_ion_free(
-			this_adm.sourceTrackingData.ion_client,
-			this_adm.sourceTrackingData.ion_handle);
-		this_adm.sourceTrackingData.ion_client = NULL;
-		this_adm.sourceTrackingData.ion_handle = NULL;
+		msm_audio_ion_free(this_adm.sourceTrackingData.dma_buf);
+		this_adm.sourceTrackingData.dma_buf = NULL;
 		this_adm.sourceTrackingData.memmap.size = 0;
 		this_adm.sourceTrackingData.memmap.kvaddr =
 							 NULL;
