@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -10,9 +10,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __LINUX_MSM_ION_H__
-#define __LINUX_MSM_ION_H__
+#ifndef __LINUX_ION_KERNEL_H__
+#define __LINUX_ION_KERNEL_H__
 
-#include "../../drivers/staging/android/ion/msm/msm_ion.h"
+#include "../../drivers/staging/android/ion/ion_kernel.h"
 
-#endif /* __LINUX_MSM_ION_H__ */
+#endif /* __LINUX_ION_KERNEL_H__ */

@@ -2,7 +2,6 @@
  * drivers/staging/android/ion/ion_heap.c
  *
  * Copyright (C) 2011 Google, Inc.
- * Copyright (c) 2011-2016, The Linux Foundation. All rights reserved.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -21,13 +20,10 @@
 #include <linux/mm.h>
 #include <linux/rtmutex.h>
 #include <linux/sched.h>
+#include <uapi/linux/sched/types.h>
 #include <linux/scatterlist.h>
 #include <linux/vmalloc.h>
-#include <linux/slab.h>
-#include <linux/highmem.h>
-#include <linux/dma-mapping.h>
 #include "ion.h"
-#include "ion_priv.h"
 
 void *ion_heap_map_kernel(struct ion_heap *heap,
 			  struct ion_buffer *buffer)
@@ -97,7 +93,7 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
 		}
 		len = min(len, remainder);
 		ret = remap_pfn_range(vma, addr, page_to_pfn(page), len,
-				vma->vm_page_prot);
+				      vma->vm_page_prot);
 		if (ret)
 			return ret;
 		addr += len;
@@ -120,7 +116,7 @@ static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)
 }
 
 static int ion_heap_sglist_zero(struct scatterlist *sgl, unsigned int nents,
-						pgprot_t pgprot)
+				pgprot_t pgprot)
 {
 	int p = 0;
 	int ret = 0;
@@ -185,7 +181,7 @@ size_t ion_heap_freelist_size(struct ion_heap *heap)
 }
 
 static size_t _ion_heap_freelist_drain(struct ion_heap *heap, size_t size,
-				bool skip_pools)
+				       bool skip_pools)
 {
 	struct ion_buffer *buffer;
 	size_t total_drained = 0;
@@ -254,8 +250,9 @@ static int ion_heap_deferred_free(void *data)
 
 int ion_heap_init_deferred_free(struct ion_heap *heap)
 {
+#ifndef CONFIG_ION_DEFER_FREE_NO_SCHED_IDLE
 	struct sched_param param = { .sched_priority = 0 };
-
+#endif
 	INIT_LIST_HEAD(&heap->free_list);
 	init_waitqueue_head(&heap->waitqueue);
 	heap->task = kthread_run(ion_heap_deferred_free, heap,
@@ -265,12 +262,14 @@ int ion_heap_init_deferred_free(struct ion_heap *heap)
 		       __func__);
 		return PTR_ERR_OR_ZERO(heap->task);
 	}
+#ifndef CONFIG_ION_DEFER_FREE_NO_SCHED_IDLE
 	sched_setscheduler(heap->task, SCHED_IDLE, &param);
+#endif
 	return 0;
 }
 
 static unsigned long ion_heap_shrink_count(struct shrinker *shrinker,
-						struct shrink_control *sc)
+					   struct shrink_control *sc)
 {
 	struct ion_heap *heap = container_of(shrinker, struct ion_heap,
 					     shrinker);
@@ -283,7 +282,7 @@ static unsigned long ion_heap_shrink_count(struct shrinker *shrinker,
 }
 
 static unsigned long ion_heap_shrink_scan(struct shrinker *shrinker,
-						struct shrink_control *sc)
+					  struct shrink_control *sc)
 {
 	struct ion_heap *heap = container_of(shrinker, struct ion_heap,
 					     shrinker);
@@ -322,12 +321,13 @@ void ion_heap_init_shrinker(struct ion_heap *heap)
 struct ion_heap *ion_heap_create(struct ion_platform_heap *heap_data)
 {
 	struct ion_heap *heap = NULL;
+	int heap_type = heap_data->type;
 
-	switch (heap_data->type) {
+	switch (heap_type) {
 	case ION_HEAP_TYPE_SYSTEM_CONTIG:
 		pr_err("%s: Heap type is disabled: %d\n", __func__,
 		       heap_data->type);
-		return ERR_PTR(-EINVAL);
+		break;
 	case ION_HEAP_TYPE_SYSTEM:
 		heap = ion_system_heap_create(heap_data);
 		break;
@@ -337,8 +337,22 @@ struct ion_heap *ion_heap_create(struct ion_platform_heap *heap_data)
 	case ION_HEAP_TYPE_CHUNK:
 		heap = ion_chunk_heap_create(heap_data);
 		break;
+#ifdef CONFIG_CMA
+	case (enum ion_heap_type)ION_HEAP_TYPE_SECURE_DMA:
+		heap = ion_secure_cma_heap_create(heap_data);
+		break;
 	case ION_HEAP_TYPE_DMA:
 		heap = ion_cma_heap_create(heap_data);
+		break;
+	case (enum ion_heap_type)ION_HEAP_TYPE_HYP_CMA:
+		heap = ion_cma_secure_heap_create(heap_data);
+		break;
+#endif
+	case (enum ion_heap_type)ION_HEAP_TYPE_SYSTEM_SECURE:
+		heap = ion_system_secure_heap_create(heap_data);
+		break;
+	case (enum ion_heap_type)ION_HEAP_TYPE_SECURE_CARVEOUT:
+		heap = ion_secure_carveout_heap_create(heap_data);
 		break;
 	default:
 		pr_err("%s: Invalid heap type %d\n", __func__,
@@ -359,32 +373,3 @@ struct ion_heap *ion_heap_create(struct ion_platform_heap *heap_data)
 	return heap;
 }
 EXPORT_SYMBOL(ion_heap_create);
-
-void ion_heap_destroy(struct ion_heap *heap)
-{
-	if (!heap)
-		return;
-
-	switch (heap->type) {
-	case ION_HEAP_TYPE_SYSTEM_CONTIG:
-		pr_err("%s: Heap type is disabled: %d\n", __func__,
-		       heap->type);
-		break;
-	case ION_HEAP_TYPE_SYSTEM:
-		ion_system_heap_destroy(heap);
-		break;
-	case ION_HEAP_TYPE_CARVEOUT:
-		ion_carveout_heap_destroy(heap);
-		break;
-	case ION_HEAP_TYPE_CHUNK:
-		ion_chunk_heap_destroy(heap);
-		break;
-	case ION_HEAP_TYPE_DMA:
-		ion_cma_heap_destroy(heap);
-		break;
-	default:
-		pr_err("%s: Invalid heap type %d\n", __func__,
-		       heap->type);
-	}
-}
-EXPORT_SYMBOL(ion_heap_destroy);

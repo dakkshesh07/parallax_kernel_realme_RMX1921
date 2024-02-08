@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2014-2016, 2018-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -14,12 +14,15 @@
  */
 
 #include <linux/slab.h>
-#include <linux/msm_ion.h>
 #include <soc/qcom/secure_buffer.h>
 #include <linux/workqueue.h>
 #include <linux/uaccess.h>
+#include <linux/kernel.h>
+
+#include "ion_system_secure_heap.h"
+#include "ion_system_heap.h"
 #include "ion.h"
-#include "ion_priv.h"
+#include "ion_secure_util.h"
 
 struct ion_system_secure_heap {
 	struct ion_heap *sys_heap;
@@ -35,7 +38,7 @@ struct ion_system_secure_heap {
 struct prefetch_info {
 	struct list_head list;
 	int vmid;
-	size_t size;
+	u64 size;
 	bool shrink;
 };
 
@@ -47,53 +50,19 @@ struct prefetch_info {
  */
 #define SHRINK_DELAY 1000
 
+int ion_heap_is_system_secure_heap_type(enum ion_heap_type type)
+{
+	return type == ((enum ion_heap_type)ION_HEAP_TYPE_SYSTEM_SECURE);
+}
+
 static bool is_cp_flag_present(unsigned long flags)
 {
 	return flags & (ION_FLAG_CP_TOUCH |
 			ION_FLAG_CP_BITSTREAM |
 			ION_FLAG_CP_PIXEL |
 			ION_FLAG_CP_NON_PIXEL |
-			ION_FLAG_CP_CAMERA);
-}
-
-int ion_system_secure_heap_unassign_sg(struct sg_table *sgt, int source_vmid)
-{
-	u32 dest_vmid = VMID_HLOS;
-	u32 dest_perms = PERM_READ | PERM_WRITE | PERM_EXEC;
-	struct scatterlist *sg;
-	int ret, i;
-
-	ret = hyp_assign_table(sgt, &source_vmid, 1,
-			       &dest_vmid, &dest_perms, 1);
-	if (ret) {
-		pr_err("%s: Not freeing memory since assign call failed. VMID %d\n",
-		       __func__, source_vmid);
-		return -ENXIO;
-	}
-
-	for_each_sg(sgt->sgl, sg, sgt->nents, i)
-		ClearPagePrivate(sg_page(sg));
-	return 0;
-}
-
-int ion_system_secure_heap_assign_sg(struct sg_table *sgt, int dest_vmid)
-{
-	u32 source_vmid = VMID_HLOS;
-	u32 dest_perms = PERM_READ | PERM_WRITE;
-	struct scatterlist *sg;
-	int ret, i;
-
-	ret = hyp_assign_table(sgt, &source_vmid, 1,
-			       &dest_vmid, &dest_perms, 1);
-	if (ret) {
-		pr_err("%s: Assign call failed. VMID %d\n",
-		       __func__, dest_vmid);
-		return -EINVAL;
-	}
-
-	for_each_sg(sgt->sgl, sg, sgt->nents, i)
-		SetPagePrivate(sg_page(sg));
-	return 0;
+			ION_FLAG_CP_CAMERA |
+			ION_FLAG_CP_CAMERA_ENCODE);
 }
 
 static void ion_system_secure_heap_free(struct ion_buffer *buffer)
@@ -109,7 +78,7 @@ static void ion_system_secure_heap_free(struct ion_buffer *buffer)
 static int ion_system_secure_heap_allocate(
 					struct ion_heap *heap,
 					struct ion_buffer *buffer,
-					unsigned long size, unsigned long align,
+					unsigned long size,
 					unsigned long flags)
 {
 	int ret = 0;
@@ -118,14 +87,14 @@ static int ion_system_secure_heap_allocate(
 						heap);
 
 	if (!ion_heap_is_system_secure_heap_type(secure_heap->heap.type) ||
-	    !(is_cp_flag_present(flags) || (flags & ION_FLAG_SECURE))) {
+	    !is_cp_flag_present(flags)) {
 		pr_info("%s: Incorrect heap type or incorrect flags\n",
 			__func__);
 		return -EINVAL;
 	}
 
 	ret = secure_heap->sys_heap->ops->allocate(secure_heap->sys_heap,
-						buffer, size, align, flags);
+						buffer, size, flags);
 	if (ret) {
 		pr_info("%s: Failed to get allocation for %s, ret = %d\n",
 			__func__, heap->name, ret);
@@ -138,37 +107,66 @@ static void process_one_prefetch(struct ion_heap *sys_heap,
 				 struct prefetch_info *info)
 {
 	struct ion_buffer buffer;
-	struct sg_table *sg_table;
 	int ret;
+	int vmid;
 
+	memset(&buffer, 0, sizeof(struct ion_buffer));
 	buffer.heap = sys_heap;
-	buffer.flags = 0;
 
 	ret = sys_heap->ops->allocate(sys_heap, &buffer, info->size,
-						PAGE_SIZE, buffer.flags);
+					buffer.flags);
 	if (ret) {
-		pr_debug("%s: Failed to prefetch 0x%zx, ret = %d\n",
+		pr_debug("%s: Failed to prefetch %#llx, ret = %d\n",
 			 __func__, info->size, ret);
 		return;
 	}
 
-	sg_table = sys_heap->ops->map_dma(sys_heap, &buffer);
-	if (IS_ERR_OR_NULL(sg_table))
+	vmid = get_secure_vmid(info->vmid);
+	if (vmid < 0)
 		goto out;
 
-	ret = ion_system_secure_heap_assign_sg(sg_table,
-					       get_secure_vmid(info->vmid));
-	if (ret)
-		goto unmap;
+	ret = ion_hyp_assign_sg(buffer.sg_table, &vmid, 1, true);
+	if (ret == -EADDRNOTAVAIL)
+		goto out1;
+	else if (ret < 0)
+		goto out;
 
 	/* Now free it to the secure heap */
 	buffer.heap = sys_heap;
 	buffer.flags = info->vmid;
 
-unmap:
-	sys_heap->ops->unmap_dma(sys_heap, &buffer);
 out:
 	sys_heap->ops->free(&buffer);
+out1:
+	/*
+	 * The security state of the pages is unknown after a failure;
+	 * They can neither be added back to the secure pool nor buddy system.
+	 */
+	return;
+}
+
+/*
+ * Since no lock is held, results are approximate.
+ */
+size_t ion_system_secure_heap_page_pool_total(struct ion_heap *heap,
+					      int vmid_flags)
+{
+	struct ion_system_heap *sys_heap;
+	struct ion_page_pool *pool;
+	size_t total = 0;
+	int vmid, i;
+
+	sys_heap = container_of(heap, struct ion_system_heap, heap);
+	vmid = get_secure_vmid(vmid_flags);
+	if (vmid < 0)
+		return 0;
+
+	for (i = 0; i < NUM_ORDERS; i++) {
+		pool = sys_heap->secure_pools[vmid][i];
+		total += ion_page_pool_total(pool, true);
+	}
+
+	return total << PAGE_SHIFT;
 }
 
 static void process_one_shrink(struct ion_system_secure_heap *secure_heap,
@@ -179,16 +177,16 @@ static void process_one_shrink(struct ion_system_secure_heap *secure_heap,
 	size_t pool_size, size;
 	int ret;
 
+	memset(&buffer, 0, sizeof(struct ion_buffer));
 	buffer.heap = &secure_heap->heap;
 	buffer.flags = info->vmid;
 
-	pool_size = ion_system_heap_secure_page_pool_total(sys_heap,
+	pool_size = ion_system_secure_heap_page_pool_total(sys_heap,
 							   info->vmid);
-	size = min(pool_size, info->size);
-	ret = sys_heap->ops->allocate(sys_heap, &buffer, size, PAGE_SIZE,
-				      buffer.flags);
+	size = min_t(size_t, pool_size, info->size);
+	ret = sys_heap->ops->allocate(sys_heap, &buffer, size, buffer.flags);
 	if (ret) {
-		pr_debug("%s: Failed to shrink 0x%zx, ret = %d\n",
+		pr_debug("%s: Failed to shrink %#llx, ret = %d\n",
 			 __func__, info->size, ret);
 		return;
 	}
@@ -229,7 +227,7 @@ static int alloc_prefetch_info(
 			bool shrink, struct list_head *items)
 {
 	struct prefetch_info *info;
-	size_t __user *user_sizes;
+	u64 user_sizes;
 	int err;
 	unsigned int nr_sizes, vmid, i;
 
@@ -250,7 +248,7 @@ static int alloc_prefetch_info(
 		if (!info)
 			return -ENOMEM;
 
-		err = get_user(info->size, &user_sizes[i]);
+		err = get_user(info->size, ((u64 __user *)user_sizes + i));
 		if (err)
 			goto out_free;
 
@@ -284,7 +282,9 @@ static int __ion_system_secure_heap_resize(struct ion_heap *heap, void *ptr,
 		return -EINVAL;
 
 	for (i = 0; i < data->nr_regions; i++) {
-		ret = alloc_prefetch_info(&data->regions[i], shrink, &items);
+		ret = alloc_prefetch_info(
+			(struct ion_prefetch_regions *)data->regions + i,
+			shrink, &items);
 		if (ret)
 			goto out_free;
 	}
@@ -317,28 +317,6 @@ int ion_system_secure_heap_prefetch(struct ion_heap *heap, void *ptr)
 int ion_system_secure_heap_drain(struct ion_heap *heap, void *ptr)
 {
 	return __ion_system_secure_heap_resize(heap, ptr, true);
-}
-
-static struct sg_table *ion_system_secure_heap_map_dma(
-			struct ion_heap *heap, struct ion_buffer *buffer)
-{
-	struct ion_system_secure_heap *secure_heap = container_of(heap,
-						struct ion_system_secure_heap,
-						heap);
-
-	return secure_heap->sys_heap->ops->map_dma(secure_heap->sys_heap,
-							buffer);
-}
-
-static void ion_system_secure_heap_unmap_dma(struct ion_heap *heap,
-					     struct ion_buffer *buffer)
-{
-	struct ion_system_secure_heap *secure_heap = container_of(heap,
-						struct ion_system_secure_heap,
-						heap);
-
-	secure_heap->sys_heap->ops->unmap_dma(secure_heap->sys_heap,
-							buffer);
 }
 
 static void *ion_system_secure_heap_map_kernel(struct ion_heap *heap,
@@ -374,15 +352,51 @@ static int ion_system_secure_heap_shrink(struct ion_heap *heap, gfp_t gfp_mask,
 						gfp_mask, nr_to_scan);
 }
 
+static int ion_system_secure_heap_pm_freeze(struct ion_heap *heap)
+{
+	struct ion_system_secure_heap *secure_heap;
+	unsigned long count;
+	long sz;
+	struct shrink_control sc = {
+		.gfp_mask = GFP_HIGHUSER,
+	};
+
+	secure_heap = container_of(heap, struct ion_system_secure_heap, heap);
+
+	sz = atomic_long_read(&heap->total_allocated);
+	if (sz) {
+		pr_err("%s: %lx bytes won't be saved across hibernation. Aborting.",
+		       __func__, sz);
+		return -EINVAL;
+	}
+
+	/* Since userspace is frozen, no more requests will be queued */
+	cancel_delayed_work_sync(&secure_heap->prefetch_work);
+
+	count = heap->shrinker.count_objects(&heap->shrinker, &sc);
+	sc.nr_to_scan = count;
+	heap->shrinker.scan_objects(&heap->shrinker, &sc);
+
+	count = heap->shrinker.count_objects(&heap->shrinker, &sc);
+	if (count) {
+		pr_err("%s: Failed to free all objects - %ld remaining",
+		       __func__, count);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static struct ion_heap_ops system_secure_heap_ops = {
 	.allocate = ion_system_secure_heap_allocate,
 	.free = ion_system_secure_heap_free,
-	.map_dma = ion_system_secure_heap_map_dma,
-	.unmap_dma = ion_system_secure_heap_unmap_dma,
 	.map_kernel = ion_system_secure_heap_map_kernel,
 	.unmap_kernel = ion_system_secure_heap_unmap_kernel,
 	.map_user = ion_system_secure_heap_map_user,
 	.shrink = ion_system_secure_heap_shrink,
+	.pm = {
+		.freeze = ion_system_secure_heap_pm_freeze,
+	}
 };
 
 struct ion_heap *ion_system_secure_heap_create(struct ion_platform_heap *unused)
@@ -404,27 +418,128 @@ struct ion_heap *ion_system_secure_heap_create(struct ion_platform_heap *unused)
 	return &heap->heap;
 }
 
-void ion_system_secure_heap_destroy(struct ion_heap *heap)
+struct page *alloc_from_secure_pool_order(struct ion_system_heap *heap,
+					  struct ion_buffer *buffer,
+					  unsigned long order)
 {
-	struct ion_system_secure_heap *secure_heap = container_of(heap,
-						struct ion_system_secure_heap,
-						heap);
-	unsigned long flags;
-	LIST_HEAD(items);
-	struct prefetch_info *info, *tmp;
+	int vmid = get_secure_vmid(buffer->flags);
+	struct ion_page_pool *pool;
 
-	/* Stop any pending/future work */
-	spin_lock_irqsave(&secure_heap->work_lock, flags);
-	secure_heap->destroy_heap = true;
-	list_splice_init(&secure_heap->prefetch_list, &items);
-	spin_unlock_irqrestore(&secure_heap->work_lock, flags);
+	if (!is_secure_vmid_valid(vmid))
+		return ERR_PTR(-EINVAL);
 
-	cancel_delayed_work_sync(&secure_heap->prefetch_work);
+	pool = heap->secure_pools[vmid][order_to_index(order)];
+	return ion_page_pool_alloc_pool_only(pool);
+}
 
-	list_for_each_entry_safe(info, tmp, &items, list) {
-		list_del(&info->list);
-		kfree(info);
+struct page *split_page_from_secure_pool(struct ion_system_heap *heap,
+					 struct ion_buffer *buffer)
+{
+	int i, j;
+	struct page *page;
+	unsigned int order;
+
+	mutex_lock(&heap->split_page_mutex);
+
+	/*
+	 * Someone may have just split a page and returned the unused portion
+	 * back to the pool, so try allocating from the pool one more time
+	 * before splitting. We want to maintain large pages sizes when
+	 * possible.
+	 */
+	page = alloc_from_secure_pool_order(heap, buffer, 0);
+	if (!IS_ERR(page))
+		goto got_page;
+
+	for (i = NUM_ORDERS - 2; i >= 0; i--) {
+		order = orders[i];
+		page = alloc_from_secure_pool_order(heap, buffer, order);
+		if (IS_ERR(page))
+			continue;
+
+		split_page(page, order);
+		break;
+	}
+	/*
+	 * Return the remaining order-0 pages to the pool.
+	 * SetPagePrivate flag to mark memory as secure.
+	 */
+	if (!IS_ERR(page)) {
+		for (j = 1; j < (1 << order); j++) {
+			SetPagePrivate(page + j);
+			free_buffer_page(heap, buffer, page + j, 0);
+		}
+	}
+got_page:
+	mutex_unlock(&heap->split_page_mutex);
+
+	return page;
+}
+
+int ion_secure_page_pool_shrink(
+		struct ion_system_heap *sys_heap,
+		int vmid, int order_idx, int nr_to_scan)
+{
+	int ret, freed = 0;
+	int order = orders[order_idx];
+	struct page *page, *tmp;
+	struct sg_table sgt;
+	struct scatterlist *sg;
+	struct ion_page_pool *pool = sys_heap->secure_pools[vmid][order_idx];
+	LIST_HEAD(pages);
+
+	if (nr_to_scan == 0)
+		return ion_page_pool_total(pool, true);
+
+	while (freed < nr_to_scan) {
+		page = ion_page_pool_alloc_pool_only(pool);
+		if (IS_ERR(page))
+			break;
+		list_add(&page->lru, &pages);
+		freed += (1 << order);
 	}
 
-	kfree(heap);
+	if (!freed)
+		return freed;
+
+	ret = sg_alloc_table(&sgt, (freed >> order), GFP_KERNEL);
+	if (ret)
+		goto out1;
+	sg = sgt.sgl;
+	list_for_each_entry(page, &pages, lru) {
+		sg_set_page(sg, page, (1 << order) * PAGE_SIZE, 0);
+		sg_dma_address(sg) = page_to_phys(page);
+		sg = sg_next(sg);
+	}
+
+	ret = ion_hyp_unassign_sg(&sgt, &vmid, 1, true, true);
+	if (ret == -EADDRNOTAVAIL)
+		goto out3;
+	else if (ret < 0)
+		goto out2;
+
+	list_for_each_entry_safe(page, tmp, &pages, lru) {
+		list_del(&page->lru);
+		ion_page_pool_free_immediate(pool, page);
+	}
+
+	sg_free_table(&sgt);
+	return freed;
+
+out2:
+	sg_free_table(&sgt);
+out1:
+	/* Restore pages to secure pool */
+	list_for_each_entry_safe(page, tmp, &pages, lru) {
+		list_del(&page->lru);
+		ion_page_pool_free(pool, page);
+	}
+	return 0;
+out3:
+	/*
+	 * The security state of the pages is unknown after a failure;
+	 * They can neither be added back to the secure pool nor buddy system.
+	 */
+	sg_free_table(&sgt);
+	return 0;
 }

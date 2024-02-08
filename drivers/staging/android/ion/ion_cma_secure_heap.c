@@ -3,7 +3,7 @@
  *
  * Copyright (C) Linaro 2012
  * Author: <benjamin.gaignard@linaro.org> for ST-Ericsson.
- * Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -29,7 +29,7 @@
 #include <asm/cacheflush.h>
 
 /* for ion_heap_ops structure */
-#include "ion_priv.h"
+#include "ion.h"
 
 #define ION_CMA_ALLOCATE_FAILED NULL
 
@@ -91,7 +91,7 @@ struct ion_cma_secure_heap {
 	 */
 	struct list_head chunks;
 	int npages;
-	ion_phys_addr_t base;
+	phys_addr_t base;
 	struct work_struct work;
 	unsigned long last_alloc;
 	struct shrinker shrinker;
@@ -103,6 +103,11 @@ struct ion_cma_secure_heap {
 };
 
 static void ion_secure_pool_pages(struct work_struct *work);
+
+static int ion_heap_allow_secure_allocation(enum ion_heap_type type)
+{
+	return type == ((enum ion_heap_type)ION_HEAP_TYPE_SECURE_DMA);
+}
 
 /*
  * Create scatter-list for the already allocated DMA buffer.
@@ -135,8 +140,9 @@ static int ion_secure_cma_add_to_pool(
 	int ret = 0;
 	struct ion_cma_alloc_chunk *chunk;
 
-	trace_ion_secure_cma_add_to_pool_start(len, atomic_read(&sheap->
-					       total_pool_size), prefetch);
+	trace_ion_secure_cma_add_to_pool_start(len,
+					atomic_read(&sheap->total_pool_size),
+					prefetch);
 	mutex_lock(&sheap->chunk_lock);
 
 	chunk = kzalloc(sizeof(*chunk), GFP_KERNEL);
@@ -171,8 +177,9 @@ out_free:
 out:
 	mutex_unlock(&sheap->chunk_lock);
 
-	trace_ion_secure_cma_add_to_pool_end(len, atomic_read(&sheap->
-					     total_pool_size), prefetch);
+	trace_ion_secure_cma_add_to_pool_end(len,
+					atomic_read(&sheap->total_pool_size),
+					prefetch);
 
 	return ret;
 }
@@ -464,7 +471,7 @@ out:
 /* ION CMA heap operations functions */
 static struct ion_secure_cma_buffer_info *__ion_secure_cma_allocate(
 			    struct ion_heap *heap, struct ion_buffer *buffer,
-			    unsigned long len, unsigned long align,
+			    unsigned long len,
 			    unsigned long flags)
 {
 	struct ion_cma_secure_heap *sheap =
@@ -552,7 +559,7 @@ static void __ion_secure_cma_free(struct ion_cma_secure_heap *sheap,
 
 static struct ion_secure_cma_buffer_info *__ion_secure_cma_allocate_non_contig(
 			struct ion_heap *heap, struct ion_buffer *buffer,
-			unsigned long len, unsigned long align,
+			unsigned long len,
 			unsigned long flags)
 {
 	struct ion_cma_secure_heap *sheap =
@@ -560,11 +567,10 @@ static struct ion_secure_cma_buffer_info *__ion_secure_cma_allocate_non_contig(
 	struct ion_secure_cma_buffer_info *info;
 	int ret;
 	unsigned long alloc_size = len;
-	struct ion_secure_cma_non_contig_info *nc_info;
+	struct ion_secure_cma_non_contig_info *nc_info, *temp;
 	unsigned long ncelems = 0;
 	struct scatterlist *sg;
 	unsigned long total_allocated = 0;
-	unsigned long total_added_to_pool = 0;
 
 	dev_dbg(sheap->dev, "Request buffer allocation len %ld\n", len);
 
@@ -602,7 +608,6 @@ retry:
 				kfree(nc_info);
 				continue;
 			}
-			total_added_to_pool += alloc_size;
 			ret = ion_secure_cma_alloc_from_pool(sheap,
 							     &nc_info->phys,
 							     alloc_size);
@@ -652,13 +657,12 @@ retry:
 err2:
 	mutex_unlock(&sheap->alloc_lock);
 err1:
-	__ion_secure_cma_free_non_contig(sheap, info);
+	list_for_each_entry_safe(nc_info, temp, &info->non_contig_list,
+				 entry) {
+		list_del(&nc_info->entry);
+		kfree(nc_info);
+	}
 	kfree(info->table);
-	/*
-	 * There may be a concurrent case that entering this function
-	 * although remaining heap not enough
-	 */
-	__ion_secure_cma_shrink_pool(sheap, total_added_to_pool);
 err:
 	kfree(info);
 	return ION_CMA_ALLOCATE_FAILED;
@@ -666,14 +670,12 @@ err:
 
 static int ion_secure_cma_allocate(struct ion_heap *heap,
 				   struct ion_buffer *buffer,
-				   unsigned long len, unsigned long align,
+				   unsigned long len,
 				   unsigned long flags)
 {
 	unsigned long secure_allocation = flags & ION_FLAG_SECURE;
 	struct ion_secure_cma_buffer_info *buf = NULL;
 	unsigned long allow_non_contig = flags & ION_FLAG_ALLOW_NON_CONTIG;
-	struct ion_cma_secure_heap *sheap =
-			container_of(heap, struct ion_cma_secure_heap, heap);
 
 	if (!secure_allocation &&
 	    !ion_heap_allow_secure_allocation(heap->type)) {
@@ -693,17 +695,14 @@ static int ion_secure_cma_allocate(struct ion_heap *heap,
 		       __func__, heap->name);
 		return -ENOMEM;
 	}
-	trace_ion_secure_cma_allocate_start(heap->name, len, align, flags);
+	trace_ion_secure_cma_allocate_start(heap->name, len, flags);
 	if (!allow_non_contig)
-		buf = __ion_secure_cma_allocate(heap, buffer, len, align,
+		buf = __ion_secure_cma_allocate(heap, buffer, len,
 						flags);
-	else if (len > (sheap->heap_size - atomic_read(&sheap->
-			total_allocated) - atomic_read(&sheap->total_leaked)))
-		return -ENOMEM;
 	else
 		buf = __ion_secure_cma_allocate_non_contig(heap, buffer, len,
-							   align, flags);
-	trace_ion_secure_cma_allocate_end(heap->name, len, align, flags);
+							   flags);
+	trace_ion_secure_cma_allocate_end(heap->name, len, flags);
 	if (buf) {
 		int ret;
 
@@ -712,10 +711,10 @@ static int ion_secure_cma_allocate(struct ion_heap *heap,
 			       __func__);
 			ret = 1;
 		} else {
-			trace_ion_cp_secure_buffer_start(heap->name, len, align,
+			trace_ion_cp_secure_buffer_start(heap->name, len,
 							 flags);
 			ret = msm_secure_table(buf->table);
-			trace_ion_cp_secure_buffer_end(heap->name, len, align,
+			trace_ion_cp_secure_buffer_end(heap->name, len,
 						       flags);
 		}
 		if (ret) {
@@ -757,35 +756,6 @@ static void ion_secure_cma_free(struct ion_buffer *buffer)
 	__ion_secure_cma_free(sheap, info, ret ? false : true);
 }
 
-static int ion_secure_cma_phys(struct ion_heap *heap, struct ion_buffer *buffer,
-			       ion_phys_addr_t *addr, size_t *len)
-{
-	struct ion_cma_secure_heap *sheap =
-		container_of(heap, struct ion_cma_secure_heap, heap);
-	struct ion_secure_cma_buffer_info *info = buffer->priv_virt;
-
-	dev_dbg(sheap->dev, "Return buffer %pK physical address 0x%pa\n",
-		buffer, &info->phys);
-
-	*addr = info->phys;
-	*len = buffer->size;
-
-	return 0;
-}
-
-static struct sg_table *ion_secure_cma_heap_map_dma(struct ion_heap *heap,
-						    struct ion_buffer *buffer)
-{
-	struct ion_secure_cma_buffer_info *info = buffer->priv_virt;
-
-	return info->table;
-}
-
-static void ion_secure_cma_heap_unmap_dma(struct ion_heap *heap,
-					  struct ion_buffer *buffer)
-{
-}
-
 static int ion_secure_cma_mmap(struct ion_heap *mapper,
 			       struct ion_buffer *buffer,
 			       struct vm_area_struct *vma)
@@ -808,52 +778,12 @@ static void ion_secure_cma_unmap_kernel(struct ion_heap *heap,
 {
 }
 
-static int ion_secure_cma_print_debug(struct ion_heap *heap, struct seq_file *s,
-				      const struct list_head *mem_map)
-{
-	struct ion_cma_secure_heap *sheap =
-		container_of(heap, struct ion_cma_secure_heap, heap);
-
-	if (mem_map) {
-		struct mem_map_data *data;
-
-		seq_puts(s, "\nMemory Map\n");
-		seq_printf(s, "%16.s %14.s %14.s %14.s\n",
-			   "client", "start address", "end address",
-			   "size");
-
-		list_for_each_entry(data, mem_map, node) {
-			const char *client_name = "(null)";
-
-			if (data->client_name)
-				client_name = data->client_name;
-
-			seq_printf(s, "%16.s 0x%14pa 0x%14pa %14lu (0x%lx)\n",
-				   client_name, &data->addr,
-				   &data->addr_end,
-				   data->size, data->size);
-		}
-	}
-	seq_printf(s, "Total allocated: 0x%x\n",
-		   atomic_read(&sheap->total_allocated));
-	seq_printf(s, "Total pool size: 0x%x\n",
-		   atomic_read(&sheap->total_pool_size));
-	seq_printf(s, "Total memory leaked due to unlock failures: 0x%x\n",
-		   atomic_read(&sheap->total_leaked));
-
-	return 0;
-}
-
 static struct ion_heap_ops ion_secure_cma_ops = {
 	.allocate = ion_secure_cma_allocate,
 	.free = ion_secure_cma_free,
-	.map_dma = ion_secure_cma_heap_map_dma,
-	.unmap_dma = ion_secure_cma_heap_unmap_dma,
-	.phys = ion_secure_cma_phys,
 	.map_user = ion_secure_cma_mmap,
 	.map_kernel = ion_secure_cma_map_kernel,
 	.unmap_kernel = ion_secure_cma_unmap_kernel,
-	.print_debug = ion_secure_cma_print_debug,
 };
 
 struct ion_heap *ion_secure_cma_heap_create(struct ion_platform_heap *data)
@@ -886,12 +816,6 @@ struct ion_heap *ion_secure_cma_heap_create(struct ion_platform_heap *data)
 	if (!sheap->bitmap) {
 		kfree(sheap);
 		return ERR_PTR(-ENOMEM);
-	}
-
-	if (data->extra_data) {
-		struct ion_cma_pdata *extra = data->extra_data;
-
-		sheap->default_prefetch_size = extra->default_prefetch_size;
 	}
 
 	/*
