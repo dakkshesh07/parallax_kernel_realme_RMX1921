@@ -811,8 +811,13 @@ static void fastrpc_mmap_free(struct fastrpc_mmap *map, uint32_t flags)
 					(dma_addr_t)map->phys, dma_attrs);
 		}
 	} else if (map->flags == FASTRPC_DMAHANDLE_NOMAP) {
-		if (!IS_ERR_OR_NULL(map->handle))
-			ion_free(fl->apps->client, map->handle);
+		if (!IS_ERR_OR_NULL(map->table))
+			dma_buf_unmap_attachment(map->attach, map->table,
+					DMA_BIDIRECTIONAL);
+		if (!IS_ERR_OR_NULL(map->attach))
+			dma_buf_detach(map->buf, map->attach);
+		if (!IS_ERR_OR_NULL(map->buf))
+			dma_buf_put(map->buf);
 	} else {
 		int destVM[1] = {VMID_HLOS};
 		int destVMperm[1] = {PERM_READ | PERM_WRITE | PERM_EXEC};
@@ -905,25 +910,34 @@ static int fastrpc_mmap_create(struct fastrpc_file *fl, int fd,
 		map->size = len;
 		map->va = (uintptr_t)region_vaddr;
 	} else if (mflags == FASTRPC_DMAHANDLE_NOMAP) {
-		ion_phys_addr_t iphys;
-
-		VERIFY(err, !IS_ERR_OR_NULL(map->handle =
-				ion_import_dma_buf_fd(fl->apps->client, fd)));
+		VERIFY(err, !IS_ERR_OR_NULL(map->buf = dma_buf_get(fd)));
 		if (err)
 			goto bail;
 
+		VERIFY(err, !dma_buf_get_flags(map->buf, &flags));
+		if (err)
+			goto bail;
+
+		map->secure = flags & ION_FLAG_SECURE;
 		map->uncached = 1;
-		map->buf = NULL;
-		map->attach = NULL;
-		map->table = NULL;
 		map->va = 0;
 		map->phys = 0;
 
-		err = ion_phys(fl->apps->client, map->handle,
-			&iphys, &map->size);
+		VERIFY(err, !IS_ERR_OR_NULL(map->attach =
+				dma_buf_attach(map->buf, me->dev)));
 		if (err)
 			goto bail;
-		map->phys = (uint64_t)iphys;
+
+		map->attach->dma_map_attrs |= DMA_ATTR_SKIP_CPU_SYNC;
+		VERIFY(err, !IS_ERR_OR_NULL(map->table =
+			dma_buf_map_attachment(map->attach,
+				DMA_BIDIRECTIONAL)));
+		if (err)
+			goto bail;
+		VERIFY(err, map->table->nents == 1);
+		if (err)
+			goto bail;
+		map->phys = sg_dma_address(map->table->sgl);
 	} else {
 		if (map->attr && (map->attr & FASTRPC_ATTR_KEEP_MAP)) {
 			pr_info("adsprpc: buffer mapped with persist attr %x\n",
