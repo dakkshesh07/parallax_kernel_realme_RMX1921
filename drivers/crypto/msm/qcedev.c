@@ -2067,7 +2067,7 @@ static int qcedev_probe_device(struct platform_device *pdev)
 	podev->mem_client = qcedev_mem_new_client(MEM_ION);
 	if (!podev->mem_client) {
 		pr_err("%s: err: qcedev_mem_new_client failed\n", __func__);
-		goto err;
+		goto exit_qce_req_bw;
 	}
 
 	rc = of_platform_populate(pdev->dev.of_node, qcedev_match,
@@ -2075,16 +2075,17 @@ static int qcedev_probe_device(struct platform_device *pdev)
 	if (rc) {
 		pr_err("%s: err: of_platform_populate failed: %d\n",
 			__func__, rc);
-		goto err;
+		goto exit_mem_new_client;
 	}
 
 	return 0;
 
-err:
+exit_mem_new_client:
 	if (podev->mem_client)
 		qcedev_mem_delete_client(podev->mem_client);
 	podev->mem_client = NULL;
 
+exit_qce_req_bw:
 	misc_deregister(&podev->miscdevice);
 	if (msm_bus_scale_client_update_request(podev->bus_scale_handle, 1))
 		pr_err("%s Unable to set high bandwidth\n", __func__);

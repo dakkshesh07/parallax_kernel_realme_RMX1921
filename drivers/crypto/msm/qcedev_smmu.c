@@ -19,9 +19,6 @@
 #include "qcedev_smmu.h"
 #include "soc/qcom/secure_buffer.h"
 
-static bool compare_ion_buffers(struct qcedev_mem_client *mem_client,
-					struct ion_handle *hndl, int fd);
-
 static int qcedev_setup_context_bank(struct context_bank_info *cb,
 				struct device *dev)
 {
@@ -146,41 +143,24 @@ err_setup_cb:
 struct qcedev_mem_client *qcedev_mem_new_client(enum qcedev_mem_type mtype)
 {
 	struct qcedev_mem_client *mem_client = NULL;
-	struct ion_client *clnt = NULL;
 
-	switch (mtype) {
-	case MEM_ION:
-		clnt = msm_ion_client_create("qcedev_client");
-		if (!clnt)
-			pr_err("%s: err: failed to allocate ion client\n",
-				__func__);
-		break;
-
-	default:
+	if (mtype != MEM_ION) {
 		pr_err("%s: err: Mem type not supported\n", __func__);
+		goto err;
 	}
 
-	if (clnt) {
-		mem_client = kzalloc(sizeof(*mem_client), GFP_KERNEL);
-		if (!mem_client)
-			goto err;
-		mem_client->mtype = mtype;
-		mem_client->client = clnt;
-	}
+	mem_client = kzalloc(sizeof(*mem_client), GFP_KERNEL);
+	if (!mem_client)
+		goto err;
+	mem_client->mtype = mtype;
 
 	return mem_client;
-
 err:
-	if (clnt)
-		ion_client_destroy(clnt);
 	return NULL;
 }
 
 void qcedev_mem_delete_client(struct qcedev_mem_client *mem_client)
 {
-	if (mem_client && mem_client->client)
-		ion_client_destroy(mem_client->client);
-
 	kfree(mem_client);
 }
 
@@ -208,8 +188,6 @@ static int ion_map_buffer(struct qcedev_handle *qce_hndl,
 		struct qcedev_mem_client *mem_client, int fd,
 		unsigned int fd_size, struct qcedev_reg_buf_info *binfo)
 {
-	struct ion_client *clnt = mem_client->client;
-	struct ion_handle *hndl = NULL;
 	unsigned long ion_flags = 0;
 	int rc = 0;
 	struct dma_buf *buf = NULL;
@@ -221,14 +199,7 @@ static int ion_map_buffer(struct qcedev_handle *qce_hndl,
 	if (IS_ERR_OR_NULL(buf))
 		return -EINVAL;
 
-	hndl = ion_import_dma_buf(clnt, buf);
-	if (IS_ERR_OR_NULL(hndl)) {
-		pr_err("%s: err: invalid ion_handle\n", __func__);
-		rc = -ENOMEM;
-		goto import_buf_err;
-	}
-
-	rc = ion_handle_get_flags(clnt, hndl, &ion_flags);
+	rc = dma_buf_get_flags(buf, &ion_flags);
 	if (rc) {
 		pr_err("%s: err: failed to get ion flags: %d\n", __func__, rc);
 		goto map_err;
@@ -252,6 +223,7 @@ static int ion_map_buffer(struct qcedev_handle *qce_hndl,
 		}
 
 		/* Get the scatterlist for the given attachment */
+		attach->dma_map_attrs |= DMA_ATTR_DELAYED_UNMAP;
 		table = dma_buf_map_attachment(attach, DMA_BIDIRECTIONAL);
 		if (IS_ERR_OR_NULL(table)) {
 			rc = PTR_ERR(table) ?: -ENOMEM;
@@ -259,19 +231,8 @@ static int ion_map_buffer(struct qcedev_handle *qce_hndl,
 			goto map_table_err;
 		}
 
-		/* Map a scatterlist into an SMMU */
-		rc = msm_dma_map_sg_lazy(cb->dev, table->sgl, table->nents,
-				DMA_BIDIRECTIONAL, buf);
-		if (rc != table->nents) {
-			pr_err(
-				"%s: err: mapping failed with rc(%d), expected rc(%d)\n",
-				__func__, rc, table->nents);
-			rc = -ENOMEM;
-			goto map_sg_err;
-		}
-
 		if (table->sgl) {
-			binfo->ion_buf.iova = table->sgl->dma_address;
+			binfo->ion_buf.iova = sg_dma_address(table->sgl);
 			binfo->ion_buf.mapped_buf_size = sg_dma_len(table->sgl);
 			if (binfo->ion_buf.mapped_buf_size < fd_size) {
 				pr_err("%s: err: mapping failed, size mismatch",
@@ -292,7 +253,7 @@ static int ion_map_buffer(struct qcedev_handle *qce_hndl,
 		binfo->ion_buf.mapping_info.table = table;
 		binfo->ion_buf.mapping_info.attach = attach;
 		binfo->ion_buf.mapping_info.buf = buf;
-		binfo->ion_buf.hndl = hndl;
+		binfo->ion_buf.ion_fd = fd;
 	} else {
 		pr_err("%s: err: smmu not enabled\n", __func__);
 		rc = -EIO;
@@ -306,9 +267,6 @@ map_sg_err:
 map_table_err:
 	dma_buf_detach(buf, attach);
 map_err:
-	if (hndl)
-		ion_free(clnt, hndl);
-import_buf_err:
 	dma_buf_put(buf);
 	return rc;
 }
@@ -317,20 +275,12 @@ static int ion_unmap_buffer(struct qcedev_handle *qce_hndl,
 		struct qcedev_reg_buf_info *binfo)
 {
 	struct dma_mapping_info *mapping_info = &binfo->ion_buf.mapping_info;
-	struct qcedev_mem_client *mem_client = qce_hndl->cntl->mem_client;
 
 	if (is_iommu_present(qce_hndl)) {
-		msm_dma_unmap_sg(mapping_info->dev, mapping_info->table->sgl,
-			 mapping_info->table->nents, DMA_BIDIRECTIONAL,
-			 mapping_info->buf);
 		dma_buf_unmap_attachment(mapping_info->attach,
 			mapping_info->table, DMA_BIDIRECTIONAL);
 		dma_buf_detach(mapping_info->buf, mapping_info->attach);
 		dma_buf_put(mapping_info->buf);
-
-		if (binfo->ion_buf.hndl)
-			ion_free(mem_client->client, binfo->ion_buf.hndl);
-
 	}
 	return 0;
 }
@@ -339,7 +289,7 @@ static int qcedev_map_buffer(struct qcedev_handle *qce_hndl,
 		struct qcedev_mem_client *mem_client, int fd,
 		unsigned int fd_size, struct qcedev_reg_buf_info *binfo)
 {
-	int rc = 0;
+	int rc = -1;
 
 	switch (mem_client->mtype) {
 	case MEM_ION:
@@ -360,7 +310,7 @@ static int qcedev_unmap_buffer(struct qcedev_handle *qce_hndl,
 		struct qcedev_mem_client *mem_client,
 		struct qcedev_reg_buf_info *binfo)
 {
-	int rc = 0;
+	int rc = -1;
 
 	switch (mem_client->mtype) {
 	case MEM_ION:
@@ -375,32 +325,6 @@ static int qcedev_unmap_buffer(struct qcedev_handle *qce_hndl,
 		pr_err("%s: err: failed to unmap buffer\n", __func__);
 
 	return rc;
-}
-
-static bool compare_ion_buffers(struct qcedev_mem_client *mem_client,
-		struct ion_handle *hndl, int fd)
-{
-	bool match = false;
-	struct ion_handle *fd_hndl = NULL;
-	struct dma_buf *dma_buf;
-
-	dma_buf = dma_buf_get(fd);
-	if (IS_ERR_OR_NULL(dma_buf))
-		return false;
-
-	fd_hndl = ion_import_dma_buf(mem_client->client, dma_buf);
-	if (IS_ERR_OR_NULL(fd_hndl)) {
-		match = false;
-		goto err_exit;
-	}
-
-	match = fd_hndl == hndl ? true : false;
-
-	if (fd_hndl)
-		ion_free(mem_client->client, fd_hndl);
-err_exit:
-	dma_buf_put(dma_buf);
-	return match;
 }
 
 int qcedev_check_and_map_buffer(void *handle,
@@ -431,8 +355,8 @@ int qcedev_check_and_map_buffer(void *handle,
 	/* Check if the buffer fd is already mapped */
 	mutex_lock(&qce_hndl->registeredbufs.lock);
 	list_for_each_entry(temp, &qce_hndl->registeredbufs.list, list) {
-		found = compare_ion_buffers(mem_client, temp->ion_buf.hndl, fd);
-		if (found) {
+		if (temp->ion_buf.ion_fd == fd) {
+			found = true;
 			*vaddr = temp->ion_buf.iova;
 			mapped_size = temp->ion_buf.mapped_buf_size;
 			atomic_inc(&temp->ref_count);
@@ -519,9 +443,8 @@ int qcedev_check_and_unmap_buffer(void *handle, int fd)
 	list_for_each_entry_safe(binfo, dummy,
 		&qce_hndl->registeredbufs.list, list) {
 
-		found = compare_ion_buffers(mem_client,
-				binfo->ion_buf.hndl, fd);
-		if (found) {
+		if (binfo->ion_buf.ion_fd == fd) {
+			found = true;
 			atomic_dec(&binfo->ref_count);
 
 			/* Unmap only if there are no more references */

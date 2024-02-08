@@ -55,10 +55,10 @@ struct dma_mapping_info {
 };
 
 struct qcedev_ion_buf_info {
-	struct ion_handle *hndl;
 	struct dma_mapping_info mapping_info;
-	ion_phys_addr_t iova;
+	dma_addr_t iova;
 	unsigned long mapped_buf_size;
+	int ion_fd;
 };
 
 struct qcedev_reg_buf_info {
