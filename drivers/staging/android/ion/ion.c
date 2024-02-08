@@ -37,7 +37,7 @@
 #include <linux/debugfs.h>
 #include <linux/dma-buf.h>
 #include <linux/idr.h>
-#include <linux/sched/task.h>
+#include <linux/sched.h>
 #include <linux/bitops.h>
 #include <linux/msm_dma_iommu_mapping.h>
 #define CREATE_TRACE_POINTS
