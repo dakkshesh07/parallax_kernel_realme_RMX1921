@@ -58,8 +58,6 @@ module_param(wake_boost_duration, short, 0644);
 unsigned long last_input_time;
 #endif
 
-unsigned long last_mb_time;
-
 /* Kprofiles */
 extern int kp_active_mode(void);
 

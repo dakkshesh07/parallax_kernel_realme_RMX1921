@@ -1,4 +1,5 @@
-/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -300,6 +301,26 @@ int create_pkt_cmd_sys_debug_config(
 	if (msm_vidc_fw_debug_mode
 			<= (HFI_DEBUG_MODE_QUEUE | HFI_DEBUG_MODE_QDSS))
 		hfi->debug_mode = msm_vidc_fw_debug_mode;
+	return 0;
+}
+
+static int create_pkt_cmd_sys_feature_config_packet(
+			struct hfi_cmd_sys_set_property_packet *pkt,
+			u32 config)
+{
+	struct hfi_feature_config *hfi;
+
+	if (!pkt)
+		return -EINVAL;
+
+	pkt->size = sizeof(struct hfi_cmd_sys_set_property_packet) +
+		sizeof(struct hfi_feature_config) + sizeof(u32);
+	pkt->packet_type = HFI_CMD_SYS_SET_PROPERTY;
+	pkt->num_properties = 1;
+	pkt->rg_property_data[0] = HFI_PROPERTY_SYS_FEATURE_CONFIG;
+
+	hfi = (struct hfi_feature_config *) &pkt->rg_property_data[1];
+	hfi->feature_config = config;
 	return 0;
 }
 
