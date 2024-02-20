@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
+ *
  * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <linux/init.h>
@@ -371,6 +380,7 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 							dsp_flags);
 				return;
 			}
+
 			/* Remove the DSP frame info header. Header format:
 			 * Bits 0-3: Frame rate
 			 * Bits 4-7: Frame type
@@ -398,6 +408,7 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 							dsp_flags);
 				return;
 			}
+
 			/* Remove the DSP frame info header.
 			 * Header format:
 			 * Bits 0-3: frame rate
@@ -442,6 +453,7 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 							dsp_flags);
 				return;
 			}
+
 			/* There are two frames in the buffer. Length of the
 			 * first frame:
 			 */
