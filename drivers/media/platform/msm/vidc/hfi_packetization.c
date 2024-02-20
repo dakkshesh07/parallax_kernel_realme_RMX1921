@@ -303,7 +303,6 @@ int create_pkt_cmd_sys_debug_config(
 		hfi->debug_mode = msm_vidc_fw_debug_mode;
 	return 0;
 }
-
 static int create_pkt_cmd_sys_feature_config_packet(
 			struct hfi_cmd_sys_set_property_packet *pkt,
 			u32 config)
@@ -2106,6 +2105,7 @@ static struct hfi_packetization_ops hfi_default = {
 	.sys_release_resource = create_pkt_cmd_sys_release_resource,
 	.sys_ping = create_pkt_cmd_sys_ping,
 	.sys_image_version = create_pkt_cmd_sys_image_version,
+	.sys_feature_config = create_pkt_cmd_sys_feature_config_packet,
 	.ssr_cmd = create_pkt_ssr_cmd,
 	.session_init = create_pkt_cmd_sys_session_init,
 	.session_cmd = create_pkt_cmd_session_cmd,

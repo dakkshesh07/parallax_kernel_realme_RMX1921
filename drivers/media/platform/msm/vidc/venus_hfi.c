@@ -2094,6 +2094,7 @@ static int venus_hfi_session_init(void *device, void *session_id,
 		void **new_session)
 {
 	struct hfi_cmd_sys_session_init_packet pkt;
+	struct hfi_cmd_sys_set_property_packet feature_pkt;
 	struct venus_hfi_device *dev;
 	struct hal_session *s;
 

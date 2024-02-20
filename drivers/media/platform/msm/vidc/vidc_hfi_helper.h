@@ -200,6 +200,8 @@ struct hfi_buffer_info {
 	(HFI_PROPERTY_SYS_COMMON_START + 0x006)
 #define  HFI_PROPERTY_SYS_CONFIG_COVERAGE    \
 	(HFI_PROPERTY_SYS_COMMON_START + 0x007)
+#define HFI_PROPERTY_SYS_FEATURE_CONFIG		\
+	(HFI_PROPERTY_SYS_COMMON_START + 0x009)
 
 #define HFI_PROPERTY_PARAM_COMMON_START	\
 	(HFI_DOMAIN_BASE_COMMON + HFI_ARCH_COMMON_OFFSET + 0x1000)
@@ -460,7 +462,6 @@ struct hfi_debug_config {
 	u32 debug_config;
 	u32 debug_mode;
 };
-
 struct hfi_feature_config {
 	u32 feature_config;
 };
