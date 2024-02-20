@@ -99,7 +99,7 @@ static u32 choose_best_format(struct dp_display *dp,
 }
 
 static void convert_to_dp_mode(const struct drm_display_mode *drm_mode,
-			struct dp_display_mode *dp_mode, struct dp_display *dp)
+		struct dp_display_mode *dp_mode, struct dp_display *dp)
 {
 	memset(dp_mode, 0, sizeof(*dp_mode));
 

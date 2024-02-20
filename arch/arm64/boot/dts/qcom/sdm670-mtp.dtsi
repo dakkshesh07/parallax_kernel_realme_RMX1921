@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2017-2019, 2021, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -564,6 +564,7 @@
 		status = "disabled";
 	};
 };
+
 &qupv3_se10_i2c {
 	status = "okay";
 	pinctrl-names = "default", "sleep", "pulldown", "pullup";
@@ -707,3 +708,38 @@
 	};
 };
 //#endif
+
+&mdss_dsi0 {
+	status = "disabled";
+};
+
+&mdss_dsi1 {
+	status = "disabled";
+};
+
+&mdss_dsi_phy0 {
+	status = "disabled";
+};
+
+&mdss_dsi_phy1 {
+	status = "disabled";
+};
+
+&dsi_dual_nt35597_truly_video_display {
+	/delete-property/ qcom,dsi-display-active;
+};
+
+&sde_dp {
+	qcom,display-type = "primary";
+	qcom,yuv-support;
+	qcom,max-pclk-frequency-khz = <675000>;
+};
+
+&sde_wb {
+	status = "disabled";
+};
+
+&mdss_mdp {
+	qcom,sde-drm-fb-splash-logo-enabled;
+	connectors = <&sde_rscc &sde_dp>;
+};
