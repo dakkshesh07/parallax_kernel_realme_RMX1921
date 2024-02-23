@@ -42,7 +42,7 @@
 /*******Part0:LOG TAG Declear************************/
 #define TPD_PRINT_POINT_NUM 150
 #define TPD_DEVICE "touchpanel"
-#define TPD_INFO(a, arg...)  pr_info("[TP]"TPD_DEVICE ": " a, ##arg)
+#define TPD_INFO(a, arg...)  pr_debug("[TP]"TPD_DEVICE ": " a, ##arg)
 
 #define TPD_DEBUG(a, arg...) do {} while(0)
 #define TPD_DETAIL(a, arg...) do {} while(0)
