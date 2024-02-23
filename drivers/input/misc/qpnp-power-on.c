@@ -195,11 +195,6 @@ struct qpnp_pon {
 	struct delayed_work	bark_work;
 	struct dentry		*debugfs;
 	struct device_node      *pbs_dev_node;
-#ifdef VENDOR_EDIT 
-	struct task_struct 	*wd_task;
-	struct mutex		wd_task_mutex;
-	unsigned int		pmicwd_state;//|reserver|rst type|timeout|enable|
-#endif
 	int			pon_trigger_reason;
 	int			pon_power_off_reason;
 	int			num_pon_reg;

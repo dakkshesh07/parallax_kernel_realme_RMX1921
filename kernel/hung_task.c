@@ -85,20 +85,7 @@ static struct notifier_block panic_block = {
 static void check_hung_task(struct task_struct *t, unsigned long timeout)
 {
 	unsigned long switch_count = t->nvcsw + t->nivcsw;
-
-#ifdef VENDOR_EDIT
-	#define DISP_TASK_COMM_LEN_MASK 10 //SDM845 change the new display thread with multi output, use len for masking
-	if(!strncmp(t->comm,"mdss_dsi_event", TASK_COMM_LEN)||
-		!strncmp(t->comm,"msm-core:sampli", TASK_COMM_LEN)||
-		!strncmp(t->comm,"kworker/u16:1", TASK_COMM_LEN) ||
-		!strncmp(t->comm,"mdss_fb0", TASK_COMM_LEN)||
-		!strncmp(t->comm,"mdss_fb_ffl0", TASK_COMM_LEN)||
-		!strncmp(t->comm,"panic_flush", TASK_COMM_LEN)||
-		!strncmp(t->comm,"crtc_commit", DISP_TASK_COMM_LEN_MASK)||
-		!strncmp(t->comm,"crtc_event", DISP_TASK_COMM_LEN_MASK)){
-		return;
-	}
-	#endif
+	
 	/*
 	 * Ensure the task is not frozen.
 	 * Also, skip vfork and any other user process that freezer should skip.

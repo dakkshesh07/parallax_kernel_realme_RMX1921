@@ -33,20 +33,10 @@
 #include <linux/wakeup_reason.h>
 
 #include "power.h"
-#ifdef VENDOR_EDIT
-//Fei.Mo@BSP.Sensor 2018/06/25 modify for notify sensor suspend forward
+
 #include <linux/gpio.h>
 extern int slst_gpio_base_id;
 #define PROC_AWAKE_ID 12 /* 12th bit */
-#endif /* VENDOR_EDIT */
-#ifdef VENDOR_EDIT
-//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
-#include <soc/oppo/oppo_project.h>
-__attribute__((weak)) int check_touchirq_triggered(void)
-{
-	return 0;
-}
-#endif /* VENDOR_EDIT */
 
 const char *pm_states[PM_SUSPEND_MAX] = {
 	[PM_SUSPEND_FREEZE] = "freeze",
@@ -410,14 +400,6 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	arch_suspend_disable_irqs();
 	BUG_ON(!irqs_disabled());
 
-#ifdef VENDOR_EDIT
-	//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
-	if (check_touchirq_triggered()) {
-		error = -EBUSY;
-		goto Enable_irqs;
-	}
-#endif /* VENDOR_EDIT */
-
 	error = syscore_suspend();
 	if (!error) {
 		*wakeup = pm_wakeup_pending();
@@ -437,10 +419,6 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		syscore_resume();
 	}
 
-#ifdef VENDOR_EDIT
-	//Cong.Dai@psw.bsp.tp 2018/08/30 modified for stop system enter sleep before low irq handled
-Enable_irqs:
-#endif /* VENDOR_EDIT */
 	arch_suspend_enable_irqs();
 	BUG_ON(irqs_disabled());
 
@@ -611,16 +589,12 @@ int pm_suspend(suspend_state_t state)
 		return -EINVAL;
 
 	pm_suspend_marker("entry");
-#ifdef VENDOR_EDIT
-	//Fei.Mo@BSP.Sensor 2018/06/25 modify for notify sensor suspend forward
 	gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 0);
 	pr_err("notify adsp suspend in the beging of pm suspend before file system.\n");
-#endif /* VENDOR_EDIT */
+
 	error = enter_state(state);
-#ifdef VENDOR_EDIT
 	gpio_set_value(slst_gpio_base_id + PROC_AWAKE_ID, 1);
 	pr_err("notify adsp resume in the end.\n");
-#endif /* VENDOR_EDIT */
 	if (error) {
 		suspend_stats.fail++;
 		dpm_save_failed_errno(error);

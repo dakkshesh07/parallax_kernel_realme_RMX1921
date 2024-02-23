@@ -1557,37 +1557,6 @@ int tp_control_cs_gpio(bool enable)
 
 EXPORT_SYMBOL(tp_control_cs_gpio);
 
-
-/*
- * check_touchirq_triggered--used for stop system going sleep when touch irq is triggered
- * 1 if irq triggered, otherwise is 0
-*/
-int check_touchirq_triggered(void)
-{
-    int value = -1;
-
-    if (!g_tp) {
-        return 0;
-    }
-    if ((1 != (g_tp->gesture_enable & 0x01)) && (0 == g_tp->fp_enable)) {
-        return 0;
-    }
-
-    value = gpio_get_value(g_tp->hw_res.irq_gpio);
-    if ((0 == value) && (g_tp->irq_flags & IRQF_TRIGGER_LOW)) {
-        TPD_INFO("touch irq is triggered.\n");
-        return 1; //means irq is triggered
-    }
-    if ((1 == value) && (g_tp->irq_flags & IRQF_TRIGGER_HIGH)) {
-        TPD_INFO("touch irq is triggered.\n");
-        return 1; //means irq is triggered
-    }
-
-    return 0;
-}
-EXPORT_SYMBOL(check_touchirq_triggered);
-
-
 /*
  *  * check_headset_state----expose to be called by audio int to get headset state
  *   * @headset_state : 1 if headset checked, otherwise is 0

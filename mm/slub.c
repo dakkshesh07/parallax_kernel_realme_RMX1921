@@ -3303,10 +3303,7 @@ static inline int calculate_order(int size, int reserved)
 	 * First we increase the acceptable waste in a slab. Then
 	 * we reduce the minimum objects required in a slab.
 	 */
-	 
-#ifdef VENDOR_EDIT
-	slub_min_objects = 10;
-#endif /*VENDOR_EDIT*/
+
 	min_objects = slub_min_objects;
 	if (!min_objects)
 		min_objects = 4 * (fls(nr_cpu_ids) + 1);
