@@ -219,7 +219,7 @@ source "drivers/input/sensors/smi130/Kconfig"
 source "drivers/input/rmi4/Kconfig"
 
 #ifdef OPLUS_FEATURE_FINGERPRINT
-source "drivers/input/oplus_fp_drivers/Kconfig"
+source "drivers/input/oplus_fp/Kconfig"
 #endif
 
 endif
