@@ -19,11 +19,11 @@
 #include <linux/irq.h>
 #include <linux/irqdesc.h>
 
-#ifdef CONFIG_DEBUG_FS
-#include <linux/debugfs.h>
-#else /* !CONFIG_DEBUG_FS */
+#ifdef CONFIG_PROC_FS
 #include <linux/proc_fs.h>
-#endif /* !CONFIG_DEBUG_FS */
+#else /* !CONFIG_PROC_FS */
+#include <linux/debugfs.h>
+#endif /* CONFIG_PROC_FS */
 
 #include "power.h"
 
@@ -1119,20 +1119,17 @@ static const struct file_operations wakeup_sources_stats_fops = {
 	.release = single_release,
 };
 
-#ifdef CONFIG_DEBUG_FS
-static int __init wakeup_sources_debugfs_init(void)
-{
-	debugfs_create_file("wakeup_sources", S_IRUGO, NULL, NULL, &wakeup_sources_stats_fops);
-	return 0;
-}
 
-postcore_initcall(wakeup_sources_debugfs_init);
-#else /* !CONFIG_DEBUG_FS */
-static int __init wakeup_sources_proc_init(void)
+static int __init wakeup_sources_stats_init(void)
 {
+
+#ifdef CONFIG_PROC_FS
 	proc_create("wakelocks", S_IRUGO, NULL, &wakeup_sources_stats_fops);
+#else /* !CONFIG_PROC_FS */
+	debugfs_create_file("wakeup_sources", S_IRUGO, NULL, NULL, &wakeup_sources_stats_fops);
+#endif /* CONFIG_PROC_FS */
+
 	return 0;
 }
 
-postcore_initcall(wakeup_sources_proc_init);
-#endif /* !CONFIG_DEBUG_FS */
+postcore_initcall(wakeup_sources_stats_init);
